@@ -3,9 +3,9 @@ import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 
 import { forcedBreak } from 'src/layout';
-import { layoutItemsFromString, layoutText } from 'src/helpers';
+import { layoutItemsFromString, layoutText } from 'src/helpers/helpers';
 
-import { box, glue, lineStrings, penalty } from './util';
+import { box, glue, lineStrings, penalty } from 'src/helpers/util';
 
 const hyphenator = new Hypher(enUsPatterns);
 

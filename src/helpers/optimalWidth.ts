@@ -1,12 +1,11 @@
-import { AllOptions } from 'src/types';
-import { breakLines } from './lib/tex-linebreak';
-import { ParagraphWithWidth, splitParagraphsIntoItems } from 'src/wrapLines/index';
+import { breakLines } from 'src/layout';
+import { splitIntoItems } from 'src/helpers/monospace';
 
 /**
  * Wrap lines at an optimal width instead of the full width.
  */
 export function balancedLineWrap(paragraphs: ParagraphWithWidth[], options: AllOptions): string[] {
-  const paragraphsSplitIntoItems = splitParagraphsIntoItems(paragraphs, options);
+  const paragraphsSplitIntoItems = splitIntoItems(paragraphs, options);
   const allItems = paragraphsSplitIntoItems.flat();
 
   /**

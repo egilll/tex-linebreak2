@@ -1,5 +1,5 @@
 import { Box, Glue, Penalty } from 'src/layout';
-import { TextInputItem } from 'src/helpers';
+import { TextInputItem } from 'src/helpers/helpers';
 
 export function box(w: number): Box {
   return { type: 'box', width: w };

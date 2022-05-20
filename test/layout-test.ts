@@ -11,9 +11,9 @@ import {
   Penalty,
 } from 'src/layout';
 
-import { layoutItemsFromString, TextBox, TextGlue, TextInputItem } from 'src/helpers';
+import { layoutItemsFromString, TextBox, TextGlue, TextInputItem } from 'src/helpers/helpers';
 
-import { box, chunk, glue, lineStrings, penalty } from './util';
+import { box, chunk, glue, lineStrings, penalty } from 'src/helpers/util';
 
 import fixture from './fixtures/layout';
 

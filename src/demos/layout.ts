@@ -6,7 +6,7 @@
 import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 
-import { layoutText, TextBox } from '../helpers';
+import { layoutText, TextBox } from 'src/helpers/helpers';
 import { justifyContent } from '../html';
 
 const hyphenator = new Hypher(enUsPatterns);

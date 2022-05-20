@@ -1,15 +1,31 @@
 # tex-linebreak
 
-![npm version](https://img.shields.io/npm/v/tex-linebreak.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![npm version](https://img.shields.io/npm/v/tex-linebreak.svg)
 
 _tex-linebreak_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
-Knuth-Plass line-breaking algorithm, as used by TeX.
+Knuth-Plass line-breaking algorithm,[^1] as used by TeX.
+
+It contains various functions to layout ...
+
+## WIP
+
+Monospace
+
+
+
+
+
+
+
+
+
+
 
 ## Introduction
 
 Most text on the web is presented with "ragged-right" margins, as opposed to
-the justified text you would find in eg. a scientific paper or newspaper.
+the justified text you would find in e.g. a scientific paper or newspaper.
 Text can be justified in web pages using `text-align: justify`.
 However this option alone tends to result in large&nbsp;&nbsp;&nbsp;spaces
 &nbsp;&nbsp;&nbsp;between words which is distracting to read. This is due to the
@@ -62,7 +78,7 @@ src/demos/bookmarklet.js) and activate it on an existing web page, such as this
 
 It will justify and apply hyphenation to the content of any paragraph (`<p>`)
 elements on the page. The difference is more beneficial on smaller screens,
-so try in your browser's responsive design mode.
+so try it in your browser's responsive design mode.
 
 Note that the bookmarklet does not work on sites that use
 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
@@ -205,4 +221,4 @@ The library currently has a number of caveats:
 
 ## References
 
-[1] D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf),” Softw. Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
+[^1] D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), ''Software: Practice and Experience'', vol. 11, no. 11, pp. 1119–1184, Nov. 1981.

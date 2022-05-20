@@ -8,7 +8,7 @@ import {
   PositionedItem,
   MAX_COST,
   forcedBreak,
-} from './layout';
+} from 'src/layout';
 
 export interface TextBox extends Box {
   text: string;
@@ -82,6 +82,8 @@ export function layoutItemsFromString(
 
 /**
  * Helper for laying out a paragraph of text.
+ * Can be used for rendering justified text into a
+ * variety of targets (HTML, canvas, SVG, WebGL etc.)
  *
  * @param text - The text to lay out
  * @param lineWidth - Width for each line
