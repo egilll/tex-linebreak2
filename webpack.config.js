@@ -1,8 +1,6 @@
 const path = require('path');
 
-const hyphenLangs = [
-  'en-us',
-];
+const hyphenLangs = ['en-us'];
 let hyphenLibs = {};
 for (let lang of hyphenLangs) {
   hyphenLibs[`hyphens_${lang}`] = `hyphenation.${lang}`;
@@ -10,17 +8,19 @@ for (let lang of hyphenLangs) {
 
 module.exports = {
   entry: {
-    demos: './src/demos/layout.ts',
+    demos: 'src/demos/layout.ts',
     lib: './src',
     ...hyphenLibs,
   },
   devtool: 'cheap-source-map',
   module: {
-    rules: [{
-      test: /\.ts$/,
-      use: 'ts-loader',
-      exclude: /node_modules/,
-    }],
+    rules: [
+      {
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+    ],
   },
   resolve: {
     extensions: ['.ts'],
