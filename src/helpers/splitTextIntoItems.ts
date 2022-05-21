@@ -1,5 +1,4 @@
-import { MAX_COST, MIN_COST } from 'src/layout';
-import { TextInputItem } from 'src/helpers/util';
+import { TextInputItem, paragraphEnd, box, glue } from 'src/helpers/util';
 import { HelperOptions } from 'src/helpers/options';
 
 /**
@@ -31,43 +30,20 @@ export function splitTextIntoItems(
       (options.keepNewlines || options.keepNewlinesAfter?.test(chunks[index - 1]))
     ) {
       /** Keep newline after punctuation */
-      items.push({
-        type: 'glue',
-        width: 0,
-        text: '',
-        shrink: 0,
-        stretch: MAX_COST,
-      });
-      items.push({ type: 'penalty', cost: MIN_COST, width: 0, flagged: false });
+      items.push(...paragraphEnd());
     } else if (
       (chunk === ' ' || chunk === '\n') &&
       !options.dontBreakOnSpacesMatching?.(chunks[index - 1], chunks[index + 1])
     ) {
       /** Space */
-      items.push({
-        type: 'glue',
-        width: 1,
-        text: ' ',
-        shrink: 1,
-        stretch: 1, //TODO: Verify
-      });
+      //TODO: Verify stretch values!
+      items.push(glue(1, 1, 1, ' '));
     } else {
       /** Word */
-      items.push({
-        type: 'box',
-        width: chunk.length,
-        text: chunk,
-      });
+      items.push(box(chunk.length, chunk));
     }
   });
-  items.push({
-    type: 'glue',
-    width: 0,
-    shrink: 0,
-    stretch: MAX_COST,
-    text: '',
-  });
-  items.push({ type: 'penalty', cost: MIN_COST, width: 0, flagged: false });
+  items.push(...paragraphEnd());
   return items;
 }
 

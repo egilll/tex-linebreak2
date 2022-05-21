@@ -1,24 +1,8 @@
 import { Box, Glue, Penalty, MIN_COST, InputItem, MAX_COST } from 'src/layout';
 
-export function box(w: number): Box {
-  return { type: 'box', width: w };
-}
-
-export function glue(w: number, shrink: number, stretch: number): Glue {
-  return { type: 'glue', width: w, shrink, stretch };
-}
-
-export function penalty(w: number, cost: number, flagged: boolean = false): Penalty {
-  return { type: 'penalty', width: w, cost, flagged };
-}
-
 /**
- * Return a `Penalty` item which forces a line-break.
+ * Useful when working with raw strings instead of DOM nodes.
  */
-export function forcedBreak(): Penalty {
-  return { type: 'penalty', cost: MIN_COST, width: 0, flagged: false };
-}
-
 export interface TextBox extends Box {
   text: string;
 }
@@ -28,6 +12,45 @@ export interface TextGlue extends Glue {
 }
 
 export type TextInputItem = TextBox | TextGlue | Penalty;
+
+export function box(width: number): Box;
+export function box(width: number, text: string): TextBox;
+export function box(width: number, text?: string): Box | TextBox {
+  return { type: 'box', width, text };
+}
+
+export function glue(width: number, shrink: number, stretch: number): Glue;
+export function glue(width: number, shrink: number, stretch: number, text: string): TextGlue;
+export function glue(
+  width: number,
+  shrink: number,
+  stretch: number,
+  text?: string,
+): Glue | TextGlue {
+  return { type: 'glue', width, shrink, stretch, text };
+}
+
+export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
+  return { type: 'penalty', width, cost, flagged };
+}
+
+export function forcedBreak(): Penalty {
+  return { type: 'penalty', cost: MIN_COST, width: 0, flagged: false };
+}
+
+export function paragraphEnd(): [TextGlue, Penalty] {
+  return [
+    /** Glue that can fill the entire line. */
+    {
+      type: 'glue',
+      width: 0,
+      shrink: 0,
+      stretch: MAX_COST,
+      text: '',
+    },
+    forcedBreak(),
+  ];
+}
 
 /**
  * Retrieves the text from an input item.

@@ -4,9 +4,17 @@
 
 _tex-linebreak_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
-Knuth-Plass line-breaking algorithm,[^1] as used by TeX.
+Knuth-Plass line-breaking algorithm,[^1] as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
 It contains various functions to layout ...
+
+**See the examples**
+
+## Table of contents
+
+* Introduction
+
+* 
 
 ## WIP
 
@@ -217,4 +225,4 @@ The library currently has a number of caveats:
 
 ## References
 
-[^1] D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), ''Software: Practice and Experience'', vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
+[^1]: D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), ''Software: Practice and Experience'', vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
