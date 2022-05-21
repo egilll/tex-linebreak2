@@ -1,4 +1,4 @@
-import { MIN_COST } from 'src/layout';
+import { MIN_COST } from 'src/breakLines';
 
 /**
  * This utility function does not use TeX's line breaking algorithm,

@@ -1,4 +1,4 @@
-import { Box, Glue, Penalty, MIN_COST, InputItem, MAX_COST } from 'src/layout';
+import { Box, Glue, Penalty, MIN_COST, InputItem, MAX_COST } from 'src/breakLines';
 
 /**
  * Useful when working with raw strings instead of DOM nodes.

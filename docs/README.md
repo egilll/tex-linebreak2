@@ -4,9 +4,15 @@
 
 _tex-linebreak_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
-Knuth-Plass line-breaking algorithm,[^1] as used by [TeX](https://en.wikipedia.org/wiki/TeX).
+Knuth-Plass line-breaking algorithm,<sup>[\[1\]](#references)</sup> as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
 It contains various functions to layout ...
+
+
+
+[Unicode Line Breaking Algorithm](http://unicode.org/reports/tr14/)
+
+
 
 **See the examples**
 
@@ -20,11 +26,7 @@ It contains various functions to layout ...
 
 Monospace
 
-
-
-
-
-
+`Nulla ultricies, dolor in sagittis rutrum, nibh purus bibendum dui, nec aliquet ligula mi eget lectus. Nulla eget metus scelerisque, venenatis sapien ut, congue eros. Morbi convallis venenatis mauris, laoreet faucibus magna malesuada sed. Nulla consequat dignissim arcu non vestibulum. In commodo tristique scelerisque.`
 
 ## Introduction
 
@@ -56,9 +58,9 @@ hyphenation and this library:
     <td>_tex-linebreak_</td>
   </tr>
   <tr>
-    <td><img width="200" src="images/bigint-safari-justify.png"></td>
-    <td><img width="200" src="images/bigint-chrome-justify-hyphens.png"></td>
-    <td><img width="200" src="images/bigint-tex-linebreak.png"></td>
+    <td><img width="200" src="../images/bigint-safari-justify.png"></td>
+    <td><img width="200" src="../images/bigint-chrome-justify-hyphens.png"></td>
+    <td><img width="200" src="../images/bigint-tex-linebreak.png"></td>
   </tr>
   <tr>
     <td>CSS justification produces large spaces on the second and penultimate
@@ -77,7 +79,7 @@ Node) or render target (`<canvas>`, HTML elements, PDF).
 ## Try it out
 
 The easiest way to see what the library can do is to [install the bookmarklet](
-src/demos/bookmarklet.js) and activate it on an existing web page, such as this
+bookmarklet.js) and activate it on an existing web page, such as this
 [Medium article](https://medium.com/@parismarx/ubers-unrealistic-plan-for-flying-cars-6c9569d6fa8b).
 
 It will justify and apply hyphenation to the content of any paragraph (`<p>`)
@@ -195,7 +197,7 @@ annotations.
 ## Examples
 
 For working code showing different ways to use this library, see [the
-demos](src/demos/). You can build and run the demos using:
+demos](demo/). You can build and run the demos using:
 
 ```
 npm i -g http-server
@@ -225,4 +227,4 @@ The library currently has a number of caveats:
 
 ## References
 
-[^1]: D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), ''Software: Practice and Experience'', vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
+* D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), *Software: Practice and Experience*, vol. 11, no. 11, pp. 1119–1184, Nov. 1981.

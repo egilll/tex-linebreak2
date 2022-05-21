@@ -1,5 +1,8 @@
 import { TextInputItem, paragraphEnd, box, glue } from 'src/helpers/util';
 import { HelperOptions } from 'src/helpers/options';
+import UnicodeLineBreakingAlgorithm from 'linebreak';
+
+UnicodeLineBreakingAlgorithm;
 
 /**
  * A convenience function that generates a set of input items for `breakLines`
@@ -49,7 +52,7 @@ export function splitTextIntoItems(
 
 /**
  * @deprecated
- *   This function is deprecated due to name being confusing,
+ *   This function is deprecated due to the name being confusing,
  *   but it is kept for backwards compatibility.
  *   Please use {@link splitTextIntoItems} instead.
  *

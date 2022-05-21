@@ -6,7 +6,7 @@
 import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 
-import { justifyContent } from '../html';
+import { justifyContent } from 'src/html';
 import { TextBox } from 'src/helpers/util';
 import { layoutText } from 'src/helpers/positionItems';
 

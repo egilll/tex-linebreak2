@@ -1,4 +1,4 @@
-import { breakLines } from 'src/layout';
+import { breakLines } from 'src/breakLines';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
 import { removeGlueFromEndOfParagraphs } from 'src/helpers/util';
 

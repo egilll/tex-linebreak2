@@ -7,7 +7,7 @@ import {
   InputItem,
   MaxAdjustmentExceededError,
   Penalty,
-} from 'src/layout';
+} from 'src/breakLines';
 
 import {
   box,

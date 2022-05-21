@@ -5,10 +5,10 @@ import {
   Box,
   Glue,
   Penalty,
-} from './layout';
+} from 'src/breakLines';
 import { textNodesInRange } from './util/range';
 import DOMTextMeasurer from './util/dom-text-measurer';
-import { forcedBreak } from "src/helpers/util";
+import { forcedBreak } from 'src/helpers/util';
 
 const NODE_TAG = 'insertedByTexLinebreak';
 

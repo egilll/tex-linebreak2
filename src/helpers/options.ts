@@ -1,5 +1,6 @@
 export type HelperOptions = {
-  lineBreakingType: 'findOptimalWidth' | 'fullWidth' | 'greedy';
+  lineBreakingType?: 'findOptimalWidth' | 'fullWidth' | 'greedy';
+  alignment?: 'justify' | 'left' | 'right' | 'center';
   lineWidth: number;
   /** Only applicable to lineBreakingType 'findOptimalWidth' */
   minWidth?: number;
@@ -23,6 +24,7 @@ export const helperOptionsDefaults: Partial<HelperOptions> = {
   lineBreakingType: 'fullWidth',
   keepNewlines: false,
   keepNewlinesAfter: /[.:?!\\]$/,
+  alignment: 'justify',
   // /** If no callback is provided, default to a monospace */
   // measureFn: (word: string) => word.length,
 };
