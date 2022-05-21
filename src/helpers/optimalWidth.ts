@@ -1,20 +1,19 @@
 import { breakLines } from 'src/layout';
-import { splitIntoItems } from 'src/helpers/monospace';
+import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
+import { removeGlueFromEndOfParagraphs } from 'src/helpers/util';
 
 /**
  * Wrap lines at an optimal width instead of the full width.
  */
 export function balancedLineWrap(paragraphs: ParagraphWithWidth[], options: AllOptions): string[] {
-  const paragraphsSplitIntoItems = splitIntoItems(paragraphs, options);
+  const paragraphsSplitIntoItems = splitTextIntoItems(paragraphs, options);
   const allItems = paragraphsSplitIntoItems.flat();
 
   /**
    * First we break each paragraph into its smallest area,
    * in which the last line of each paragraph isn't allowed to have significant space.
    */
-  const breakLinesCompact = breakLines(allItems, {
-    compact: true,
-  });
+  const breakLinesCompact = breakLines(removeGlueFromEndOfParagraphs(allItems));
   const optimalWidthIsSmallerBy = breakLinesCompact.minRemainingSpaces;
   let breakpoints: number[];
 

@@ -6,8 +6,9 @@
 import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 
-import { layoutText, TextBox } from 'src/helpers/helpers';
 import { justifyContent } from '../html';
+import { TextBox } from 'src/helpers/util';
+import { layoutText } from 'src/helpers/positionItems';
 
 const hyphenator = new Hypher(enUsPatterns);
 const hyphenate = (word: string) => hyphenator.hyphenate(word);

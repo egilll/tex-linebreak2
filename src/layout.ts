@@ -3,7 +3,6 @@
  */
 export interface Box {
   type: 'box';
-
   /** Amount of space required by this content. Must be >= 0. */
   width: number;
 }
@@ -58,7 +57,7 @@ export type InputItem = Box | Penalty | Glue;
 /**
  * Parameters for the layout process.
  */
-export interface Options {
+export interface LineBreakingOptions {
   /**
    * A factor indicating the maximum amount by which items in a line can be
    * spaced out by expanding `Glue` items.
@@ -103,13 +102,13 @@ export const MIN_COST = -1000;
  */
 export const MAX_COST = 1000;
 
-const MIN_ADJUSTMENT_RATIO = -1;
+export const MIN_ADJUSTMENT_RATIO = -1;
 
 function isForcedBreak(item: InputItem) {
   return item.type === 'penalty' && item.cost <= MIN_COST;
 }
 
-const defaultOptions: Options = {
+const defaultOptions: LineBreakingOptions = {
   maxAdjustmentRatio: null,
   initialMaxAdjustmentRatio: 1,
   doubleHyphenPenalty: 0,
@@ -137,22 +136,24 @@ export class MaxAdjustmentExceededError extends Error {}
  *     Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
  *
  * @param items - Sequence of box, glue and penalty items to layout.
- * @param lineLengths - Length or lengths of each line.
+ * @param lineWidths - Length or lengths of each line.
+ * @param _options
  */
 export function breakLines(
   items: InputItem[],
-  lineLengths: number | number[],
-  opts: Partial<Options> = {},
+  lineWidths: number | number[],
+  _options: Partial<LineBreakingOptions> = {},
 ): number[] {
   if (items.length === 0) {
     return [];
   }
 
-  const opts_ = { ...defaultOptions, ...opts };
-  const lineLen = (i: number) => (Array.isArray(lineLengths) ? lineLengths[i] : lineLengths);
+  const options: LineBreakingOptions = { ...defaultOptions, ..._options };
+  const getLineLength = (lineIndex: number) =>
+    Array.isArray(lineWidths) ? lineWidths[lineIndex] : lineWidths;
   const currentMaxAdjustmentRatio = Math.min(
-    opts_.initialMaxAdjustmentRatio,
-    opts_.maxAdjustmentRatio !== null ? opts_.maxAdjustmentRatio : Infinity,
+    options.initialMaxAdjustmentRatio,
+    options.maxAdjustmentRatio !== null ? options.maxAdjustmentRatio : Infinity,
   );
 
   type Node = {
@@ -237,7 +238,7 @@ export function breakLines(
       let adjustmentRatio = 0;
       const lineShrink = sumShrink - a.totalShrink;
       const lineStretch = sumStretch - a.totalStretch;
-      const idealLen = lineLen(a.line);
+      const idealLen = getLineLength(a.line);
       let actualLen = sumWidth - a.totalWidth;
 
       // Include width of penalty in line length if chosen as a breakpoint.
@@ -285,7 +286,7 @@ export function breakLines(
         const prevItem = items[a.index];
         if (item.type === 'penalty' && prevItem.type === 'penalty') {
           if (item.flagged && prevItem.flagged) {
-            doubleHyphenPenalty = opts_.doubleHyphenPenalty;
+            doubleHyphenPenalty = options.doubleHyphenPenalty;
           }
         }
         demerits += doubleHyphenPenalty;
@@ -302,7 +303,7 @@ export function breakLines(
           fitness = 3;
         }
         if (a.index > 0 && Math.abs(fitness - a.fitness) > 1) {
-          demerits += opts_.adjacentLooseTightPenalty;
+          demerits += options.adjacentLooseTightPenalty;
         }
 
         // If this breakpoint is followed by glue or non-breakable penalty items
@@ -356,13 +357,13 @@ export function breakLines(
     // shrinking or stretching a line beyond [-1, currentMaxAdjustmentRatio].
     if (active.size === 0) {
       if (isFinite(minAdjustmentRatioAboveThreshold)) {
-        if (opts_.maxAdjustmentRatio === currentMaxAdjustmentRatio) {
+        if (options.maxAdjustmentRatio === currentMaxAdjustmentRatio) {
           throw new MaxAdjustmentExceededError();
         }
         // Too much stretching was required for an earlier ignored breakpoint.
         // Try again with a higher threshold.
-        return breakLines(items, lineLengths, {
-          ...opts,
+        return breakLines(items, lineWidths, {
+          ..._options,
           initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
         });
       } else {
@@ -419,22 +420,6 @@ export function breakLines(
   return output;
 }
 
-export interface PositionedItem {
-  /** Index of the item. */
-  item: number;
-  /** Index of the line on which the resulting item should appear. */
-  line: number;
-  /** X offset of the item. */
-  xOffset: number;
-  /**
-   * Width which this item should be rendered with.
-   *
-   * For box and penalty items this will just be the item's width.
-   * For glue items this will be the adjusted width.
-   */
-  width: number;
-}
-
 /**
  * Compute adjustment ratios for lines given a set of breakpoints.
  *
@@ -444,15 +429,15 @@ export interface PositionedItem {
  * is exactly its preferred width.
  *
  * @param items - The box, glue and penalty items being laid out
- * @param lineLengths - Length or lengths of each line
+ * @param lineWidths - Length or lengths of each line
  * @param breakpoints - Indexes in `items` where lines are being broken
  */
 export function adjustmentRatios(
   items: InputItem[],
-  lineLengths: number | number[],
+  lineWidths: number | number[],
   breakpoints: number[],
 ) {
-  const lineLen = (i: number) => (Array.isArray(lineLengths) ? lineLengths[i] : lineLengths);
+  const lineLen = (i: number) => (Array.isArray(lineWidths) ? lineWidths[i] : lineWidths);
   const ratios = [];
 
   for (let b = 0; b < breakpoints.length - 1; b++) {
@@ -486,79 +471,4 @@ export function adjustmentRatios(
   }
 
   return ratios;
-}
-
-export interface PositionOptions {
-  includeGlue?: boolean;
-}
-
-/**
- * Compute the positions at which to draw boxes forming a paragraph given a set
- * of breakpoints.
- *
- * @param items - The sequence of items that form the paragraph.
- * @param lineLengths - Length or lengths of each line.
- * @param breakpoints - Indexes within `items` of the start of each line.
- */
-export function positionItems(
-  items: InputItem[],
-  lineLengths: number | number[],
-  breakpoints: number[],
-  options: PositionOptions = {},
-): PositionedItem[] {
-  const adjRatios = adjustmentRatios(items, lineLengths, breakpoints);
-  const result: PositionedItem[] = [];
-
-  for (let b = 0; b < breakpoints.length - 1; b++) {
-    // Limit the amount of shrinking of lines to 1x `glue.shrink` for each glue
-    // item in a line.
-    const adjustmentRatio = Math.max(adjRatios[b], MIN_ADJUSTMENT_RATIO);
-    let xOffset = 0;
-    const start = b === 0 ? breakpoints[b] : breakpoints[b] + 1;
-
-    for (let p = start; p <= breakpoints[b + 1]; p++) {
-      const item = items[p];
-      if (item.type === 'box') {
-        result.push({
-          item: p,
-          line: b,
-          xOffset,
-          width: item.width,
-        });
-        xOffset += item.width;
-      } else if (item.type === 'glue' && p !== start && p !== breakpoints[b + 1]) {
-        let gap;
-        if (adjustmentRatio < 0) {
-          gap = item.width + adjustmentRatio * item.shrink;
-        } else {
-          gap = item.width + adjustmentRatio * item.stretch;
-        }
-        if (options.includeGlue) {
-          result.push({
-            item: p,
-            line: b,
-            xOffset,
-            width: gap,
-          });
-        }
-        xOffset += gap;
-      } else if (item.type === 'penalty' && p === breakpoints[b + 1] && item.width > 0) {
-        result.push({
-          item: p,
-          line: b,
-          xOffset,
-          width: item.width,
-        });
-      }
-    }
-  }
-
-  return result;
-}
-
-/**
- * Return a `Penalty` item which forces a line-break.
- */
-export function forcedBreak(): Penalty {
-  return { type: 'penalty', cost: MIN_COST, width: 0, flagged: false };
 }

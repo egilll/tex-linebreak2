@@ -1,6 +1,5 @@
 import {
   breakLines,
-  forcedBreak,
   InputItem,
   MaxAdjustmentExceededError,
   Box,
@@ -9,6 +8,7 @@ import {
 } from './layout';
 import { textNodesInRange } from './util/range';
 import DOMTextMeasurer from './util/dom-text-measurer';
+import { forcedBreak } from "src/helpers/util";
 
 const NODE_TAG = 'insertedByTexLinebreak';
 

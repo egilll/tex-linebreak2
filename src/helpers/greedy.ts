@@ -1,9 +1,9 @@
-import { AllOptions } from 'src/types';
-import { splitParagraphsIntoItems, ParagraphWithWidth } from 'src/wrapLines/index';
-import { MIN_COST } from 'src/wrapLines/lib/tex-linebreak';
+import { MIN_COST } from 'src/layout';
 
 /**
- * Wrap lines at the full width
+ * This utility function does not use TeX's line breaking algorithm,
+ * but it is included here for the convenience users who may wish
+ * to utilize the same chunking function to greedily break lines.
  */
 export function greedyLineWrap(paragraphs: ParagraphWithWidth[], options: AllOptions): string[] {
   const paragraphsSplitIntoItems = splitParagraphsIntoItems(paragraphs, options);

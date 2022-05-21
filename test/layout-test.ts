@@ -4,18 +4,26 @@ import { XorShift } from 'xorshift';
 import {
   adjustmentRatios,
   breakLines,
-  forcedBreak,
-  positionItems,
   InputItem,
   MaxAdjustmentExceededError,
   Penalty,
 } from 'src/layout';
 
-import { layoutItemsFromString, TextBox, TextGlue, TextInputItem } from 'src/helpers/helpers';
-
-import { box, chunk, glue, lineStrings, penalty } from 'src/helpers/util';
+import {
+  box,
+  chunk,
+  glue,
+  lineStrings,
+  penalty,
+  forcedBreak,
+  TextInputItem,
+  TextGlue,
+  TextBox,
+} from 'src/helpers/util';
 
 import fixture from './fixtures/layout';
+import { positionItems } from 'src/helpers/positionItems';
+import { layoutItemsFromString } from 'src/helpers/splitTextIntoItems';
 
 interface LayoutFixture {
   /** Input text of paragraph. */

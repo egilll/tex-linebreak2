@@ -18,10 +18,6 @@ Monospace
 
 
 
-
-
-
-
 ## Introduction
 
 Most text on the web is presented with "ragged-right" margins, as opposed to
