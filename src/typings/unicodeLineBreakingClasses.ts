@@ -1,5 +1,7 @@
 /**
- * Classes describing line-breaking behavior.
+ * Classes describing line-breaking behavior,
+ * enum values as used by the https://github.com/foliojs/linebreak package.
+ *
  * For an overview of behavior, consult the table at
  * http://unicode.org/reports/tr14/#Table1
  */
@@ -8,300 +10,307 @@ export enum UnicodeLineBreakingClasses {
    * Opening punctuation
    * @see http://unicode.org/reports/tr14/#OP
    */
-  OP = 0,
-  OpeningPunctuation = UnicodeLineBreakingClasses.OP,
+  OpeningPunctuation = 'OP',
 
   /**
    * Closing punctuation
    * @see http://unicode.org/reports/tr14/#CL
    */
-  CL = 1,
-  ClosingPunctuation = UnicodeLineBreakingClasses.CL,
+  ClosingPunctuation = 'CL',
 
   /**
    * Closing parenthesis
    * @see http://unicode.org/reports/tr14/#CP
    */
-  CP = 2,
-  ClosingParenthesis = UnicodeLineBreakingClasses.CP,
+  ClosingParenthesis = 'CP',
 
   /**
    * Ambiguous quotation
    * @see http://unicode.org/reports/tr14/#QU
    */
-  QU = 3,
-  AmbiguousQuotation = UnicodeLineBreakingClasses.QU,
+  AmbiguousQuotation = 'QU',
 
   /**
    * Non-breaking ("glue")
    * @see http://unicode.org/reports/tr14/#GL
    */
-  GL = 4,
-  NonBreaking = UnicodeLineBreakingClasses.GL,
+  NonBreaking = 'GL',
 
   /**
    * Non-starters
    * @see http://unicode.org/reports/tr14/#NS
    */
-  NS = 5,
-  NonStarter = UnicodeLineBreakingClasses.NS,
+  NonStarter = 'NS',
 
   /**
    * Exclamation/Interrogation
    * @see http://unicode.org/reports/tr14/#EX
    */
-  EX = 6,
-  ExclamationOrInterrogation = UnicodeLineBreakingClasses.EX,
+  ExclamationOrInterrogation = 'EX',
 
   /**
    * Symbols allowing break after
    * @see http://unicode.org/reports/tr14/#SY
    */
-  SY = 7,
-  SymbolAllowingBreakAfter = UnicodeLineBreakingClasses.SY,
+  SymbolAllowingBreakAfter = 'SY',
 
   /**
    * Infix separator
    * @see http://unicode.org/reports/tr14/#IS
    */
-  IS = 8,
-  InfixSeparator = UnicodeLineBreakingClasses.IS,
+  InfixSeparator = 'IS',
 
   /**
    * Prefix
    * @see http://unicode.org/reports/tr14/#PR
    */
-  PR = 9,
-  Prefix = UnicodeLineBreakingClasses.PR,
+  Prefix = 'PR',
 
   /**
    * Postfix
    * @see http://unicode.org/reports/tr14/#PO
    */
-  PO = 10,
-  Postfix = UnicodeLineBreakingClasses.PO,
+  Postfix = 'PO',
 
   /**
    * Numeric
    * @see http://unicode.org/reports/tr14/#NU
    */
-  NU = 11,
-  Numeric = UnicodeLineBreakingClasses.NU,
+  Numeric = 'NU',
 
   /**
    * Alphabetic
    * @see http://unicode.org/reports/tr14/#AL
    */
-  AL = 12,
-  Alphabetic = UnicodeLineBreakingClasses.AL,
+  Alphabetic = 'AL',
 
   /**
    * Hebrew Letter
    * @see http://unicode.org/reports/tr14/#HL
    */
-  HL = 13,
-  HebrewLetter = UnicodeLineBreakingClasses.HL,
+  HebrewLetter = 'HL',
 
   /**
    * Ideographic
    * @see http://unicode.org/reports/tr14/#ID
    */
-  ID = 14,
-  Ideographic = UnicodeLineBreakingClasses.ID,
+  Ideographic = 'ID',
 
   /**
    * Inseparable characters
    * @see http://unicode.org/reports/tr14/#IN
    */
-  IN = 15,
-  InseparableCharacters = UnicodeLineBreakingClasses.IN,
+  InseparableCharacters = 'IN',
 
   /**
    * Hyphen
    * @see http://unicode.org/reports/tr14/#HY
    */
-  HY = 16,
-  Hyphen = UnicodeLineBreakingClasses.HY,
+  Hyphen = 'HY',
 
   /**
    * Break after
    * @see http://unicode.org/reports/tr14/#BA
    */
-  BA = 17,
-  BreakAfter = UnicodeLineBreakingClasses.BA,
+  BreakAfter = 'BA',
 
   /**
    * Break before
    * @see http://unicode.org/reports/tr14/#BB
    */
-  BB = 18,
-  BreakBefore = UnicodeLineBreakingClasses.BB,
+  BreakBefore = 'BB',
 
   /**
    * Break on either side (but not pair)
    * @see http://unicode.org/reports/tr14/#B2
    */
-  B2 = 19,
-  BreakOnEitherSide = UnicodeLineBreakingClasses.B2,
+  BreakOnEitherSide = 'B2',
 
   /**
    * Zero-width space
    * @see http://unicode.org/reports/tr14/#ZW
    */
-  ZW = 20,
-  ZeroWidthSpace = UnicodeLineBreakingClasses.ZW,
+  ZeroWidthSpace = 'ZW',
 
   /**
    * Combining marks
    * @see http://unicode.org/reports/tr14/#CM
    */
-  CM = 21,
-  CombiningMark = UnicodeLineBreakingClasses.CM,
+  CombiningMark = 'CM',
 
   /**
    * Word joiner
    * @see http://unicode.org/reports/tr14/#WJ
    */
-  WJ = 22,
-  WordJoiner = UnicodeLineBreakingClasses.WJ,
+  WordJoiner = 'WJ',
 
   /**
    * Hangul LV
    * @see http://unicode.org/reports/tr14/#H2
    */
-  H2 = 23,
-  HangulLV = UnicodeLineBreakingClasses.H2,
+  HangulLV = 'H2',
 
   /**
    * Hangul LVT
    * @see http://unicode.org/reports/tr14/#H3
    */
-  H3 = 24,
-  HangulLVT = UnicodeLineBreakingClasses.H3,
+  HangulLVT = 'H3',
 
   /**
    * Hangul L Jamo
    * @see http://unicode.org/reports/tr14/#JL
    */
-  JL = 25,
-  HangulLJamo = UnicodeLineBreakingClasses.JL,
+  HangulLJamo = 'JL',
 
   /**
    * Hangul V Jamo
    * @see http://unicode.org/reports/tr14/#JV
    */
-  JV = 26,
-  HangulVJamo = UnicodeLineBreakingClasses.JV,
+  HangulVJamo = 'JV',
 
   /**
    * Hangul T Jamo
    * @see http://unicode.org/reports/tr14/#JT
    */
-  JT = 27,
-  HangulTJamo = UnicodeLineBreakingClasses.JT,
+  HangulTJamo = 'JT',
 
   /**
    * Regional Indicator
    * @see http://unicode.org/reports/tr14/#RI
    */
-  RI = 28,
-  RegionalIndicator = UnicodeLineBreakingClasses.RI,
+  RegionalIndicator = 'RI',
 
   /**
    * Emoji Base
    * @see http://unicode.org/reports/tr14/#EB
    */
-  EB = 29,
-  EmojiBase = UnicodeLineBreakingClasses.EB,
+  EmojiBase = 'EB',
 
   /**
    * Emoji Modifier
    * @see http://unicode.org/reports/tr14/#EM
    */
-  EM = 30,
-  EmojiModifier = UnicodeLineBreakingClasses.EM,
+  EmojiModifier = 'EM',
 
   /**
    * Zero Width Joiner
    * @see http://unicode.org/reports/tr14/#ZWJ
    */
-  ZWJ = 31,
-  ZeroWidthJoiner = UnicodeLineBreakingClasses.ZWJ,
+  ZeroWidthJoiner = 'ZWJ',
 
   /**
    * Contingent break
    * @see http://unicode.org/reports/tr14/#CB
    */
-  CB = 32,
-  ContingentBreak = UnicodeLineBreakingClasses.CB,
+  ContingentBreak = 'CB',
 
   /**
    * Ambiguous (Alphabetic or Ideograph)
    * @see http://unicode.org/reports/tr14/#AI
    */
-  AI = 33,
-  AmbiguousAlphabeticOrIdeograph = UnicodeLineBreakingClasses.AI,
+  AmbiguousAlphabeticOrIdeograph = 'AI',
 
   /**
    * Break (mandatory)
    * @see http://unicode.org/reports/tr14/#BK
    */
-  BK = 34,
-  BreakMandatory = UnicodeLineBreakingClasses.BK,
+  BreakMandatory = 'BK',
 
   /**
    * Conditional Japanese Starter
    * @see http://unicode.org/reports/tr14/#CJ
    */
-  CJ = 35,
-  ConditionalJapaneseStarter = UnicodeLineBreakingClasses.CJ,
+  ConditionalJapaneseStarter = 'CJ',
 
   /**
    * Carriage return
    * @see http://unicode.org/reports/tr14/#CR
    */
-  CR = 36,
-  CarriageReturn = UnicodeLineBreakingClasses.CR,
+  CarriageReturn = 'CR',
 
   /**
    * Line feed
    * @see http://unicode.org/reports/tr14/#LF
    */
-  LF = 37,
-  LineFeed = UnicodeLineBreakingClasses.LF,
+  LineFeed = 'LF',
 
   /**
    * Next line
    * @see http://unicode.org/reports/tr14/#NL
    */
-  NL = 38,
-  NextLine = UnicodeLineBreakingClasses.NL,
+  NextLine = 'NL',
 
   /**
    * South-East Asian
    * @see http://unicode.org/reports/tr14/#SA
    */
-  SA = 39,
-  SouthEastAsian = UnicodeLineBreakingClasses.SA,
+  SouthEastAsian = 'SA',
 
   /**
    * Surrogates
    * @see http://unicode.org/reports/tr14/#SG
    */
-  SG = 40,
-  Surrogates = UnicodeLineBreakingClasses.SG,
+  Surrogates = 'SG',
 
   /**
    * Space
    * @see http://unicode.org/reports/tr14/#SP
    */
-  SP = 41,
-  Space = UnicodeLineBreakingClasses.SP,
+  Space = 'SP',
 
   /**
    * Unknown
    * @see http://unicode.org/reports/tr14/#XX
    */
-  XX = 42,
-  Unknown = UnicodeLineBreakingClasses.XX,
+  Unknown = 'XX',
 }
+
+/**
+ * Converts the values from https://github.com/foliojs/linebreak
+ * into a more readable format.
+ */
+export const convertEnumValuesOfLineBreakingPackageToUnicodeNames = {
+  0: 'OP', // Opening punctuation
+  1: 'CL', // Closing punctuation
+  2: 'CP', // Closing parenthesis
+  3: 'QU', // Ambiguous quotation
+  4: 'GL', // Glue
+  5: 'NS', // Non-starters
+  6: 'EX', // Exclamation/Interrogation
+  7: 'SY', // Symbols allowing break after
+  8: 'IS', // Infix separator
+  9: 'PR', // Prefix
+  10: 'PO', // Postfix
+  11: 'NU', // Numeric
+  12: 'AL', // Alphabetic
+  13: 'HL', // Hebrew Letter
+  14: 'ID', // Ideographic
+  15: 'IN', // Inseparable characters
+  16: 'HY', // Hyphen
+  17: 'BA', // Break after
+  18: 'BB', // Break before
+  19: 'B2', // Break on either side (but not pair)
+  20: 'ZW', // Zero-width space
+  21: 'CM', // Combining marks
+  22: 'WJ', // Word joiner
+  23: 'H2', // Hangul LV
+  24: 'H3', // Hangul LVT
+  25: 'JL', // Hangul L Jamo
+  26: 'JV', // Hangul V Jamo
+  27: 'JT', // Hangul T Jamo
+  28: 'RI', // Regional Indicator
+  29: 'EB', // Emoji Base
+  30: 'EM', // Emoji Modifier
+  31: 'ZWJ', // Zero Width Joiner
+  32: 'CB', // Contingent break
+  33: 'AI', // Ambiguous (Alphabetic or Ideograph)
+  34: 'BK', // Break (mandatory)
+  35: 'CJ', // Conditional Japanese Starter
+  36: 'CR', // Carriage return
+  37: 'LF', // Line feed
+  38: 'NL', // Next line
+  39: 'SA', // South-East Asian
+  40: 'SG', // Surrogates
+  41: 'SP', // Space
+  42: 'XX', // Unknown
+} as const;
