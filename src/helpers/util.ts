@@ -1,4 +1,4 @@
-import { Box, Glue, Penalty, MIN_COST, InputItem, MAX_COST } from 'src/breakLines';
+import { Box, Glue, Penalty, MIN_COST, InputItem, MAX_COST } from 'src/layout';
 
 /**
  * Useful when working with raw strings instead of DOM nodes.
@@ -38,19 +38,19 @@ export function forcedBreak(): Penalty {
   return penalty(0, MIN_COST);
 }
 
-export function paragraphEnd(): [TextGlue, Penalty] {
-  return [
-    /** Glue that can fill the entire line. */
-    {
-      type: 'glue',
-      width: 0,
-      shrink: 0,
-      stretch: MAX_COST,
-      text: '',
-    },
-    forcedBreak(),
-  ];
-}
+// export function paragraphEnd(): [TextGlue, Penalty] {
+//   return [
+//     /** Glue that can fill the entire line. */
+//     {
+//       type: 'glue',
+//       width: 0,
+//       shrink: 0,
+//       stretch: MAX_COST,
+//       text: '',
+//     },
+//     forcedBreak(),
+//   ];
+// }
 
 /**
  * Retrieves the text from an input item.
@@ -99,6 +99,6 @@ export const removeGlueFromEndOfParagraphs = <T extends InputItem>(items: T[]): 
   return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
 };
 
-export const collapseAdjacentSpaces = <T extends InputItem>(items: T[]): T[] => {
-  throw new Error('Not implemented');
-};
+// export const collapseAdjacentSpaces = <T extends InputItem>(items: T[]): T[] => {
+//   throw new Error('Not implemented');
+// };

@@ -28,3 +28,6 @@ export const helperOptionsDefaults: Partial<HelperOptions> = {
   // /** If no callback is provided, default to a monospace */
   // measureFn: (word: string) => word.length,
 };
+
+export type HelperOptionsRequiredFromUser = HelperOptions &
+  Required<Pick<HelperOptions, 'lineWidth'>>;
