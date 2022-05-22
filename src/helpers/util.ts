@@ -98,3 +98,7 @@ export function chunk<T>(breakpoints: T[], width: number) {
 export const removeGlueFromEndOfParagraphs = <T extends InputItem>(items: T[]): T[] => {
   return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
 };
+
+export const collapseAdjacentSpaces = <T extends InputItem>(items: T[]): T[] => {
+  throw new Error('Not implemented');
+};
