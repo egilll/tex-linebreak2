@@ -11,7 +11,7 @@ export type HelperOptions = {
     textAfterSpace: string | undefined,
   ) => boolean;
   /** Callback that calculates the width of a given string */
-  measureFn?: (word: string) => number;
+  measureFn: (word: string) => number;
   /**
    * Callback that calculates legal hyphenation points in
    * words and returns an array of pieces that can be joined

@@ -35,7 +35,7 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
 }
 
 export function forcedBreak(): Penalty {
-  return { type: 'penalty', cost: MIN_COST, width: 0, flagged: false };
+  return penalty(0, MIN_COST);
 }
 
 export function paragraphEnd(): [TextGlue, Penalty] {
