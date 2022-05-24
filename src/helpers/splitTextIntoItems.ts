@@ -6,7 +6,7 @@ import {
 import { MIN_COST, MAX_COST } from 'src/breakLines';
 import { TextInputItem, penalty, glue, box } from 'src/helpers/util';
 import { HelperOptions } from 'src/helpers/options';
-import { TexLinebreak } from 'src/helpers/helper';
+import { TexLinebreak } from 'src/helpers/index';
 
 const NON_BREAKING_SPACE = '\xa0';
 const SOFT_HYPHEN = '\u00AD';
@@ -22,7 +22,7 @@ export enum PenaltyClasses {
 }
 
 export const splitTextIntoItems = (input: string, obj: TexLinebreak): TextInputItem[] => {
-  const options = {}; // Partial<HelperOptions> = { ...helperOptionsDefaults, ..._options };
+  const options = obj.options;
   const lineBreaker = new LineBreaker(input);
   let breakPoints: Break[] = [];
   let b: Break;
@@ -132,14 +132,20 @@ export const splitTextIntoItems = (input: string, obj: TexLinebreak): TextInputI
       items.push(glue(0, 0, MAX_COST, ''));
     }
 
-    /** Add the penalty for this break */
+    /**
+     * Add the penalty for this break
+     */
     if (lastLetter === SOFT_HYPHEN) {
       items.push(penalty(options.measureFn!('-'), PenaltyClasses.SoftHyphen, true));
-    } else if (lastLetterClass === UnicodeLineBreakingClasses.Hyphen) {
-      // Hyphens
+    }
+    // Hyphens
+    else if (lastLetterClass === UnicodeLineBreakingClasses.Hyphen) {
       items.push(penalty(0, cost, true));
-    } else {
-      //todo ignore penalty for ending in space glues
+    }
+    // Penalty for other items (but ignoring zero-cost penalty after glue,
+    // since glues already have a zero-cost penalty)
+    // else if (!(items[items.length - 1].type === 'glue') && cost === 0) {
+    else {
       items.push(penalty(0, cost));
     }
   }
@@ -176,7 +182,7 @@ export const splitSegmentIntoBoxesAndGlue = (
   // todo half-width space
   const spaceWidth = options.measureFn!(' ');
   const spaceShrink = 0;
-  const spaceStretch = spaceWidth * 1.5;
+  const spaceStretch = spaceWidth * 0.01;
 
   const stretchableSpaces = new RegExp(
     `([ \\t\\p{General_Category=Zs}${NON_BREAKING_SPACE}]+)`,

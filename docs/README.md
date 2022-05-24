@@ -118,8 +118,6 @@ const output = new TexLinebreak({
 
 ### Options
 
-
-
 ### Methods
 
 ```js

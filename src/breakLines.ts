@@ -234,8 +234,6 @@ export function breakLines(
 
     const feasible: Node[] = [];
     active.forEach((a) => {
-      // Compute adjustment ratio from `a` to `b`.
-      let adjustmentRatio = 0;
       const lineShrink = sumShrink - a.totalShrink;
       const lineStretch = sumStretch - a.totalStretch;
       const idealLen = getLineLength(a.line);
@@ -246,8 +244,12 @@ export function breakLines(
         actualLen += item.width;
       }
 
-      // nb. Division by zero produces `Infinity` here, which is what we want.
-      if (actualLen < idealLen) {
+      // Compute adjustment ratio from `a` to `b`.
+      let adjustmentRatio;
+      if (actualLen === idealLen) {
+        adjustmentRatio = 0;
+      } else if (actualLen < idealLen) {
+        // nb. Division by zero produces `Infinity` here, which is what we want.
         adjustmentRatio = (idealLen - actualLen) / lineStretch;
       } else {
         adjustmentRatio = (idealLen - actualLen) / lineShrink;
