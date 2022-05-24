@@ -4,15 +4,9 @@
 
 _tex-linebreak_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
-Knuth-Plass line-breaking algorithm,<sup>[\[1\]](#references)</sup> as used by [TeX](https://en.wikipedia.org/wiki/TeX).
+[Knuth-Plass line-breaking algorithm](#references), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
-It contains various functions to layout ...
-
-
-
-[Unicode Line Breaking Algorithm](http://unicode.org/reports/tr14/)
-
-
+It contains various customizable functions that can be used to wrap text in webpages, WebGL, plain text etc., with breakpoints according to the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 
 **See the examples**
 
@@ -28,13 +22,14 @@ Monospace
 
 `Nulla ultricies, dolor in sagittis rutrum, nibh purus bibendum dui, nec aliquet ligula mi eget lectus. Nulla eget metus scelerisque, venenatis sapien ut, congue eros. Morbi convallis venenatis mauris, laoreet faucibus magna malesuada sed. Nulla consequat dignissim arcu non vestibulum. In commodo tristique scelerisque.`
 
+<!--
 ## Introduction
 
 Most text on the web is presented with "ragged-right" margins, as opposed to
 the justified text you would find in e.g. a scientific paper or newspaper.
 Text can be justified in web pages using `text-align: justify`.
-However this option alone tends to result in large&nbsp;&nbsp;&nbsp;spaces
-&nbsp;&nbsp;&nbsp;between words which is distracting to read. This is due to the
+However this option alone tends to result in large   spaces
+   between words which is distracting to read. This is due to the
 use of "first fit" line-breaking algorithms where the browser considers only the
 current line when finding the next breakpoint. Some browsers support hyphenation
 via `hyphens: auto` which reduces this effect. However the first-fit approach
@@ -102,6 +97,8 @@ The library has low-level APIs which implement the core line-breaking and
 positioning algorithm, as well as higher-level APIs that provide a convenient
 way to justify existing HTML content.
 
+-->
+
 ### Low-level APIs
 
 The low-level APIs `breakLines` and `positionItems` work with generic "box"
@@ -109,6 +106,21 @@ The low-level APIs `breakLines` and `positionItems` work with generic "box"
 Typically "boxes" are words, "glue" items are spaces and "penalty" items
 represent hyphenation points or the end of a paragraph. However you can use them
 to lay out arbitrary content.
+
+```js
+const output = new TexLinebreak({
+  text: "",
+  lineWidth: 200,
+  preset: 'monospace',
+  hyphenate: false,
+}).getPlainText()
+```
+
+### Options
+
+
+
+### Methods
 
 ```js
 import { layoutItemsFromString, breakLines, positionItems } from 'tex-linebreak';
@@ -119,12 +131,9 @@ import { layoutItemsFromString, breakLines, positionItems } from 'tex-linebreak'
 // "Box" items are things (typically words) to typeset.
 // "Glue" items are spaces that can stretch or shrink or be a breakpoint.
 // "Penalty" items are possible breakpoints (hyphens, end of a paragraph etc.).
-//
-// `layoutItemsFromString` is a helper that takes a string and a function to
-// measure the width of a piece of that string and returns a suitable set of
-// items.
-const measureText = text => text.length * 5;
-const items = layoutItemsFromString(yourText, measureText);
+const items = [
+    { type: "box" }
+]
 
 // Find where to insert line-breaks in order to optimally lay out the text.
 const lineWidth = 200;
@@ -132,7 +141,6 @@ const breakpoints = breakLines(items, lineWidth)
 
 // Compute the (xOffset, line number) at which to draw each box item.
 const positionedItems = positionItems(items, lineWidth, breakpoints);
-
 positionedItems.forEach(pi => {
   const item = items[pi.item];
 
@@ -147,7 +155,7 @@ positionedItems.forEach(pi => {
 The high-level APIs provide convenience methods for justifying content in
 existing HTML elements and laying out justified lines for rendering to HTML,
 canvas or other outputs. This includes support for hyphenation using the
-[hypher](https://github.com/bramstein/hypher) library.
+[hypher](https://github.com/bramstein/hypher) library, but you can also .
 
 #### Justifying existing HTML content
 
@@ -228,3 +236,7 @@ The library currently has a number of caveats:
 ## References
 
 * D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), *Software: Practice and Experience*, vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
+
+**Notes**
+
+[^1]: With a handful of exceptions regarding certain non-Latin scripts.

@@ -1,4 +1,5 @@
 export type HelperOptions = {
+  text?: string;
   lineBreakingType?: 'findOptimalWidth' | 'fullWidth' | 'greedy';
   alignment?: 'justify' | 'left' | 'right' | 'center';
   lineWidth: number;

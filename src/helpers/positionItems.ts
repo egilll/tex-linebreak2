@@ -5,7 +5,7 @@ import {
   InputItem,
   adjustmentRatios,
   MIN_ADJUSTMENT_RATIO,
-} from 'src/layout';
+} from 'src/breakLines';
 import { layoutItemsFromString } from 'src/helpers/splitTextIntoItems';
 
 export interface PositionedItem {

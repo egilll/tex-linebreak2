@@ -3,9 +3,10 @@ import {
   UnicodeLineBreakingClasses,
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
 } from 'src/typings/unicodeLineBreakingClasses';
-import { MIN_COST, MAX_COST } from 'src/layout';
+import { MIN_COST, MAX_COST } from 'src/breakLines';
 import { TextInputItem, penalty, glue, box } from 'src/helpers/util';
-import { HelperOptions, helperOptionsDefaults } from 'src/helpers/options';
+import { HelperOptions } from 'src/helpers/options';
+import { TexLinebreak } from 'src/helpers/helper';
 
 const NON_BREAKING_SPACE = '\xa0';
 const SOFT_HYPHEN = '\u00AD';
@@ -20,11 +21,8 @@ export enum PenaltyClasses {
   VeryBadBreak = 100,
 }
 
-export const splitTextIntoItems = (
-  input: string,
-  _options: Partial<HelperOptions>,
-): TextInputItem[] => {
-  const options: Partial<HelperOptions> = { ...helperOptionsDefaults, ..._options };
+export const splitTextIntoItems = (input: string, obj: TexLinebreak): TextInputItem[] => {
+  const options = {}; // Partial<HelperOptions> = { ...helperOptionsDefaults, ..._options };
   const lineBreaker = new LineBreaker(input);
   let breakPoints: Break[] = [];
   let b: Break;

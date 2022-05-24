@@ -1,7 +1,6 @@
-export * from 'src/layout';
-export * from 'src/helpers/helpers';
+export * from 'src/breakLines';
 export * from './html';
-export * from './hyphenate';
+export * from 'src/util/hyphenate';
 export { forcedBreak } from 'src/helpers/util';
 export { TextInputItem } from 'src/helpers/util';
 export { TextGlue } from 'src/helpers/util';

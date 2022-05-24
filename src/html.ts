@@ -5,7 +5,7 @@ import {
   Box,
   Glue,
   Penalty,
-} from 'src/layout';
+} from 'src/breakLines';
 import { textNodesInRange } from './util/range';
 import DOMTextMeasurer from './util/dom-text-measurer';
 import { forcedBreak } from 'src/helpers/util';

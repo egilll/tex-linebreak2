@@ -8,7 +8,7 @@ for (let lang of hyphenLangs) {
 
 module.exports = {
   entry: {
-    demos: 'src/demos/layout.ts',
+    demos: 'src/demos/breakLines.ts',
     lib: './src',
     ...hyphenLibs,
   },
