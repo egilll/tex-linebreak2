@@ -39,6 +39,7 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
 export const softHyphen = (options: HelperOptions) => {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn!('-');
   return penalty(hyphenWidth, PenaltyClasses.SoftHyphen, true);
+  // return penalty(options.measureFn!('-'), PenaltyClasses.SoftHyphen, true);
 };
 
 export function forcedBreak(): Penalty {

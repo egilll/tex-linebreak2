@@ -1,6 +1,6 @@
-import { InputItem, Box, Glue, Penalty, MAX_COST } from 'src/breakLines';
+import { InputItem, Box, Glue, Penalty } from 'src/breakLines';
 import { textNodesInRange } from 'src/util/range';
-import { forcedBreak } from 'src/helpers/util';
+import { TextInputItem } from 'src/helpers/util';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
 
 const NODE_TAG = 'insertedByTexLinebreak';
@@ -35,73 +35,86 @@ export function addItemsForTextNode(
 ) {
   const text = node.nodeValue!;
   const el = node.parentNode! as Element;
-
-  splitTextIntoItems(text, {
-    measureFn,
-    hyphenateFn,
-  });
-
-  const spaceWidth = measureFn(el, ' ');
-  const shrink = Math.max(0, spaceWidth - 3);
-  const hyphenWidth = measureFn(el, '-');
-  const isSpace = (word: string) => /\s/.test(word.charAt(0));
-
-  const chunks = text.split(/(\s+)/).filter((w) => w.length > 0);
   let textOffset = 0;
 
-  chunks.forEach((w) => {
-    if (isSpace(w)) {
-      const glue: DOMGlue = {
-        type: 'glue',
-        width: spaceWidth,
-        shrink,
-        stretch: spaceWidth,
-        node,
-        start: textOffset,
-        end: textOffset + w.length,
-      };
-      items.push(glue);
-      textOffset += w.length;
-      return;
-    }
-
-    if (hyphenateFn) {
-      const chunks = hyphenateFn(w);
-      chunks.forEach((c, i) => {
-        const box: DOMBox = {
-          type: 'box',
-          width: measureFn(el, c),
-          node,
-          start: textOffset,
-          end: textOffset + c.length,
-        };
-        textOffset += c.length;
-        items.push(box);
-        if (i < chunks.length - 1) {
-          const hyphen: DOMPenalty = {
-            type: 'penalty',
-            width: hyphenWidth,
-            cost: 10,
-            flagged: true,
-            node,
-            start: textOffset,
-            end: textOffset,
-          };
-          items.push(hyphen);
-        }
-      });
-    } else {
-      const box: DOMBox = {
-        type: 'box',
-        width: measureFn(el, w),
-        node,
-        start: textOffset,
-        end: textOffset + w.length,
-      };
-      textOffset += w.length;
-      items.push(box);
-    }
+  let _items = splitTextIntoItems(text, {
+    ignoreNewlines: true,
+    measureFn: (word) => measureFn(word, el),
+    hyphenateFn,
+  }).map((item: TextInputItem): DOMItem => {
+    const startOffset = textOffset;
+    textOffset += ('text' in item ? item.text : '').length;
+    return {
+      ...item,
+      node,
+      start: startOffset,
+      end: textOffset,
+    };
   });
+
+  items.push(..._items);
+
+  // const spaceWidth = measureFn(el, ' ');
+  // const shrink = Math.max(0, spaceWidth - 3);
+  // const hyphenWidth = measureFn(el, '-');
+  // const isSpace = (word: string) => /\s/.test(word.charAt(0));
+  //
+  // const chunks = text.split(/(\s+)/).filter((w) => w.length > 0);
+  // let textOffset = 0;
+
+  // chunks.forEach((w) => {
+  //   if (isSpace(w)) {
+  //     const glue: DOMGlue = {
+  //       type: 'glue',
+  //       width: spaceWidth,
+  //       shrink,
+  //       stretch: spaceWidth,
+  //       node,
+  //       start: textOffset,
+  //       end: textOffset + w.length,
+  //     };
+  //     items.push(glue);
+  //     textOffset += w.length;
+  //     return;
+  //   }
+  //
+  //   if (hyphenateFn) {
+  //     const chunks = hyphenateFn(w);
+  //     chunks.forEach((c, i) => {
+  //       const box: DOMBox = {
+  //         type: 'box',
+  //         width: measureFn(el, c),
+  //         node,
+  //         start: textOffset,
+  //         end: textOffset + c.length,
+  //       };
+  //       textOffset += c.length;
+  //       items.push(box);
+  //       if (i < chunks.length - 1) {
+  //         const hyphen: DOMPenalty = {
+  //           type: 'penalty',
+  //           width: hyphenWidth,
+  //           cost: 10,
+  //           flagged: true,
+  //           node,
+  //           start: textOffset,
+  //           end: textOffset,
+  //         };
+  //         items.push(hyphen);
+  //       }
+  //     });
+  //   } else {
+  //     const box: DOMBox = {
+  //       type: 'box',
+  //       width: measureFn(el, w),
+  //       node,
+  //       start: textOffset,
+  //       end: textOffset + w.length,
+  //     };
+  //     textOffset += w.length;
+  //     items.push(box);
+  //   }
+  // });
 }
 
 /**
@@ -178,16 +191,16 @@ export function addItemsForNode(
     }
   });
 
-  if (addParagraphEnd) {
-    const end = node.childNodes.length;
-
-    // Add a synthetic glue that absorbs any left-over space at the end of the
-    // last line.
-    items.push({ type: 'glue', width: 0, shrink: 0, stretch: MAX_COST, node, start: end, end });
-
-    // Add a forced break to end the paragraph.
-    items.push({ ...forcedBreak(), node, start: end, end });
-  }
+  // if (addParagraphEnd) {
+  //   const end = node.childNodes.length;
+  //
+  //   // Add a synthetic glue that absorbs any left-over space at the end of the
+  //   // last line.
+  //   items.push({ type: 'glue', width: 0, shrink: 0, stretch: MAX_COST, node, start: end, end });
+  //
+  //   // Add a forced break to end the paragraph.
+  //   items.push({ ...forcedBreak(), node, start: end, end });
+  // }
 }
 
 export function elementLineWidth(el: HTMLElement) {
@@ -208,19 +221,27 @@ export function lineWidthsAndGlueCounts(items: InputItem[], breakpoints: number[
   const widths: number[] = [];
   const glueCounts: number[] = [];
 
-  for (let b = 0; b < breakpoints.length - 1; b++) {
+  for (let breakpointIndex = 0; breakpointIndex < breakpoints.length - 1; breakpointIndex++) {
     let actualWidth = 0;
     let glueCount = 0;
 
-    const start = b === 0 ? breakpoints[b] : breakpoints[b] + 1;
-    for (let p = start; p <= breakpoints[b + 1]; p++) {
-      const item = items[p];
+    let startItemIndex = breakpoints[breakpointIndex];
+    if (breakpointIndex !== 0) startItemIndex += 1;
+    for (let i = startItemIndex; i <= breakpoints[breakpointIndex + 1]; i++) {
+      const item = items[i];
       if (item.type === 'box') {
         actualWidth += item.width;
-      } else if (item.type === 'glue' && p !== start && p !== breakpoints[b + 1]) {
+      } else if (
+        item.type === 'glue' &&
+        i !== startItemIndex &&
+        // Ignore line-beginning glue
+        i !== breakpoints[breakpointIndex] &&
+        // Ignore line-ending glue
+        i !== breakpoints[breakpointIndex + 1] - 1
+      ) {
         actualWidth += item.width;
-        ++glueCount;
-      } else if (item.type === 'penalty' && p === breakpoints[b + 1]) {
+        glueCount++;
+      } else if (item.type === 'penalty' && i === breakpoints[breakpointIndex + 1]) {
         actualWidth += item.width;
       }
     }

@@ -60,7 +60,7 @@ export function justifyContent(
 
   // Calculate line-break positions given current element width and content.
   const measurer = new DOMTextMeasurer();
-  const measure = measurer.measure; //.bind(measurer);
+  const measure = measurer.measure.bind(measurer);
 
   const elementBreaks: ElementBreakpoints[] = [];
   elements.forEach((el) => {
@@ -74,6 +74,7 @@ export function justifyContent(
       breakpoints = breakLines(items, lineWidth, {
         maxAdjustmentRatio: 2.0,
       });
+      console.log(breakpoints);
     } catch (e) {
       if (e instanceof MaxAdjustmentExceededError) {
         // Retry with hyphenation and unlimited stretching of each space.

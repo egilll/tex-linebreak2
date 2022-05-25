@@ -12,14 +12,17 @@ export type HelperOptions = {
     textAfterSpace: string | undefined,
   ) => boolean;
   /** Callback that calculates the width of a given string */
-  measureFn: (word: string, context?: Element) => number;
+  measureFn: (word: string) => number;
   /**
    * Callback that calculates legal hyphenation points in
    * words and returns an array of pieces that can be joined
    * with hyphens.
    */
   hyphenateFn?: (word: string) => string[];
-  hangingPunctuation: boolean;
+  hangingPunctuation?: boolean;
+
+  /** HTML content does not mind newlines */
+  ignoreNewlines?: boolean;
 };
 
 export const helperOptionsDefaults: Partial<HelperOptions> = {

@@ -4,7 +4,7 @@ import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
 } from 'src/typings/unicodeLineBreakingClasses';
 import { MIN_COST, MAX_COST } from 'src/breakLines';
-import { TextInputItem, penalty, glue, box, softHyphen } from 'src/helpers/util';
+import { TextInputItem, penalty, glue, box, softHyphen, TextGlue } from 'src/helpers/util';
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { TexLinebreak } from 'src/helpers/index';
 
@@ -32,17 +32,6 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
   let b: Break;
   while ((b = lineBreaker.nextBreak())) breakPoints.push(b);
 
-  // TODO
-  // if (options.hyphenateFn) {
-  //   const chunks = options.hyphenateFn(part);
-  //   chunks.forEach((c, i) => {
-  //     items.push(box(options.measureFn!(c), c));
-  //     if (i < chunks.length - 1) {
-  //       items.push(softHyphen(options));
-  //     }
-  //   });
-  // }
-
   let items: TextInputItem[] = [];
 
   for (let i = 0; i < breakPoints.length; i++) {
@@ -51,6 +40,7 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
      * The segment contains the word and the whitespace characters that come after it
      */
     const segment = input.slice(breakPoints[i - 1]?.position || 0, breakPoints[i].position);
+
     const isLastSegment = i === breakPoints.length - 1;
 
     let cost: number;
@@ -61,7 +51,14 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     const lastLetterClass = getLineBreakingClassOfLetterAt(input, breakPoint.position - 1);
     const nextLetterClass = getLineBreakingClassOfLetterAt(input, breakPoint.position);
 
-    if (breakPoint.required || isLastSegment) {
+    if (
+      (breakPoint.required &&
+        !(
+          // TODO: This option is used when breaking HTML. HTML ignores newlines, but it should not ignore <br>
+          (options.ignoreNewlines && lastLetter === '\n')
+        )) ||
+      isLastSegment
+    ) {
       cost = PenaltyClasses.MandatoryBreak;
     }
 
@@ -74,7 +71,8 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
       // Other breaking spaces
       (UnicodeLineBreakingClasses.BreakAfter && lastLetter.match(/\p{General_Category=Zs}/gu)) ||
       // Zero width space
-      lastLetterClass === UnicodeLineBreakingClasses.ZeroWidthSpace
+      lastLetterClass === UnicodeLineBreakingClasses.ZeroWidthSpace ||
+      breakPoint.required
     ) {
       cost = PenaltyClasses.VeryGoodBreak;
     }
@@ -134,7 +132,17 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
 
     /** Paragraph-final infinite glue */
     if (cost === PenaltyClasses.MandatoryBreak) {
-      items.push(glue(0, 0, MAX_COST, ''));
+      if (items[items.length - 1].type === 'glue') {
+        /** If the last character in the segment was a newline character, we convert it into a stretchy glue */
+        items[items.length - 1] = {
+          ...items[items.length - 1],
+          shrink: 0,
+          stretch: MAX_COST,
+          width: 0,
+        } as TextGlue;
+      } else {
+        items.push(glue(0, 0, MAX_COST, ''));
+      }
     }
 
     /**
@@ -173,7 +181,7 @@ export const penaltyLowerIfFarAwayFromBreakingPoint = () => {
  */
 export const splitSegmentIntoBoxesAndGlue = (
   input: string,
-  options: Partial<HelperOptions>,
+  options: HelperOptions,
 ): TextInputItem[] => {
   let items: TextInputItem[] = [];
 
@@ -197,7 +205,18 @@ export const splitSegmentIntoBoxesAndGlue = (
   parts.forEach((part, index) => {
     // Box
     if (index % 2 === 0) {
-      items.push(box(options.measureFn!(part), part));
+      if (part.length === 0) return;
+      if (options.hyphenateFn) {
+        const chunks = options.hyphenateFn(part);
+        chunks.forEach((c, i) => {
+          items.push(box(options.measureFn!(c), c));
+          if (i < chunks.length - 1) {
+            items.push(softHyphen(options));
+          }
+        });
+      } else {
+        items.push(box(options.measureFn!(part), part));
+      }
     }
     // Stretchable glue inside the segment.
     // Can only be non-breakable glue.

@@ -45,9 +45,9 @@ function renderToCanvas(c: HTMLCanvasElement, t: string, margins: { left: number
 
 const textarea = document.querySelector('textarea')!;
 const canvas = document.querySelector('canvas')!;
-const lineWidthInput = document.querySelector('.js-line-width')! as HTMLInputElement;
-const para = document.querySelector('.output-p')! as HTMLElement;
-const cssPara = document.querySelector('.css-output-p')! as HTMLElement;
+const lineWidthSlider = document.querySelector('.js-line-width')! as HTMLInputElement;
+const outputElement = document.querySelector('.output-p')! as HTMLElement;
+const plainBrowserOutputElement = document.querySelector('.css-output-p')! as HTMLElement;
 
 /**
  * Set the size of a canvas, adjusting for high-DPI displays.
@@ -62,37 +62,37 @@ function setCanvasSize(canvas: HTMLCanvasElement, width: number, height: number)
 }
 
 function rerender() {
-  const lineWidth = parseInt(lineWidthInput.value);
-  const paraStyle = window.getComputedStyle(para);
+  const lineWidth = parseInt(lineWidthSlider.value);
+  const outputElementStyle = window.getComputedStyle(outputElement);
   const padding = {
-    left: parseInt(paraStyle.paddingLeft!),
-    right: parseInt(paraStyle.paddingRight!),
+    left: parseInt(outputElementStyle.paddingLeft!),
+    right: parseInt(outputElementStyle.paddingRight!),
   };
   document.body.style.setProperty('--line-width', `${lineWidth}px`);
 
   // Render as HTML.
-  const htmlPara = document.querySelector('.html-p')! as HTMLElement;
-  htmlPara.innerHTML = textarea.value;
-  const textContent = htmlPara.textContent!;
-  justifyContent(htmlPara, hyphenate);
+  const htmlParagraph = document.querySelector('.html-p')! as HTMLElement;
+  htmlParagraph.innerHTML = textarea.value;
+  const textContent = htmlParagraph.textContent!;
+  justifyContent(htmlParagraph, hyphenate);
 
   // Render to canvas.
   setCanvasSize(canvas, lineWidth + padding.left + padding.right, 500);
   canvas.getContext('2d')!.font = '13pt sans serif';
   renderToCanvas(canvas, textContent, padding);
 
-  // Render as text to HTML.
-  para.textContent = textarea.value;
-  justifyContent(para, hyphenate);
+  // // Render as text to HTML.
+  // outputElement.textContent = textarea.value;
+  // justifyContent(outputElement, hyphenate);
 
   // Render using CSS `text-justify`
-  cssPara.innerHTML = textarea.value;
+  plainBrowserOutputElement.innerHTML = textarea.value;
 }
 
 // Render text and re-render on changes.
 textarea.addEventListener('input', rerender);
-lineWidthInput.addEventListener('input', rerender);
+lineWidthSlider.addEventListener('input', rerender);
 rerender();
 
-const htmlParas = Array.from(document.querySelectorAll('.js-tex-linebreak'));
-htmlParas.forEach((el) => justifyContent(el as HTMLElement));
+const htmlParagraphs = Array.from(document.querySelectorAll('.js-tex-linebreak'));
+htmlParagraphs.forEach((el) => justifyContent(el as HTMLElement));
