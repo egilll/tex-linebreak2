@@ -23,8 +23,8 @@ module.exports = {
     ],
   },
   resolve: {
-    modules: ['.', 'node_modules'],
-    extensions: ['.ts'],
+    modules: ['./', 'node_modules'],
+    extensions: ['.ts', '.js'],
   },
   output: {
     filename: '[name].js',

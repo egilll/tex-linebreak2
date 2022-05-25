@@ -45,6 +45,7 @@
   "dependencies": {
     "install": "^0.13.0",
     "linebreak": "^1.1.0",
-    "npm": "^8.10.0"
+    "npm": "^8.10.0",
+    "unicode-trie": "^2.0.0"
   }
 }

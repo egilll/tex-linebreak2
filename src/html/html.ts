@@ -1,6 +1,7 @@
-import { InputItem, Box, Glue, Penalty } from 'src/breakLines';
+import { InputItem, Box, Glue, Penalty, MAX_COST } from 'src/breakLines';
 import { textNodesInRange } from 'src/util/range';
 import { forcedBreak } from 'src/helpers/util';
+import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
 
 const NODE_TAG = 'insertedByTexLinebreak';
 
@@ -29,11 +30,16 @@ export interface ElementBreakpoints {
 export function addItemsForTextNode(
   items: DOMItem[],
   node: Text,
-  measureFn: (context: Element, word: string) => number,
+  measureFn: (word: string, context: Element) => number,
   hyphenateFn?: (word: string) => string[],
 ) {
   const text = node.nodeValue!;
   const el = node.parentNode! as Element;
+
+  splitTextIntoItems(text, {
+    measureFn,
+    hyphenateFn,
+  });
 
   const spaceWidth = measureFn(el, ' ');
   const shrink = Math.max(0, spaceWidth - 3);
@@ -104,7 +110,7 @@ export function addItemsForTextNode(
 export function addItemsForElement(
   items: DOMItem[],
   element: Element,
-  measureFn: (context: Element, word: string) => number,
+  measureFn: (word: string, context: Element) => number,
   hyphenateFn?: (word: string) => string[],
 ) {
   const {
@@ -158,7 +164,7 @@ export function addItemsForElement(
 export function addItemsForNode(
   items: DOMItem[],
   node: Node,
-  measureFn: (context: Element, word: string) => number,
+  measureFn: (word: string, context: Element) => number,
   hyphenateFn?: (word: string) => string[],
   addParagraphEnd = true,
 ) {
@@ -177,7 +183,7 @@ export function addItemsForNode(
 
     // Add a synthetic glue that absorbs any left-over space at the end of the
     // last line.
-    items.push({ type: 'glue', width: 0, shrink: 0, stretch: 1000, node, start: end, end });
+    items.push({ type: 'glue', width: 0, shrink: 0, stretch: MAX_COST, node, start: end, end });
 
     // Add a forced break to end the paragraph.
     items.push({ ...forcedBreak(), node, start: end, end });

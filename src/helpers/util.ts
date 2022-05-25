@@ -1,4 +1,6 @@
 import { Box, Glue, Penalty, MIN_COST, InputItem, MAX_COST } from 'src/breakLines';
+import { PenaltyClasses } from 'src/helpers/splitTextIntoItems';
+import { HelperOptions } from 'src/helpers/options';
 
 /**
  * Useful when working with raw strings instead of DOM nodes.
@@ -33,6 +35,11 @@ export function glue(
 export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
   return { type: 'penalty', width, cost, flagged };
 }
+
+export const softHyphen = (options: HelperOptions) => {
+  const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn!('-');
+  return penalty(hyphenWidth, PenaltyClasses.SoftHyphen, true);
+};
 
 export function forcedBreak(): Penalty {
   return penalty(0, MIN_COST);

@@ -12,13 +12,14 @@ export type HelperOptions = {
     textAfterSpace: string | undefined,
   ) => boolean;
   /** Callback that calculates the width of a given string */
-  measureFn: (word: string) => number;
+  measureFn: (word: string, context?: Element) => number;
   /**
    * Callback that calculates legal hyphenation points in
    * words and returns an array of pieces that can be joined
    * with hyphens.
    */
   hyphenateFn?: (word: string) => string[];
+  hangingPunctuation: boolean;
 };
 
 export const helperOptionsDefaults: Partial<HelperOptions> = {
@@ -26,6 +27,7 @@ export const helperOptionsDefaults: Partial<HelperOptions> = {
   keepNewlines: false,
   keepNewlinesAfter: /[.:?!\\]$/,
   alignment: 'justify',
+  hangingPunctuation: true,
   // /** If no callback is provided, default to a monospace */
   // measureFn: (word: string) => word.length,
 };

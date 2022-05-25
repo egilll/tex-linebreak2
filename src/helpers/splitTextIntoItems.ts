@@ -4,8 +4,8 @@ import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
 } from 'src/typings/unicodeLineBreakingClasses';
 import { MIN_COST, MAX_COST } from 'src/breakLines';
-import { TextInputItem, penalty, glue, box } from 'src/helpers/util';
-import { HelperOptions } from 'src/helpers/options';
+import { TextInputItem, penalty, glue, box, softHyphen } from 'src/helpers/util';
+import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { TexLinebreak } from 'src/helpers/index';
 
 const NON_BREAKING_SPACE = '\xa0';
@@ -21,8 +21,12 @@ export enum PenaltyClasses {
   VeryBadBreak = 100,
 }
 
-export const splitTextIntoItems = (input: string, obj: TexLinebreak): TextInputItem[] => {
-  const options = obj.options;
+export const splitTextIntoItems = (input: string, _options: HelperOptions): TextInputItem[] => {
+  const options = getOptionsWithDefaults(_options);
+
+  /**
+   * Allowable breakpoints according to Unicode's line breaking algorithm.
+   */
   const lineBreaker = new LineBreaker(input);
   let breakPoints: Break[] = [];
   let b: Break;
@@ -100,6 +104,7 @@ export const splitTextIntoItems = (input: string, obj: TexLinebreak): TextInputI
 
     // Soft hyphens
     else if (lastLetter === SOFT_HYPHEN) {
+      /** (Note: Value actually not used, is overwritten in {@link softHyphen}) */
       cost = PenaltyClasses.SoftHyphen;
     }
 
@@ -136,7 +141,7 @@ export const splitTextIntoItems = (input: string, obj: TexLinebreak): TextInputI
      * Add the penalty for this break
      */
     if (lastLetter === SOFT_HYPHEN) {
-      items.push(penalty(options.measureFn!('-'), PenaltyClasses.SoftHyphen, true));
+      items.push(softHyphen(options));
     }
     // Hyphens
     else if (lastLetterClass === UnicodeLineBreakingClasses.Hyphen) {

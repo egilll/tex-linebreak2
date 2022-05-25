@@ -86,7 +86,7 @@ export default class DOMTextMeasurer {
   /**
    * Return the width of `text` rendered by a `Text` node child of `context`.
    */
-  measure(context: Element, text: string) {
+  measure(text: string, context: Element) {
     let cssFont = this._cache.cssFontForElement(context);
     if (!cssFont) {
       cssFont = cssFontForElement(context);

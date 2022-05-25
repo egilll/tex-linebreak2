@@ -1,1 +1,4 @@
 - inline-block elements
+- hanging punctuation
+- nota html elements í demoi
+- canvas er ömurlegt með padding

@@ -14,7 +14,7 @@ export class TexLinebreak {
   getItems(): TextInputItem[] {
     if (!this._items) {
       if (typeof this.options.text === 'string') {
-        this._items = splitTextIntoItems(this.options.text, this);
+        this._items = splitTextIntoItems(this.options.text, this.options);
       } else {
         throw new Error('Not implemented');
       }
