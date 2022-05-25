@@ -1,32 +1,32 @@
-import {
-  breakLines,
-  InputItem,
-  MaxAdjustmentExceededError,
-  Box,
-  Glue,
-  Penalty,
-} from 'src/breakLines';
-import { textNodesInRange } from './util/range';
-import DOMTextMeasurer from './util/dom-text-measurer';
+import { InputItem, Box, Glue, Penalty } from 'src/breakLines';
+import { textNodesInRange } from 'src/util/range';
 import { forcedBreak } from 'src/helpers/util';
 
 const NODE_TAG = 'insertedByTexLinebreak';
 
-interface NodeOffset {
+export interface NodeOffset {
+  /** A DOM node */
   node: Node;
   start: number;
   end: number;
 }
 
-type DOMBox = Box & NodeOffset;
-type DOMGlue = Glue & NodeOffset;
-type DOMPenalty = Penalty & NodeOffset;
-type DOMItem = DOMBox | DOMGlue | DOMPenalty;
+export type DOMBox = Box & NodeOffset;
+export type DOMGlue = Glue & NodeOffset;
+export type DOMPenalty = Penalty & NodeOffset;
+export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
+
+export interface ElementBreakpoints {
+  el: HTMLElement;
+  items: DOMItem[];
+  breakpoints: number[];
+  lineWidth: number;
+}
 
 /**
  * Add layout items for `node` to `items`.
  */
-function addItemsForTextNode(
+export function addItemsForTextNode(
   items: DOMItem[],
   node: Text,
   measureFn: (context: Element, word: string) => number,
@@ -101,7 +101,7 @@ function addItemsForTextNode(
 /**
  * Add layout items for `element` and its descendants to `items`.
  */
-function addItemsForElement(
+export function addItemsForElement(
   items: DOMItem[],
   element: Element,
   measureFn: (context: Element, word: string) => number,
@@ -155,7 +155,7 @@ function addItemsForElement(
  * existing array as a first argument to avoid allocating a large number of
  * small arrays.
  */
-function addItemsForNode(
+export function addItemsForNode(
   items: DOMItem[],
   node: Node,
   measureFn: (context: Element, word: string) => number,
@@ -175,7 +175,7 @@ function addItemsForNode(
   if (addParagraphEnd) {
     const end = node.childNodes.length;
 
-    // Add a synthetic glue that aborbs any left-over space at the end of the
+    // Add a synthetic glue that absorbs any left-over space at the end of the
     // last line.
     items.push({ type: 'glue', width: 0, shrink: 0, stretch: 1000, node, start: end, end });
 
@@ -184,7 +184,7 @@ function addItemsForNode(
   }
 }
 
-function elementLineWidth(el: HTMLElement) {
+export function elementLineWidth(el: HTMLElement) {
   const { width, boxSizing, paddingLeft, paddingRight } = getComputedStyle(el);
   let w = parseFloat(width!);
   if (boxSizing === 'border-box') {
@@ -198,7 +198,7 @@ function elementLineWidth(el: HTMLElement) {
  * Calculate the actual width of each line and the number of spaces that can be
  * stretched or shrunk to adjust the width.
  */
-function lineWidthsAndGlueCounts(items: InputItem[], breakpoints: number[]) {
+export function lineWidthsAndGlueCounts(items: InputItem[], breakpoints: number[]) {
   const widths: number[] = [];
   const glueCounts: number[] = [];
 
@@ -229,21 +229,21 @@ function lineWidthsAndGlueCounts(items: InputItem[], breakpoints: number[]) {
 /**
  * Mark a node as having been created by `justifyContent`.
  */
-function tagNode(node: Node) {
+export function tagNode(node: Node) {
   (node as any)[NODE_TAG] = true;
 }
 
 /**
  * Return `true` if `node` was created by `justifyContent`.
  */
-function isTaggedNode(node: Node) {
+export function isTaggedNode(node: Node) {
   return node.hasOwnProperty(NODE_TAG);
 }
 
 /**
  * Return all descendants of `node` created by `justifyContent`.
  */
-function taggedChildren(node: Node): Node[] {
+export function taggedChildren(node: Node): Node[] {
   const children = [];
   for (let i = 0; i < node.childNodes.length; i++) {
     const child = node.childNodes[i];
@@ -257,7 +257,7 @@ function taggedChildren(node: Node): Node[] {
   return children;
 }
 
-function isTextOrInlineElement(node: Node) {
+export function isTextOrInlineElement(node: Node) {
   if (node instanceof Text) {
     return true;
   } else if (node instanceof Element) {
@@ -274,7 +274,7 @@ function isTextOrInlineElement(node: Node) {
  * @param r - The range to wrap
  * @param wordSpacing - The additional spacing to add between words in pixels
  */
-function addWordSpacing(r: Range, wordSpacing: number) {
+export function addWordSpacing(r: Range, wordSpacing: number) {
   // Collect all text nodes in range, skipping any non-inline elements and
   // their children because those are treated as opaque blocks by the line-
   // breaking step.
@@ -289,153 +289,4 @@ function addWordSpacing(r: Range, wordSpacing: number) {
   }
 
   return texts;
-}
-
-/**
- * Reverse the changes made to an element by `justifyContent`.
- */
-export function unjustifyContent(el: HTMLElement) {
-  // Find and remove all elements inserted by `justifyContent`.
-  const tagged = taggedChildren(el);
-  for (let node of tagged) {
-    const parent = node.parentNode!;
-    const children = Array.from(node.childNodes);
-    children.forEach((child) => {
-      parent.insertBefore(child, node);
-    });
-    parent.removeChild(node);
-  }
-
-  // Re-join text nodes that were split by `justifyContent`.
-  el.normalize();
-}
-
-interface ElementBreakpoints {
-  el: HTMLElement;
-  items: DOMItem[];
-  breakpoints: number[];
-  lineWidth: number;
-}
-
-/**
- * Justify an existing paragraph.
- *
- * Justify the contents of `elements`, using `hyphenateFn` to apply hyphenation if
- * necessary.
- *
- * To justify multiple paragraphs, it is more efficient to call `justifyContent`
- * once with all the elements to be processed, than to call `justifyContent`
- * separately for each element. Passing a list allows `justifyContent` to
- * optimize DOM manipulations.
- */
-export function justifyContent(
-  elements: HTMLElement | HTMLElement[],
-  hyphenateFn?: (word: string) => string[],
-) {
-  // To avoid layout thrashing, we batch DOM layout reads and writes in this
-  // function. ie. we first measure the available width and compute linebreaks
-  // for all elements and then afterwards modify all the elements.
-
-  if (!Array.isArray(elements)) {
-    elements = [elements];
-  }
-
-  // Undo the changes made by any previous justification of this content.
-  elements.forEach((el) => {
-    unjustifyContent(el);
-  });
-
-  // Calculate line-break positions given current element width and content.
-  const measurer = new DOMTextMeasurer();
-  const measure = measurer.measure.bind(measurer);
-
-  const elementBreaks: ElementBreakpoints[] = [];
-  elements.forEach((el) => {
-    const lineWidth = elementLineWidth(el);
-    let items: DOMItem[] = [];
-    addItemsForNode(items, el, measure);
-    let breakpoints;
-    try {
-      // First try without hyphenation but a maximum stretch-factor for each
-      // space.
-      breakpoints = breakLines(items, lineWidth, {
-        maxAdjustmentRatio: 2.0,
-      });
-    } catch (e) {
-      if (e instanceof MaxAdjustmentExceededError) {
-        // Retry with hyphenation and unlimited stretching of each space.
-        items = [];
-        addItemsForNode(items, el, measure, hyphenateFn);
-        breakpoints = breakLines(items, lineWidth);
-      } else {
-        throw e;
-      }
-    }
-    elementBreaks.push({ el, items, breakpoints, lineWidth });
-  });
-
-  // Insert line-breaks and adjust inter-word spacing.
-  elementBreaks.forEach(({ el, items, breakpoints, lineWidth }) => {
-    const [actualWidths, glueCounts] = lineWidthsAndGlueCounts(items, breakpoints);
-
-    // Create a `Range` for each line. We create the ranges before modifying the
-    // contents so that node offsets in `items` are still valid at the point when
-    // we create the Range.
-    const endsWithHyphen: boolean[] = [];
-    const lineRanges: Range[] = [];
-    for (let b = 1; b < breakpoints.length; b++) {
-      const prevBreakItem = items[breakpoints[b - 1]];
-      const breakItem = items[breakpoints[b]];
-
-      const r = document.createRange();
-      if (b > 1) {
-        r.setStart(prevBreakItem.node, prevBreakItem.end);
-      } else {
-        r.setStart(el, 0);
-      }
-      r.setEnd(breakItem.node, breakItem.start);
-      lineRanges.push(r);
-      endsWithHyphen.push(breakItem.type === 'penalty' && breakItem.flagged);
-    }
-
-    // Disable automatic line wrap.
-    el.style.whiteSpace = 'nowrap';
-
-    // Insert linebreaks.
-    lineRanges.forEach((r, i) => {
-      if (i === 0) {
-        return;
-      }
-      const brEl = document.createElement('br');
-      tagNode(brEl);
-
-      // Insert linebreak. The browser will automatically adjust subsequent
-      // ranges.
-      r.insertNode(brEl);
-
-      r.setStart(brEl.nextSibling!, 0);
-    });
-
-    // Adjust inter-word spacing on each line and add hyphenation if needed.
-    lineRanges.forEach((r, i) => {
-      const spaceDiff = lineWidth - actualWidths[i];
-      const extraSpacePerGlue = spaceDiff / glueCounts[i];
-
-      // If this is the final line and the natural spacing between words does
-      // not need to be compressed, then don't try to expand the spacing to fill
-      // the line.
-      const isFinalLine = i === lineRanges.length - 1;
-      if (isFinalLine && extraSpacePerGlue >= 0) {
-        return;
-      }
-
-      const wrappedNodes = addWordSpacing(r, extraSpacePerGlue);
-      if (endsWithHyphen[i] && wrappedNodes.length > 0) {
-        const lastNode = wrappedNodes[wrappedNodes.length - 1];
-        const hyphen = document.createTextNode('-');
-        tagNode(hyphen);
-        lastNode.parentNode!.appendChild(hyphen);
-      }
-    });
-  });
 }

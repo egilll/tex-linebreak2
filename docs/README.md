@@ -203,7 +203,7 @@ annotations.
 ## Examples
 
 For working code showing different ways to use this library, see [the
-demos](demo/). You can build and run the demos using:
+demos](../src/demo/). You can build and run the demos using:
 
 ```
 npm i -g http-server
@@ -238,3 +238,18 @@ The library currently has a number of caveats:
 **Notes**
 
 [^1]: With a handful of exceptions regarding certain non-Latin scripts.
+
+<details>
+  <summary>Click to expand!</summary>
+
+## Heading
+
+1. A numbered
+
+2. list
+   
+   * With some
+   
+   * Sub bullets
+     
+     </details>

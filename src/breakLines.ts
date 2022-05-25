@@ -156,7 +156,7 @@ export function breakLines(
     options.maxAdjustmentRatio !== null ? options.maxAdjustmentRatio : Infinity,
   );
 
-  type Node = {
+  type LineBreakingNode = {
     index: number; // Index in `items`.
     line: number; // Line number.
     fitness: number;
@@ -168,10 +168,10 @@ export function breakLines(
     totalShrink: number;
     // Minimum sum of demerits up this break.
     totalDemerits: number;
-    prev: null | Node;
+    prev: null | LineBreakingNode;
   };
 
-  const active = new Set<Node>();
+  const active = new Set<LineBreakingNode>();
 
   // Add initial active node for beginning of paragraph.
   active.add({
@@ -230,9 +230,9 @@ export function breakLines(
     }
 
     // Update the set of active nodes.
-    let lastActive: Node | null = null;
+    let lastActive: LineBreakingNode | null = null;
 
-    const feasible: Node[] = [];
+    const feasible: LineBreakingNode[] = [];
     active.forEach((a) => {
       const lineShrink = sumShrink - a.totalShrink;
       const lineStretch = sumStretch - a.totalStretch;
@@ -402,7 +402,7 @@ export function breakLines(
   //  2. Each iteration of the loop either returns from the function, leaves the
   //     active set unchanged and breaks early or finishes with a non-empty active
   //     set.
-  let bestNode: Node | null = null;
+  let bestNode: LineBreakingNode | null = null;
   active.forEach((a) => {
     if (!bestNode || a.totalDemerits < bestNode.totalDemerits) {
       bestNode = a;
@@ -412,7 +412,7 @@ export function breakLines(
   // Follow the chain backwards from the chosen node to get the sequence of
   // chosen breakpoints.
   const output = [];
-  let next: Node | null = bestNode!;
+  let next: LineBreakingNode | null = bestNode!;
   while (next) {
     output.push(next.index);
     next = next.prev;

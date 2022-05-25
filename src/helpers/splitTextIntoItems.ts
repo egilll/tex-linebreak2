@@ -292,8 +292,5 @@ export function layoutItemsFromString(
   measureFn: (word: string) => number,
   hyphenateFn?: (word: string) => string[],
 ): TextInputItem[] {
-  return splitTextIntoItems(input, {
-    measureFn,
-    hyphenateFn,
-  });
+  return new TexLinebreak({ text: input, measureFn, hyphenateFn }).getItems();
 }

@@ -1,8 +1,8 @@
 export type HelperOptions = {
   text?: string;
-  lineBreakingType?: 'findOptimalWidth' | 'fullWidth' | 'greedy';
+  lineBreakingType?: 'fullWidth' | 'findOptimalWidth' | 'greedy';
   alignment?: 'justify' | 'left' | 'right' | 'center';
-  lineWidth: number;
+  lineWidth?: number;
   /** Only applicable to lineBreakingType 'findOptimalWidth' */
   minWidth?: number;
   keepNewlines?: boolean;
@@ -28,6 +28,11 @@ export const helperOptionsDefaults: Partial<HelperOptions> = {
   alignment: 'justify',
   // /** If no callback is provided, default to a monospace */
   // measureFn: (word: string) => word.length,
+};
+
+export const getOptionsWithDefaults = (options: HelperOptions): HelperOptions => {
+  // todo: validation
+  return { ...helperOptionsDefaults, ...options };
 };
 
 export type HelperOptionsRequiredFromUser = HelperOptions &

@@ -1,28 +1,33 @@
-import { HelperOptions, helperOptionsDefaults } from 'src/helpers/options';
+import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
 import { TextInputItem } from 'src/helpers/util';
 import { breakLines } from 'src/breakLines';
 import { positionItems, PositionedItem, PositionOptions } from 'src/helpers/positionItems';
+import { breakLinesGreedy } from 'src/helpers/greedy';
 
 export class TexLinebreak {
   public options: HelperOptions;
   private _items?: TextInputItem[];
   constructor(options: HelperOptions) {
-    this.options = { ...helperOptionsDefaults, ...options };
+    this.options = getOptionsWithDefaults(options);
   }
   getItems(): TextInputItem[] {
     if (!this._items) {
-      if (this.options.text != null) {
+      if (typeof this.options.text === 'string') {
         this._items = splitTextIntoItems(this.options.text, this);
       } else {
         throw new Error('Not implemented');
       }
     }
-    console.log(this._items);
     return this._items;
   }
   getBreakpoints(): number[] {
-    return breakLines(this.getItems(), this.options.lineWidth);
+    if (!this.options.lineWidth) throw new Error('The option `lineWidth` is required');
+    if (this.options.lineBreakingType === 'greedy') {
+      return breakLinesGreedy(this.getItems(), this.options.lineWidth);
+    } else {
+      return breakLines(this.getItems(), this.options.lineWidth);
+    }
   }
   getItemsByLine(): TextInputItem[][] {
     let lines: TextInputItem[][] = [];
@@ -46,6 +51,7 @@ export class TexLinebreak {
     return this.getPlainTextLines().join('\n');
   }
   getPositionedItems(options: PositionOptions = {}): PositionedItem[] {
+    if (!this.options.lineWidth) throw new Error('The option `lineWidth` is required');
     return positionItems(this.getItems(), this.options.lineWidth, this.getBreakpoints(), options);
   }
 }
