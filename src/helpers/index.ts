@@ -39,8 +39,10 @@ export class TexLinebreak<InputItemType extends TextInputItem | DOMItem | InputI
     const breakpoints = this.getBreakpoints();
     // const items = this.getItems();
     for (let b = 0; b < breakpoints.length - 1; b++) {
-      lines.push(new Line(this, breakpoints[b], breakpoints[b + 1]));
+      lines.push(new Line(this, breakpoints[b], breakpoints[b + 1], b));
     }
+    console.log(breakpoints);
+    console.log(lines);
     return lines;
   }
   getLinesAsPlainText(): string[] {
@@ -63,21 +65,65 @@ export class TexLinebreak<InputItemType extends TextInputItem | DOMItem | InputI
 
 export class Line {
   constructor(
-    public parentClass: TexLinebreak,
+    public parentClass: TexLinebreak<any>,
     public startBreakpoint: number,
     public endBreakpoint: number,
+    public lineIndex: number,
   ) {}
   get items() {
     return this.parentClass.getItems().slice(this.startBreakpoint, this.endBreakpoint);
   }
   get breakItem() {
-    return this.items[this.endBreakpoint];
+    return this.parentClass.getItems()[this.endBreakpoint];
   }
   get prevBreakItem() {
-    return this.items[this.startBreakpoint - 1];
+    return this.parentClass.getItems()[this.startBreakpoint - 1];
   }
-  get endsWithSoftHyphen() {
+  get endsWithSoftHyphen(): boolean {
     return this.breakItem.type === 'penalty' && this.breakItem.flagged && this.breakItem.width > 0;
+  }
+
+  /** TODO: Work with multiple lines */
+  get idealWidth(): number {
+    if (!this.parentClass.options.lineWidth) {
+      throw new Error('The option `lineWidth` is required');
+    }
+    return this.parentClass.options.lineWidth;
+  }
+  get actualWidth(): number {
+    return this.items.reduce((sum, item, curIndex, items) => {
+      if (item.type === 'penalty' && curIndex !== items.length - 1) {
+        return sum;
+      } else {
+        return sum + item.width;
+      }
+    }, 0);
+  }
+
+  /**
+   * todo:
+   * - test for adjacent glues
+   * - count actual glue width
+   */
+  get glueCount(): number {
+    return this.items.reduce((sum, item, curIndex, items) => {
+      if (
+        item.type === 'glue' &&
+        // Ignore line-beginning glue
+        curIndex !== 0 &&
+        // Ignore line-ending glue
+        curIndex !== items.length - 1
+      ) {
+        return sum + 1;
+      } else {
+        return sum;
+      }
+    }, 0);
+  }
+  get extraSpacePerGlue(): number {
+    const spaceDiff = this.idealWidth - this.actualWidth;
+    const extraSpacePerGlue = spaceDiff / this.glueCount;
+    return extraSpacePerGlue;
   }
 }
 

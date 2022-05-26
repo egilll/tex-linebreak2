@@ -4,7 +4,6 @@ import {
   elementLineWidth,
   DOMItem,
   addItemsForNode,
-  lineWidthsAndGlueCounts,
   tagNode,
   addWordSpacing,
 } from 'src/html/html';
@@ -64,16 +63,10 @@ export function justifyContent(
     let items: DOMItem[] = [];
     addItemsForNode(items, el, measure, hyphenateFn);
 
-    const helper = new TexLinebreak<DOMItem>({ items, lineWidth });
-
-    const breakpoints = helper.getBreakpoints();
-
-    const [actualWidths, glueCounts] = lineWidthsAndGlueCounts(items, breakpoints);
-
     // Disable automatic line wrap.
     el.style.whiteSpace = 'nowrap';
 
-    const lines = helper.getLines();
+    const lines = new TexLinebreak<DOMItem>({ items, lineWidth }).getLines();
 
     // Create a `Range` for each line. We create the ranges before modifying the
     // contents so that node offsets in `items` are still valid at the point when
@@ -99,23 +92,17 @@ export function justifyContent(
         range.insertNode(brEl);
         range.setStart(brEl.nextSibling!, 0);
       }
-    });
-
-    // Adjust inter-word spacing on each line and add hyphenation if needed.
-    lineRanges.forEach((r, i) => {
-      const spaceDiff = lineWidth - actualWidths[i];
-      const extraSpacePerGlue = spaceDiff / glueCounts[i];
 
       // If this is the final line and the natural spacing between words does
       // not need to be compressed, then don't try to expand the spacing to fill
       // the line.
       const isFinalLine = i === lineRanges.length - 1;
-      if (isFinalLine && extraSpacePerGlue >= 0) {
+      if (isFinalLine && line.extraSpacePerGlue >= 0) {
         return;
       }
 
-      const wrappedNodes = addWordSpacing(r, extraSpacePerGlue);
-      if (endsWithSoftHyphen[i] && wrappedNodes.length > 0) {
+      const wrappedNodes = addWordSpacing(range, line.extraSpacePerGlue);
+      if (line.endsWithSoftHyphen && wrappedNodes.length > 0) {
         const lastNode = wrappedNodes[wrappedNodes.length - 1];
         const hyphen = tagNode(document.createTextNode('-'));
         lastNode.parentNode!.appendChild(hyphen);

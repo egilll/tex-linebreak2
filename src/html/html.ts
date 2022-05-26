@@ -1,4 +1,4 @@
-import { InputItem, Box, Glue, Penalty } from 'src/breakLines';
+import { Box, Glue, Penalty } from 'src/breakLines';
 import { textNodesInRange } from 'src/util/range';
 import { TextInputItem } from 'src/helpers/util';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
@@ -164,46 +164,6 @@ export function elementLineWidth(el: HTMLElement) {
     w -= parseFloat(paddingRight!);
   }
   return w;
-}
-
-/**
- * Calculate the actual width of each line and the number of spaces that can be
- * stretched or shrunk to adjust the width.
- */
-export function lineWidthsAndGlueCounts(items: InputItem[], breakpoints: number[]) {
-  const widths: number[] = [];
-  const glueCounts: number[] = [];
-
-  for (let breakpointIndex = 0; breakpointIndex < breakpoints.length - 1; breakpointIndex++) {
-    let actualWidth = 0;
-    let glueCount = 0;
-
-    let startItemIndex = breakpoints[breakpointIndex];
-    if (breakpointIndex !== 0) startItemIndex += 1;
-    for (let i = startItemIndex; i <= breakpoints[breakpointIndex + 1]; i++) {
-      const item = items[i];
-      if (item.type === 'box') {
-        actualWidth += item.width;
-      } else if (
-        item.type === 'glue' &&
-        i !== startItemIndex &&
-        // Ignore line-beginning glue
-        i !== breakpoints[breakpointIndex] &&
-        // Ignore line-ending glue
-        i !== breakpoints[breakpointIndex + 1] - 1
-      ) {
-        actualWidth += item.width;
-        glueCount++;
-      } else if (item.type === 'penalty' && i === breakpoints[breakpointIndex + 1]) {
-        actualWidth += item.width;
-      }
-    }
-
-    widths.push(actualWidth);
-    glueCounts.push(glueCount);
-  }
-
-  return [widths, glueCounts];
 }
 
 /**
