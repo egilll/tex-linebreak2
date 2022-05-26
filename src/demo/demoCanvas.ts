@@ -1,5 +1,5 @@
 import { isSoftHyphen, TextInputItem } from 'src/helpers/util';
-import { hyphenateFn, outputElement } from 'src/demo/demo';
+import { outputElement } from 'src/demo/demo';
 import { TexLinebreak } from 'src/helpers';
 
 export const canvas = document.querySelector('canvas')!;
@@ -27,7 +27,7 @@ export function renderToCanvas(
   const lines = new TexLinebreak<TextInputItem>({
     text,
     lineWidth,
-    hyphenateFn,
+    // hyphenateFn,
     measureFn: (t: string) => canvasRenderingContext.measureText(t).width,
   }).lines;
 

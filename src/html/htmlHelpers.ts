@@ -26,22 +26,22 @@ export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
  */
 export function addItemsForTextNode(items: DOMItem[], node: Text, options: HelperOptions = {}) {
   const text = node.nodeValue!;
+  const el = node.parentNode! as Element;
   let textOffset = 0;
-  let _items = splitTextIntoItems(text, {
+  splitTextIntoItems(text, {
     ...options,
+    measureFn: (word) => options.measureFn!(word, el),
     ignoreNewlines: true,
-  }).map((item: TextInputItem): DOMItem => {
+  }).forEach((item: TextInputItem) => {
     const startOffset = textOffset;
     textOffset += ('text' in item ? item.text : '').length;
-    return {
+    items.push({
       ...item,
       parentDOMNode: node,
       startOffset: startOffset,
       endOffset: textOffset,
-    };
+    });
   });
-
-  items.push(..._items);
 }
 
 /**
