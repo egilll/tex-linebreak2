@@ -127,5 +127,16 @@ export const removeGlueFromEndOfParagraphs = <T extends InputItem>(items: T[]): 
 };
 
 export const collapseAdjacentGlues = <T extends InputItem>(items: T[]): T[] => {
+  let out: T[] = [];
+  items.forEach((item) => {
+    // if(item.type==='glue'){
+    //   if(out.length>0 && out[out.length-1].type==='glue'){
+    //     out[out.length-1].text+=item.text;
+    //   }else{
+    //     out.push(item);
+    //   }}else {
+    //   out.push(item);
+    // }
+  });
   throw new Error('Not implemented');
 };
