@@ -6,7 +6,7 @@ import {
   addItemsForNode,
   tagNode,
   addWordSpacing,
-} from 'src/html/html';
+} from 'src/html/htmlHelpers';
 import { TexLinebreak } from 'src/helpers';
 import { HelperOptions } from 'src/helpers/options';
 
@@ -42,8 +42,8 @@ export function unjustifyContent(el: HTMLElement) {
  */
 export function justifyContent(
   elements: HTMLElement | HTMLElement[],
-  /** Todo: Merge with options... */
-  hyphenateFn?: (word: string) => string[],
+  // /** Todo: Merge with options... */
+  // hyphenateFn?: (word: string) => string[],
   options: HelperOptions = {},
 ) {
   if (!Array.isArray(elements)) {
@@ -54,7 +54,7 @@ export function justifyContent(
   elements.forEach((el) => unjustifyContent(el));
 
   // Calculate line-break positions given current element width and content.
-  const measure = new DOMTextMeasurer().measure;
+  const measureFn = new DOMTextMeasurer().measure;
 
   /** TODO!!!! ÉG TÓK ÞETTA TIL BAKA, VERÐUR AÐ ENDURSKOÐA!!!! */
   // To avoid layout thrashing, we batch DOM layout reads and writes in this
@@ -64,7 +64,7 @@ export function justifyContent(
   elements.forEach((el) => {
     const lineWidth = elementLineWidth(el);
     let items: DOMItem[] = [];
-    addItemsForNode(items, el, measure, hyphenateFn, true, options);
+    addItemsForNode(items, el, { ...options, measureFn });
 
     // Disable automatic line wrap.
     el.style.whiteSpace = 'nowrap';
@@ -74,7 +74,7 @@ export function justifyContent(
       items,
       lineWidth,
       ignoreNewlines: true,
-    }).getLines();
+    }).lines;
 
     // Create a `Range` for each line. We create the ranges before modifying the
     // contents so that node offsets in `items` are still valid at the point when

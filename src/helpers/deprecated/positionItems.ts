@@ -92,47 +92,47 @@ export function positionItems(
   return result;
 }
 
-// /**
-//  * Helper for laying out a paragraph of text and getting the absolute xOffset
-//  * positions of each text chunk.
-//  * Can be used for rendering justified text into a
-//  * variety of targets (HTML, canvas, SVG, WebGL etc.)
-//  *
-//  * @param text - The text to lay out
-//  * @param lineWidth - Width for each line
-//  * @param measure - Function which is called to measure each word or space in the input
-//  * @param hyphenate - Function which is called to split words at possible
-//  * hyphenation points
-//  */
-// export function positionText(
-//   text: string,
-//   lineWidth: number | number[],
-//   measure: (word: string) => number,
-//   hyphenate: (word: string) => string[],
-// ) {
-//   let items: TextInputItem[];
-//   let breakpoints;
-//   let positions: PositionedItem[];
-//
-//   try {
-//     items = layoutItemsFromString(text, measure);
-//     breakpoints = breakLines(items, lineWidth, {
-//       maxAdjustmentRatio: 1,
-//     });
-//     positions = positionItems(items, lineWidth, breakpoints);
-//   } catch (e) {
-//     if (e instanceof MaxAdjustmentExceededError) {
-//       items = layoutItemsFromString(text, measure, hyphenate);
-//       breakpoints = breakLines(items, lineWidth);
-//       positions = positionItems(items, lineWidth, breakpoints);
-//     } else {
-//       throw e;
-//     }
-//   }
-//
-//   return { items, breakpoints, positions };
-// }
+/**
+ * Helper for laying out a paragraph of text and getting the absolute xOffset
+ * positions of each text chunk.
+ * Can be used for rendering justified text into a
+ * variety of targets (HTML, canvas, SVG, WebGL etc.)
+ *
+ * @param text - The text to lay out
+ * @param lineWidth - Width for each line
+ * @param measure - Function which is called to measure each word or space in the input
+ * @param hyphenate - Function which is called to split words at possible
+ * hyphenation points
+ */
+export function positionText(
+  text: string,
+  lineWidth: number | number[],
+  measure: (word: string) => number,
+  hyphenate: (word: string) => string[],
+) {
+  let items: TextInputItem[];
+  let breakpoints;
+  let positions: PositionedItem[];
+
+  try {
+    items = layoutItemsFromString(text, measure);
+    breakpoints = breakLines(items, lineWidth, {
+      maxAdjustmentRatio: 1,
+    });
+    positions = positionItems(items, lineWidth, breakpoints);
+  } catch (e) {
+    if (e instanceof MaxAdjustmentExceededError) {
+      items = layoutItemsFromString(text, measure, hyphenate);
+      breakpoints = breakLines(items, lineWidth);
+      positions = positionItems(items, lineWidth, breakpoints);
+    } else {
+      throw e;
+    }
+  }
+
+  return { items, breakpoints, positions };
+}
 
 /** @deprecated due to the name being unclear */
-export const layoutText = () => {};
-// export const layoutText = positionText;
+export const layoutText = positionText;
+// export const layoutText = () => {};

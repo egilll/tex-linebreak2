@@ -22,7 +22,7 @@ import {
 } from 'src/helpers/util';
 
 import fixture from './fixtures/layout';
-import { positionItems } from 'src/helpers/positionItems';
+import { positionItems } from 'src/helpers/deprecated/positionItems';
 import { layoutItemsFromString } from 'src/helpers/splitTextIntoItems';
 
 interface LayoutFixture {

@@ -1,5 +1,5 @@
 import { TextInputItem } from 'src/helpers/util';
-import { DOMItem } from 'src/html/html';
+import { DOMItem } from 'src/html/htmlHelpers';
 import { InputItem } from 'src/breakLines';
 
 export type HelperOptions = Partial<{
@@ -12,8 +12,10 @@ export type HelperOptions = Partial<{
    */
   items: (TextInputItem | DOMItem | InputItem)[];
 
-  /** Callback that calculates the width of a given string */
-  measureFn: (word: string) => number;
+  /**
+   * Callback that calculates the width of a given string.
+   */
+  measureFn: (word: string, ...args: any[]) => number;
   /**
    * Callback that calculates legal hyphenation points in a
    * word and returns an array of pieces that can be joined

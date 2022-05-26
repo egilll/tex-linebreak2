@@ -21,31 +21,15 @@ export type DOMGlue = Glue & NodeOffset;
 export type DOMPenalty = Penalty & NodeOffset;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
-export interface ElementBreakpoints {
-  el: HTMLElement;
-  items: DOMItem[];
-  breakpoints: number[];
-  lineWidth: number;
-}
-
 /**
  * Add layout items for `node` to `items`.
  */
-export function addItemsForTextNode(
-  items: DOMItem[],
-  node: Text,
-  measureFn: (word: string, context: Element) => number,
-  hyphenateFn?: (word: string) => string[],
-  options: HelperOptions = {},
-) {
+export function addItemsForTextNode(items: DOMItem[], node: Text, options: HelperOptions = {}) {
   const text = node.nodeValue!;
-  const el = node.parentNode! as Element;
   let textOffset = 0;
   let _items = splitTextIntoItems(text, {
     ...options,
     ignoreNewlines: true,
-    measureFn: (word) => measureFn(word, el),
-    hyphenateFn,
   }).map((item: TextInputItem): DOMItem => {
     const startOffset = textOffset;
     textOffset += ('text' in item ? item.text : '').length;
@@ -63,12 +47,7 @@ export function addItemsForTextNode(
 /**
  * Add layout items for `element` and its descendants to `items`.
  */
-export function addItemsForElement(
-  items: DOMItem[],
-  element: Element,
-  measureFn: (word: string, context: Element) => number,
-  hyphenateFn?: (word: string) => string[],
-) {
+export function addItemsForElement(items: DOMItem[], element: Element, options: HelperOptions) {
   const {
     display,
     width,
@@ -95,7 +74,7 @@ export function addItemsForElement(
     }
 
     // Add items for child nodes.
-    addItemsForNode(items, element, measureFn, hyphenateFn, false);
+    addItemsForNode(items, element, options, false);
 
     // Add box for margin/border/padding at end of box.
     const rightMargin =
@@ -132,18 +111,16 @@ export function addItemsForElement(
 export function addItemsForNode(
   items: DOMItem[],
   node: Node,
-  measureFn: (word: string, context: Element) => number,
-  hyphenateFn?: (word: string) => string[],
-  addParagraphEnd = true,
   options: HelperOptions = {},
+  addParagraphEnd = true,
 ) {
   const children = Array.from(node.childNodes);
 
   children.forEach((child) => {
     if (child instanceof Text) {
-      addItemsForTextNode(items, child, measureFn, hyphenateFn, options);
+      addItemsForTextNode(items, child, options);
     } else if (child instanceof Element) {
-      addItemsForElement(items, child, measureFn, hyphenateFn);
+      addItemsForElement(items, child, options);
     }
   });
 

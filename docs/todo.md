@@ -5,3 +5,4 @@
 - urls should break on / not on dashes
 - break only visible paragraphs
 - demo should respect newlines
+- hypher very slow since it needs to initialize tries

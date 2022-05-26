@@ -3,7 +3,7 @@ import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 
 import { box, glue, lineStrings, penalty, forcedBreak } from 'src/helpers/util';
-import { layoutText } from 'src/helpers/positionItems';
+import { layoutText } from 'src/helpers/deprecated/positionItems';
 import { layoutItemsFromString } from 'src/helpers/splitTextIntoItems';
 
 const hyphenator = new Hypher(enUsPatterns);

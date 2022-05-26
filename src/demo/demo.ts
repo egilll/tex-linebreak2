@@ -6,7 +6,7 @@
 import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 import { justifyContent } from 'src/html/justifyContent';
-import { setCanvasSize, canvas, renderToCanvas } from 'src/demo/demoCanvas';
+import { renderToCanvas } from 'src/demo/demoCanvas';
 
 export const hyphenateFn = (word: string) => new Hypher(enUsPatterns).hyphenate(word);
 
@@ -28,8 +28,10 @@ export function rerender() {
   const htmlParagraph = document.querySelector('.html-p')! as HTMLElement;
   htmlParagraph.innerHTML = textarea.value;
   const textContent = htmlParagraph.textContent!;
-  justifyContent(htmlParagraph, hyphenateFn, {
+
+  justifyContent(htmlParagraph, {
     softHyphenationPenalty: 30,
+    ignoreNewlines: true,
   });
 
   // Render to canvas.

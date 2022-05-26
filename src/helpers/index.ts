@@ -2,11 +2,12 @@ import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
 import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
 import { breakLines, InputItem } from 'src/breakLines';
-import { positionItems, PositionedItem, PositionOptions } from 'src/helpers/positionItems';
 import { breakLinesGreedy } from 'src/helpers/greedy';
-import { DOMItem } from 'src/html/html';
+import { DOMItem } from 'src/html/htmlHelpers';
 
-export class TexLinebreak<InputItemType extends TextInputItem | DOMItem | InputItem> {
+export type AnyInput = TextInputItem | DOMItem | InputItem;
+
+export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
   private _items?: InputItemType[];
   constructor(public options: HelperOptions) {
     this.options = getOptionsWithDefaults(options);
@@ -31,16 +32,16 @@ export class TexLinebreak<InputItemType extends TextInputItem | DOMItem | InputI
       return breakLines(this.getItems(), this.options.lineWidth);
     }
   }
-  getLines(): Line[] {
-    let lines: Line[] = [];
+  get lines(): Line<InputItemType>[] {
+    let lines: Line<InputItemType>[] = [];
     const breakpoints = this.getBreakpoints();
     for (let b = 0; b < breakpoints.length - 1; b++) {
-      lines.push(new Line(this, breakpoints[b], breakpoints[b + 1], b));
+      lines.push(new Line<InputItemType>(this, breakpoints[b], breakpoints[b + 1], b));
     }
     return lines;
   }
   getLinesAsPlainText(): string[] {
-    return this.getLines().map((line) =>
+    return this.lines.map((line) =>
       line.items
         .map((item) => ('text' in item ? item.text : ''))
         .join('')
@@ -53,7 +54,7 @@ export class TexLinebreak<InputItemType extends TextInputItem | DOMItem | InputI
   }
 }
 
-export class Line {
+export class Line<InputItemType extends AnyInput = AnyInput> {
   constructor(
     public parentClass: TexLinebreak<any>,
     public startBreakpoint: number,
@@ -120,6 +121,17 @@ export class Line {
       this.rightHangingPunctuationWidth
     );
   }
+  //todo:Merge
+  get actualWidthIgnoringGlue(): number {
+    return (
+      this.itemsFiltered.reduce((sum, item, curIndex, items) => {
+        if (item.type === 'glue') return sum;
+        return sum + item.width;
+      }, 0) -
+      this.leftHangingPunctuationWidth -
+      this.rightHangingPunctuationWidth
+    );
+  }
 
   get leftHangingPunctuationWidth() {
     return this.itemsFiltered[0]?.leftHangingPunctuationWidth || 0;
@@ -134,29 +146,29 @@ export class Line {
   }
 
   get extraSpacePerGlue(): number {
-    const spaceDiff = this.idealWidth - this.actualWidth;
-    const extraSpacePerGlue = spaceDiff / this.glueCount;
-
-    return extraSpacePerGlue;
+    return (this.idealWidth - this.actualWidth) / this.glueCount;
   }
 
-  get positionedItems(): PositionedItem[] {
-    const result: PositionedItem[] = [];
-    let xOffset = this.leftHangingPunctuationWidth;
+  get glueWidth(): number {
+    return (this.idealWidth - this.actualWidthIgnoringGlue) / this.glueCount;
+  }
 
+  /** TODO:   what about filtered items ??? */
+  get positionedItems(): (InputItemType & { xOffset: number })[] {
+    const result: (InputItemType & { xOffset: number })[] = [];
+    let xOffset = -this.leftHangingPunctuationWidth;
     this.itemsFiltered.forEach((item) => {
-      if (item.type === 'box') {
-        result.push({
-          item,
-          xOffset,
-        });
+      result.push({
+        ...item,
+        xOffset,
+      });
+      if (item.type === 'glue') {
+        xOffset += this.glueWidth;
+      } else {
+        xOffset += item.width;
       }
     });
 
     return result;
   }
 }
-
-// export const texLinebreak = (options: HelperOptions): TexLinebreak => {
-//   return new TexLinebreak(options);
-// };

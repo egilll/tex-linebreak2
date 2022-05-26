@@ -1,7 +1,6 @@
-import { layoutText } from 'src/helpers/positionItems';
-import { TextBox } from 'src/helpers/util';
-import { hyphenateFn } from 'src/demo/demo';
-import { TexLinebreak, Line } from 'src/helpers';
+import { isSoftHyphen, TextInputItem } from 'src/helpers/util';
+import { hyphenateFn, outputElement } from 'src/demo/demo';
+import { TexLinebreak } from 'src/helpers';
 
 export const canvas = document.querySelector('canvas')!;
 
@@ -13,11 +12,9 @@ export function renderToCanvas(
   margins: { left: number; right: number },
   lineWidth: number,
 ) {
-  // const lineWidth = canvas.width / window.devicePixelRatio - margins.left - margins.right;
-
-  /** TODO: Find good canvas size */
+  const outputElementStyle = window.getComputedStyle(outputElement);
+  const lineSpacing = parseInt(outputElementStyle.lineHeight);
   setCanvasSize(canvas, lineWidth + margins.left + margins.right, 500);
-
   const canvasRenderingContext = canvas.getContext('2d')!;
   canvasRenderingContext.clearRect(
     0,
@@ -27,30 +24,25 @@ export function renderToCanvas(
   );
   canvasRenderingContext.font = '16px serif';
 
-  const lineSpacing = 30;
-
-  new TexLinebreak({
+  const lines = new TexLinebreak<TextInputItem>({
     text,
     lineWidth,
     hyphenateFn,
     measureFn: (t: string) => canvasRenderingContext.measureText(t).width,
-  })
-    .getLines()
-    .forEach((line: Line) => {
-      const yOffset = line.lineNumber * lineSpacing;
-      const item = items[p.item];
-      const text = item.type === 'box' ? (item as TextBox).text : '-';
-      let xOffset = margins.left + p.xOffset;
-      canvasRenderingContext.fillText(text, xOffset, yOffset);
-    });
+  }).lines;
 
-  // Render each line.
-  positions.forEach((p) => {
-    const yOffset = (p.line + 1) * lineSpacing;
-    const item = items[p.item];
-    const text = item.type === 'box' ? (item as TextBox).text : '-';
-    let xOffset = margins.left + p.xOffset;
-    canvasRenderingContext.fillText(text, xOffset, yOffset);
+  lines.forEach((line) => {
+    const yOffset = line.lineNumber * lineSpacing;
+    line.positionedItems.forEach((item) => {
+      let text = item.type === 'box' && item.text;
+      if (isSoftHyphen(item)) {
+        text = '-';
+      }
+      let xOffset = margins.left + item.xOffset;
+      if (text) {
+        canvasRenderingContext.fillText(text, xOffset, yOffset);
+      }
+    });
   });
 }
 
@@ -58,10 +50,10 @@ export function renderToCanvas(
  * Set the size of a canvas, adjusting for high-DPI displays.
  */
 export function setCanvasSize(canvas: HTMLCanvasElement, width: number, height: number) {
-  const ctx = canvas.getContext('2d')!;
+  const canvasRenderingContext = canvas.getContext('2d')!;
   canvas.style.width = width + 'px';
   canvas.style.height = height + 'px';
   canvas.width = width * window.devicePixelRatio;
   canvas.height = height * window.devicePixelRatio;
-  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  canvasRenderingContext.scale(window.devicePixelRatio, window.devicePixelRatio);
 }
