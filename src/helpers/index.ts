@@ -1,20 +1,25 @@
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
 import { TextInputItem } from 'src/helpers/util';
-import { breakLines } from 'src/breakLines';
+import { breakLines, InputItem } from 'src/breakLines';
 import { positionItems, PositionedItem, PositionOptions } from 'src/helpers/positionItems';
 import { breakLinesGreedy } from 'src/helpers/greedy';
+import { DOMItem } from 'src/html/html';
 
-export class TexLinebreak {
+export type AnyInputItem = TextInputItem | DOMItem | InputItem;
+
+export class TexLinebreak<InputItemType extends TextInputItem | DOMItem | InputItem> {
   public options: HelperOptions;
-  private _items?: TextInputItem[];
+  private _items?: InputItemType[];
   constructor(options: HelperOptions) {
     this.options = getOptionsWithDefaults(options);
   }
-  getItems(): TextInputItem[] {
-    if (!this._items) {
+  getItems(): InputItemType[] {
+    if (this.options.items) {
+      return this.options.items as InputItemType[];
+    } else if (!this._items) {
       if (typeof this.options.text === 'string') {
-        this._items = splitTextIntoItems(this.options.text, this.options);
+        this._items = splitTextIntoItems(this.options.text, this.options) as InputItemType[];
       } else {
         throw new Error('Not implemented');
       }
@@ -29,18 +34,18 @@ export class TexLinebreak {
       return breakLines(this.getItems(), this.options.lineWidth);
     }
   }
-  getItemsByLine(): TextInputItem[][] {
-    let lines: TextInputItem[][] = [];
+  getLines(): Line[] {
+    let lines: Line[] = [];
     const breakpoints = this.getBreakpoints();
-    const items = this.getItems();
+    // const items = this.getItems();
     for (let b = 0; b < breakpoints.length - 1; b++) {
-      lines.push(items.slice(breakpoints[b], breakpoints[b + 1]));
+      lines.push(new Line(this, breakpoints[b], breakpoints[b + 1]));
     }
     return lines;
   }
-  getPlainTextLines(): string[] {
-    return this.getItemsByLine().map((line) =>
-      line
+  getLinesAsPlainText(): string[] {
+    return this.getLines().map((line) =>
+      line.items
         .map((item) => ('text' in item ? item.text : ''))
         .join('')
         // Todo: This has to be reconsidered, only breakable glue at the start of lines should be ignored
@@ -48,11 +53,31 @@ export class TexLinebreak {
     );
   }
   getPlainText(): string {
-    return this.getPlainTextLines().join('\n');
+    return this.getLinesAsPlainText().join('\n');
   }
   getPositionedItems(options: PositionOptions = {}): PositionedItem[] {
     if (!this.options.lineWidth) throw new Error('The option `lineWidth` is required');
     return positionItems(this.getItems(), this.options.lineWidth, this.getBreakpoints(), options);
+  }
+}
+
+export class Line {
+  constructor(
+    public parentClass: TexLinebreak,
+    public startBreakpoint: number,
+    public endBreakpoint: number,
+  ) {}
+  get items() {
+    return this.parentClass.getItems().slice(this.startBreakpoint, this.endBreakpoint);
+  }
+  get breakItem() {
+    return this.items[this.endBreakpoint];
+  }
+  get prevBreakItem() {
+    return this.items[this.startBreakpoint - 1];
+  }
+  get endsWithSoftHyphen() {
+    return this.breakItem.type === 'penalty' && this.breakItem.flagged && this.breakItem.width > 0;
   }
 }
 

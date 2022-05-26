@@ -1,8 +1,6 @@
 import DOMTextMeasurer from 'src/util/dom-text-measurer';
-import { breakLines, MaxAdjustmentExceededError } from 'src/breakLines';
 import {
-  taggedChildren,
-  ElementBreakpoints,
+  getTaggedChildren,
   elementLineWidth,
   DOMItem,
   addItemsForNode,
@@ -10,13 +8,14 @@ import {
   tagNode,
   addWordSpacing,
 } from 'src/html/html';
+import { TexLinebreak } from 'src/helpers';
 
 /**
  * Reverse the changes made to an element by `justifyContent`.
  */
 export function unjustifyContent(el: HTMLElement) {
   // Find and remove all elements inserted by `justifyContent`.
-  const tagged = taggedChildren(el);
+  const tagged = getTaggedChildren(el);
   for (let node of tagged) {
     const parent = node.parentNode!;
     const children = Array.from(node.childNodes);
@@ -45,89 +44,61 @@ export function justifyContent(
   elements: HTMLElement | HTMLElement[],
   hyphenateFn?: (word: string) => string[],
 ) {
-  // To avoid layout thrashing, we batch DOM layout reads and writes in this
-  // function. ie. we first measure the available width and compute linebreaks
-  // for all elements and then afterwards modify all the elements.
-
   if (!Array.isArray(elements)) {
     elements = [elements];
   }
 
   // Undo the changes made by any previous justification of this content.
-  elements.forEach((el) => {
-    unjustifyContent(el);
-  });
+  elements.forEach((el) => unjustifyContent(el));
 
   // Calculate line-break positions given current element width and content.
-  const measurer = new DOMTextMeasurer();
-  const measure = measurer.measure.bind(measurer);
+  const measure = new DOMTextMeasurer().measure;
 
-  const elementBreaks: ElementBreakpoints[] = [];
+  /** TODO!!!! ÉG TÓK ÞETTA TIL BAKA, VERÐUR AÐ ENDURSKOÐA!!!! */
+  // To avoid layout thrashing, we batch DOM layout reads and writes in this
+  // function. ie. we first measure the available width and compute linebreaks
+  // for all elements and then afterwards modify all the elements.
+
   elements.forEach((el) => {
     const lineWidth = elementLineWidth(el);
     let items: DOMItem[] = [];
-    addItemsForNode(items, el, measure);
-    let breakpoints;
-    try {
-      // First try without hyphenation but a maximum stretch-factor for each
-      // space.
-      breakpoints = breakLines(items, lineWidth, {
-        maxAdjustmentRatio: 2.0,
-      });
-      console.log(breakpoints);
-    } catch (e) {
-      if (e instanceof MaxAdjustmentExceededError) {
-        // Retry with hyphenation and unlimited stretching of each space.
-        items = [];
-        addItemsForNode(items, el, measure, hyphenateFn);
-        breakpoints = breakLines(items, lineWidth);
-      } else {
-        throw e;
-      }
-    }
-    elementBreaks.push({ el, items, breakpoints, lineWidth });
-  });
+    addItemsForNode(items, el, measure, hyphenateFn);
 
-  // Insert line-breaks and adjust inter-word spacing.
-  elementBreaks.forEach(({ el, items, breakpoints, lineWidth }) => {
+    const helper = new TexLinebreak<DOMItem>({ items, lineWidth });
+
+    const breakpoints = helper.getBreakpoints();
+
     const [actualWidths, glueCounts] = lineWidthsAndGlueCounts(items, breakpoints);
-
-    // Create a `Range` for each line. We create the ranges before modifying the
-    // contents so that node offsets in `items` are still valid at the point when
-    // we create the Range.
-    const endsWithHyphen: boolean[] = [];
-    const lineRanges: Range[] = [];
-    for (let b = 1; b < breakpoints.length; b++) {
-      const prevBreakItem = items[breakpoints[b - 1]];
-      const breakItem = items[breakpoints[b]];
-
-      const r = document.createRange();
-      if (b > 1) {
-        r.setStart(prevBreakItem.node, prevBreakItem.end);
-      } else {
-        r.setStart(el, 0);
-      }
-      r.setEnd(breakItem.node, breakItem.start);
-      lineRanges.push(r);
-      endsWithHyphen.push(breakItem.type === 'penalty' && breakItem.flagged);
-    }
 
     // Disable automatic line wrap.
     el.style.whiteSpace = 'nowrap';
 
-    // Insert linebreaks.
-    lineRanges.forEach((r, i) => {
-      if (i === 0) {
-        return;
-      }
-      const brEl = document.createElement('br');
-      tagNode(brEl);
+    const lines = helper.getLines();
 
+    // Create a `Range` for each line. We create the ranges before modifying the
+    // contents so that node offsets in `items` are still valid at the point when
+    // we create the Range.
+    const lineRanges: Range[] = [];
+    lines.forEach((line, i) => {
+      const range = document.createRange();
+      if (i > 0) {
+        range.setStart(line.prevBreakItem.parentDOMNode, line.prevBreakItem.endOffset);
+      } else {
+        range.setStart(el, 0);
+      }
+      range.setEnd(line.breakItem.parentDOMNode, line.breakItem.startOffset);
+      lineRanges.push(range);
+    });
+
+    lines.forEach((line, i) => {
+      const range = lineRanges[i];
       // Insert linebreak. The browser will automatically adjust subsequent
       // ranges.
-      r.insertNode(brEl);
-
-      r.setStart(brEl.nextSibling!, 0);
+      if (i > 0) {
+        const brEl = tagNode(document.createElement('br'));
+        range.insertNode(brEl);
+        range.setStart(brEl.nextSibling!, 0);
+      }
     });
 
     // Adjust inter-word spacing on each line and add hyphenation if needed.
@@ -144,10 +115,9 @@ export function justifyContent(
       }
 
       const wrappedNodes = addWordSpacing(r, extraSpacePerGlue);
-      if (endsWithHyphen[i] && wrappedNodes.length > 0) {
+      if (endsWithSoftHyphen[i] && wrappedNodes.length > 0) {
         const lastNode = wrappedNodes[wrappedNodes.length - 1];
-        const hyphen = document.createTextNode('-');
-        tagNode(hyphen);
+        const hyphen = tagNode(document.createTextNode('-'));
         lastNode.parentNode!.appendChild(hyphen);
       }
     });

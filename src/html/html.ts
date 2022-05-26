@@ -6,10 +6,12 @@ import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
 const NODE_TAG = 'insertedByTexLinebreak';
 
 export interface NodeOffset {
-  /** A DOM node */
-  node: Node;
-  start: number;
-  end: number;
+  parentDOMNode: Node;
+  /**
+   * Character offset of this item (box/penalty/glue) in the parent DOM node
+   */
+  startOffset: number;
+  endOffset: number;
 }
 
 export type DOMBox = Box & NodeOffset;
@@ -46,75 +48,13 @@ export function addItemsForTextNode(
     textOffset += ('text' in item ? item.text : '').length;
     return {
       ...item,
-      node,
-      start: startOffset,
-      end: textOffset,
+      parentDOMNode: node,
+      startOffset: startOffset,
+      endOffset: textOffset,
     };
   });
 
   items.push(..._items);
-
-  // const spaceWidth = measureFn(el, ' ');
-  // const shrink = Math.max(0, spaceWidth - 3);
-  // const hyphenWidth = measureFn(el, '-');
-  // const isSpace = (word: string) => /\s/.test(word.charAt(0));
-  //
-  // const chunks = text.split(/(\s+)/).filter((w) => w.length > 0);
-  // let textOffset = 0;
-
-  // chunks.forEach((w) => {
-  //   if (isSpace(w)) {
-  //     const glue: DOMGlue = {
-  //       type: 'glue',
-  //       width: spaceWidth,
-  //       shrink,
-  //       stretch: spaceWidth,
-  //       node,
-  //       start: textOffset,
-  //       end: textOffset + w.length,
-  //     };
-  //     items.push(glue);
-  //     textOffset += w.length;
-  //     return;
-  //   }
-  //
-  //   if (hyphenateFn) {
-  //     const chunks = hyphenateFn(w);
-  //     chunks.forEach((c, i) => {
-  //       const box: DOMBox = {
-  //         type: 'box',
-  //         width: measureFn(el, c),
-  //         node,
-  //         start: textOffset,
-  //         end: textOffset + c.length,
-  //       };
-  //       textOffset += c.length;
-  //       items.push(box);
-  //       if (i < chunks.length - 1) {
-  //         const hyphen: DOMPenalty = {
-  //           type: 'penalty',
-  //           width: hyphenWidth,
-  //           cost: 10,
-  //           flagged: true,
-  //           node,
-  //           start: textOffset,
-  //           end: textOffset,
-  //         };
-  //         items.push(hyphen);
-  //       }
-  //     });
-  //   } else {
-  //     const box: DOMBox = {
-  //       type: 'box',
-  //       width: measureFn(el, w),
-  //       node,
-  //       start: textOffset,
-  //       end: textOffset + w.length,
-  //     };
-  //     textOffset += w.length;
-  //     items.push(box);
-  //   }
-  // });
 }
 
 /**
@@ -142,7 +82,13 @@ export function addItemsForElement(
     const leftMargin =
       parseFloat(marginLeft!) + parseFloat(borderLeftWidth!) + parseFloat(paddingLeft!);
     if (leftMargin > 0) {
-      items.push({ type: 'box', width: leftMargin, node: element, start: 0, end: 0 });
+      items.push({
+        type: 'box',
+        width: leftMargin,
+        parentDOMNode: element,
+        startOffset: 0,
+        endOffset: 0,
+      });
     }
 
     // Add items for child nodes.
@@ -153,16 +99,22 @@ export function addItemsForElement(
       parseFloat(marginRight!) + parseFloat(borderRightWidth!) + parseFloat(paddingRight!);
     if (rightMargin > 0) {
       const length = element.childNodes.length;
-      items.push({ type: 'box', width: rightMargin, node: element, start: length, end: length });
+      items.push({
+        type: 'box',
+        width: rightMargin,
+        parentDOMNode: element,
+        startOffset: length,
+        endOffset: length,
+      });
     }
   } else {
     // Treat this item as an opaque box.
     items.push({
       type: 'box',
       width: parseFloat(width!),
-      node: element,
-      start: 0,
-      end: 1,
+      parentDOMNode: element,
+      startOffset: 0,
+      endOffset: 1,
     });
   }
 }
@@ -191,6 +143,7 @@ export function addItemsForNode(
     }
   });
 
+  /* TODO!!!!! Child nodes do not have this!!!! */
   // if (addParagraphEnd) {
   //   const end = node.childNodes.length;
   //
@@ -256,8 +209,9 @@ export function lineWidthsAndGlueCounts(items: InputItem[], breakpoints: number[
 /**
  * Mark a node as having been created by `justifyContent`.
  */
-export function tagNode(node: Node) {
+export function tagNode<T extends Node>(node: T): T {
   (node as any)[NODE_TAG] = true;
+  return node;
 }
 
 /**
@@ -270,7 +224,7 @@ export function isTaggedNode(node: Node) {
 /**
  * Return all descendants of `node` created by `justifyContent`.
  */
-export function taggedChildren(node: Node): Node[] {
+export function getTaggedChildren(node: Node): Node[] {
   const children = [];
   for (let i = 0; i < node.childNodes.length; i++) {
     const child = node.childNodes[i];
@@ -278,7 +232,7 @@ export function taggedChildren(node: Node): Node[] {
       children.push(child);
     }
     if (child.childNodes.length > 0) {
-      children.push(...taggedChildren(child));
+      children.push(...getTaggedChildren(child));
     }
   }
   return children;
@@ -288,8 +242,7 @@ export function isTextOrInlineElement(node: Node) {
   if (node instanceof Text) {
     return true;
   } else if (node instanceof Element) {
-    const style = getComputedStyle(node);
-    return style.display === 'inline';
+    return getComputedStyle(node).display === 'inline';
   } else {
     return false;
   }
@@ -307,9 +260,14 @@ export function addWordSpacing(r: Range, wordSpacing: number) {
   // breaking step.
   const texts = textNodesInRange(r, isTextOrInlineElement);
 
+  // /* tmp test for right-align */
+  // if (wordSpacing > 0) {
+  //   // todo: has to be relative to the line width
+  //   wordSpacing /= 2;
+  // }
+
   for (let t of texts) {
-    const wrapper = document.createElement('span');
-    tagNode(wrapper);
+    const wrapper = tagNode(document.createElement('span'));
     wrapper.style.wordSpacing = `${wordSpacing}px`;
     t.parentNode!.replaceChild(wrapper, t);
     wrapper.appendChild(t);

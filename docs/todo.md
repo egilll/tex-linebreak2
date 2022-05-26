@@ -2,3 +2,6 @@
 - hanging punctuation
 - nota html elements í demoi
 - canvas er ömurlegt með padding
+- urls should break on / not on dashes
+- break only visible paragraphs
+- demo should respect newlines

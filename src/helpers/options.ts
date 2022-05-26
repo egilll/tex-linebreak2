@@ -1,25 +1,37 @@
+import { AnyInputItem } from 'src/helpers/index';
+
 export type HelperOptions = {
   text?: string;
   lineBreakingType?: 'fullWidth' | 'findOptimalWidth' | 'greedy';
   alignment?: 'justify' | 'left' | 'right' | 'center';
   lineWidth?: number;
-  /** Only applicable to lineBreakingType 'findOptimalWidth' */
-  minWidth?: number;
-  keepNewlines?: boolean;
-  keepNewlinesAfter?: RegExp;
-  dontBreakOnSpacesMatching?: (
-    textBeforeSpace: string | undefined,
-    textAfterSpace: string | undefined,
-  ) => boolean;
+  /**
+   * If the user wants to supply his own items
+   */
+  items?: AnyInputItem[];
+
   /** Callback that calculates the width of a given string */
-  measureFn: (word: string) => number;
+  measureFn?: (word: string) => number;
   /**
    * Callback that calculates legal hyphenation points in
    * words and returns an array of pieces that can be joined
    * with hyphens.
    */
   hyphenateFn?: (word: string) => string[];
+
+  softHyphenationPenalty?: number;
+
   hangingPunctuation?: boolean;
+
+  /** Only applicable to lineBreakingType 'findOptimalWidth' */
+  minWidth?: number;
+
+  keepNewlines?: boolean;
+  keepNewlinesAfter?: RegExp;
+  dontBreakOnSpacesMatching?: (
+    textBeforeSpace: string | undefined,
+    textAfterSpace: string | undefined,
+  ) => boolean;
 
   /** HTML content does not mind newlines */
   ignoreNewlines?: boolean;
@@ -40,5 +52,5 @@ export const getOptionsWithDefaults = (options: HelperOptions): HelperOptions =>
   return { ...helperOptionsDefaults, ...options };
 };
 
-export type HelperOptionsRequiredFromUser = HelperOptions &
-  Required<Pick<HelperOptions, 'lineWidth'>>;
+// export type HelperOptionsRequiredFromUser = HelperOptions &
+//   Required<Pick<HelperOptions, 'lineWidth'>>;

@@ -17,8 +17,13 @@ const hyphenate = (word: string) => hyphenator.hyphenate(word);
  * Render a string as justified text into a `<canvas>`.
  */
 function renderToCanvas(c: HTMLCanvasElement, t: string, margins: { left: number; right: number }) {
-  const ctx = canvas.getContext('2d')!;
-  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  const canvasRenderingContext = canvas.getContext('2d')!;
+  canvasRenderingContext.clearRect(
+    0,
+    0,
+    canvasRenderingContext.canvas.width,
+    canvasRenderingContext.canvas.height,
+  );
 
   const leftMargin = margins.left;
   const rightMargin = margins.right;
@@ -28,7 +33,7 @@ function renderToCanvas(c: HTMLCanvasElement, t: string, margins: { left: number
   const { items, positions } = layoutText(
     t,
     lineWidth,
-    (w) => ctx.measureText(w).width,
+    (w) => canvasRenderingContext.measureText(w).width,
     (w) => hyphenator.hyphenate(w),
   );
 
@@ -39,7 +44,7 @@ function renderToCanvas(c: HTMLCanvasElement, t: string, margins: { left: number
     const item = items[p.item];
     const text = item.type === 'box' ? (item as TextBox).text : '-';
     let xOffset = leftMargin + p.xOffset;
-    ctx.fillText(text, xOffset, yOffset);
+    canvasRenderingContext.fillText(text, xOffset, yOffset);
   });
 }
 
@@ -74,16 +79,13 @@ function rerender() {
   const htmlParagraph = document.querySelector('.html-p')! as HTMLElement;
   htmlParagraph.innerHTML = textarea.value;
   const textContent = htmlParagraph.textContent!;
-  justifyContent(htmlParagraph, hyphenate);
+  // justifyContent(htmlParagraph, hyphenate);
+  justifyContent(htmlParagraph);
 
   // Render to canvas.
   setCanvasSize(canvas, lineWidth + padding.left + padding.right, 500);
   canvas.getContext('2d')!.font = '13pt sans serif';
   renderToCanvas(canvas, textContent, padding);
-
-  // // Render as text to HTML.
-  // outputElement.textContent = textarea.value;
-  // justifyContent(outputElement, hyphenate);
 
   // Render using CSS `text-justify`
   plainBrowserOutputElement.innerHTML = textarea.value;
