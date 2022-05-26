@@ -8,6 +8,7 @@ import {
   addWordSpacing,
 } from 'src/html/html';
 import { TexLinebreak } from 'src/helpers';
+import { HelperOptions } from 'src/helpers/options';
 
 /**
  * Reverse the changes made to an element by `justifyContent`.
@@ -41,7 +42,9 @@ export function unjustifyContent(el: HTMLElement) {
  */
 export function justifyContent(
   elements: HTMLElement | HTMLElement[],
+  /** Todo: Merge with options... */
   hyphenateFn?: (word: string) => string[],
+  options: HelperOptions = {},
 ) {
   if (!Array.isArray(elements)) {
     elements = [elements];
@@ -61,12 +64,17 @@ export function justifyContent(
   elements.forEach((el) => {
     const lineWidth = elementLineWidth(el);
     let items: DOMItem[] = [];
-    addItemsForNode(items, el, measure, hyphenateFn);
+    addItemsForNode(items, el, measure, hyphenateFn, true, options);
 
     // Disable automatic line wrap.
     el.style.whiteSpace = 'nowrap';
 
-    const lines = new TexLinebreak<DOMItem>({ items, lineWidth }).getLines();
+    const lines = new TexLinebreak<DOMItem>({
+      ...options,
+      items,
+      lineWidth,
+      ignoreNewlines: true,
+    }).getLines();
 
     // Create a `Range` for each line. We create the ranges before modifying the
     // contents so that node offsets in `items` are still valid at the point when
@@ -83,16 +91,20 @@ export function justifyContent(
       lineRanges.push(range);
     });
 
+    // Insert linebreak. The browser will automatically adjust subsequent
+    // ranges. This must be done before the next step.
     lines.forEach((line, i) => {
       const range = lineRanges[i];
-      // Insert linebreak. The browser will automatically adjust subsequent
-      // ranges.
+
       if (i > 0) {
         const brEl = tagNode(document.createElement('br'));
         range.insertNode(brEl);
         range.setStart(brEl.nextSibling!, 0);
       }
+    });
 
+    lines.forEach((line, i) => {
+      const range = lineRanges[i];
       // If this is the final line and the natural spacing between words does
       // not need to be compressed, then don't try to expand the spacing to fill
       // the line.
@@ -101,7 +113,7 @@ export function justifyContent(
         return;
       }
 
-      const wrappedNodes = addWordSpacing(range, line.extraSpacePerGlue);
+      const wrappedNodes = addWordSpacing(range, line);
       if (line.endsWithSoftHyphen && wrappedNodes.length > 0) {
         const lastNode = wrappedNodes[wrappedNodes.length - 1];
         const hyphen = tagNode(document.createTextNode('-'));

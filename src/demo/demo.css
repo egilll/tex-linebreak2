@@ -29,7 +29,7 @@ textarea {
 .demo-output {
   background-color: white;
   font-family: serif;
-  font-size: 12pt;
+  font-size: 16px;
   border: 1px solid #aaa;
   margin: 10px auto;
   padding: 15px 30px;
@@ -39,6 +39,7 @@ textarea {
 
 .canvas {
   display: block;
+  padding: 0;
 }
 
 .output-p {

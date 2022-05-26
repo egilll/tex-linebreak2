@@ -235,9 +235,28 @@ export function breakLines(
     const feasible: LineBreakingNode[] = [];
     active.forEach((a) => {
       const lineShrink = sumShrink - a.totalShrink;
-      const lineStretch = sumStretch - a.totalStretch;
+      let lineStretch = sumStretch - a.totalStretch;
       const idealLen = getLineLength(a.line);
       let actualLen = sumWidth - a.totalWidth;
+
+      /**
+       * NOTE:
+       * This goes against the original paper, but it simply
+       * does not work correctly when the text includes an item that fills
+       * the entire line. In that case, the adjustment ratio is infinite,
+       * the line can never be broken, causing one of two things to occur:
+       *   1. The word OVERLAPS with the next one
+       *   2. The line is split in an extremely silly manner, such as
+       *        "bla          bla         bla
+       *         bla https://example.com/bla-
+       *         bla"
+       *      instead of:
+       *        "bla      bla    bla      bla
+       *         https://example.com/bla-bla"
+       */
+      if (lineStretch === 0) {
+        lineStretch = 1;
+      }
 
       // Include width of penalty in line length if chosen as a breakpoint.
       if (item.type === 'penalty') {

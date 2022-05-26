@@ -1,17 +1,14 @@
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
-import { TextInputItem } from 'src/helpers/util';
+import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
 import { breakLines, InputItem } from 'src/breakLines';
 import { positionItems, PositionedItem, PositionOptions } from 'src/helpers/positionItems';
 import { breakLinesGreedy } from 'src/helpers/greedy';
 import { DOMItem } from 'src/html/html';
 
-export type AnyInputItem = TextInputItem | DOMItem | InputItem;
-
 export class TexLinebreak<InputItemType extends TextInputItem | DOMItem | InputItem> {
-  public options: HelperOptions;
   private _items?: InputItemType[];
-  constructor(options: HelperOptions) {
+  constructor(public options: HelperOptions) {
     this.options = getOptionsWithDefaults(options);
   }
   getItems(): InputItemType[] {
@@ -37,12 +34,9 @@ export class TexLinebreak<InputItemType extends TextInputItem | DOMItem | InputI
   getLines(): Line[] {
     let lines: Line[] = [];
     const breakpoints = this.getBreakpoints();
-    // const items = this.getItems();
     for (let b = 0; b < breakpoints.length - 1; b++) {
       lines.push(new Line(this, breakpoints[b], breakpoints[b + 1], b));
     }
-    console.log(breakpoints);
-    console.log(lines);
     return lines;
   }
   getLinesAsPlainText(): string[] {
@@ -57,10 +51,6 @@ export class TexLinebreak<InputItemType extends TextInputItem | DOMItem | InputI
   getPlainText(): string {
     return this.getLinesAsPlainText().join('\n');
   }
-  getPositionedItems(options: PositionOptions = {}): PositionedItem[] {
-    if (!this.options.lineWidth) throw new Error('The option `lineWidth` is required');
-    return positionItems(this.getItems(), this.options.lineWidth, this.getBreakpoints(), options);
-  }
 }
 
 export class Line {
@@ -70,8 +60,39 @@ export class Line {
     public endBreakpoint: number,
     public lineIndex: number,
   ) {}
+
+  get lineNumber(): number {
+    return this.lineIndex + 1;
+  }
+
   get items() {
     return this.parentClass.getItems().slice(this.startBreakpoint, this.endBreakpoint);
+  }
+
+  /**
+   * Filter glues and penalties that do not matter for the purposes of rendering this line
+   */
+  get itemsFiltered() {
+    return this.items.filter((item, curIndex, items) => {
+      if (
+        // Ignore penalty that's not at the end of the line
+        item.type === 'penalty' &&
+        curIndex !== items.length - 1
+      ) {
+        return false;
+      } else if (
+        item.type === 'glue' &&
+        // Ignore line-beginning glue
+        (curIndex === 0 ||
+          // Ignore line-ending glue
+          curIndex === items.length - 1 ||
+          // Ignore adjacent glues
+          items[curIndex - 1].type === 'glue')
+      ) {
+        return false;
+      }
+      return true;
+    });
   }
   get breakItem() {
     return this.parentClass.getItems()[this.endBreakpoint];
@@ -80,7 +101,7 @@ export class Line {
     return this.parentClass.getItems()[this.startBreakpoint - 1];
   }
   get endsWithSoftHyphen(): boolean {
-    return this.breakItem.type === 'penalty' && this.breakItem.flagged && this.breakItem.width > 0;
+    return isSoftHyphen(this.breakItem);
   }
 
   /** TODO: Work with multiple lines */
@@ -91,39 +112,48 @@ export class Line {
     return this.parentClass.options.lineWidth;
   }
   get actualWidth(): number {
-    return this.items.reduce((sum, item, curIndex, items) => {
-      if (item.type === 'penalty' && curIndex !== items.length - 1) {
-        return sum;
-      } else {
+    return (
+      this.itemsFiltered.reduce((sum, item, curIndex, items) => {
         return sum + item.width;
-      }
-    }, 0);
+      }, 0) -
+      this.leftHangingPunctuationWidth -
+      this.rightHangingPunctuationWidth
+    );
   }
 
-  /**
-   * todo:
-   * - test for adjacent glues
-   * - count actual glue width
-   */
-  get glueCount(): number {
-    return this.items.reduce((sum, item, curIndex, items) => {
-      if (
-        item.type === 'glue' &&
-        // Ignore line-beginning glue
-        curIndex !== 0 &&
-        // Ignore line-ending glue
-        curIndex !== items.length - 1
-      ) {
-        return sum + 1;
-      } else {
-        return sum;
-      }
-    }, 0);
+  get leftHangingPunctuationWidth() {
+    return this.itemsFiltered[0]?.leftHangingPunctuationWidth || 0;
   }
+
+  get rightHangingPunctuationWidth() {
+    return this.itemsFiltered[this.itemsFiltered.length - 1]?.rightHangingPunctuationWidth || 0;
+  }
+
+  get glueCount(): number {
+    return this.itemsFiltered.filter((item) => item.type === 'glue').length;
+  }
+
   get extraSpacePerGlue(): number {
     const spaceDiff = this.idealWidth - this.actualWidth;
     const extraSpacePerGlue = spaceDiff / this.glueCount;
+
     return extraSpacePerGlue;
+  }
+
+  get positionedItems(): PositionedItem[] {
+    const result: PositionedItem[] = [];
+    let xOffset = this.leftHangingPunctuationWidth;
+
+    this.itemsFiltered.forEach((item) => {
+      if (item.type === 'box') {
+        result.push({
+          item,
+          xOffset,
+        });
+      }
+    });
+
+    return result;
   }
 }
 

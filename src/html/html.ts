@@ -2,6 +2,8 @@ import { Box, Glue, Penalty } from 'src/breakLines';
 import { textNodesInRange } from 'src/util/range';
 import { TextInputItem } from 'src/helpers/util';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
+import { Line } from 'src/helpers';
+import { HelperOptions } from 'src/helpers/options';
 
 const NODE_TAG = 'insertedByTexLinebreak';
 
@@ -34,12 +36,13 @@ export function addItemsForTextNode(
   node: Text,
   measureFn: (word: string, context: Element) => number,
   hyphenateFn?: (word: string) => string[],
+  options: HelperOptions = {},
 ) {
   const text = node.nodeValue!;
   const el = node.parentNode! as Element;
   let textOffset = 0;
-
   let _items = splitTextIntoItems(text, {
+    ...options,
     ignoreNewlines: true,
     measureFn: (word) => measureFn(word, el),
     hyphenateFn,
@@ -132,12 +135,13 @@ export function addItemsForNode(
   measureFn: (word: string, context: Element) => number,
   hyphenateFn?: (word: string) => string[],
   addParagraphEnd = true,
+  options: HelperOptions = {},
 ) {
   const children = Array.from(node.childNodes);
 
   children.forEach((child) => {
     if (child instanceof Text) {
-      addItemsForTextNode(items, child, measureFn, hyphenateFn);
+      addItemsForTextNode(items, child, measureFn, hyphenateFn, options);
     } else if (child instanceof Element) {
       addItemsForElement(items, child, measureFn, hyphenateFn);
     }
@@ -210,15 +214,12 @@ export function isTextOrInlineElement(node: Node) {
 
 /**
  * Wrap text nodes in a range and adjust the inter-word spacing.
- *
- * @param r - The range to wrap
- * @param wordSpacing - The additional spacing to add between words in pixels
  */
-export function addWordSpacing(r: Range, wordSpacing: number) {
+export function addWordSpacing(range: Range, line: Line) {
   // Collect all text nodes in range, skipping any non-inline elements and
   // their children because those are treated as opaque blocks by the line-
   // breaking step.
-  const texts = textNodesInRange(r, isTextOrInlineElement);
+  const texts = textNodesInRange(range, isTextOrInlineElement);
 
   // /* tmp test for right-align */
   // if (wordSpacing > 0) {
@@ -226,12 +227,15 @@ export function addWordSpacing(r: Range, wordSpacing: number) {
   //   wordSpacing /= 2;
   // }
 
-  for (let t of texts) {
+  texts.forEach((t, i) => {
     const wrapper = tagNode(document.createElement('span'));
-    wrapper.style.wordSpacing = `${wordSpacing}px`;
+    wrapper.style.wordSpacing = `${line.extraSpacePerGlue}px`;
+    if (i === 0 && line.leftHangingPunctuationWidth) {
+      wrapper.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
+    }
     t.parentNode!.replaceChild(wrapper, t);
     wrapper.appendChild(t);
-  }
+  });
 
   return texts;
 }

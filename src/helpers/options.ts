@@ -1,41 +1,52 @@
-import { AnyInputItem } from 'src/helpers/index';
+import { TextInputItem } from 'src/helpers/util';
+import { DOMItem } from 'src/html/html';
+import { InputItem } from 'src/breakLines';
 
-export type HelperOptions = {
-  text?: string;
-  lineBreakingType?: 'fullWidth' | 'findOptimalWidth' | 'greedy';
-  alignment?: 'justify' | 'left' | 'right' | 'center';
-  lineWidth?: number;
+export type HelperOptions = Partial<{
+  text: string;
+  lineBreakingType: 'fullWidth' | 'findOptimalWidth' | 'greedy';
+  alignment: 'justify' | 'left' | 'right' | 'center';
+  lineWidth: number;
   /**
    * If the user wants to supply his own items
    */
-  items?: AnyInputItem[];
+  items: (TextInputItem | DOMItem | InputItem)[];
 
   /** Callback that calculates the width of a given string */
-  measureFn?: (word: string) => number;
+  measureFn: (word: string) => number;
   /**
-   * Callback that calculates legal hyphenation points in
-   * words and returns an array of pieces that can be joined
+   * Callback that calculates legal hyphenation points in a
+   * word and returns an array of pieces that can be joined
    * with hyphens.
    */
-  hyphenateFn?: (word: string) => string[];
+  hyphenateFn: (word: string) => string[];
 
-  softHyphenationPenalty?: number;
+  /**
+   * A value between 0 <= n <= MAX_COST (i.e. 1000).
+   * Default is 10.
+   * A value over 40 will only break on long words.
+   * A value of MAX_COST will never break, but a value of MAX_COST - 1 will still break on long words.
+   */
+  softHyphenationPenalty: number;
 
-  hangingPunctuation?: boolean;
+  hangingPunctuation: boolean;
 
   /** Only applicable to lineBreakingType 'findOptimalWidth' */
-  minWidth?: number;
+  minWidth: number;
 
-  keepNewlines?: boolean;
-  keepNewlinesAfter?: RegExp;
-  dontBreakOnSpacesMatching?: (
+  keepNewlines: boolean;
+  keepNewlinesAfter: RegExp;
+  dontBreakOnSpacesMatching: (
     textBeforeSpace: string | undefined,
     textAfterSpace: string | undefined,
   ) => boolean;
 
   /** HTML content does not mind newlines */
-  ignoreNewlines?: boolean;
-};
+  ignoreNewlines: boolean;
+
+  /** Ratio compared to a normal space */
+  renderLineAsLeftAlignedIfSpaceIsLargerThan: number;
+}>;
 
 export const helperOptionsDefaults: Partial<HelperOptions> = {
   lineBreakingType: 'fullWidth',

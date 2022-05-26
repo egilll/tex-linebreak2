@@ -4,9 +4,18 @@ import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
 } from 'src/typings/unicodeLineBreakingClasses';
 import { MIN_COST, MAX_COST } from 'src/breakLines';
-import { TextInputItem, penalty, glue, box, softHyphen, TextGlue } from 'src/helpers/util';
+import {
+  TextInputItem,
+  penalty,
+  glue,
+  softHyphen,
+  TextGlue,
+  textBox,
+  textGlue,
+} from 'src/helpers/util';
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { TexLinebreak } from 'src/helpers/index';
+import { calculateHangingPunctuationWidth } from 'src/helpers/hangingPunctuations';
 
 const NON_BREAKING_SPACE = '\xa0';
 const SOFT_HYPHEN = '\u00AD';
@@ -18,7 +27,7 @@ export enum PenaltyClasses {
   OKBreak = 20,
   SoftHyphen = PenaltyClasses.OKBreak,
   BadBreak = 50,
-  VeryBadBreak = 100,
+  VeryBadBreak = 0,
 }
 
 export const splitTextIntoItems = (input: string, _options: HelperOptions): TextInputItem[] => {
@@ -153,14 +162,19 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     }
     // Hyphens
     else if (lastLetterClass === UnicodeLineBreakingClasses.Hyphen) {
-      items.push(penalty(0, cost, true));
+      /** Todo: Should regular hyphens not be flagged? */
+      items.push(penalty(0, cost, false));
+      // items.push(penalty(0, cost, true));
     }
     // Penalty for other items (but ignoring zero-cost penalty after glue,
     // since glues already have a zero-cost penalty)
-    // else if (!(items[items.length - 1].type === 'glue') && cost === 0) {
-    else {
+    else if (!(items[items.length - 1].type === 'glue' && cost === 0)) {
       items.push(penalty(0, cost));
     }
+  }
+
+  if (options.hangingPunctuation) {
+    items = calculateHangingPunctuationWidth(items, options);
   }
 
   return items;
@@ -188,14 +202,9 @@ export const splitSegmentIntoBoxesAndGlue = (
   /**
    * Remove whitespace from end, we will add that back at the end
    */
-  const m = input.match(/^(.+?)(\s+)$/);
-  const inputWithoutFinalWhitespace = m?.[1] || input;
+  const m = input.match(/^((?:.+?)?\S)?(\s+)?$/);
+  const inputWithoutFinalWhitespace = m?.[1] || '';
   const finalWhitespace = m?.[2] || null;
-
-  // todo half-width space
-  const spaceWidth = options.measureFn!(' ');
-  const spaceShrink = 0;
-  const spaceStretch = spaceWidth * 0.01;
 
   const stretchableSpaces = new RegExp(
     `([ \\t\\p{General_Category=Zs}${NON_BREAKING_SPACE}]+)`,
@@ -209,19 +218,19 @@ export const splitSegmentIntoBoxesAndGlue = (
       if (options.hyphenateFn) {
         const chunks = options.hyphenateFn(part);
         chunks.forEach((c, i) => {
-          items.push(box(options.measureFn!(c), c));
+          items.push(textBox(c, options));
           if (i < chunks.length - 1) {
             items.push(softHyphen(options));
           }
         });
       } else {
-        items.push(box(options.measureFn!(part), part));
+        items.push(textBox(part, options));
       }
     }
     // Stretchable glue inside the segment.
     // Can only be non-breakable glue.
     else {
-      items.push(glue(spaceWidth, spaceShrink, spaceStretch, part));
+      items.push(textGlue(part, options));
       items.push(penalty(0, MAX_COST));
     }
   });
@@ -230,7 +239,7 @@ export const splitSegmentIntoBoxesAndGlue = (
    * The above glues were non-breakable. Here we add the final breakable glue back.
    */
   if (finalWhitespace) {
-    items.push(glue(spaceWidth, spaceShrink, spaceStretch, finalWhitespace));
+    items.push(textGlue(finalWhitespace, options));
   }
   return items;
 };
@@ -249,52 +258,6 @@ export const getLineBreakingClassOfLetterAt = (
     j.nextCharClass() as keyof typeof convertEnumValuesOfLineBreakingPackageToUnicodeNames
   ] as UnicodeLineBreakingClasses;
 };
-
-// /**
-//  * A convenience function that generates a set of input items for `breakLines`
-//  * from a string.
-//  */
-// export function splitTextIntoItems(
-//   input: string,
-//   options: Partial<HelperOptions>,
-// ): TextInputItem[] {
-//   let items: TextInputItem[] = [];
-//
-//   /**
-//    * Split into 1. words (including their following punctuation) and 2. whitespace
-//    */
-//   const chunks = input
-//     /* Collapse spaces */
-//     .replace(/ +/g, ' ')
-//     /* Collapse spaces around newlines */
-//     .replace(/ ?\n ?/g, '\n')
-//     /* Split on spaces and newlines */
-//     .split(/([ \n])/)
-//     .filter((w) => w.length > 0);
-//
-//   chunks.forEach((chunk, index) => {
-//     if (
-//       chunk === '\n' &&
-//       index > 0 &&
-//       (options.keepNewlines || options.keepNewlinesAfter?.test(chunks[index - 1]))
-//     ) {
-//       /** Keep newline after punctuation */
-//       items.push(...paragraphEnd());
-//     } else if (
-//       (chunk === ' ' || chunk === '\n') &&
-//       !options.dontBreakOnSpacesMatching?.(chunks[index - 1], chunks[index + 1])
-//     ) {
-//       /** Space */
-//       //TODO: Verify stretch values!
-//       items.push(glue(1, 1, 1, ' '));
-//     } else {
-//       /** Word */
-//       items.push(box(chunk.length, chunk));
-//     }
-//   });
-//   items.push(...paragraphEnd());
-//   return items;
-// }
 
 /**
  * @deprecated

@@ -7,6 +7,10 @@ import { HelperOptions } from 'src/helpers/options';
  */
 export interface TextBox extends Box {
   text: string;
+
+  /** Values for hanging punctuation. */
+  rightHangingPunctuationWidth?: number;
+  leftHangingPunctuationWidth?: number;
 }
 
 export interface TextGlue extends Glue {
@@ -20,6 +24,9 @@ export function box(width: number, text: string): TextBox;
 export function box(width: number, text?: string): Box | TextBox {
   return { type: 'box', width, text };
 }
+export function textBox(text: string, options: HelperOptions): TextBox {
+  return box(options.measureFn!(text), text);
+}
 
 export function glue(width: number, shrink: number, stretch: number): Glue;
 export function glue(width: number, shrink: number, stretch: number, text: string): TextGlue;
@@ -31,6 +38,12 @@ export function glue(
 ): Glue | TextGlue {
   return { type: 'glue', width, shrink, stretch, text };
 }
+export function textGlue(text: string, options: HelperOptions): TextGlue {
+  const spaceWidth = options.measureFn!(' ');
+  const spaceShrink = 0;
+  const spaceStretch = spaceWidth * 2;
+  return glue(spaceWidth, spaceShrink, spaceStretch, text);
+}
 
 export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
   return { type: 'penalty', width, cost, flagged };
@@ -38,8 +51,14 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
 
 export const softHyphen = (options: HelperOptions) => {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn!('-');
-  return penalty(hyphenWidth, PenaltyClasses.SoftHyphen, true);
+  return penalty(hyphenWidth, options.softHyphenationPenalty ?? PenaltyClasses.SoftHyphen, true);
   // return penalty(options.measureFn!('-'), PenaltyClasses.SoftHyphen, true);
+};
+
+/** Todo: Should regular hyphens not be flagged? */
+export const isSoftHyphen = (item: InputItem | undefined) => {
+  if (!item) return false;
+  return item.type === 'penalty' && item.flagged /*&& item.width > 0*/;
 };
 
 export function forcedBreak(): Penalty {
