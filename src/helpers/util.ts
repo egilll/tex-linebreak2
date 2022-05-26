@@ -126,6 +126,6 @@ export const removeGlueFromEndOfParagraphs = <T extends InputItem>(items: T[]): 
   return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
 };
 
-// export const collapseAdjacentSpaces = <T extends InputItem>(items: T[]): T[] => {
-//   throw new Error('Not implemented');
-// };
+export const collapseAdjacentGlues = <T extends InputItem>(items: T[]): T[] => {
+  throw new Error('Not implemented');
+};

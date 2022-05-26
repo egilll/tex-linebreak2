@@ -44,10 +44,12 @@ export type HelperOptions = Partial<{
   ) => boolean;
 
   /** HTML content does not mind newlines */
-  ignoreNewlines: boolean;
+  isHTML: boolean;
 
   /** Ratio compared to a normal space */
   renderLineAsLeftAlignedIfSpaceIsLargerThan: number;
+
+  addParagraphEnd: boolean;
 }>;
 
 export const helperOptionsDefaults: Partial<HelperOptions> = {
@@ -56,6 +58,7 @@ export const helperOptionsDefaults: Partial<HelperOptions> = {
   keepNewlinesAfter: /[.:?!\\]$/,
   alignment: 'justify',
   hangingPunctuation: true,
+  addParagraphEnd: true,
   // /** If no callback is provided, default to a monospace */
   // measureFn: (word: string) => word.length,
 };

@@ -49,6 +49,7 @@ export function justifyContent(
   if (!Array.isArray(elements)) {
     elements = [elements];
   }
+  options = { ...options, isHTML: true };
 
   // Undo the changes made by any previous justification of this content.
   elements.forEach((el) => unjustifyContent(el));
@@ -73,8 +74,19 @@ export function justifyContent(
       ...options,
       items,
       lineWidth,
-      ignoreNewlines: true,
+      isHTML: true,
     }).lines;
+
+    console.log({
+      items,
+      lines,
+      breakpoints: new TexLinebreak<DOMItem>({
+        ...options,
+        items,
+        lineWidth,
+        isHTML: true,
+      }).getBreakpoints(),
+    });
 
     // Create a `Range` for each line. We create the ranges before modifying the
     // contents so that node offsets in `items` are still valid at the point when

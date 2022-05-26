@@ -31,7 +31,7 @@ export function addItemsForTextNode(items: DOMItem[], node: Text, options: Helpe
   splitTextIntoItems(text, {
     ...options,
     measureFn: (word) => options.measureFn!(word, el),
-    ignoreNewlines: true,
+    isHTML: true,
   }).forEach((item: TextInputItem) => {
     const startOffset = textOffset;
     textOffset += ('text' in item ? item.text : '').length;
@@ -118,7 +118,7 @@ export function addItemsForNode(
 
   children.forEach((child) => {
     if (child instanceof Text) {
-      addItemsForTextNode(items, child, options);
+      addItemsForTextNode(items, child, { ...options, addParagraphEnd });
     } else if (child instanceof Element) {
       addItemsForElement(items, child, options);
     }

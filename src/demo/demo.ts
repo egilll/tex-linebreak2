@@ -24,6 +24,10 @@ export function rerender() {
   };
   document.body.style.setProperty('--line-width', `${lineWidth}px`);
 
+  justifyContent(document.querySelector<HTMLElement>('.demo-2')!);
+
+  return;
+
   // Render as HTML.
   const htmlParagraph = document.querySelector('.html-p')! as HTMLElement;
   htmlParagraph.innerHTML = textarea.value;
@@ -31,7 +35,6 @@ export function rerender() {
 
   justifyContent(htmlParagraph, {
     softHyphenationPenalty: 30,
-    ignoreNewlines: true,
   });
 
   // Render to canvas.

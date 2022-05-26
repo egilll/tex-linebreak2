@@ -12,6 +12,7 @@ import {
   TextGlue,
   textBox,
   textGlue,
+  collapseAdjacentSpaces,
 } from 'src/helpers/util';
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { TexLinebreak } from 'src/helpers/index';
@@ -61,12 +62,11 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     const nextLetterClass = getLineBreakingClassOfLetterAt(input, breakPoint.position);
 
     if (
-      (breakPoint.required &&
-        !(
-          // TODO: This option is used when breaking HTML. HTML ignores newlines, but it should not ignore <br>
-          (options.ignoreNewlines && lastLetter === '\n')
-        )) ||
-      isLastSegment
+      breakPoint.required &&
+      !(
+        // TODO: This option is used when breaking HTML. HTML ignores newlines, but it should not ignore <br>
+        (options.isHTML && lastLetter === '\n')
+      )
     ) {
       cost = PenaltyClasses.MandatoryBreak;
     }
@@ -140,7 +140,7 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     items.push(...splitSegmentIntoBoxesAndGlue(segment, options));
 
     /** Paragraph-final infinite glue */
-    if (cost === PenaltyClasses.MandatoryBreak) {
+    if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
       if (items[items.length - 1].type === 'glue') {
         /** If the last character in the segment was a newline character, we convert it into a stretchy glue */
         items[items.length - 1] = {
@@ -168,7 +168,7 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     }
     // Penalty for other items (but ignoring zero-cost penalty after glue,
     // since glues already have a zero-cost penalty)
-    else if (!(items[items.length - 1].type === 'glue' && cost === 0)) {
+    else if (!(items[items.length - 1].type === 'glue' && cost === 0) && cost != null) {
       items.push(penalty(0, cost));
     }
   }
@@ -177,7 +177,7 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     items = calculateHangingPunctuationWidth(items, options);
   }
 
-  return items;
+  return collapseAdjacentSpaces(items);
 };
 
 export const penaltyLowerIfFarAwayFromBreakingPoint = () => {
