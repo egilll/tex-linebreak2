@@ -1,6 +1,6 @@
 import { TextInputItem } from 'src/helpers/util';
 import { InputItem } from 'src/breakLines';
-import { DOMItem } from 'src/html/addItems';
+import { DOMItem } from 'src/html/getItemsFromDOM';
 
 export type HelperOptions = Partial<{
   text: string;

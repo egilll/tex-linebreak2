@@ -3,7 +3,7 @@ import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextInto
 import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
 import { breakLines, InputItem, MAX_COST } from 'src/breakLines';
 import { breakLinesGreedy } from 'src/helpers/greedy';
-import { DOMItem } from 'src/html/addItems';
+import { DOMItem } from 'src/html/getItemsFromDOM';
 
 export type AnyInput = TextInputItem | DOMItem | InputItem;
 
@@ -65,11 +65,13 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
   }
 
   /**
-   * Filter glues and penalties that do not matter for the purposes of rendering this line
+   * Filter glues and penalties that do not matter for the purposes of
+   * rendering this line
    */
   get itemsFiltered() {
     /**
-     * This goes through three steps for a reason, otherwise we haven't filtered out
+     * This goes through three steps for a reason, otherwise we haven't
+     * filtered out
      * [Penalty, Glue, Box] into [Box].
      */
     return (

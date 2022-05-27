@@ -2,7 +2,7 @@ import DOMTextMeasurer from 'src/util/domTextMeasurer';
 import { getElementLineWidth } from 'src/html/htmlHelpers';
 import { TexLinebreak } from 'src/helpers';
 import { HelperOptions } from 'src/helpers/options';
-import { DOMItem, GetItemsFromDom } from 'src/html/addItems';
+import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getTaggedChildren, tagNode } from 'src/html/tag';
 import { debugHtmlLines } from 'src/util/debugHtmlLines';
 import { formatLine } from 'src/html/formatLine';
@@ -67,7 +67,7 @@ export function justifyContent(
     // let items: DOMItem[] = [];
     // addItemsForNode(items, element, { ...options, measureFn });
 
-    const items = new GetItemsFromDom(element, options, domTextMeasureFn).items;
+    const items = new GetItemsFromDOM(element, options, domTextMeasureFn).items;
 
     // Disable automatic line wrap.
     element.style.whiteSpace = 'nowrap';
@@ -89,11 +89,11 @@ export function justifyContent(
     lines.forEach((line, i) => {
       const range = document.createRange();
       if (i > 0) {
-        range.setStart(line.prevBreakItem.parentDOMNode, line.prevBreakItem.endOffset);
+        range.setStart(line.prevBreakItem.parentNode, line.prevBreakItem.endOffset);
       } else {
         range.setStart(element, 0);
       }
-      range.setEnd(line.breakItem.parentDOMNode, line.breakItem.startOffset);
+      range.setEnd(line.breakItem.parentNode, line.breakItem.startOffset);
       lineRanges.push(range);
     });
 
