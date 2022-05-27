@@ -199,7 +199,7 @@ export function isTextOrInlineElement(node: Node) {
 /**
  * Wrap text nodes in a range and adjust the inter-word spacing.
  */
-export function addWordSpacing(range: Range, line: Line): Text[] {
+export function addWordSpacingToLine(range: Range, line: Line): Text[] {
   // Collect all text nodes in range, skipping any non-inline elements and
   // their children because those are treated as opaque blocks by the line-
   // breaking step.
@@ -211,14 +211,38 @@ export function addWordSpacing(range: Range, line: Line): Text[] {
   //   wordSpacing /= 2;
   // }
 
-  texts.forEach((t, i) => {
+  let hasSeenText = false;
+
+  texts.forEach((t, elementInLineIndex) => {
     const wrapper = tagNode(document.createElement('span'));
-    wrapper.style.wordSpacing = `${line.extraSpacePerGlue}px`;
-    if (i === 0 && line.leftHangingPunctuationWidth) {
+    if (elementInLineIndex === 0 && line.leftHangingPunctuationWidth) {
       wrapper.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
     }
     t.parentNode!.replaceChild(wrapper, t);
-    wrapper.appendChild(t);
+
+    /**
+     * Absolute spacing of spaces
+     */
+    const text = t.textContent;
+    const output = document.createDocumentFragment();
+    text?.split(/(\s+)/g).forEach((part, partIndex, arr) => {
+      if (partIndex % 2 == 0) {
+        output.appendChild(document.createTextNode(part));
+        hasSeenText = hasSeenText || Boolean(part);
+      } else {
+        /** Todo: Absolute hack. Needs to actually match up with the glues instead!! */
+        if (!hasSeenText) {
+          return;
+        }
+        const span = document.createElement('span');
+        span.innerHTML = part;
+        span.style.width = `${line.glueWidth}px`;
+        span.style.display = 'inline-block';
+        output.appendChild(span);
+      }
+    });
+
+    wrapper.appendChild(output);
   });
 
   return texts;

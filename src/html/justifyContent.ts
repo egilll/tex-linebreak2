@@ -5,9 +5,9 @@ import {
   DOMItem,
   addItemsForNode,
   tagNode,
-  addWordSpacing,
+  addWordSpacingToLine,
 } from 'src/html/htmlHelpers';
-import { TexLinebreak } from 'src/helpers';
+import { TexLinebreak, Line } from 'src/helpers';
 import { HelperOptions } from 'src/helpers/options';
 
 /**
@@ -111,51 +111,42 @@ export function justifyContent(
 
     lines.forEach((line, i) => {
       const range = lineRanges[i];
-      // If this is the final line and the natural spacing between words does
-      // not need to be compressed, then don't try to expand the spacing to fill
-      // the line.
-      const isFinalLine = i === lineRanges.length - 1;
-      if (isFinalLine && line.extraSpacePerGlue >= 0) {
-        return;
-      }
 
-      const wrappedNodes = addWordSpacing(range, line);
+      const wrappedNodes = addWordSpacingToLine(range, line);
       if (line.endsWithSoftHyphen && wrappedNodes.length > 0) {
         const lastNode = wrappedNodes[wrappedNodes.length - 1];
         const hyphen = tagNode(document.createTextNode('-'));
         lastNode.parentNode!.appendChild(hyphen);
       }
-      // /** Draw boxes on screen to see any possible mismatches in size calculations */
-      // if (debug || true) {
-      //   addDebugBoxes(line, wrappedNodes);
-      // }
     });
 
-    /** Draw boxes on screen to see any possible mismatches in size calculations */
-    if (debug || true) {
-      const box1 = tagNode(document.createElement('div'));
-      box1.style.position = 'relative';
-      box1.style.height = lines.length * 15 + 'px';
-      console.log({ lines });
-
-      lines.forEach((line, i) => {
-        let yOffset = line.lineNumber * 15;
-        line.positionedItems.forEach((item) => {
-          let xOffset = item.xOffset;
-          const box = document.createElement('div');
-          box.style.position = 'absolute';
-          box.style.left = xOffset + 'px';
-          box.style.top = yOffset + 'px';
-          box.style.height = '10px';
-          box.style.width = item.width + 'px';
-          box.style.background = '#7272ed80';
-          box.style.font = '9px sans-serif';
-          // @ts-ignore
-          box.innerHTML = item.text || '?';
-          box1.appendChild(box);
-        });
-      });
-      el.appendChild(box1);
-    }
+    if (debug) debugLines(lines, el);
   });
 }
+
+/** Draw boxes on screen to see any possible mismatches in size calculations */
+export const debugLines = (lines: Line[], appendToElement: HTMLElement) => {
+  const box1 = tagNode(document.createElement('div'));
+  box1.style.position = 'relative';
+  box1.style.height = lines.length * 15 + 'px';
+  console.log({ lines });
+
+  lines.forEach((line) => {
+    let yOffset = line.lineNumber * 15;
+    line.positionedItems.forEach((item) => {
+      let xOffset = item.xOffset;
+      const box = document.createElement('div');
+      box.style.position = 'absolute';
+      box.style.left = xOffset + 'px';
+      box.style.top = yOffset + 'px';
+      box.style.height = '10px';
+      box.style.width = item.width + 'px';
+      box.style.background = '#7272ed80';
+      box.style.font = '9px sans-serif';
+      // @ts-ignore
+      box.innerHTML = item.text || '?';
+      box1.appendChild(box);
+    });
+  });
+  appendToElement.appendChild(box1);
+};

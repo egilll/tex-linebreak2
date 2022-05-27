@@ -24,7 +24,7 @@ export function rerender() {
   };
   document.body.style.setProperty('--line-width', `${lineWidth}px`);
 
-  justifyContent(document.querySelector<HTMLElement>('.demo-2')!);
+  justifyContent(document.querySelector<HTMLElement>('.demo-2')!, {}, true);
 
   return;
 

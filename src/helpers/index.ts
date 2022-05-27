@@ -1,7 +1,7 @@
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
 import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
-import { breakLines, InputItem } from 'src/breakLines';
+import { breakLines, InputItem, MAX_COST } from 'src/breakLines';
 import { breakLinesGreedy } from 'src/helpers/greedy';
 import { DOMItem } from 'src/html/htmlHelpers';
 
@@ -103,7 +103,7 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
     return isSoftHyphen(this.breakItem);
   }
 
-  /** TODO: Work with multiple lines */
+  /** TODO: Work with multiple lines! */
   get idealWidth(): number {
     if (!this.parentClass.options.lineWidth) {
       throw new Error('The option `lineWidth` is required');
@@ -147,11 +147,30 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
     return (this.idealWidth - this.actualWidth) / this.glueCount;
   }
 
+  get actualAverageGlueWidth(): number {
+    return (
+      this.itemsFiltered.reduce((sum, item) => {
+        if (item.type === 'glue') {
+          return sum + item.width;
+        }
+        return sum;
+      }, 0) / this.glueCount
+    );
+  }
+
+  get endsWithInfiniteGlue(): boolean {
+    return this.items[this.items.length - 1]?.stretch === MAX_COST;
+  }
+
   get glueWidth(): number {
     if (this.idealWidth < this.actualWidthIgnoringGlue) {
-      console.error(`Glue in line ${this.lineNumber} is negative!! That's impossible`);
+      console.error(`Glue in line ${this.lineNumber} is negative! That's impossible`);
     }
-    return (this.idealWidth - this.actualWidthIgnoringGlue) / this.glueCount;
+    if (this.endsWithInfiniteGlue && this.extraSpacePerGlue >= 0) {
+      return this.actualAverageGlueWidth;
+    } else {
+      return (this.idealWidth - this.actualWidthIgnoringGlue) / this.glueCount;
+    }
   }
 
   /**
