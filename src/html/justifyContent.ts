@@ -2,7 +2,7 @@ import DOMTextMeasurer from 'src/util/domTextMeasurer';
 import { getElementLineWidth } from 'src/html/htmlHelpers';
 import { TexLinebreak } from 'src/helpers';
 import { HelperOptions } from 'src/helpers/options';
-import { addItemsForNode, DOMItem, GetItemsFromDom } from 'src/html/addItems';
+import { DOMItem, GetItemsFromDom } from 'src/html/addItems';
 import { getTaggedChildren, tagNode } from 'src/html/tag';
 import { debugHtmlLines } from 'src/util/debugHtmlLines';
 import { formatLine } from 'src/html/formatLine';
@@ -29,10 +29,11 @@ export function unjustifyContent(el: HTMLElement) {
 /**
  * Justify an existing paragraph.
  *
- * Justify the contents of `elements`, using `hyphenateFn` to apply hyphenation if
- * necessary.
+ * Justify the contents of `elements`, using `hyphenateFn` to apply hyphenation
+ * if necessary.
  *
- * To justify multiple paragraphs, it is more efficient to call `justifyContent`
+ * To justify multiple paragraphs, it is more efficient to call
+ * `justifyContent`
  * once with all the elements to be processed, than to call `justifyContent`
  * separately for each element. Passing a list allows `justifyContent` to
  * optimize DOM manipulations.
@@ -101,7 +102,8 @@ export function justifyContent(
      * ranges. This must be done before the next step.
      *
      * TODO: THIS DOES NOT HANDLE INLINE BLOCK ELEMENTS CORRECTLY
-     * INLINE-BLOCK ELEMENTS CANNOT HAVE A BREAK INSIDE, THE BROWSER WILL IGNORE IT
+     * INLINE-BLOCK ELEMENTS CANNOT HAVE A BREAK INSIDE, THE BROWSER WILL
+     * IGNORE IT
      */
     lines.forEach((line, i) => {
       const range = lineRanges[i];

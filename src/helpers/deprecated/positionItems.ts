@@ -99,7 +99,8 @@ export function positionItems(
  *
  * @param text - The text to lay out
  * @param lineWidth - Width for each line
- * @param measure - Function which is called to measure each word or space in the input
+ * @param measure - Function which is called to measure each word or space in
+ *     the input
  * @param hyphenate - Function which is called to split words at possible
  * hyphenation points
  */

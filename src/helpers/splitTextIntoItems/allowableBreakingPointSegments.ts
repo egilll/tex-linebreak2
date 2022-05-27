@@ -18,7 +18,8 @@ export const allowableBreakingPointSegments = (
   for (let i = 0; i < breakPoints.length; i++) {
     const breakPoint = breakPoints[i];
     /**
-     * The segment contains the word and the whitespace characters that come after it
+     * The segment contains the word and the whitespace characters that come
+     * after it
      */
     const segment = input.slice(breakPoints[i - 1]?.position || 0, breakPoints[i].position);
   }

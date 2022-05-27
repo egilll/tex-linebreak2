@@ -101,7 +101,8 @@ export function lineStrings(items: TextInputItem[], breakpoints: number[]): stri
     pieces
       .slice(start(a), b + 1)
       /**
-       * TODO: Not good enough, the !== '-' removes standalone hyphens in the middle of strings
+       * TODO: Not good enough, the !== '-' removes standalone hyphens in the
+       * middle of strings
        */
       .filter((w, i, ary) => w !== '-' || i === ary.length - 1)
       .join('')

@@ -10,7 +10,8 @@ import { NON_BREAKING_SPACE } from 'src/helpers/splitTextIntoItems/splitTextInto
  * The segment may also include other spaces, such as:
  *   - a non-breaking space character
  *   - regular space that is prohibited from breaking, such as in the case of
- *     "a / b" in which the first space cannot break since it is followed by a slash.
+ *     "a / b" in which the first space cannot break since it is followed by a
+ * slash.
  */
 export const splitSegmentIntoBoxesAndGlue = (
   input: string,
@@ -56,7 +57,8 @@ export const splitSegmentIntoBoxesAndGlue = (
   });
 
   /**
-   * The above glues were non-breakable. Here we add the final breakable glue back.
+   * The above glues were non-breakable. Here we add the final breakable glue
+   * back.
    */
   if (finalWhitespace) {
     items.push(textGlue(finalWhitespace, options));

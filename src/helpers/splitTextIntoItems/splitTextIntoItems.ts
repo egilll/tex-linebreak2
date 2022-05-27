@@ -33,12 +33,12 @@ const FAKE_FINAL_SEGMENT = 'FAKE_FINAL_SEGMENT\n';
 
 export const splitTextIntoItems = (
   input: string,
-  _options: HelperOptions,
+  options: HelperOptions,
   /** When splitting text inside HTML elements, the text that surrounds it matters */
   precedingText: string = '',
   followingText: string = '',
 ): TextInputItem[] => {
-  const options = getOptionsWithDefaults(_options);
+  options = getOptionsWithDefaults(options);
 
   /**
    * Allowable breakpoints according to Unicode's line breaking algorithm.
@@ -53,7 +53,8 @@ export const splitTextIntoItems = (
   for (let i = 0; i < breakPoints.length; i++) {
     const breakPoint = breakPoints[i];
     /**
-     * The segment contains the word and the whitespace characters that come after it
+     * The segment contains the word and the whitespace characters that come
+     * after it
      */
     const segment = input.slice(breakPoints[i - 1]?.position || 0, breakPoints[i].position);
 
@@ -84,7 +85,8 @@ export const splitTextIntoItems = (
     }
 
     /**
-     * Note: The last segment is always marked as a required break in the Unicode line breaking package.
+     * Note: The last segment is always marked as a required break in the
+     * Unicode line breaking package.
      */
     if (
       isRequiredBreak &&
@@ -150,9 +152,10 @@ export const splitTextIntoItems = (
     else if (lastLetterClass === UnicodeLineBreakingClasses.SymbolAllowingBreakAfter) {
       /**
        * Todo:
-       * "The recommendation in this case is for the layout system not to utilize a
-       * line break opportunity allowed by SY unless the distance between it and
-       * the next line break opportunity exceeds an implementation-defined minimal distance."
+       * "The recommendation in this case is for the layout system not to
+       * utilize a line break opportunity allowed by SY unless the distance
+       * between it and the next line break opportunity exceeds an
+       * implementation-defined minimal distance."
        */
       cost = PenaltyClasses.VeryBadBreak;
     }
@@ -200,7 +203,8 @@ export const splitTextIntoItems = (
     // Penalty for other items
     else {
       /**
-       * Ignore zero-cost penalty after glue, since glues already have a zero-cost penalty
+       * Ignore zero-cost penalty after glue, since glues already have a
+       * zero-cost penalty
        */
       if (items[items.length - 1].type === 'glue' && cost === 0 && cost != null) continue;
       // todo
@@ -225,7 +229,8 @@ export const penaltyLowerIfFarAwayFromBreakingPoint = () => {
 };
 
 /**
- * @param input - Must be the full original string in order to classify based on the surrounding characters
+ * @param input - Must be the full original string in order to classify based
+ *     on the surrounding characters
  * @param position
  */
 export const getLineBreakingClassOfLetterAt = (

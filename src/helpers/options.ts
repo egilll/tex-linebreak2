@@ -27,7 +27,8 @@ export type HelperOptions = Partial<{
    * A value between 0 <= n <= MAX_COST (i.e. 1000).
    * Default is 10.
    * A value over 40 will only break on long words.
-   * A value of MAX_COST will never break, but a value of MAX_COST - 1 will still break on long words.
+   * A value of MAX_COST will never break, but a value of MAX_COST - 1 will
+   * still break on long words.
    */
   softHyphenationPenalty: number;
 

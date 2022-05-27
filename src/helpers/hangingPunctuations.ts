@@ -16,10 +16,11 @@ const hangingPunctuationRegex =
  * Here we calculate the width of the hanging punctuation of this item,
  * which will be used if the item is at the beginning or end of a line.
  *
- * Note: This value is not used in the {@link breakLines} calculation currently, but it could be.
+ * Note: This value is not used in the {@link breakLines} calculation
+ * currently, but it could be.
  *
- * The original Knuth paper recommended moving hanging punctuations to the adjacent glues,
- * but that does not work with left hanging punctuation.
+ * The original Knuth paper recommended moving hanging punctuations to the
+ * adjacent glues, but that does not work with left hanging punctuation.
  */
 export const calculateHangingPunctuationWidth = (
   items: TextInputItem[],
