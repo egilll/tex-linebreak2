@@ -2,6 +2,7 @@ import { Glue, Penalty, Box, MAX_COST } from 'src/breakLines';
 import { HelperOptions } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { TextInputItem, forcedBreak } from 'src/helpers/util';
+import DOMTextMeasurer from 'src/util/domTextMeasurer';
 
 export interface NodeOffset {
   parentDOMNode: Node;
@@ -17,27 +18,60 @@ export type DOMGlue = Glue & NodeOffset;
 export type DOMPenalty = Penalty & NodeOffset;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
+export class GetItemsFromDom {
+  items: DOMItem[] = [];
+  paragraphElementText: string;
+  currentTextIndex: number = 0;
+  constructor(
+    public paragraphElement: HTMLElement,
+    public options: HelperOptions,
+    public domTextMeasureFn: (text: string, context: Element) => number,
+  ) {
+    this.paragraphElementText = paragraphElement.textContent || '';
+  }
+}
+
 /**
- * Add layout items for `node` to `items`.
+ * Add layout items for input to `breakLines` for `node` to `items`.
+ *
+ * This function, `addItemsForTextNode` and `addItemsForElement` take an
+ * existing array as a first argument to avoid allocating a large number of
+ * small arrays.
  */
-export function addItemsForTextNode(items: DOMItem[], node: Text, options: HelperOptions = {}) {
-  const text = node.nodeValue!;
-  const el = node.parentNode! as Element;
-  let textOffset = 0;
-  splitTextIntoItems(text, {
-    ...options,
-    measureFn: (word) => options.measureFn!(word, el),
-    isHTML: true,
-  }).forEach((item: TextInputItem) => {
-    const startOffset = textOffset;
-    textOffset += ('text' in item ? item.text : '').length;
-    items.push({
-      ...item,
-      parentDOMNode: node,
-      startOffset: startOffset,
-      endOffset: textOffset,
-    });
+export function addItemsForNode(
+  items: DOMItem[],
+  node: Node,
+  options: HelperOptions = {},
+  addParagraphEnd = true,
+) {
+  const children = Array.from(node.childNodes);
+
+  children.forEach((child) => {
+    if (child instanceof Text) {
+      addItemsForTextNode(items, child, { ...options, addParagraphEnd: false });
+    } else if (child instanceof Element) {
+      addItemsForElement(items, child, options);
+    }
   });
+
+  if (addParagraphEnd) {
+    const endOffset = node.childNodes.length;
+
+    // Add a synthetic glue that absorbs any left-over space at the end of the
+    // last line.
+    items.push({
+      type: 'glue',
+      width: 0,
+      shrink: 0,
+      stretch: MAX_COST,
+      parentDOMNode: node,
+      startOffset: endOffset,
+      endOffset,
+    });
+
+    // Add a forced break to end the paragraph.
+    items.push({ ...forcedBreak(), parentDOMNode: node, startOffset: endOffset, endOffset });
+  }
 }
 
 /**
@@ -98,44 +132,24 @@ export function addItemsForElement(items: DOMItem[], element: Element, options: 
 }
 
 /**
- * Add layout items for input to `breakLines` for `node` to `items`.
- *
- * This function, `addItemsForTextNode` and `addItemsForElement` take an
- * existing array as a first argument to avoid allocating a large number of
- * small arrays.
+ * Add layout items for `node` to `items`.
  */
-export function addItemsForNode(
-  items: DOMItem[],
-  node: Node,
-  options: HelperOptions = {},
-  addParagraphEnd = true,
-) {
-  const children = Array.from(node.childNodes);
-
-  children.forEach((child) => {
-    if (child instanceof Text) {
-      addItemsForTextNode(items, child, { ...options, addParagraphEnd: false });
-    } else if (child instanceof Element) {
-      addItemsForElement(items, child, options);
-    }
-  });
-
-  if (addParagraphEnd) {
-    const endOffset = node.childNodes.length;
-
-    // Add a synthetic glue that absorbs any left-over space at the end of the
-    // last line.
+export function addItemsForTextNode(items: DOMItem[], node: Text, options: HelperOptions = {}) {
+  const text = node.nodeValue!;
+  const el = node.parentNode! as Element;
+  let textOffset = 0;
+  splitTextIntoItems(text, {
+    ...options,
+    measureFn: (word) => options.measureFn!(word, el),
+    isHTML: true,
+  }).forEach((item: TextInputItem) => {
+    const startOffset = textOffset;
+    textOffset += ('text' in item ? item.text : '').length;
     items.push({
-      type: 'glue',
-      width: 0,
-      shrink: 0,
-      stretch: MAX_COST,
+      ...item,
       parentDOMNode: node,
-      startOffset: endOffset,
-      endOffset,
+      startOffset: startOffset,
+      endOffset: textOffset,
     });
-
-    // Add a forced break to end the paragraph.
-    items.push({ ...forcedBreak(), parentDOMNode: node, startOffset: endOffset, endOffset });
-  }
+  });
 }

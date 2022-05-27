@@ -25,3 +25,4 @@ export { isTaggedNode } from 'src/html/tag';
 export { tagNode } from 'src/html/tag';
 export { NODE_TAG } from 'src/html/tag';
 export { layoutItemsFromString } from 'src/helpers/deprecated/layoutItemsFromString';
+export { formatLine } from 'src/html/formatLine';

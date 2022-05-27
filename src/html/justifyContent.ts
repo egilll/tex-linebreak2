@@ -1,9 +1,11 @@
-import DOMTextMeasurer from 'src/util/dom-text-measurer';
-import { elementLineWidth, addWordSpacingToLine } from 'src/html/htmlHelpers';
-import { TexLinebreak, Line } from 'src/helpers';
+import DOMTextMeasurer from 'src/util/domTextMeasurer';
+import { getElementLineWidth } from 'src/html/htmlHelpers';
+import { TexLinebreak } from 'src/helpers';
 import { HelperOptions } from 'src/helpers/options';
-import { addItemsForNode, DOMItem } from 'src/html/addItems';
+import { addItemsForNode, DOMItem, GetItemsFromDom } from 'src/html/addItems';
 import { getTaggedChildren, tagNode } from 'src/html/tag';
+import { debugHtmlLines } from 'src/util/debugHtmlLines';
+import { formatLine } from 'src/html/formatLine';
 
 /**
  * Reverse the changes made to an element by `justifyContent`.
@@ -51,21 +53,23 @@ export function justifyContent(
   elements.forEach((el) => unjustifyContent(el));
 
   // Calculate line-break positions given current element width and content.
-  const measureFn = new DOMTextMeasurer().measure;
+  const domTextMeasureFn = new DOMTextMeasurer().measure;
 
   /** TODO!!!! ÉG TÓK ÞETTA TIL BAKA, VERÐUR AÐ ENDURSKOÐA!!!! */
   // To avoid layout thrashing, we batch DOM layout reads and writes in this
   // function. ie. we first measure the available width and compute linebreaks
   // for all elements and then afterwards modify all the elements.
 
-  elements.forEach((el) => {
-    const lineWidth = elementLineWidth(el);
-    // console.log({ lineWidth });
-    let items: DOMItem[] = [];
-    addItemsForNode(items, el, { ...options, measureFn });
+  elements.forEach((element) => {
+    const lineWidth = getElementLineWidth(element);
+
+    // let items: DOMItem[] = [];
+    // addItemsForNode(items, element, { ...options, measureFn });
+
+    const items = new GetItemsFromDom(element, options, domTextMeasureFn).items;
 
     // Disable automatic line wrap.
-    el.style.whiteSpace = 'nowrap';
+    element.style.whiteSpace = 'nowrap';
 
     const lines = new TexLinebreak<DOMItem>({
       ...options,
@@ -75,7 +79,7 @@ export function justifyContent(
       isHTML: true,
     }).lines;
 
-    console.log(items);
+    console.log(element.textContent);
 
     // Create a `Range` for each line. We create the ranges before modifying the
     // contents so that node offsets in `items` are still valid at the point when
@@ -86,7 +90,7 @@ export function justifyContent(
       if (i > 0) {
         range.setStart(line.prevBreakItem.parentDOMNode, line.prevBreakItem.endOffset);
       } else {
-        range.setStart(el, 0);
+        range.setStart(element, 0);
       }
       range.setEnd(line.breakItem.parentDOMNode, line.breakItem.startOffset);
       lineRanges.push(range);
@@ -118,7 +122,7 @@ export function justifyContent(
     lines.forEach((line, i) => {
       const range = lineRanges[i];
 
-      const wrappedNodes = addWordSpacingToLine(range, line);
+      const wrappedNodes = formatLine(range, line);
       if (line.endsWithSoftHyphen && wrappedNodes.length > 0) {
         const lastNode = wrappedNodes[wrappedNodes.length - 1];
         const hyphen = tagNode(document.createTextNode('-'));
@@ -126,36 +130,6 @@ export function justifyContent(
       }
     });
 
-    if (debug) debugLines(lines, el);
+    if (debug) debugHtmlLines(lines, element);
   });
 }
-
-/** Draw boxes on screen to see any possible mismatches in size calculations */
-export const debugLines = (lines: Line[], appendToElement: HTMLElement) => {
-  /* Remove previous */
-  document.querySelectorAll('.debug-line').forEach((el) => el.remove());
-  const box1 = tagNode(document.createElement('div'));
-  box1.classList.add('debug-line');
-  box1.style.position = 'relative';
-  box1.style.height = lines.length * 15 + 'px';
-  console.log({ lines });
-
-  lines.forEach((line) => {
-    let yOffset = line.lineNumber * 15;
-    line.positionedItems.forEach((item) => {
-      let xOffset = item.xOffset;
-      const box = tagNode(document.createElement('div'));
-      box.style.position = 'absolute';
-      box.style.left = xOffset + 'px';
-      box.style.top = yOffset + 'px';
-      box.style.height = '10px';
-      box.style.width = item.width + 'px';
-      box.style.background = '#7272ed80';
-      box.style.font = '9px sans-serif';
-      // @ts-ignore
-      box.innerHTML = item.text || '?';
-      box1.appendChild(box);
-    });
-  });
-  appendToElement.after(box1);
-};

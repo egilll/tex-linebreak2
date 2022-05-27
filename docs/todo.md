@@ -1,8 +1,8 @@
 - inline-block elements
 - hanging punctuation
 - nota html elements í demoi
-- canvas er ömurlegt með padding
 - urls should break on / not on dashes
 - break only visible paragraphs
 - demo should respect newlines
 - hypher very slow since it needs to initialize tries
+- adjacent glues
