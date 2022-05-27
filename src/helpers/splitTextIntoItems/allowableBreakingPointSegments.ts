@@ -1,5 +1,4 @@
 import { HelperOptions } from 'src/helpers/options';
-import { TextInputItem } from 'src/helpers/util';
 import LineBreaker, { Break } from 'linebreak';
 
 export const allowableBreakingPointSegments = (
@@ -14,7 +13,7 @@ export const allowableBreakingPointSegments = (
   let b: Break;
   while ((b = lineBreaker.nextBreak())) breakPoints.push(b);
 
-  let items: TextInputItem[] = [];
+  let output: any[] = [];
 
   for (let i = 0; i < breakPoints.length; i++) {
     const breakPoint = breakPoints[i];
@@ -23,4 +22,6 @@ export const allowableBreakingPointSegments = (
      */
     const segment = input.slice(breakPoints[i - 1]?.position || 0, breakPoints[i].position);
   }
+
+  return output;
 };

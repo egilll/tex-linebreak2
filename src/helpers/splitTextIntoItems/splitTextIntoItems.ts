@@ -67,11 +67,27 @@ export const splitTextIntoItems = (
     const lastLetterClass = getLineBreakingClassOfLetterAt(input, breakPoint.position - 1);
     const nextLetterClass = getLineBreakingClassOfLetterAt(input, breakPoint.position);
 
+    let isRequiredBreak = breakPoint.required;
+    let isActuallyNotABreak;
+    if (
+      isLastSegment &&
+      breakPoint.required &&
+      ![
+        UnicodeLineBreakingClasses.BreakMandatory,
+        UnicodeLineBreakingClasses.CarriageReturn,
+        UnicodeLineBreakingClasses.LineFeed,
+        UnicodeLineBreakingClasses.NextLine,
+      ].includes(lastLetterClass)
+    ) {
+      isRequiredBreak = false;
+      isActuallyNotABreak = true;
+    }
+
     /**
      * Note: The last segment is always marked as a required break in the Unicode line breaking package.
      */
     if (
-      breakPoint.required &&
+      isRequiredBreak &&
       !(
         // TODO: This option is used when breaking HTML. HTML ignores newlines, but it should not ignore <br>
         (options.isHTML && lastLetter === '\n')
@@ -90,7 +106,7 @@ export const splitTextIntoItems = (
       (UnicodeLineBreakingClasses.BreakAfter && lastLetter.match(/\p{General_Category=Zs}/gu)) ||
       // Zero width space
       lastLetterClass === UnicodeLineBreakingClasses.ZeroWidthSpace ||
-      breakPoint.required
+      isRequiredBreak
     ) {
       cost = PenaltyClasses.VeryGoodBreak;
     }
@@ -148,6 +164,11 @@ export const splitTextIntoItems = (
 
     items.push(...splitSegmentIntoBoxesAndGlue(segment, options));
 
+    // todo.....
+    if (isActuallyNotABreak && cost === PenaltyClasses.VeryBadBreak && !options.addParagraphEnd) {
+      continue;
+    }
+
     /** Paragraph-final infinite glue */
     if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
       if (items[items.length - 1].type === 'glue') {
@@ -182,6 +203,10 @@ export const splitTextIntoItems = (
        * Ignore zero-cost penalty after glue, since glues already have a zero-cost penalty
        */
       if (items[items.length - 1].type === 'glue' && cost === 0 && cost != null) continue;
+      // todo
+      if (options.addParagraphEnd && isLastSegment) {
+        cost = MIN_COST;
+      }
       items.push(penalty(0, cost));
     }
   }
