@@ -12,7 +12,7 @@ import {
   TextGlue,
   textBox,
   textGlue,
-  collapseAdjacentSpaces,
+  collapseAdjacentGlue,
 } from 'src/helpers/util';
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { TexLinebreak } from 'src/helpers/index';
@@ -177,7 +177,7 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     items = calculateHangingPunctuationWidth(items, options);
   }
 
-  return collapseAdjacentSpaces(items);
+  return collapseAdjacentGlue(items);
 };
 
 export const penaltyLowerIfFarAwayFromBreakingPoint = () => {

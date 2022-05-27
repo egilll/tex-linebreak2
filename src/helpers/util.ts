@@ -56,9 +56,9 @@ export const softHyphen = (options: HelperOptions) => {
 };
 
 /** Todo: Should regular hyphens not be flagged? */
-export const isSoftHyphen = (item: InputItem | undefined) => {
+export const isSoftHyphen = (item: InputItem | undefined): boolean => {
   if (!item) return false;
-  return item.type === 'penalty' && item.flagged /*&& item.width > 0*/;
+  return Boolean(item.type === 'penalty' && item.flagged /*&& item.width > 0*/);
 };
 
 export function forcedBreak(): Penalty {
@@ -126,17 +126,19 @@ export const removeGlueFromEndOfParagraphs = <T extends InputItem>(items: T[]): 
   return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
 };
 
-export const collapseAdjacentGlues = <T extends InputItem>(items: T[]): T[] => {
-  let out: T[] = [];
+export const collapseAdjacentGlue = (items: TextInputItem[]): TextInputItem[] => {
+  let output: TextInputItem[] = [];
   items.forEach((item) => {
-    // if(item.type==='glue'){
-    //   if(out.length>0 && out[out.length-1].type==='glue'){
-    //     out[out.length-1].text+=item.text;
-    //   }else{
-    //     out.push(item);
-    //   }}else {
-    //   out.push(item);
-    // }
+    if (item.type === 'glue') {
+      if (output.length > 0 && output[output.length - 1].type === 'glue') {
+        output[output.length - 1].width += item.width;
+        (output[output.length - 1] as TextGlue).text += item.text;
+      } else {
+        output.push(item);
+      }
+    } else {
+      output.push(item);
+    }
   });
-  throw new Error('Not implemented');
+  return output;
 };

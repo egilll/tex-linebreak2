@@ -1,13 +1,7 @@
 import { assert } from 'chai';
 import { XorShift } from 'xorshift';
 
-import {
-  adjustmentRatios,
-  breakLines,
-  InputItem,
-  MaxAdjustmentExceededError,
-  Penalty,
-} from 'src/breakLines';
+import { breakLines, InputItem, MaxAdjustmentExceededError, Penalty } from 'src/breakLines';
 
 import {
   box,
@@ -22,7 +16,7 @@ import {
 } from 'src/helpers/util';
 
 import fixture from './fixtures/layout';
-import { positionItems } from 'src/helpers/deprecated/positionItems';
+import { positionItems, adjustmentRatios } from 'src/helpers/deprecated/positionItems';
 import { layoutItemsFromString } from 'src/helpers/splitTextIntoItems';
 
 interface LayoutFixture {

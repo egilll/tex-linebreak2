@@ -3,7 +3,6 @@ import {
   breakLines,
   MaxAdjustmentExceededError,
   InputItem,
-  adjustmentRatios,
   MIN_ADJUSTMENT_RATIO,
 } from 'src/breakLines';
 import { layoutItemsFromString } from 'src/helpers/splitTextIntoItems';
@@ -136,3 +135,58 @@ export function positionText(
 /** @deprecated due to the name being unclear */
 export const layoutText = positionText;
 // export const layoutText = () => {};
+
+/**
+ * Compute adjustment ratios for lines given a set of breakpoints.
+ *
+ * The adjustment ratio of a line is the proportion of each glue item's stretch
+ * (if positive) or shrink (if negative) which needs to be used in order to make
+ * the line the specified width. A value of zero indicates that every glue item
+ * is exactly its preferred width.
+ *
+ * @param items - The box, glue and penalty items being laid out
+ * @param lineWidths - Length or lengths of each line
+ * @param breakpoints - Indexes in `items` where lines are being broken
+ *
+ * @deprecated
+ */
+export function adjustmentRatios(
+  items: InputItem[],
+  lineWidths: number | number[],
+  breakpoints: number[],
+) {
+  const lineLen = (i: number) => (Array.isArray(lineWidths) ? lineWidths[i] : lineWidths);
+  const ratios = [];
+
+  for (let b = 0; b < breakpoints.length - 1; b++) {
+    let idealWidth = lineLen(b);
+    let actualWidth = 0;
+    let lineShrink = 0;
+    let lineStretch = 0;
+
+    const start = b === 0 ? breakpoints[b] : breakpoints[b] + 1;
+    for (let p = start; p <= breakpoints[b + 1]; p++) {
+      const item = items[p];
+      if (item.type === 'box') {
+        actualWidth += item.width;
+      } else if (item.type === 'glue' && p !== start && p !== breakpoints[b + 1]) {
+        actualWidth += item.width;
+        lineShrink += item.shrink;
+        lineStretch += item.stretch;
+      } else if (item.type === 'penalty' && p === breakpoints[b + 1]) {
+        actualWidth += item.width;
+      }
+    }
+
+    let adjustmentRatio;
+    if (actualWidth < idealWidth) {
+      adjustmentRatio = (idealWidth - actualWidth) / lineStretch;
+    } else {
+      adjustmentRatio = (idealWidth - actualWidth) / lineShrink;
+    }
+
+    ratios.push(adjustmentRatio);
+  }
+
+  return ratios;
+}

@@ -14,7 +14,7 @@ export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
   }
   getItems(): InputItemType[] {
     if (this.options.items) {
-      return this.options.items as InputItemType[];
+      this._items = this.options.items as InputItemType[];
     } else if (!this._items) {
       if (typeof this.options.text === 'string') {
         this._items = splitTextIntoItems(this.options.text, this.options) as InputItemType[];
@@ -41,13 +41,7 @@ export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
     return lines;
   }
   getLinesAsPlainText(): string[] {
-    return this.lines.map((line) =>
-      line.items
-        .map((item) => ('text' in item ? item.text : ''))
-        .join('')
-        // Todo: This has to be reconsidered, only breakable glue at the start of lines should be ignored
-        .trim(),
-    );
+    return this.lines.map((line) => line.plaintext);
   }
   getPlainText(): string {
     return this.getLinesAsPlainText().join('\n');
@@ -74,26 +68,30 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
    * Filter glues and penalties that do not matter for the purposes of rendering this line
    */
   get itemsFiltered() {
-    return this.items.filter((item, curIndex, items) => {
-      if (
+    /**
+     * This goes through three steps for a reason, otherwise we haven't filtered out
+     * [Penalty, Glue, Box] into [Box].
+     */
+    return (
+      this.items
         // Ignore penalty that's not at the end of the line
-        item.type === 'penalty' &&
-        curIndex !== items.length - 1
-      ) {
-        return false;
-      } else if (
-        item.type === 'glue' &&
-        // Ignore line-beginning glue
-        (curIndex === 0 ||
-          // Ignore line-ending glue
-          curIndex === items.length - 1 ||
-          // Ignore adjacent glues
-          items[curIndex - 1].type === 'glue')
-      ) {
-        return false;
-      }
-      return true;
-    });
+        .filter((item, curIndex, items) => {
+          return !(item.type === 'penalty' && curIndex !== items.length - 1);
+        })
+        // Ignore adjacent glues
+        .filter((item, curIndex, items) => {
+          return !(item.type === 'glue' && items[curIndex - 1]?.type === 'glue');
+        })
+        .filter((item, curIndex, items) => {
+          return !(
+            item.type === 'glue' &&
+            // Ignore line-beginning glue
+            (curIndex === 0 ||
+              // Ignore line-ending glue
+              curIndex === items.length - 1)
+          );
+        })
+    );
   }
   get breakItem() {
     return this.parentClass.getItems()[this.endBreakpoint];
@@ -150,10 +148,16 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
   }
 
   get glueWidth(): number {
+    if (this.idealWidth < this.actualWidthIgnoringGlue) {
+      console.error(`Glue in line ${this.lineNumber} is negative!! That's impossible`);
+    }
     return (this.idealWidth - this.actualWidthIgnoringGlue) / this.glueCount;
   }
 
-  /** TODO:   what about filtered items ??? */
+  /**
+   * Includes soft hyphens.
+   * TODO:   what about filtered items ???
+   */
   get positionedItems(): (InputItemType & { xOffset: number })[] {
     const result: (InputItemType & { xOffset: number })[] = [];
     let xOffset = -this.leftHangingPunctuationWidth;
@@ -170,5 +174,16 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
     });
 
     return result;
+  }
+  get plaintext() {
+    return (
+      this.items
+        .map((item) => ('text' in item ? item.text : ''))
+        .join('')
+        // Collapse whitespace
+        .replace(/\s{2,}/g, ' ')
+        // Todo: This has to be reconsidered, only breakable glue at the start of lines should be ignored
+        .trim()
+    );
   }
 }

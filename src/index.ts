@@ -12,3 +12,4 @@ export { PositionedItem } from 'src/helpers/deprecated/positionItems';
 export { layoutItemsFromString } from 'src/helpers/splitTextIntoItems';
 export { justifyContent } from 'src/html/justifyContent';
 export { unjustifyContent } from 'src/html/justifyContent';
+export { adjustmentRatios } from 'src/helpers';

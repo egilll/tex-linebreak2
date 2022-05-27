@@ -45,6 +45,7 @@ export function justifyContent(
   // /** Todo: Merge with options... */
   // hyphenateFn?: (word: string) => string[],
   options: HelperOptions = {},
+  debug = false,
 ) {
   if (!Array.isArray(elements)) {
     elements = [elements];
@@ -64,6 +65,7 @@ export function justifyContent(
 
   elements.forEach((el) => {
     const lineWidth = elementLineWidth(el);
+    // console.log({ lineWidth });
     let items: DOMItem[] = [];
     addItemsForNode(items, el, { ...options, measureFn });
 
@@ -72,21 +74,13 @@ export function justifyContent(
 
     const lines = new TexLinebreak<DOMItem>({
       ...options,
+      // Todo: do sth about adjacent glues ...
       items,
       lineWidth,
       isHTML: true,
     }).lines;
 
-    console.log({
-      items,
-      lines,
-      breakpoints: new TexLinebreak<DOMItem>({
-        ...options,
-        items,
-        lineWidth,
-        isHTML: true,
-      }).getBreakpoints(),
-    });
+    console.log(items);
 
     // Create a `Range` for each line. We create the ranges before modifying the
     // contents so that node offsets in `items` are still valid at the point when
@@ -131,6 +125,37 @@ export function justifyContent(
         const hyphen = tagNode(document.createTextNode('-'));
         lastNode.parentNode!.appendChild(hyphen);
       }
+      // /** Draw boxes on screen to see any possible mismatches in size calculations */
+      // if (debug || true) {
+      //   addDebugBoxes(line, wrappedNodes);
+      // }
     });
+
+    /** Draw boxes on screen to see any possible mismatches in size calculations */
+    if (debug || true) {
+      const box1 = tagNode(document.createElement('div'));
+      box1.style.position = 'relative';
+      box1.style.height = lines.length * 15 + 'px';
+      console.log({ lines });
+
+      lines.forEach((line, i) => {
+        let yOffset = line.lineNumber * 15;
+        line.positionedItems.forEach((item) => {
+          let xOffset = item.xOffset;
+          const box = document.createElement('div');
+          box.style.position = 'absolute';
+          box.style.left = xOffset + 'px';
+          box.style.top = yOffset + 'px';
+          box.style.height = '10px';
+          box.style.width = item.width + 'px';
+          box.style.background = '#7272ed80';
+          box.style.font = '9px sans-serif';
+          // @ts-ignore
+          box.innerHTML = item.text || '?';
+          box1.appendChild(box);
+        });
+      });
+      el.appendChild(box1);
+    }
   });
 }

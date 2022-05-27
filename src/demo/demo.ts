@@ -33,9 +33,13 @@ export function rerender() {
   htmlParagraph.innerHTML = textarea.value;
   const textContent = htmlParagraph.textContent!;
 
-  justifyContent(htmlParagraph, {
-    softHyphenationPenalty: 30,
-  });
+  justifyContent(
+    htmlParagraph,
+    {
+      softHyphenationPenalty: 30,
+    },
+    true,
+  );
 
   // Render to canvas.
   renderToCanvas(textContent, padding, lineWidth);

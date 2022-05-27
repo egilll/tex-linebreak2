@@ -1,4 +1,4 @@
-import { isSoftHyphen, TextInputItem } from 'src/helpers/util';
+import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
 import { outputElement } from 'src/demo/demo';
 import { TexLinebreak } from 'src/helpers';
 

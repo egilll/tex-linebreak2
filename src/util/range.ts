@@ -11,7 +11,7 @@ declare global {
  * at `range.commonAncestorContainer`. If it returns false, that node and its
  * children are skipped.
  */
-export function textNodesInRange(range: Range, filter: (n: Node) => boolean) {
+export function textNodesInRange(range: Range, filter: (n: Node) => boolean): Text[] {
   const root = range.commonAncestorContainer;
   const nodeIter = root.ownerDocument!.createTreeWalker(
     root,

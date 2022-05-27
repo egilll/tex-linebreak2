@@ -1,6 +1,6 @@
-import { Box, Glue, Penalty } from 'src/breakLines';
+import { Box, Glue, Penalty, MAX_COST } from 'src/breakLines';
 import { textNodesInRange } from 'src/util/range';
-import { TextInputItem } from 'src/helpers/util';
+import { TextInputItem, forcedBreak } from 'src/helpers/util';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
 import { Line } from 'src/helpers';
 import { HelperOptions } from 'src/helpers/options';
@@ -118,23 +118,30 @@ export function addItemsForNode(
 
   children.forEach((child) => {
     if (child instanceof Text) {
-      addItemsForTextNode(items, child, { ...options, addParagraphEnd });
+      addItemsForTextNode(items, child, { ...options, addParagraphEnd: false });
     } else if (child instanceof Element) {
       addItemsForElement(items, child, options);
     }
   });
 
-  /* TODO!!!!! Child nodes do not have this!!!! */
-  // if (addParagraphEnd) {
-  //   const end = node.childNodes.length;
-  //
-  //   // Add a synthetic glue that absorbs any left-over space at the end of the
-  //   // last line.
-  //   items.push({ type: 'glue', width: 0, shrink: 0, stretch: MAX_COST, node, start: end, end });
-  //
-  //   // Add a forced break to end the paragraph.
-  //   items.push({ ...forcedBreak(), node, start: end, end });
-  // }
+  if (addParagraphEnd) {
+    const endOffset = node.childNodes.length;
+
+    // Add a synthetic glue that absorbs any left-over space at the end of the
+    // last line.
+    items.push({
+      type: 'glue',
+      width: 0,
+      shrink: 0,
+      stretch: MAX_COST,
+      parentDOMNode: node,
+      startOffset: endOffset,
+      endOffset,
+    });
+
+    // Add a forced break to end the paragraph.
+    items.push({ ...forcedBreak(), parentDOMNode: node, startOffset: endOffset, endOffset });
+  }
 }
 
 export function elementLineWidth(el: HTMLElement) {
@@ -192,11 +199,11 @@ export function isTextOrInlineElement(node: Node) {
 /**
  * Wrap text nodes in a range and adjust the inter-word spacing.
  */
-export function addWordSpacing(range: Range, line: Line) {
+export function addWordSpacing(range: Range, line: Line): Text[] {
   // Collect all text nodes in range, skipping any non-inline elements and
   // their children because those are treated as opaque blocks by the line-
   // breaking step.
-  const texts = textNodesInRange(range, isTextOrInlineElement);
+  const texts: Text[] = textNodesInRange(range, isTextOrInlineElement);
 
   // /* tmp test for right-align */
   // if (wordSpacing > 0) {

@@ -1,6 +1,8 @@
 /**
  * An object (eg. a word) to be typeset.
  */
+import { penalty } from 'src/helpers/util';
+
 export interface Box {
   type: 'box';
   /** Amount of space required by this content. Must be >= 0. */
@@ -49,7 +51,7 @@ export interface Penalty {
    * layout algorithm will try to avoid successive lines being broken at flagged
    * `Penalty` items.
    */
-  flagged: boolean;
+  flagged?: boolean;
 }
 
 export type InputItem = Box | Penalty | Glue;
@@ -146,6 +148,14 @@ export function breakLines(
 ): number[] {
   if (items.length === 0) {
     return [];
+  }
+
+  /** Validate */
+  const lastItem = items[items.length - 1];
+  if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
+    throw new Error(
+      `The last item in breakLines must be a penalty of cost MIN_COST, otherwise the last line will not be broken.`,
+    );
   }
 
   const options: LineBreakingOptions = { ...defaultOptions, ..._options };
@@ -349,7 +359,7 @@ export function breakLines(
           }
         }
 
-        const node = {
+        feasible.push({
           index: b,
           line: a.line + 1,
           fitness,
@@ -358,8 +368,7 @@ export function breakLines(
           totalStretch: sumStretch + stretchToNextBox,
           totalDemerits: a.totalDemerits + demerits,
           prev: a,
-        };
-        feasible.push(node);
+        });
       }
     });
 
@@ -439,57 +448,4 @@ export function breakLines(
   output.reverse();
 
   return output;
-}
-
-/**
- * Compute adjustment ratios for lines given a set of breakpoints.
- *
- * The adjustment ratio of a line is the proportion of each glue item's stretch
- * (if positive) or shrink (if negative) which needs to be used in order to make
- * the line the specified width. A value of zero indicates that every glue item
- * is exactly its preferred width.
- *
- * @param items - The box, glue and penalty items being laid out
- * @param lineWidths - Length or lengths of each line
- * @param breakpoints - Indexes in `items` where lines are being broken
- */
-export function adjustmentRatios(
-  items: InputItem[],
-  lineWidths: number | number[],
-  breakpoints: number[],
-) {
-  const lineLen = (i: number) => (Array.isArray(lineWidths) ? lineWidths[i] : lineWidths);
-  const ratios = [];
-
-  for (let b = 0; b < breakpoints.length - 1; b++) {
-    let idealWidth = lineLen(b);
-    let actualWidth = 0;
-    let lineShrink = 0;
-    let lineStretch = 0;
-
-    const start = b === 0 ? breakpoints[b] : breakpoints[b] + 1;
-    for (let p = start; p <= breakpoints[b + 1]; p++) {
-      const item = items[p];
-      if (item.type === 'box') {
-        actualWidth += item.width;
-      } else if (item.type === 'glue' && p !== start && p !== breakpoints[b + 1]) {
-        actualWidth += item.width;
-        lineShrink += item.shrink;
-        lineStretch += item.stretch;
-      } else if (item.type === 'penalty' && p === breakpoints[b + 1]) {
-        actualWidth += item.width;
-      }
-    }
-
-    let adjustmentRatio;
-    if (actualWidth < idealWidth) {
-      adjustmentRatio = (idealWidth - actualWidth) / lineStretch;
-    } else {
-      adjustmentRatio = (idealWidth - actualWidth) / lineShrink;
-    }
-
-    ratios.push(adjustmentRatio);
-  }
-
-  return ratios;
 }
