@@ -1,14 +1,9 @@
 import DOMTextMeasurer from 'src/util/dom-text-measurer';
-import {
-  getTaggedChildren,
-  elementLineWidth,
-  DOMItem,
-  addItemsForNode,
-  tagNode,
-  addWordSpacingToLine,
-} from 'src/html/htmlHelpers';
+import { elementLineWidth, addWordSpacingToLine } from 'src/html/htmlHelpers';
 import { TexLinebreak, Line } from 'src/helpers';
 import { HelperOptions } from 'src/helpers/options';
+import { addItemsForNode, DOMItem } from 'src/html/addItems';
+import { getTaggedChildren, tagNode } from 'src/html/tag';
 
 /**
  * Reverse the changes made to an element by `justifyContent`.
@@ -97,15 +92,26 @@ export function justifyContent(
       lineRanges.push(range);
     });
 
-    // Insert linebreak. The browser will automatically adjust subsequent
-    // ranges. This must be done before the next step.
+    /**
+     * Insert linebreak. The browser will automatically adjust subsequent
+     * ranges. This must be done before the next step.
+     *
+     * TODO: THIS DOES NOT HANDLE INLINE BLOCK ELEMENTS CORRECTLY
+     * INLINE-BLOCK ELEMENTS CANNOT HAVE A BREAK INSIDE, THE BROWSER WILL IGNORE IT
+     */
     lines.forEach((line, i) => {
       const range = lineRanges[i];
 
       if (i > 0) {
         const brEl = tagNode(document.createElement('br'));
         range.insertNode(brEl);
-        range.setStart(brEl.nextSibling!, 0);
+        if (brEl.nextSibling) {
+          range.setStart(brEl.nextSibling, 0);
+        } else {
+          /** Is an inline-block element of some sort... */
+          range.setStart(brEl.parentElement!.nextSibling!, 0);
+          console.warn('Unexpected: <br/> cannot be in an inline block element!');
+        }
       }
     });
 
@@ -126,7 +132,10 @@ export function justifyContent(
 
 /** Draw boxes on screen to see any possible mismatches in size calculations */
 export const debugLines = (lines: Line[], appendToElement: HTMLElement) => {
+  /* Remove previous */
+  document.querySelectorAll('.debug-line').forEach((el) => el.remove());
   const box1 = tagNode(document.createElement('div'));
+  box1.classList.add('debug-line');
   box1.style.position = 'relative';
   box1.style.height = lines.length * 15 + 'px';
   console.log({ lines });
@@ -135,7 +144,7 @@ export const debugLines = (lines: Line[], appendToElement: HTMLElement) => {
     let yOffset = line.lineNumber * 15;
     line.positionedItems.forEach((item) => {
       let xOffset = item.xOffset;
-      const box = document.createElement('div');
+      const box = tagNode(document.createElement('div'));
       box.style.position = 'absolute';
       box.style.left = xOffset + 'px';
       box.style.top = yOffset + 'px';
@@ -148,5 +157,5 @@ export const debugLines = (lines: Line[], appendToElement: HTMLElement) => {
       box1.appendChild(box);
     });
   });
-  appendToElement.appendChild(box1);
+  appendToElement.after(box1);
 };

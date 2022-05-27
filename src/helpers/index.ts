@@ -1,9 +1,9 @@
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
-import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems';
+import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
 import { breakLines, InputItem, MAX_COST } from 'src/breakLines';
 import { breakLinesGreedy } from 'src/helpers/greedy';
-import { DOMItem } from 'src/html/htmlHelpers';
+import { DOMItem } from 'src/html/addItems';
 
 export type AnyInput = TextInputItem | DOMItem | InputItem;
 
@@ -41,7 +41,7 @@ export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
     return lines;
   }
   getLinesAsPlainText(): string[] {
-    return this.lines.map((line) => line.plaintext);
+    return this.lines.map((line) => line.plainText);
   }
   getPlainText(): string {
     return this.getLinesAsPlainText().join('\n');
@@ -169,7 +169,12 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
     if (this.endsWithInfiniteGlue && this.extraSpacePerGlue >= 0) {
       return this.actualAverageGlueWidth;
     } else {
-      return (this.idealWidth - this.actualWidthIgnoringGlue) / this.glueCount;
+      const width = (this.idealWidth - this.actualWidthIgnoringGlue) / this.glueCount;
+      if (this.parentClass.options.alignment === 'left' && this.extraSpacePerGlue >= 0) {
+        return width - this.extraSpacePerGlue + this.extraSpacePerGlue / 1.5;
+      } else {
+        return width;
+      }
     }
   }
 
@@ -194,7 +199,7 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
 
     return result;
   }
-  get plaintext() {
+  get plainText() {
     return (
       this.items
         .map((item) => ('text' in item ? item.text : ''))

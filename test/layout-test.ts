@@ -17,7 +17,7 @@ import {
 
 import fixture from './fixtures/layout';
 import { positionItems, adjustmentRatios } from 'src/helpers/deprecated/positionItems';
-import { layoutItemsFromString } from 'src/helpers/splitTextIntoItems';
+import { layoutItemsFromString } from 'src';
 
 interface LayoutFixture {
   /** Input text of paragraph. */

@@ -1,5 +1,5 @@
 import { Box, Glue, Penalty, MIN_COST, InputItem, MAX_COST } from 'src/breakLines';
-import { PenaltyClasses } from 'src/helpers/splitTextIntoItems';
+import { PenaltyClasses } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { HelperOptions } from 'src/helpers/options';
 
 /**

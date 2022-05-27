@@ -10,16 +10,14 @@ import {
   glue,
   softHyphen,
   TextGlue,
-  textBox,
-  textGlue,
   collapseAdjacentGlue,
 } from 'src/helpers/util';
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
-import { TexLinebreak } from 'src/helpers/index';
 import { calculateHangingPunctuationWidth } from 'src/helpers/hangingPunctuations';
+import { splitSegmentIntoBoxesAndGlue } from 'src/helpers/splitTextIntoItems/splitSegmentIntoBoxesAndGlue';
 
-const NON_BREAKING_SPACE = '\xa0';
-const SOFT_HYPHEN = '\u00AD';
+export const NON_BREAKING_SPACE = '\xa0';
+export const SOFT_HYPHEN = '\u00AD';
 
 export enum PenaltyClasses {
   MandatoryBreak = MIN_COST,
@@ -31,7 +29,15 @@ export enum PenaltyClasses {
   VeryBadBreak = 0,
 }
 
-export const splitTextIntoItems = (input: string, _options: HelperOptions): TextInputItem[] => {
+const FAKE_FINAL_SEGMENT = 'FAKE_FINAL_SEGMENT\n';
+
+export const splitTextIntoItems = (
+  input: string,
+  _options: HelperOptions,
+  /** When splitting text inside HTML elements, the text that surrounds it matters */
+  precedingText: string = '',
+  followingText: string = '',
+): TextInputItem[] => {
   const options = getOptionsWithDefaults(_options);
 
   /**
@@ -61,6 +67,9 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     const lastLetterClass = getLineBreakingClassOfLetterAt(input, breakPoint.position - 1);
     const nextLetterClass = getLineBreakingClassOfLetterAt(input, breakPoint.position);
 
+    /**
+     * Note: The last segment is always marked as a required break in the Unicode line breaking package.
+     */
     if (
       breakPoint.required &&
       !(
@@ -157,6 +166,7 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     /**
      * Add the penalty for this break
      */
+    // Soft hyphens
     if (lastLetter === SOFT_HYPHEN) {
       items.push(softHyphen(options));
     }
@@ -166,9 +176,12 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
       items.push(penalty(0, cost, false));
       // items.push(penalty(0, cost, true));
     }
-    // Penalty for other items (but ignoring zero-cost penalty after glue,
-    // since glues already have a zero-cost penalty)
-    else if (!(items[items.length - 1].type === 'glue' && cost === 0) && cost != null) {
+    // Penalty for other items
+    else {
+      /**
+       * Ignore zero-cost penalty after glue, since glues already have a zero-cost penalty
+       */
+      if (items[items.length - 1].type === 'glue' && cost === 0 && cost != null) continue;
       items.push(penalty(0, cost));
     }
   }
@@ -177,71 +190,13 @@ export const splitTextIntoItems = (input: string, _options: HelperOptions): Text
     items = calculateHangingPunctuationWidth(items, options);
   }
 
+  console.log({ items, input });
+
   return collapseAdjacentGlue(items);
 };
 
 export const penaltyLowerIfFarAwayFromBreakingPoint = () => {
   throw new Error('Not implemented');
-};
-
-/**
- * Split the segments between the breakpoints into boxes and glue.
- *
- * A space is included in the segment preceding it.
- * The segment may also include other spaces, such as:
- *   - a non-breaking space character
- *   - regular space that is prohibited from breaking, such as in the case of
- *     "a / b" in which the first space cannot break since it is followed by a slash.
- */
-export const splitSegmentIntoBoxesAndGlue = (
-  input: string,
-  options: HelperOptions,
-): TextInputItem[] => {
-  let items: TextInputItem[] = [];
-
-  /**
-   * Remove whitespace from end, we will add that back at the end
-   */
-  const m = input.match(/^((?:.+?)?\S)?(\s+)?$/);
-  const inputWithoutFinalWhitespace = m?.[1] || '';
-  const finalWhitespace = m?.[2] || null;
-
-  const stretchableSpaces = new RegExp(
-    `([ \\t\\p{General_Category=Zs}${NON_BREAKING_SPACE}]+)`,
-    'gu',
-  );
-  const parts = inputWithoutFinalWhitespace.split(stretchableSpaces);
-  parts.forEach((part, index) => {
-    // Box
-    if (index % 2 === 0) {
-      if (part.length === 0) return;
-      if (options.hyphenateFn) {
-        const chunks = options.hyphenateFn(part);
-        chunks.forEach((c, i) => {
-          items.push(textBox(c, options));
-          if (i < chunks.length - 1) {
-            items.push(softHyphen(options));
-          }
-        });
-      } else {
-        items.push(textBox(part, options));
-      }
-    }
-    // Stretchable glue inside the segment.
-    // Can only be non-breakable glue.
-    else {
-      items.push(textGlue(part, options));
-      items.push(penalty(0, MAX_COST));
-    }
-  });
-
-  /**
-   * The above glues were non-breakable. Here we add the final breakable glue back.
-   */
-  if (finalWhitespace) {
-    items.push(textGlue(finalWhitespace, options));
-  }
-  return items;
 };
 
 /**
@@ -258,26 +213,3 @@ export const getLineBreakingClassOfLetterAt = (
     j.nextCharClass() as keyof typeof convertEnumValuesOfLineBreakingPackageToUnicodeNames
   ] as UnicodeLineBreakingClasses;
 };
-
-/**
- * @deprecated
- *   This function is deprecated due to the name being confusing,
- *   but it is kept for backwards compatibility.
- *   Please use {@link splitTextIntoItems} instead.
- *
- * A convenience function that generates a set of input items for `breakLines`
- * from a string.
- *
- * @param input - Text to process
- * @param measureFn - Callback that calculates the width of a given string
- * @param hyphenateFn - Callback that calculates legal hyphenation points in
- *                      words and returns an array of pieces that can be joined
- *                      with hyphens.
- */
-export function layoutItemsFromString(
-  input: string,
-  measureFn: (word: string) => number,
-  hyphenateFn?: (word: string) => string[],
-): TextInputItem[] {
-  return new TexLinebreak({ text: input, measureFn, hyphenateFn }).getItems() as TextInputItem[];
-}

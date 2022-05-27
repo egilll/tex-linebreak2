@@ -6,13 +6,13 @@
   <body>
     <h1><i>tex-linebreak</i> demo</h1>
 
-
     <p class="demo-output demo-2">
-        “Some <a href="#">simple text <i>with</i></a> embedded <code>inline</code> and
-      <span style="display: inline-block">block</span> elements can be found in this paragraph of
-      text which includes <b>bold text</b>, as well as <i>italic text</i>.
+      <!--“Some <a href="#">simple text <i>with</i></a> embedded <code>inline</code> and
+      <span style="display: inline-block; border: 1px solid gray">inline-block</span> elements can
+      be found in this paragraph of text which includes <b>bold text</b>, as well as
+      <i>italic text</i>.-->
+      <i>italic text</i>.
     </p>
-
 
     <p>Input text:</p>
     <textarea rows="5" cols="80">
@@ -20,7 +20,7 @@
     </textarea>
     <div contenteditable="true">This text can be edited by the user.</div>
 
-    <p>Line width: <input type="range" min="150" max="500" class="js-line-width" value="320" /></p>
+    <p>Line width: <input type="range" min="150" max="500" class="js-line-width" value="430" /></p>
 
     <p>Input rendered as HTML:</p>
     <p class="demo-output html-p js-tex-linebreak">
