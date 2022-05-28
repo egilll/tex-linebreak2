@@ -12,7 +12,7 @@ module.exports = {
     lib: './src',
     ...hyphenLibs,
   },
-  devtool: 'cheap-source-map',
+  devtool: 'source-map',
   module: {
     rules: [
       {

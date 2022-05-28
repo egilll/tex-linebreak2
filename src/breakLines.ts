@@ -159,8 +159,7 @@ export function breakLines(
   }
 
   const options: LineBreakingOptions = { ...defaultOptions, ..._options };
-  const getLineLength = (lineIndex: number) =>
-    Array.isArray(lineWidths) ? lineWidths[lineIndex] : lineWidths;
+
   const currentMaxAdjustmentRatio = Math.min(
     options.initialMaxAdjustmentRatio,
     options.maxAdjustmentRatio !== null ? options.maxAdjustmentRatio : Infinity,
@@ -246,7 +245,7 @@ export function breakLines(
     active.forEach((a) => {
       const lineShrink = sumShrink - a.totalShrink;
       let lineStretch = sumStretch - a.totalStretch;
-      const idealLen = getLineLength(a.line);
+      const idealLen = getLineWidth(lineWidths, a.line);
       let actualLen = sumWidth - a.totalWidth;
 
       /**
@@ -449,3 +448,19 @@ export function breakLines(
 
   return output;
 }
+
+export const getLineWidth = (lineWidths: number | number[], lineIndex: number): number => {
+  if (Array.isArray(lineWidths)) {
+    if (lineIndex < lineWidths.length) {
+      return lineWidths[lineIndex];
+    } else {
+      /**
+       * If out of bounds, return the last width of the last line.
+       * This is done since the first line may have indentation.
+       */
+      return lineWidths.at(-1)!;
+    }
+  } else {
+    return lineWidths;
+  }
+};

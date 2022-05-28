@@ -6,7 +6,7 @@ export type HelperOptions = Partial<{
   text: string;
   lineBreakingType: 'fullWidth' | 'findOptimalWidth' | 'greedy';
   alignment: 'justify' | 'left' /*| 'right' | 'center'*/;
-  lineWidth: number;
+  lineWidth: number | number[];
   /**
    * If the user wants to supply his own items
    */

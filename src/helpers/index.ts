@@ -1,7 +1,7 @@
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
-import { breakLines, InputItem, MAX_COST } from 'src/breakLines';
+import { breakLines, InputItem, MAX_COST, getLineWidth } from 'src/breakLines';
 import { breakLinesGreedy } from 'src/helpers/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 
@@ -105,12 +105,11 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
     return isSoftHyphen(this.breakItem);
   }
 
-  /** TODO: Work with multiple lines! */
   get idealWidth(): number {
     if (!this.parentClass.options.lineWidth) {
       throw new Error('The option `lineWidth` is required');
     }
-    return this.parentClass.options.lineWidth;
+    return getLineWidth(this.parentClass.options.lineWidth, this.lineIndex);
   }
   get actualWidth(): number {
     return (

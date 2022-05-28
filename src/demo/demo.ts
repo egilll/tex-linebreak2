@@ -18,16 +18,12 @@ export const plainBrowserOutputElement = document.querySelector('.css-output-p')
 export function rerender() {
   const lineWidth = parseInt(lineWidthSlider.value);
   const outputElementStyle = window.getComputedStyle(outputElement);
+  document.body.style.setProperty('--line-width', `${lineWidth}px`);
+
   const padding = {
     left: parseInt(outputElementStyle.paddingLeft!),
     right: parseInt(outputElementStyle.paddingRight!),
   };
-  document.body.style.setProperty('--line-width', `${lineWidth}px`);
-
-  justifyContent(document.querySelectorAll('p.demo-static, div.demo-static p'), null, {}, true);
-
-  return;
-
   const htmlParagraph = document.querySelector<HTMLElement>('.html-p')!;
   htmlParagraph.innerHTML = textarea.value;
   const textContent = htmlParagraph.textContent!;
@@ -48,10 +44,9 @@ export function rerender() {
   plainBrowserOutputElement.innerHTML = textarea.value;
 }
 
-// Render text and re-render on changes.
+// Re-render on changes.
 textarea.addEventListener('input', rerender);
 lineWidthSlider.addEventListener('input', rerender);
-rerender();
+// rerender();
 
-// const htmlParagraphs = Array.from(document.querySelectorAll('.js-tex-linebreak'));
-// htmlParagraphs.forEach((el) => justifyContent(el as HTMLElement));
+justifyContent(document.querySelectorAll('p.demo-static, div.demo-static p'), null, {});
