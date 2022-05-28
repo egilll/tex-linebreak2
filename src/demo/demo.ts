@@ -24,17 +24,18 @@ export function rerender() {
   };
   document.body.style.setProperty('--line-width', `${lineWidth}px`);
 
-  justifyContent(document.querySelector<HTMLElement>('.demo-2')!, {});
+  justifyContent(document.querySelectorAll('.demo-static'), null, {});
 
   return;
 
   // Render as HTML.
-  const htmlParagraph = document.querySelector('.html-p')! as HTMLElement;
+  const htmlParagraph = document.querySelector('.html-p')!;
   htmlParagraph.innerHTML = textarea.value;
   const textContent = htmlParagraph.textContent!;
 
   justifyContent(
     htmlParagraph,
+    null,
     {
       softHyphenationPenalty: 30,
     },

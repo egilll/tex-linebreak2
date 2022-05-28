@@ -45,7 +45,7 @@
 //       if (breakpoints.includes(itemIndex++)) {
 //         lines.push('');
 //       }
-//       lines[lines.length - 1] += chunk.text || '';
+//       lines.at(-1) += chunk.text || '';
 //     });
 //     return lines.map((k) => k.trim()).join('\n');
 //   });

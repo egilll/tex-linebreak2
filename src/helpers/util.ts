@@ -1,6 +1,6 @@
 import { Box, Glue, Penalty, MIN_COST, InputItem, MAX_COST } from 'src/breakLines';
-import { PenaltyClasses } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { HelperOptions } from 'src/helpers/options';
+import { PenaltyClasses } from 'src/helpers/splitTextIntoItems/penalty';
 
 /**
  * Useful when working with raw strings instead of DOM nodes.
@@ -127,19 +127,22 @@ export const removeGlueFromEndOfParagraphs = <T extends InputItem>(items: T[]): 
   return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
 };
 
-export const collapseAdjacentGlue = (items: TextInputItem[]): TextInputItem[] => {
-  let output: TextInputItem[] = [];
-  items.forEach((item) => {
-    if (item.type === 'glue') {
-      if (output.length > 0 && output[output.length - 1].type === 'glue') {
-        output[output.length - 1].width += item.width;
-        (output[output.length - 1] as TextGlue).text += item.text;
-      } else {
-        output.push(item);
-      }
-    } else {
-      output.push(item);
-    }
-  });
-  return output;
-};
+/*
+not used now, but would have to support glue stretching
+ */
+// export const collapseAdjacentGlue = (items: TextInputItem[]): TextInputItem[] => {
+//   let output: TextInputItem[] = [];
+//   items.forEach((item) => {
+//     if (item.type === 'glue') {
+//       if (output.length > 0 && output.at(-1)!.type === 'glue') {
+//         output.at(-1)!.width += item.width;
+//         (output.at(-1) as TextGlue).text += item.text;
+//       } else {
+//         output.push(item);
+//       }
+//     } else {
+//       output.push(item);
+//     }
+//   });
+//   return output;
+// };

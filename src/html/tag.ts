@@ -1,4 +1,4 @@
-const NODE_TAG = 'insertedByTexLinebreak';
+export const NODE_TAG = 'insertedByTexLinebreak';
 
 /**
  * Mark a node as having been created by `justifyContent`.

@@ -1,4 +1,4 @@
-import { splitIntoSegments } from 'src/helpers/splitTextIntoItems/splitIntoSegments';
+import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 
 // console.log(
 //   new TexLinebreak({
@@ -14,15 +14,15 @@ import { splitIntoSegments } from 'src/helpers/splitTextIntoItems/splitIntoSegme
 // );
 
 console.log(
-  splitIntoSegments(
-    'te\n ut, co',
+  splitTextIntoItems(
+    'export j',
     {
       addParagraphEnd: false,
       measureFn: (text: string) => {
         return text.length;
       },
     },
-    '–',
-    '—',
+    '',
+    '',
   ),
 );

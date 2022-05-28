@@ -39,16 +39,23 @@ export function unjustifyContent(el: HTMLElement) {
  * optimize DOM manipulations.
  */
 export function justifyContent(
-  elements: HTMLElement | HTMLElement[],
-  // /** Todo: Merge with options... */
-  // hyphenateFn?: (word: string) => string[],
+  elements: HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
+  /** Todo: Remove... */
+  USE_OPTIONS_INSTEAD_hyphenateFn?: ((word: string) => string[]) | null,
   options: HelperOptions = {},
   debug = false,
 ) {
-  if (!Array.isArray(elements)) {
+  options = { ...options, isHTML: true };
+
+  if (!elements) {
+    return console.error("justifyContent didn't receive any items");
+  } else if (elements instanceof NodeList) {
+    elements = Array.from(elements);
+  } else if (!Array.isArray(elements)) {
     elements = [elements];
   }
-  options = { ...options, isHTML: true };
+
+  console.log(elements);
 
   // Undo the changes made by any previous justification of this content.
   elements.forEach((el) => unjustifyContent(el));
@@ -80,8 +87,9 @@ export function justifyContent(
       isHTML: true,
     }).lines;
 
-    console.log(element.textContent);
+    // console.log(element.textContent);
 
+    console.log(items);
     // Create a `Range` for each line. We create the ranges before modifying the
     // contents so that node offsets in `items` are still valid at the point when
     // we create the Range.

@@ -16,12 +16,12 @@ export function breakLinesGreedy(items: InputItem[], lineWidths: number | number
   //     const nextBreakingSpot =
   //       items.slice(itemIndex).findIndex((j) => j.type === 'glue', itemIndex) + itemIndex;
   //     const toAdd = items.slice(itemIndex, nextBreakingSpot);
-  //     if (lines[lines.length - 1].length + item.width > maxWidth) {
+  //     if (lines.at(-1)!.length + item.width > maxWidth) {
   //       lines.push('');
   //     }
-  //     lines[lines.length - 1] += toAdd.map((j) => j.text).join('');
+  //     lines.at(-1) += toAdd.map((j) => j.text).join('');
   //   } else if (item.type === 'glue') {
-  //     lines[lines.length - 1] += item.text || '';
+  //     lines.at(-1) += item.text || '';
   //   }
   // }
   throw new Error('Not implemented');

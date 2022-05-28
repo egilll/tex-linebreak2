@@ -36,6 +36,9 @@ textarea {
   line-height: 1.6;
   width: calc(var(--line-width) + 40px);
 }
+.demo-static {
+  width: 100%;
+}
 
 .canvas {
   display: block;

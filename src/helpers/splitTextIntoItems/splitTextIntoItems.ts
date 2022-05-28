@@ -1,225 +1,205 @@
-import LineBreaker, { Break } from 'linebreak';
-import { UnicodeLineBreakingClasses } from 'src/typings/unicodeLineBreakingClasses';
 import { MIN_COST, MAX_COST } from 'src/breakLines';
 import {
-  TextInputItem,
-  penalty,
-  glue,
-  softHyphen,
-  TextGlue,
-  collapseAdjacentGlue,
-} from 'src/helpers/util';
+  UnicodeLineBreakingClasses,
+  convertEnumValuesOfLineBreakingPackageToUnicodeNames,
+} from 'src/typings/unicodeLineBreakingClasses';
+import LineBreaker, { Break } from 'linebreak';
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
+import { TextInputItem, textGlue, penalty, textBox, softHyphen, glue } from 'src/helpers/util';
+import { getBreakpointPenalty, PenaltyClasses } from 'src/helpers/splitTextIntoItems/penalty';
 import { calculateHangingPunctuationWidth } from 'src/helpers/hangingPunctuations';
-import { splitSegmentIntoBoxesAndGlue } from 'src/helpers/splitTextIntoItems/splitSegmentIntoBoxesAndGlue';
-import { getLineBreakingClassOfLetterAt } from 'src/helpers/splitTextIntoItems/splitIntoSegments';
 
-export const NON_BREAKING_SPACE = '\xa0';
+export const NON_BREAKING_SPACE = '\u00A0';
 export const SOFT_HYPHEN = '\u00AD';
 
-export enum PenaltyClasses {
-  MandatoryBreak = MIN_COST,
-  VeryGoodBreak = 0, // Spaces
-  GoodBreak = 10,
-  OKBreak = 20,
-  SoftHyphen = PenaltyClasses.OKBreak,
-  BadBreak = 50,
-  VeryBadBreak = 0,
-}
+/**
+ * Characters that can stretch as glue, no matter whether they are actually
+ * breakpoints or not.
+ * `General_Category=Zs` are space separators
+ */
+const glueCharacterRegex = new RegExp(`[ \\t\\p{General_Category=Zs}${NON_BREAKING_SPACE}]`, 'u');
+
+export type Segment = {
+  text: string;
+  type: 'box' | 'glue';
+  breakpoint?: BreakpointInformation;
+};
+export type BreakpointInformation = {
+  required: boolean;
+  lastLetter: string;
+  lastLetterClass: UnicodeLineBreakingClasses;
+  nextLetterClass: UnicodeLineBreakingClasses;
+  position: number;
+};
 
 export const splitTextIntoItems = (
   input: string,
-  options: HelperOptions = {},
+  options: HelperOptions,
   /** When splitting text inside HTML elements, the text that surrounds it matters */
   precedingText: string = '',
   followingText: string = '',
 ): TextInputItem[] => {
   options = getOptionsWithDefaults(options);
 
-  /**
-   * Allowable breakpoints according to Unicode's line breaking algorithm.
-   */
-  const lineBreaker = new LineBreaker(input);
-  let breakPoints: Break[] = [];
-  let b: Break;
-  while ((b = lineBreaker.nextBreak())) breakPoints.push(b);
-
   let items: TextInputItem[] = [];
 
-  for (let i = 0; i < breakPoints.length; i++) {
-    const breakPoint = breakPoints[i];
-    /**
-     * The segment contains the word and the whitespace characters that come
-     * after it
-     */
-    const segment = input.slice(breakPoints[i - 1]?.position || 0, breakPoints[i].position);
+  precedingText = precedingText.slice(-3);
+  followingText = followingText.slice(0, 3);
+  const inputWithSurroundingText = precedingText + input + followingText;
+  const breakpoints: Record<number, BreakpointInformation> =
+    getBreakpoints(inputWithSurroundingText);
 
-    const isLastSegment = i === breakPoints.length - 1;
+  /**
+   * We start by splitting the input into segments of either
+   * boxes (text) or glue (stretchable spaces) which each may
+   * or may not end in a breakpoint.
+   *
+   * We go over each character in the input one by one.
+   *
+   * The reason for this is that the input may contain many spaces
+   * such as non-breaking spaces and spaces before slashes, which
+   * are not breakpoints but which have to stretch as glue.
+   * Pre-processing these segments in this manner makes the next step
+   * more manageable.
+   */
+  let segments: Segment[] = [];
+  for (let charIndex = 0; charIndex < input.length; charIndex++) {
+    const char = input[charIndex];
+    const indexInInputWithSurroundingText = precedingText.length + charIndex;
+    const breakpoint: BreakpointInformation | undefined =
+      breakpoints[indexInInputWithSurroundingText + 1];
+    const isGlue = glueCharacterRegex.test(char);
+    const type: Segment['type'] = isGlue ? 'glue' : 'box';
 
-    let cost: number;
-
-    let penaltyDependsOnDistanceToNextGoodBreakingPoint;
-
-    const lastLetter = segment.slice(-1);
-    const lastLetterClass = getLineBreakingClassOfLetterAt(input, breakPoint.position - 1);
-    const nextLetterClass = getLineBreakingClassOfLetterAt(input, breakPoint.position);
-
-    let isRequiredBreak = breakPoint.required;
-    let isActuallyNotABreak;
     if (
-      isLastSegment &&
-      breakPoint.required &&
-      ![
-        UnicodeLineBreakingClasses.BreakMandatory,
-        UnicodeLineBreakingClasses.CarriageReturn,
-        UnicodeLineBreakingClasses.LineFeed,
-        UnicodeLineBreakingClasses.NextLine,
-      ].includes(lastLetterClass)
+      segments.length === 0 ||
+      segments.at(-1)!.type !== type ||
+      (segments.at(-1)!.type === 'box' && segments.at(-1)!.breakpoint) ||
+      (segments.at(-1)!.type === 'glue' && segments.at(-1)!.breakpoint?.required)
     ) {
-      isRequiredBreak = false;
-      isActuallyNotABreak = true;
+      segments.push({ text: '', type });
     }
+    segments.at(-1)!.text += char;
 
-    /**
-     * Note: The last segment is always marked as a required break in the
-     * Unicode line breaking package.
-     */
-    if (
-      isRequiredBreak &&
-      !(
-        // TODO: This option is used when breaking HTML. HTML ignores newlines, but it should not ignore <br>
-        (options.isHTML && lastLetter === '\n')
-      )
-    ) {
-      cost = PenaltyClasses.MandatoryBreak;
-    }
-
-    // Spaces
-    else if (
-      // Space
-      lastLetterClass === UnicodeLineBreakingClasses.Space ||
-      // Tab
-      lastLetter === '\t' ||
-      // Other breaking spaces
-      (UnicodeLineBreakingClasses.BreakAfter && lastLetter.match(/\p{General_Category=Zs}/gu)) ||
-      // Zero width space
-      lastLetterClass === UnicodeLineBreakingClasses.ZeroWidthSpace ||
-      isRequiredBreak
-    ) {
-      cost = PenaltyClasses.VeryGoodBreak;
-    }
-
-    // Em dash
-    else if (
-      lastLetterClass === UnicodeLineBreakingClasses.BreakOnEitherSide ||
-      nextLetterClass === UnicodeLineBreakingClasses.BreakOnEitherSide
-    ) {
-      cost = PenaltyClasses.GoodBreak;
-    }
-
-    // Ideographic
-    else if (lastLetterClass === UnicodeLineBreakingClasses.Ideographic) {
-      cost = PenaltyClasses.GoodBreak;
-    }
-
-    // Hyphens
-    else if (lastLetterClass === UnicodeLineBreakingClasses.Hyphen) {
-      cost = PenaltyClasses.GoodBreak;
-    }
-
-    // En-dashes and language-specific visible breaking characters
-    else if (lastLetterClass === UnicodeLineBreakingClasses.BreakAfter) {
-      cost = PenaltyClasses.GoodBreak;
-    }
-
-    // Soft hyphens
-    else if (lastLetter === SOFT_HYPHEN) {
-      /** (Note: Value actually not used, is overwritten in {@link softHyphen}) */
-      cost = PenaltyClasses.SoftHyphen;
-    }
-
-    // Break-before class (rare)
-    else if (nextLetterClass === UnicodeLineBreakingClasses.BreakBefore) {
-      /** TODO: Incomplete: Certain symbols in this class cause a preceding soft hyphen */
-      cost = PenaltyClasses.OKBreak;
-    }
-
-    // Slashes
-    else if (lastLetterClass === UnicodeLineBreakingClasses.SymbolAllowingBreakAfter) {
+    if (breakpoint) {
       /**
-       * Todo:
-       * "The recommendation in this case is for the layout system not to
-       * utilize a line break opportunity allowed by SY unless the distance
-       * between it and the next line break opportunity exceeds an
-       * implementation-defined minimal distance."
+       * The breakpoint library we're using will always mark the end of a
+       * string as a breakpoint. Here we check if it is actually something
+       * we need to break after.
        */
-      cost = PenaltyClasses.VeryBadBreak;
-    }
+      if (charIndex === input.length - 1 && !(isGlue || breakpoint.required)) continue;
 
-    // Other break-classes
-    else {
-      cost = PenaltyClasses.VeryBadBreak;
-    }
-
-    items.push(...splitSegmentIntoBoxesAndGlue(segment, options));
-
-    // todo.....
-    if (isActuallyNotABreak && cost === PenaltyClasses.VeryBadBreak && !options.addParagraphEnd) {
-      continue;
-    }
-
-    /** Paragraph-final infinite glue */
-    if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
-      if (items[items.length - 1].type === 'glue') {
-        /** If the last character in the segment was a newline character, we convert it into a stretchy glue */
-        items[items.length - 1] = {
-          ...items[items.length - 1],
-          shrink: 0,
-          stretch: MAX_COST,
-          width: 0,
-        } as TextGlue;
-      } else {
-        items.push(glue(0, 0, MAX_COST, ''));
+      /**
+       * Treat newline as just a space character in HTML.
+       * Todo: Should perhaps be done elsewhere
+       */
+      if (options.isHTML && breakpoint.required) {
+        breakpoint.required = false;
+        breakpoint.lastLetter = ' ';
       }
+
+      segments.at(-1)!.breakpoint = breakpoint;
+    }
+  }
+
+  segments.forEach((segment, index) => {
+    if (segment.type === 'glue') {
+      items.push(textGlue(segment.text, options));
+      /**
+       * Non-breaking spaces and normal spaces that cannot be broken,
+       * e.g. spaces before slashes.
+       */
+      if (!segment.breakpoint) {
+        items.push(penalty(0, MAX_COST));
+      }
+    } else if (segment.type === 'box') {
+      items.push(textBox(segment.text, options));
     }
 
-    /**
-     * Add the penalty for this break
-     */
-    // Soft hyphens
-    if (lastLetter === SOFT_HYPHEN) {
-      items.push(softHyphen(options));
-    }
-    // Hyphens
-    else if (lastLetterClass === UnicodeLineBreakingClasses.Hyphen) {
-      /** Todo: Should regular hyphens not be flagged? */
-      items.push(penalty(0, cost, false));
-      // items.push(penalty(0, cost, true));
-    }
-    // Penalty for other items
-    else {
+    if (segment.breakpoint) {
+      /** Soft hyphens */
+      if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
+        items.push(softHyphen(options));
+        return;
+      }
+
+      const isLastSegment = index === segments.length - 1;
+      let cost = getBreakpointPenalty(segment.breakpoint);
+      if (options.addParagraphEnd && isLastSegment) cost = MIN_COST;
+
+      /** Paragraph-final infinite glue */
+      if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
+        // /**
+        //  * If the previous item was a glue, we convert it into an infinite
+        //  * glue instead of adding new glue.
+        //  *
+        //  * Temporarily disactivated since it's better to make the
+        //  * breaklines support adjacent glues
+        //  */
+        // if (items.at(-1)?.type === 'glue') {
+        //   (items.at(-1) as TextGlue).stretch = MAX_COST;
+        //   (items.at(-1) as TextGlue).shrink = 0;
+        // } else {
+        items.push(glue(0, 0, MAX_COST, ''));
+        // }
+      }
+
       /**
        * Ignore zero-cost penalty after glue, since glues already have a
        * zero-cost penalty
        */
-      if (items[items.length - 1].type === 'glue' && cost === 0 && cost != null) continue;
-      // todo
-      if (options.addParagraphEnd && isLastSegment) {
-        cost = MIN_COST;
+      if (items.at(-1)!.type === 'glue' && cost === 0 && cost != null) {
+        return;
       }
+
+      /**
+       * Add the penalty for this break.
+       */
       items.push(penalty(0, cost));
     }
-  }
+  });
 
   if (options.hangingPunctuation) {
     items = calculateHangingPunctuationWidth(items, options);
   }
 
-  console.log({ items, input });
-
-  return collapseAdjacentGlue(items);
+  return items;
 };
 
-export const penaltyLowerIfFarAwayFromBreakingPoint = () => {
-  throw new Error('Not implemented');
+/**
+ * A helper function around the {@link LineBreaker} module.
+ * Returns breakpoints and their Unicode breakpoint letter classification.
+ */
+export const getBreakpoints = (input: string): Record<number, BreakpointInformation> => {
+  const lineBreaker = new LineBreaker(input);
+  let currentBreak: Break;
+  let positionToBreakpointInformation: Record<number, BreakpointInformation> = {};
+  while ((currentBreak = lineBreaker.nextBreak())) {
+    const lastLetterClass = getLineBreakingClassOfLetterAt(input, currentBreak.position);
+    const nextLetterClass = getLineBreakingClassOfLetterAt(input, currentBreak.position + 1);
+    positionToBreakpointInformation[currentBreak.position] = {
+      position: currentBreak.position,
+      required: currentBreak.required,
+      lastLetter: input.slice(currentBreak.position, currentBreak.position + 1),
+      lastLetterClass,
+      nextLetterClass,
+    };
+  }
+  return positionToBreakpointInformation;
+};
+
+/**
+ * Input should be the full string and not a substring –
+ * it has to include the surrounding characters to get an
+ * accurate classification.
+ */
+export const getLineBreakingClassOfLetterAt = (
+  input: string,
+  position: number,
+): UnicodeLineBreakingClasses => {
+  const j = new LineBreaker(input);
+  j.pos = position;
+  return convertEnumValuesOfLineBreakingPackageToUnicodeNames[
+    j.nextCharClass() as keyof typeof convertEnumValuesOfLineBreakingPackageToUnicodeNames
+  ] as UnicodeLineBreakingClasses;
 };

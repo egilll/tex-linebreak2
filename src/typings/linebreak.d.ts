@@ -1,7 +1,7 @@
 declare module 'linebreak' {
   export interface Break {
     position: number;
-    required?: boolean;
+    required: boolean;
   }
 
   /**
