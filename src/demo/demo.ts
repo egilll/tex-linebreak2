@@ -24,12 +24,11 @@ export function rerender() {
   };
   document.body.style.setProperty('--line-width', `${lineWidth}px`);
 
-  justifyContent(document.querySelectorAll('.demo-static'), null, {});
+  justifyContent(document.querySelectorAll('p.demo-static, div.demo-static p'), null, {}, true);
 
   return;
 
-  // Render as HTML.
-  const htmlParagraph = document.querySelector('.html-p')!;
+  const htmlParagraph = document.querySelector<HTMLElement>('.html-p')!;
   htmlParagraph.innerHTML = textarea.value;
   const textContent = htmlParagraph.textContent!;
 

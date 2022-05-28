@@ -68,8 +68,9 @@ export const splitTextIntoItems = (
     const indexInInputWithSurroundingText = precedingText.length + charIndex;
     const breakpoint: BreakpointInformation | undefined =
       breakpoints[indexInInputWithSurroundingText + 1];
-    const isGlue = glueCharacterRegex.test(char);
-    const type: Segment['type'] = isGlue ? 'glue' : 'box';
+    /** Newline characters are just glue in HTML */
+    const isGlue = glueCharacterRegex.test(char) || (options.isHTML && breakpoint?.required);
+    let type: Segment['type'] = isGlue ? 'glue' : 'box';
 
     if (
       segments.length === 0 ||
@@ -95,7 +96,7 @@ export const splitTextIntoItems = (
        */
       if (options.isHTML && breakpoint.required) {
         breakpoint.required = false;
-        breakpoint.lastLetter = ' ';
+        breakpoint.lastLetterClass = UnicodeLineBreakingClasses.Space;
       }
 
       segments.at(-1)!.breakpoint = breakpoint;

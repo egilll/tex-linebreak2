@@ -82,3 +82,49 @@ textarea {
   /*padding-left: 20px;*/
   /*padding-right: 20px;*/
 }
+
+.gutenberg .chapter {
+  padding: 0 30px;
+}
+
+.gutenberg h1,
+.gutenberg h2 {
+  text-align: center;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1.5;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.gutenberg h1 {
+  font-size: 300%;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+  letter-spacing: 0.12em;
+  word-spacing: 0.2em;
+  text-indent: 0em;
+}
+.gutenberg h2 {
+  font-size: 150%;
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+.gutenberg hr {
+  width: 80%;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.gutenberg p {
+  text-indent: 1em;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  line-height: 1.2em;
+  font-size: 14px;
+}
+
+.gutenberg .p2 {
+  margin-top: 2em;
+}
