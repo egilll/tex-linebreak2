@@ -4,14 +4,12 @@ import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextInto
 import { TextInputItem, forcedBreak, glue, box } from 'src/helpers/util';
 
 export interface NodeOffset {
-  offset: {
-    parentNode: Node;
-    /**
-     * Character offset of this item (box/penalty/glue) in the parent DOM node
-     */
-    startOffset: number;
-    endOffset: number;
-  };
+  parentNode: Node;
+  /**
+   * Character offset of this item (box/penalty/glue) in the parent DOM node
+   */
+  startOffset: number;
+  endOffset: number;
 }
 
 export type DOMBox = Box & NodeOffset;
@@ -44,11 +42,9 @@ export class GetItemsFromDOM {
   ) {
     this.items.push({
       ...item,
-      offset: {
-        parentNode,
-        startOffset,
-        endOffset,
-      },
+      parentNode,
+      startOffset,
+      endOffset,
     });
   }
 

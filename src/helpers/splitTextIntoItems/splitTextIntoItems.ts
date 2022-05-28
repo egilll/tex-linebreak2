@@ -1,8 +1,5 @@
 import LineBreaker, { Break } from 'linebreak';
-import {
-  UnicodeLineBreakingClasses,
-  convertEnumValuesOfLineBreakingPackageToUnicodeNames,
-} from 'src/typings/unicodeLineBreakingClasses';
+import { UnicodeLineBreakingClasses } from 'src/typings/unicodeLineBreakingClasses';
 import { MIN_COST, MAX_COST } from 'src/breakLines';
 import {
   TextInputItem,
@@ -15,6 +12,7 @@ import {
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { calculateHangingPunctuationWidth } from 'src/helpers/hangingPunctuations';
 import { splitSegmentIntoBoxesAndGlue } from 'src/helpers/splitTextIntoItems/splitSegmentIntoBoxesAndGlue';
+import { getLineBreakingClassOfLetterAt } from 'src/helpers/splitTextIntoItems/splitIntoSegments';
 
 export const NON_BREAKING_SPACE = '\xa0';
 export const SOFT_HYPHEN = '\u00AD';
@@ -29,11 +27,9 @@ export enum PenaltyClasses {
   VeryBadBreak = 0,
 }
 
-const FAKE_FINAL_SEGMENT = 'FAKE_FINAL_SEGMENT\n';
-
 export const splitTextIntoItems = (
   input: string,
-  options: HelperOptions,
+  options: HelperOptions = {},
   /** When splitting text inside HTML elements, the text that surrounds it matters */
   precedingText: string = '',
   followingText: string = '',
@@ -226,20 +222,4 @@ export const splitTextIntoItems = (
 
 export const penaltyLowerIfFarAwayFromBreakingPoint = () => {
   throw new Error('Not implemented');
-};
-
-/**
- * @param input - Must be the full original string in order to classify based
- *     on the surrounding characters
- * @param position
- */
-export const getLineBreakingClassOfLetterAt = (
-  input: string,
-  position: number,
-): UnicodeLineBreakingClasses => {
-  const j = new LineBreaker(input);
-  j.pos = position;
-  return convertEnumValuesOfLineBreakingPackageToUnicodeNames[
-    j.nextCharClass() as keyof typeof convertEnumValuesOfLineBreakingPackageToUnicodeNames
-  ] as UnicodeLineBreakingClasses;
 };
