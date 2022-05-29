@@ -1,14 +1,13 @@
 import { Glue, Penalty, Box, MAX_COST } from 'src/breakLines';
 import { TexLinebreakOptions } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
-import { TextInputItem, forcedBreak, glue, box } from 'src/helpers/util';
+import { TextItem, forcedBreak, glue, box, collapseAdjacentGlue } from 'src/helpers/util';
 
 export interface NodeOffset {
-  parentNode: Node;
-  /**
-   * Character offset of this item (box/penalty/glue) in the parent DOM node
-   */
+  startOffsetNode: Node;
+  /** Character offset of this item (box/penalty/glue) in the parent DOM node */
   startOffset: number;
+  endOffsetNode: Node;
   endOffset: number;
 }
 
@@ -18,11 +17,11 @@ export type DOMPenalty = Penalty & NodeOffset;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
 export class GetItemsFromDOM {
-  items: DOMItem[] = [];
+  #items: DOMItem[] = [];
   paragraphText: string;
   /**
-   * This is done since we need to be aware of the surrounding text
-   * in order to find correct break points.
+   * This is done since we need to be aware of the
+   * surrounding text in order to find correct break points.
    */
   textOffsetInParagraph: number = 0;
   constructor(
@@ -34,16 +33,21 @@ export class GetItemsFromDOM {
     this.getItemsFromNode(paragraphElement);
   }
 
+  get items() {
+    return collapseAdjacentGlue(this.#items);
+  }
+
   addItemWithOffset(
     item: Box | Glue | Penalty,
     parentNode: Node,
     startOffset: number,
     endOffset: number,
   ) {
-    this.items.push({
+    this.#items.push({
       ...item,
-      parentNode,
+      startOffsetNode: parentNode,
       startOffset,
+      endOffsetNode: parentNode,
       endOffset,
     });
   }
@@ -109,7 +113,7 @@ export class GetItemsFromDOM {
 
   getItemsFromText(textNode: Text, addParagraphEnd = true) {
     const text = textNode.nodeValue!;
-    const element = textNode.parentNode! as Element;
+    const element = textNode.startOffsetNode! as Element;
 
     const precedingText = this.paragraphText.slice(0, this.textOffsetInParagraph);
     const followingText = this.paragraphText.slice(this.textOffsetInParagraph + text.length);
@@ -127,11 +131,16 @@ export class GetItemsFromDOM {
       followingText,
     );
 
-    textItems.forEach((item: TextInputItem) => {
+    console.log(text);
+
+    textItems.forEach((item: TextItem) => {
       const startOffset = textOffsetInThisNode;
       textOffsetInThisNode += ('text' in item ? item.text : '').length;
+      console.log({ item });
       this.addItemWithOffset(item, textNode, startOffset, textOffsetInThisNode);
     });
+
+    console.log({ i: this.#items });
 
     this.textOffsetInParagraph += textOffsetInThisNode;
   }

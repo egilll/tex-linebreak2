@@ -1,4 +1,4 @@
-import { TextInputItem } from 'src/helpers/util';
+import { TextItem } from 'src/helpers/util';
 import { breakLines, MaxAdjustmentExceededError, Item, MIN_ADJUSTMENT_RATIO } from 'src/breakLines';
 import { layoutItemsFromString } from 'src/helpers/deprecated/layoutItemsFromString';
 
@@ -23,8 +23,8 @@ export interface PositionOptions {
 }
 
 /**
- * Compute the positions at which to draw boxes forming a paragraph given a set
- * of breakpoints.
+ * Compute the positions at which to draw boxes
+ * forming a paragraph given a set of breakpoints.
  *
  * @param items - The sequence of items that form the paragraph.
  * @param lineWidths - Length or lengths of each line.
@@ -87,17 +87,15 @@ export function positionItems(
 }
 
 /**
- * Helper for laying out a paragraph of text and getting the absolute xOffset
- * positions of each text chunk.
- * Can be used for rendering justified text into a
- * variety of targets (HTML, canvas, SVG, WebGL etc.)
+ * Helper for laying out a paragraph of text and getting the absolute
+ * xOffset positions of each text chunk.
+ * Can be used for rendering justified text into a variety of targets
+ * (HTML, canvas, SVG, WebGL etc.)
  *
  * @param text - The text to lay out
  * @param lineWidth - Width for each line
- * @param measure - Function which is called to measure each word or space in
- *     the input
- * @param hyphenate - Function which is called to split words at possible
- * hyphenation points
+ * @param measure - Function which is called to measure each word or space in the input
+ * @param hyphenate - Function which is called to split words at possible hyphenation points
  */
 export function positionText(
   text: string,
@@ -105,7 +103,7 @@ export function positionText(
   measure: (word: string) => number,
   hyphenate: (word: string) => string[],
 ) {
-  let items: TextInputItem[];
+  let items: TextItem[];
   let breakpoints;
   let positions: PositionedItem[];
 
@@ -128,23 +126,22 @@ export function positionText(
   return { items, breakpoints, positions };
 }
 
-/** @deprecated due to the name being unclear */
+/** @deprecated Due to the name being unclear */
 export const layoutText = positionText;
 // export const layoutText = () => {};
 
 /**
  * Compute adjustment ratios for lines given a set of breakpoints.
  *
- * The adjustment ratio of a line is the proportion of each glue item's stretch
- * (if positive) or shrink (if negative) which needs to be used in order to make
- * the line the specified width. A value of zero indicates that every glue item
- * is exactly its preferred width.
+ * The adjustment ratio of a line is the proportion of each glue item's
+ * stretch (if positive) or shrink (if negative) which needs to be
+ * used in order to make the line the specified width. A value of zero
+ * indicates that every glue item is exactly its preferred width.
  *
+ * @deprecated
  * @param items - The box, glue and penalty items being laid out
  * @param lineWidths - Length or lengths of each line
  * @param breakpoints - Indexes in `items` where lines are being broken
- *
- * @deprecated
  */
 export function adjustmentRatios(
   items: Item[],

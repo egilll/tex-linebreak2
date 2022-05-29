@@ -1,10 +1,9 @@
 import { Box, Glue, Penalty, MIN_COST, Item, MAX_COST } from 'src/breakLines';
 import { TexLinebreakOptions } from 'src/helpers/options';
 import { PenaltyClasses } from 'src/helpers/splitTextIntoItems/penalty';
+import { DOMItem, DOMGlue } from 'src/html/getItemsFromDOM';
 
-/**
- * Useful when working with raw strings instead of DOM nodes.
- */
+/** Useful when working with raw strings instead of DOM nodes. */
 export interface TextBox extends Box {
   text: string;
 
@@ -17,7 +16,7 @@ export interface TextGlue extends Glue {
   text: string;
 }
 
-export type TextInputItem = TextBox | TextGlue | Penalty;
+export type TextItem = TextBox | TextGlue | Penalty;
 
 export function box(width: number): Box;
 export function box(width: number, text: string): TextBox;
@@ -81,9 +80,9 @@ export function forcedBreak(): Penalty {
 
 /**
  * Retrieves the text from an input item.
- * Text is included in {@link TextInputItem}s by {@link splitTextIntoItems}.
+ * Text is included in {@link TextItem}s by {@link splitTextIntoItems}.
  */
-export function itemToString(item: TextInputItem) {
+export function itemToString(item: TextItem) {
   switch (item.type) {
     case 'box':
       return item.text;
@@ -94,15 +93,15 @@ export function itemToString(item: TextInputItem) {
   }
 }
 
-export function lineStrings(items: TextInputItem[], breakpoints: number[]): string[] {
+export function lineStrings(items: TextItem[], breakpoints: number[]): string[] {
   const pieces = items.map(itemToString);
   const start = (pos: number) => (pos === 0 ? 0 : pos + 1);
   return chunk(breakpoints, 2).map(([a, b]) =>
     pieces
       .slice(start(a), b + 1)
       /**
-       * TODO: Not good enough, the !== '-' removes standalone hyphens in the
-       * middle of strings
+       * TODO: Not good enough, the !== '-' removes
+       * standalone hyphens in the middle of strings
        */
       .filter((w, i, ary) => w !== '-' || i === ary.length - 1)
       .join('')
@@ -120,33 +119,35 @@ export function chunk<T>(breakpoints: T[], width: number) {
 
 /**
  * Used to prevent the last line from having a hanging last line.
- * Note: This results in the paragraph not filling the entire allowed width,
- * but the output will have all lines balanced.
+ * Note: This results in the paragraph not filling the entire
+ * allowed width, but the output will have all lines balanced.
  */
 export const removeGlueFromEndOfParagraphs = <T extends Item>(items: T[]): T[] => {
   return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
 };
 
-/*
-not used now, but would have to support glue stretching
- */
-// export const collapseAdjacentGlue = (items: TextInputItem[]): TextInputItem[] => {
-//   let output: TextInputItem[] = [];
-//   items.forEach((item) => {
-//     if (item.type === 'glue') {
-//       if (output.length > 0 && output.at(-1)!.type === 'glue') {
-//         output.at(-1)!.width += item.width;
-//         (output.at(-1) as TextGlue).text += item.text;
-//       } else {
-//         output.push(item);
-//       }
-//     } else {
-//       output.push(item);
-//     }
-//   });
-//   return output;
-// };
-
 export function isForcedBreak(item: Item) {
   return item.type === 'penalty' && item.cost <= MIN_COST;
 }
+
+/*
+not used now, but would have to support glue stretching
+ */
+export const collapseAdjacentGlue = <T extends TextItem | DOMItem>(items: T[]): T[] => {
+  let output: T[] = [];
+  items.forEach((item) => {
+    if (item.type === 'glue' && output.at(-1)?.type === 'glue') {
+      // output.at(-1)!.width += item.width;
+      if ('text' in item) {
+        (output.at(-1) as TextGlue).text += item.text;
+      }
+      if ('endOffset' in item) {
+        (output.at(-1) as DOMGlue).endOffsetNode = item.endOffsetNode;
+        (output.at(-1) as DOMGlue).endOffset = item.endOffset;
+      }
+    } else {
+      output.push(item);
+    }
+  });
+  return output;
+};

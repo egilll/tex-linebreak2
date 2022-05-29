@@ -1,12 +1,10 @@
-import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
+import { TextItem, isSoftHyphen } from 'src/helpers/util';
 import { outputElement } from 'src/demo/demo';
 import { TexLinebreak } from 'src/helpers';
 
 export const canvas = document.querySelector('canvas')!;
 
-/**
- * Render a string as justified text into a `<canvas>`.
- */
+/** Render a string as justified text into a `<canvas>`. */
 export function renderToCanvas(
   text: string,
   margins: { left: number; right: number },
@@ -24,7 +22,7 @@ export function renderToCanvas(
   );
   canvasRenderingContext.font = '16px serif';
 
-  const lines = new TexLinebreak<TextInputItem>({
+  const lines = new TexLinebreak<TextItem>({
     text,
     lineWidth,
     // hyphenateFn,
@@ -46,9 +44,7 @@ export function renderToCanvas(
   });
 }
 
-/**
- * Set the size of a canvas, adjusting for high-DPI displays.
- */
+/** Set the size of a canvas, adjusting for high-DPI displays. */
 export function setCanvasSize(canvas: HTMLCanvasElement, width: number, height: number) {
   const canvasRenderingContext = canvas.getContext('2d')!;
   canvas.style.width = width + 'px';

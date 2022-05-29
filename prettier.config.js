@@ -4,4 +4,5 @@ module.exports = {
   singleQuote: true,
   quoteProps: 'consistent',
   plugins: ['prettier-plugin-jsdoc'],
+  jsdocPrintWidth: 80,
 };

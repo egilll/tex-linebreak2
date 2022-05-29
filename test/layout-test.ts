@@ -10,7 +10,7 @@ import {
   lineStrings,
   penalty,
   forcedBreak,
-  TextInputItem,
+  TextItem,
   TextGlue,
   TextBox,
 } from 'src/helpers/util';
@@ -41,18 +41,16 @@ interface LayoutFixture {
  *
  * The format of the fixture files is:
  *
- * ```
- * {input text}
+ *     {input text}
  *
- * {output 0 settings}
+ *     {output 0 settings}
  *
- * {output 0 lines}
+ *     {output 0 lines}
  *
- * {output 1 settings }
+ *     {output 1 settings }
  *
- * {output 1 lines}
- * ...
- * ```
+ *     {output 1 lines}
+ *     ...
  */
 function readLayoutFixture(content: string): LayoutFixture {
   const defaultSettings = {
@@ -91,7 +89,7 @@ function repeat<T>(arr: T[], count: number) {
   return result;
 }
 
-function itemsFromString(s: string, charWidth: number, glueStretch: number): TextInputItem[] {
+function itemsFromString(s: string, charWidth: number, glueStretch: number): TextItem[] {
   const items = s.split(/(\s+|-)/).map((substr) => {
     const width = substr.length * charWidth;
     if (substr.match(/^\s+$/)) {
@@ -125,7 +123,7 @@ describe('layout', () => {
         const measure = (text: string) => text.length * 5;
         const items = layoutItemsFromString(f.input, measure);
         const breakpoints = breakLines(items, layoutOptions.lineWidths, layoutOptions);
-        const itemText = (item: TextInputItem) => (item.type == 'box' ? item.text : ' ');
+        const itemText = (item: TextItem) => (item.type == 'box' ? item.text : ' ');
 
         // Check that breakpoints occur at expected positions.
         const actualLines = chunk(breakpoints, 2)

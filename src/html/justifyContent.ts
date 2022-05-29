@@ -11,14 +11,13 @@ import { getElementLineWidth } from 'src/html/lineWidth';
 /**
  * Justify an existing paragraph.
  *
- * Justify the contents of `elements`, using `hyphenateFn` to apply hyphenation
- * if necessary.
+ * Justify the contents of `elements`, using `hyphenateFn` to apply
+ * hyphenation if necessary.
  *
  * To justify multiple paragraphs, it is more efficient to call
- * `justifyContent`
- * once with all the elements to be processed, than to call `justifyContent`
- * separately for each element. Passing a list allows `justifyContent` to
- * optimize DOM manipulations.
+ * `justifyContent` once with all the elements to be processed, than
+ * to call `justifyContent` separately for each element. Passing a
+ * list allows `justifyContent` to optimize DOM manipulations.
  */
 export function justifyContent(
   elements: HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
@@ -74,18 +73,36 @@ export function justifyContent(
     // console.log(element.textContent);
 
     console.log(items);
-    // Create a `Range` for each line. We create the ranges before modifying the
-    // contents so that node offsets in `items` are still valid at the point when
-    // we create the Range.
+
+    /** Create a `Range` for each glue. */
+    let glueRanges: Range[][] = [];
+    lines.forEach((line, i) => {
+      let glueRangesInLine: Range[] = [];
+      line.itemsFiltered.forEach((item) => {
+        if (item.type === 'glue') {
+          const range = document.createRange();
+          range.setStart(item.startOffsetNode, item.startOffset);
+          range.setEnd(item.startOffsetNode, item.endOffset);
+          glueRangesInLine.push(range);
+        }
+      });
+      glueRanges.push(glueRangesInLine);
+    });
+
+    /**
+     * Create a `Range` for each line. We create the ranges before
+     * modifying the contents so that node offsets in `items` are
+     * still valid at the point when we create the Range.
+     */
     const lineRanges: Range[] = [];
     lines.forEach((line, i) => {
       const range = document.createRange();
       if (i > 0) {
-        range.setStart(line.prevBreakItem.parentNode, line.prevBreakItem.endOffset);
+        range.setStart(line.prevBreakItem.startOffsetNode, line.prevBreakItem.endOffset);
       } else {
         range.setStart(element, 0);
       }
-      range.setEnd(line.breakItem.parentNode, line.breakItem.startOffset);
+      range.setEnd(line.breakItem.startOffsetNode, line.breakItem.startOffset);
       lineRanges.push(range);
     });
 
@@ -93,9 +110,8 @@ export function justifyContent(
      * Insert linebreak. The browser will automatically adjust subsequent
      * ranges. This must be done before the next step.
      *
-     * TODO: THIS DOES NOT HANDLE INLINE BLOCK ELEMENTS CORRECTLY
-     * INLINE-BLOCK ELEMENTS CANNOT HAVE A BREAK INSIDE, THE BROWSER WILL
-     * IGNORE IT
+     * TODO: THIS DOES NOT HANDLE INLINE BLOCK ELEMENTS CORRECTLY INLINE-BLOCK
+     * ELEMENTS CANNOT HAVE A BREAK INSIDE, THE BROWSER WILL IGNORE IT
      */
     lines.forEach((line, i) => {
       const range = lineRanges[i];
@@ -115,12 +131,13 @@ export function justifyContent(
 
     lines.forEach((line, i) => {
       const range = lineRanges[i];
+      const glueRangesInLine = glueRanges[i];
 
-      const wrappedNodes = formatLine(range, line);
+      const wrappedNodes = formatLine(range, glueRangesInLine, line);
       if (line.endsWithSoftHyphen && wrappedNodes.length > 0) {
         const lastNode = wrappedNodes[wrappedNodes.length - 1];
         const hyphen = tagNode(document.createTextNode('-'));
-        lastNode.parentNode!.appendChild(hyphen);
+        lastNode.startOffsetNode!.appendChild(hyphen);
       }
     });
 
@@ -128,14 +145,12 @@ export function justifyContent(
   });
 }
 
-/**
- * Reverse the changes made to an element by `justifyContent`.
- */
+/** Reverse the changes made to an element by `justifyContent`. */
 export function unjustifyContent(el: HTMLElement) {
   // Find and remove all elements inserted by `justifyContent`.
   const tagged = getTaggedChildren(el);
   for (let node of tagged) {
-    const parent = node.parentNode!;
+    const parent = node.startOffsetNode!;
     const children = Array.from(node.childNodes);
     children.forEach((child) => {
       parent.insertBefore(child, node);

@@ -1,13 +1,14 @@
-import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
+import { TextItem, isSoftHyphen } from 'src/helpers/util';
 import { TexLinebreakOptions } from 'src/helpers/options';
 
 /**
  * The following punctuation items are not included, as it would not look good:
- *   - Dashes
- *   - Em hyphens
  *
- * `General_Category=Pi` are initial quotes
- * `General_Category=Pf` are final quotes
+ * - Dashes
+ * - Em hyphens
+ *
+ * `General_Category=Pi` are initial quotes `General_Category=Pf` are final
+ * quotes
  */
 const hangingPunctuationRegex =
   /[.,;:!?\-()\[\]{}'"\p{General_Category=Pi}\p{General_Category=Pf}]/u;
@@ -23,9 +24,9 @@ const hangingPunctuationRegex =
  * adjacent glues, but that does not work with left hanging punctuation.
  */
 export const calculateHangingPunctuationWidth = (
-  items: TextInputItem[],
+  items: TextItem[],
   options: TexLinebreakOptions,
-): TextInputItem[] => {
+): TextItem[] => {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     if (item.type !== 'box' || item.width <= 1 || isSoftHyphen(items[i + 1])) continue;

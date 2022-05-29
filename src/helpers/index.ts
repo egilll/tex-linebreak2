@@ -1,11 +1,11 @@
 import { TexLinebreakOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
-import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
+import { TextItem, isSoftHyphen } from 'src/helpers/util';
 import { breakLines, Item, MAX_COST, getLineWidth } from 'src/breakLines';
 import { breakLinesGreedy } from 'src/helpers/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 
-export type AnyInput = TextInputItem | DOMItem | Item;
+export type AnyInput = TextItem | DOMItem | Item;
 
 export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
   private _items?: InputItemType[];
@@ -65,14 +65,13 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
   }
 
   /**
-   * Filter glues and penalties that do not matter for the purposes of
-   * rendering this line
+   * Filter glues and penalties that do not matter
+   * for the purposes of rendering this line
    */
   get itemsFiltered() {
     /**
-     * This goes through three steps for a reason, otherwise we haven't
-     * filtered out
-     * [Penalty, Glue, Box] into [Box].
+     * This goes through three steps for a reason, otherwise we
+     * haven't filtered out [Penalty, Glue, Box] into [Box].
      */
     return (
       this.items
@@ -181,7 +180,7 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
 
   /**
    * Includes soft hyphens.
-   * TODO:   what about filtered items ???
+   * TODO: what about filtered items ???
    */
   get positionedItems(): (InputItemType & { xOffset: number })[] {
     const result: (InputItemType & { xOffset: number })[] = [];
