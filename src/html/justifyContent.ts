@@ -55,9 +55,8 @@ export function justifyContent(
       /** Disable automatic line wrap. */
       element.style.whiteSpace = 'nowrap';
 
-      const lines = new TexLinebreak<DOMItem>({
+      const lines = new TexLinebreak<DOMItem>(items, {
         ...options,
-        items,
         lineWidth,
         isHTML: true,
       }).lines;
@@ -79,7 +78,7 @@ export function justifyContent(
           const firstBoxRange = getRangeOfItem(line.itemsFiltered[0]);
           const finalBoxRange = getRangeOfItem(line.itemsFiltered.at(-1));
 
-          if(!line.endsWithInfiniteGlue) {
+          if (!line.endsWithInfiniteGlue) {
             glueRanges.forEach((glueRange) => {
               const span = tagNode(document.createElement('span'));
               // span.style.width = `${line.glueWidth}px`;

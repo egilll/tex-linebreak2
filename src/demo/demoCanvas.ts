@@ -22,8 +22,7 @@ export function renderToCanvas(
   );
   canvasRenderingContext.font = '16px serif';
 
-  const lines = new TexLinebreak<TextItem>({
-    text,
+  const lines = new TexLinebreak<TextItem>(text, {
     lineWidth,
     // hyphenateFn,
     measureFn: (t: string) => canvasRenderingContext.measureText(t).width,

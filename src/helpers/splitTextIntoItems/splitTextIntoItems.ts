@@ -89,7 +89,13 @@ export const splitTextIntoItems = (
        * the end of a string as a breakpoint. Here we check
        * if it is actually something we need to break after.
        */
-      if (charIndex === input.length - 1 && !(isGlue || breakpoint.required)) continue;
+      if (
+        charIndex === input.length - 1 &&
+        !(isGlue || breakpoint.required) &&
+        !options.addParagraphEnd
+      ) {
+        continue;
+      }
 
       /**
        * Treat newline as just a space character in HTML.

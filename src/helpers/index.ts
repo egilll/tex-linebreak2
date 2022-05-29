@@ -8,21 +8,18 @@ import { DOMItem } from 'src/html/getItemsFromDOM';
 export type AnyInput = TextItem | DOMItem | Item;
 
 export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
-  private _items?: InputItemType[];
-  constructor(public options: TexLinebreakOptions) {
+  items: InputItemType[];
+  constructor(input: string | InputItemType[], public options: TexLinebreakOptions) {
     this.options = getOptionsWithDefaults(options);
-  }
-  getItems(): InputItemType[] {
-    if (this.options.items) {
-      this._items = this.options.items as InputItemType[];
-    } else if (!this._items) {
-      if (typeof this.options.text === 'string') {
-        this._items = splitTextIntoItems(this.options.text, this.options) as InputItemType[];
-      } else {
-        throw new Error('Not implemented');
-      }
+    if (typeof input === 'string') {
+      this.items = splitTextIntoItems(input, this.options) as InputItemType[];
+      console.log(this.items);
+    } else {
+      this.items = input;
     }
-    return this._items;
+  }
+  getItems() {
+    return this.items;
   }
   getBreakpoints(): number[] {
     if (!this.options.lineWidth) throw new Error('The option `lineWidth` is required');
@@ -212,4 +209,3 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
     );
   }
 }
-export { isForcedBreak } from 'src/helpers/util';

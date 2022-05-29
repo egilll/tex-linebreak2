@@ -1,4 +1,5 @@
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
+import { TexLinebreak } from 'src/helpers/index';
 
 // console.log(
 //   new TexLinebreak({
@@ -26,3 +27,10 @@ console.log(
     '',
   ),
 );
+
+const text =
+  'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
+const output = new TexLinebreak(text, {
+  lineWidth: 45,
+}).getPlainText();
+console.log(output);

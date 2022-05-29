@@ -1,16 +1,11 @@
-import { TextItem } from 'src/helpers/util';
-import { Item, LineBreakingOptions, defaultLineBreakingOptions } from 'src/breakLines';
-import { DOMItem } from 'src/html/getItemsFromDOM';
+import { LineBreakingOptions, defaultLineBreakingOptions } from 'src/breakLines';
 import { LineWidth } from 'src/html/lineWidth';
 
 export type TexLinebreakOptions = Partial<
   {
-    text: string;
     lineBreakingType: 'fullWidth' | 'findOptimalWidth' | 'greedy';
     alignment: 'justify' | 'left' /*| 'right' | 'center'*/;
     lineWidth: LineWidth;
-    /** If the user wants to supply his own items */
-    items: (TextItem | DOMItem | Item)[];
 
     /** Callback that calculates the width of a given string. */
     measureFn: (word: string, ...args: any[]) => number;
@@ -58,8 +53,8 @@ const defaultOptions: Partial<TexLinebreakOptions> = {
   alignment: 'justify',
   hangingPunctuation: true,
   addParagraphEnd: true,
-  // /** If no callback is provided, default to a monospace */
-  // measureFn: (word: string) => word.length,
+  /** If no callback is provided, default to a monospace */
+  measureFn: (word: string) => word.length,
 
   ...defaultLineBreakingOptions,
 };

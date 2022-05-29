@@ -6,13 +6,14 @@ _tex-linebreak_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
 [Knuth-Plass line-breaking algorithm](#references), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
-Features include:
-* Can be applied to webpages (but see [caveats](#caveats)).
-* Can be used for custom purposes (rendering to a canvas, getting plain text) in both browsers and Node.js environments.
-* Hanging punctuation.
-* Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
-
 **[Click here](#)** to see the a demonstration of this library.
+
+Features:
+
+- Can be applied to webpages (but see [caveats](#caveats)).
+- Can be used for custom purposes (rendering to a canvas, getting plain text) in both browsers and Node.js environments.
+- Hanging punctuation.
+- Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 
 ## WIP
 
@@ -25,8 +26,8 @@ Monospace
 Most text on the web is presented with "ragged-right" margins, as opposed to
 the justified text you would find in e.g. a scientific paper or newspaper.
 Text can be justified in web pages using `text-align: justify`.
-However this option alone tends to result in large   spaces
-   between words which is distracting to read. This is due to the
+However this option alone tends to result in large spaces
+between words which is distracting to read. This is due to the
 use of "first fit" line-breaking algorithms where the browser considers only the
 current line when finding the next breakpoint. Some browsers support hyphenation
 via `hyphens: auto` which reduces this effect. However the first-fit approach
@@ -70,8 +71,7 @@ Node) or render target (`<canvas>`, HTML elements, PDF).
 
 ## Bookmarklet
 
-The easiest way to see what the library can do is to [install the bookmarklet](
-bookmarklet.js) and activate it on an existing web page, such as this
+The easiest way to see what the library can do is to [install the bookmarklet](bookmarklet.js) and activate it on an existing web page, such as this
 [Medium article](https://medium.com/@parismarx/ubers-unrealistic-plan-for-flying-cars-6c9569d6fa8b).
 
 It will justify and apply hyphenation to the content of any paragraph (`<p>`)
@@ -99,11 +99,20 @@ represent hyphenation points or the end of a paragraph. However you can use them
 to lay out arbitrary content.
 
 ```js
-import {texLinebreak} from 'tex-linebreak';
-const output = texLinebreak({
-  text: "",
-  lineWidth: 200,
+import { TexLinebreak } from 'tex-linebreak';
+const text =
+  'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
+const output = new TexLinebreak(text, {
+  lineWidth: 45,
+  monospace: true,
 }).getPlainText();
+
+// Output:
+// Chamæleon animal est quadrupes, macrum &
+// gibbosum, capite galeato, corpore & cauda
+// lacertæ majoris, cervice penè nulla, costis
+// plus minus sedecim, obliquo ductu ventri
+// junctis ut piscibus.
 ```
 
 ### Options
@@ -148,11 +157,11 @@ import { createHyphenator, layoutText } from 'tex-linebreak';
 import enUsPatterns from 'hyphenation.en-us';
 
 const hyphenate = createHyphenator(enUsPatterns);
-const measure = word => word.length * 5;
+const measure = (word) => word.length * 5;
 
 const { items, positions } = layoutText(text, lineWidth, measure, hyphenate);
 
-positions.forEach(pos => {
+positions.forEach((pos) => {
   // Draw text as in the above example for the low-level APIs
 });
 ```
@@ -166,7 +175,7 @@ annotations.
 
 ## References
 
-* D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), *Software: Practice and Experience*, vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
+- D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), _Software: Practice and Experience_, vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
 
 **Notes**
 
