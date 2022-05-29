@@ -18,7 +18,10 @@ export function getElementLineWidth(
     defaultLineWidth -= parseFloat(paddingRight!);
   }
 
-  let lineWidths: LineWidth = { defaultLineWidth };
+  let lineWidths: {
+    defaultLineWidth: number;
+    [lineIndex: number]: number;
+  } = { defaultLineWidth };
 
   const indentationOfFirstLine = parseInt(textIndent);
   if (indentationOfFirstLine) {
@@ -26,30 +29,45 @@ export function getElementLineWidth(
   }
 
   if (floatingElements && floatingElements.length > 0) {
-    const { lineHeight } = window.getComputedStyle(element);
-    console.log(lineHeight);
-    const elRect = element.getBoundingClientRect();
+    const lineHeight = parseFloat(window.getComputedStyle(element).lineHeight);
+    // const lineHeight = 20;
+    const paragraphRect = element.getBoundingClientRect();
     let firstLine: number;
-    let lineIndex = 0;
     floatingElements.forEach((floatingElement) => {
-      const flRect = floatingElement.getBoundingClientRect();
-      const { float } = window.getComputedStyle(element);
+      const floatingElementRect = floatingElement.getBoundingClientRect();
+      const floatingElementStyle = window.getComputedStyle(floatingElement);
       let xAxisOverlap = 0;
-      if (float === 'right') {
-        xAxisOverlap = elRect.width - (flRect.left - elRect.left);
-      } else if (float === 'left') {
-        xAxisOverlap = elRect.width - (flRect.right - elRect.right);
+      if (floatingElementStyle.float === 'right') {
+        xAxisOverlap =
+          paragraphRect.width -
+          (floatingElementRect.left -
+            parseFloat(floatingElementStyle.marginLeft) -
+            paragraphRect.left);
+      } else if (floatingElementStyle.float === 'left') {
+        xAxisOverlap =
+          paragraphRect.width -
+          (floatingElementRect.right +
+            parseFloat(floatingElementStyle.marginRight) -
+            paragraphRect.right);
       }
 
-      console.log(getLineWidth(lineWidths, lineIndex));
-      console.log(lineWidths[lineIndex]);
-      firstLine = getLineWidth(lineWidths, lineIndex++) - (elRect.width - xAxisOverlap);
+      const firstLineThatOverlaps = Math.floor(
+        (floatingElementRect.top - parseFloat(floatingElementStyle.marginTop) - paragraphRect.top) /
+          lineHeight,
+      );
+      const lastLineThatOverlaps = Math.floor(
+        (floatingElementRect.bottom +
+          parseFloat(floatingElementStyle.marginBottom) -
+          paragraphRect.top) /
+          lineHeight,
+      );
+      if (lastLineThatOverlaps < 0) return;
+      for (let lineIndex = firstLineThatOverlaps; lineIndex <= lastLineThatOverlaps; lineIndex++) {
+        if (lineIndex < 0) continue;
+        lineWidths[lineIndex] = getLineWidth(lineWidths, lineIndex) - xAxisOverlap;
+      }
     });
-    return firstLine!;
   }
-  console.log(`
-  ---------------
-         ----------`);
 
   return lineWidths;
 }
