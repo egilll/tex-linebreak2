@@ -3,17 +3,20 @@ import { TexLinebreakOptions } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { TextItem, forcedBreak, glue, box, collapseAdjacentGlue } from 'src/helpers/util';
 
-export interface NodeOffset {
-  /** Character offset of this item (box/penalty/glue) in the parent DOM node */
+export interface RangeData {
+  /**
+   * Character offset of this item (box/penalty/glue)
+   * in the parent DOM node, used to create a `Range`
+   */
   startOffset: number;
-  startOffsetParentNode: Node;
+  startContainer: Node;
   endOffset: number;
-  endOffsetParentNode: Node;
+  endContainer: Node;
 }
 
-export type DOMBox = Box & NodeOffset;
-export type DOMGlue = Glue & NodeOffset;
-export type DOMPenalty = Penalty & NodeOffset;
+export type DOMBox = Box & RangeData;
+export type DOMGlue = Glue & RangeData;
+export type DOMPenalty = Penalty & RangeData;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
 export class GetItemsFromDOM {
@@ -37,17 +40,18 @@ export class GetItemsFromDOM {
     return collapseAdjacentGlue(this.#items);
   }
 
-  addItemWithOffset(
+  /** Adds an item and makes a record of its DOM range */
+  addItem(
     item: Box | Glue | Penalty,
-    parentNode: Node,
+    startContainer: Node,
     startOffset: number,
     endOffset: number,
   ) {
     this.#items.push({
       ...item,
-      startOffsetParentNode: parentNode,
+      startContainer: startContainer,
       startOffset,
-      endOffsetParentNode: parentNode,
+      endContainer: startContainer,
       endOffset,
     });
   }
@@ -59,23 +63,24 @@ export class GetItemsFromDOM {
       if (child instanceof Text) {
         this.getItemsFromText(child, false);
       } else if (child instanceof Element) {
-        this.getItemsFromElement(child);
+        this.getItemsFromElement(child, node);
       }
     });
 
     if (addParagraphEnd) {
       const endOffset = node.childNodes.length;
+      /**
+       * Add a synthetic glue that absorbs any
+       * left-over space at the end of the last line.
+       */
+      this.addItem(glue(0, 0, MAX_COST), node, endOffset, endOffset);
 
-      // Add a synthetic glue that absorbs any left-over space at the end of the
-      // last line.
-      this.addItemWithOffset(glue(0, 0, MAX_COST), node, endOffset, endOffset);
-
-      // Add a forced break to end the paragraph.
-      this.addItemWithOffset(forcedBreak(), node, endOffset, endOffset);
+      /** Add a forced break to end the paragraph. */
+      this.addItem(forcedBreak(), node, endOffset, endOffset);
     }
   }
 
-  getItemsFromElement(element: Element) {
+  getItemsFromElement(element: Element, parentNode: Node) {
     const {
       display,
       width,
@@ -92,7 +97,7 @@ export class GetItemsFromDOM {
       const leftMargin =
         parseFloat(marginLeft!) + parseFloat(borderLeftWidth!) + parseFloat(paddingLeft!);
       if (leftMargin > 0) {
-        this.addItemWithOffset(box(leftMargin), element, 0, 0);
+        this.addItem(box(leftMargin), element, 0, 0);
       }
 
       // Add this.items for child nodes.
@@ -103,11 +108,11 @@ export class GetItemsFromDOM {
         parseFloat(marginRight!) + parseFloat(borderRightWidth!) + parseFloat(paddingRight!);
       if (rightMargin > 0) {
         const length = element.childNodes.length;
-        this.addItemWithOffset(box(rightMargin), element, length, length);
+        this.addItem(box(rightMargin), element, length, length);
       }
     } else {
       // Treat this item as an opaque box.
-      this.addItemWithOffset(box(parseFloat(width!)), element, 0, 1);
+      this.addItem(box(parseFloat(width!)), element, 0, 1);
     }
   }
 
@@ -134,7 +139,7 @@ export class GetItemsFromDOM {
     textItems.forEach((item: TextItem) => {
       const startOffset = textOffsetInThisNode;
       textOffsetInThisNode += ('text' in item ? item.text : '').length;
-      this.addItemWithOffset(item, textNode, startOffset, textOffsetInThisNode);
+      this.addItem(item, textNode, startOffset, textOffsetInThisNode);
     });
 
     this.textOffsetInParagraph += textOffsetInThisNode;

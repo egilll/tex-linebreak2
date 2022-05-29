@@ -95,6 +95,7 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
     );
   }
   get breakItem() {
+    // return this.itemsFiltered.at(-1);
     return this.parentClass.getItems()[this.endBreakpoint];
   }
   get prevBreakItem() {

@@ -81,8 +81,8 @@ export function justifyContent(
       line.itemsFiltered.forEach((item) => {
         if (item.type === 'glue') {
           const range = document.createRange();
-          range.setStart(item.startOffsetParentNode, item.startOffset);
-          range.setEnd(item.endOffsetParentNode, item.endOffset);
+          range.setStart(item.startContainer, item.startOffset);
+          range.setEnd(item.endContainer, item.endOffset);
           glueRangesInLine.push(range);
         }
       });
@@ -98,36 +98,38 @@ export function justifyContent(
     lines.forEach((line, i) => {
       const range = document.createRange();
       if (i > 0) {
-        range.setStart(line.prevBreakItem.endOffsetParentNode, line.prevBreakItem.endOffset);
+        range.setStart(line.prevBreakItem.endContainer, line.prevBreakItem.endOffset);
       } else {
         range.setStart(element, 0);
       }
-      range.setEnd(line.breakItem.startOffsetParentNode, line.breakItem.startOffset);
+      range.setEnd(line.breakItem.startContainer, line.breakItem.startOffset);
       lineRanges.push(range);
     });
+    console.log(lineRanges);
 
-    /**
-     * Insert linebreak. The browser will automatically adjust subsequent
-     * ranges. This must be done before the next step.
-     *
-     * TODO: THIS DOES NOT HANDLE INLINE BLOCK ELEMENTS CORRECTLY INLINE-BLOCK
-     * ELEMENTS CANNOT HAVE A BREAK INSIDE, THE BROWSER WILL IGNORE IT
-     */
-    lines.forEach((line, i) => {
-      const range = lineRanges[i];
-
-      if (i > 0) {
-        const brEl = tagNode(document.createElement('br'));
-        range.insertNode(brEl);
-        if (brEl.nextSibling) {
-          range.setStart(brEl.nextSibling, 0);
-        } else {
-          /** Is an inline-block element of some sort... */
-          range.setStart(brEl.parentElement!.nextSibling!, 0);
-          console.warn('Unexpected: <br/> cannot be in an inline block element!');
-        }
-      }
-    });
+    // /**
+    //  * Insert linebreak. The browser will automatically adjust subsequent
+    //  * ranges. This must be done before the next step.
+    //  *
+    //  * TODO: THIS DOES NOT HANDLE INLINE BLOCK ELEMENTS CORRECTLY INLINE-BLOCK
+    //  * ELEMENTS CANNOT HAVE A BREAK INSIDE, THE BROWSER WILL IGNORE IT
+    //  */
+    // lines.forEach((line, i) => {
+    //   /** Inserts break before a new line */
+    //   if (i > 0) {
+    //     const range = lineRanges[i];
+    //
+    //     console.log({ range, line });
+    //     const brEl = tagNode(document.createElement('br'));
+    //     range.insertNode(brEl);
+    //     // if (brEl.nextSibling) {
+    //     //   range.setStart(brEl.nextSibling, 0);
+    //     // } else {
+    //     //   /** Is an inline-block element of some sort... */
+    //     //   throw 'Unexpected: <br/> cannot be in an inline block element!';
+    //     // }
+    //   }
+    // });
 
     lines.forEach((line, i) => {
       const range = lineRanges[i];
@@ -139,6 +141,8 @@ export function justifyContent(
         const hyphen = tagNode(document.createTextNode('-'));
         lastNode.parentNode!.appendChild(hyphen);
       }
+
+      // wrappedNodes[wrappedNodes.length - 1].parentNode!.style.breakAfter = 'always';
     });
 
     if (debug) debugHtmlLines(lines, element);

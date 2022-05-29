@@ -152,7 +152,7 @@ export const collapseAdjacentGlue = <T extends TextItem | DOMItem>(items: T[]): 
         (output.at(-1) as TextGlue).text += item.text;
       }
       if ('endOffset' in item) {
-        (output.at(-1) as DOMGlue).endOffsetParentNode = item.endOffsetParentNode;
+        (output.at(-1) as DOMGlue).endContainer = item.endContainer;
         (output.at(-1) as DOMGlue).endOffset = item.endOffset;
       }
     } else {
