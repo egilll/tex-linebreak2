@@ -5,7 +5,6 @@ import { TexLinebreakOptions } from 'src/helpers/options';
 import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getTaggedChildren, tagNode } from 'src/html/tagNode';
 import { debugHtmlLines } from 'src/util/debugHtmlLines';
-import { formatLine } from 'src/html/formatLine';
 import { getElementLineWidth } from 'src/html/lineWidth';
 
 /**
@@ -52,100 +51,86 @@ export function justifyContent(
     // Undo the changes made by any previous justification of this content.
     unjustifyContent(element);
 
-    const lineWidth = getElementLineWidth(element, floatingElements);
+    try {
+      const lineWidth = getElementLineWidth(element, floatingElements);
 
-    // let items: DOMItem[] = [];
-    // addItemsForNode(items, element, { ...options, measureFn });
+      // let items: DOMItem[] = [];
+      // addItemsForNode(items, element, { ...options, measureFn });
 
-    const items = new GetItemsFromDOM(element, options, domTextMeasureFn).items;
+      const items = new GetItemsFromDOM(element, options, domTextMeasureFn).items;
 
-    // Disable automatic line wrap.
-    element.style.whiteSpace = 'nowrap';
+      // Disable automatic line wrap.
+      element.style.whiteSpace = 'nowrap';
 
-    const lines = new TexLinebreak<DOMItem>({
-      ...options,
-      // Todo: do sth about adjacent glues ...
-      items,
-      lineWidth,
-      isHTML: true,
-    }).lines;
+      const lines = new TexLinebreak<DOMItem>({
+        ...options,
+        // Todo: do sth about adjacent glues ...
+        items,
+        lineWidth,
+        isHTML: true,
+      }).lines;
 
-    // console.log(element.textContent);
+      // console.log(element.textContent);
 
-    console.log(items);
+      console.log(items);
 
-    /** Create a `Range` for each glue. */
-    let glueRanges: Range[][] = [];
-    lines.forEach((line, i) => {
-      let glueRangesInLine: Range[] = [];
-      line.itemsFiltered.forEach((item) => {
-        if (item.type === 'glue') {
-          const range = document.createRange();
-          range.setStart(item.startContainer, item.startOffset);
-          range.setEnd(item.endContainer, item.endOffset);
-          glueRangesInLine.push(range);
-        }
+      lines.forEach((line, i) => {
+        let glueRangesInLine: Range[] = [];
+        line.itemsFiltered.forEach((item) => {
+          if (item.type === 'glue') {
+            const range = document.createRange();
+            range.setStart(item.startContainer, item.startOffset);
+            range.setEnd(item.endContainer, item.endOffset);
+            glueRangesInLine.push(range);
+          }
+        });
+
+        const firstBox = line.itemsFiltered[0];
+        const range2 = document.createRange();
+        range2.setEnd(firstBox.endContainer, firstBox.endOffset);
+        range2.setStart(firstBox.startContainer, firstBox.startOffset);
+
+        setTimeout(() => {
+          glueRangesInLine.forEach((glueRange) => {
+            const contents = glueRange.toString();
+            const span = tagNode(document.createElement('span'));
+            span.style.width = `${line.glueWidth}px`;
+            span.style.display = 'inline-block';
+
+            glueRange.deleteContents();
+            glueRange.insertNode(span);
+            span.innerHTML = contents;
+
+            span.style.background = 'blue';
+            span.style.height = '10px';
+          });
+
+          if (line.lineIndex > 0) {
+            range2.insertNode(tagNode(document.createElement('br')));
+          }
+          if (line.leftHangingPunctuationWidth) {
+            const span = tagNode(document.createElement('span'));
+            span.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
+            range2.insertNode(span);
+          }
+        }, 0);
+
+        // if (line.endsWithSoftHyphen && wrappedNodes.length > 0) {
+        //   const lastNode = wrappedNodes[wrappedNodes.length - 1];
+        //   const hyphen = tagNode(document.createTextNode('-'));
+        //   lastNode.parentNode!.appendChild(hyphen);
+        // }
       });
-      glueRanges.push(glueRangesInLine);
-    });
 
-    /**
-     * Create a `Range` for each line. We create the ranges before
-     * modifying the contents so that node offsets in `items` are
-     * still valid at the point when we create the Range.
-     */
-    const lineRanges: Range[] = [];
-    lines.forEach((line, i) => {
-      const range = document.createRange();
-      if (i > 0) {
-        range.setStart(line.prevBreakItem.endContainer, line.prevBreakItem.endOffset);
-      } else {
-        range.setStart(element, 0);
-      }
-      range.setEnd(line.breakItem.startContainer, line.breakItem.startOffset);
-      lineRanges.push(range);
-    });
-    console.log(lineRanges);
-
-    // /**
-    //  * Insert linebreak. The browser will automatically adjust subsequent
-    //  * ranges. This must be done before the next step.
-    //  *
-    //  * TODO: THIS DOES NOT HANDLE INLINE BLOCK ELEMENTS CORRECTLY INLINE-BLOCK
-    //  * ELEMENTS CANNOT HAVE A BREAK INSIDE, THE BROWSER WILL IGNORE IT
-    //  */
-    // lines.forEach((line, i) => {
-    //   /** Inserts break before a new line */
-    //   if (i > 0) {
-    //     const range = lineRanges[i];
-    //
-    //     console.log({ range, line });
-    //     const brEl = tagNode(document.createElement('br'));
-    //     range.insertNode(brEl);
-    //     // if (brEl.nextSibling) {
-    //     //   range.setStart(brEl.nextSibling, 0);
-    //     // } else {
-    //     //   /** Is an inline-block element of some sort... */
-    //     //   throw 'Unexpected: <br/> cannot be in an inline block element!';
-    //     // }
-    //   }
-    // });
-
-    lines.forEach((line, i) => {
-      const range = lineRanges[i];
-      const glueRangesInLine = glueRanges[i];
-
-      const wrappedNodes = formatLine(range, glueRangesInLine, line);
-      if (line.endsWithSoftHyphen && wrappedNodes.length > 0) {
-        const lastNode = wrappedNodes[wrappedNodes.length - 1];
-        const hyphen = tagNode(document.createTextNode('-'));
-        lastNode.parentNode!.appendChild(hyphen);
-      }
-
-      // wrappedNodes[wrappedNodes.length - 1].parentNode!.style.breakAfter = 'always';
-    });
-
-    if (debug) debugHtmlLines(lines, element);
+      if (debug) debugHtmlLines(lines, element);
+    } catch (e) {
+      /**
+       * In the case of an error, we undo any changes we may have
+       * made so that the user isn't left with a broken document.
+       */
+      console.error(e);
+      unjustifyContent(element);
+    }
   });
 }
 

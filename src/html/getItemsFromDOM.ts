@@ -59,11 +59,14 @@ export class GetItemsFromDOM {
   getItemsFromNode(node: Node, addParagraphEnd = true) {
     const children = Array.from(node.childNodes);
 
+    let curOffset = 0;
     children.forEach((child) => {
       if (child instanceof Text) {
         this.getItemsFromText(child, false);
+        curOffset += 1;
       } else if (child instanceof Element) {
-        this.getItemsFromElement(child, node);
+        this.getItemsFromElement(child, node, curOffset);
+        curOffset += 1;
       }
     });
 
@@ -80,7 +83,7 @@ export class GetItemsFromDOM {
     }
   }
 
-  getItemsFromElement(element: Element, parentNode: Node) {
+  getItemsFromElement(element: Element, parentNode: Node, startOffset: number) {
     const {
       display,
       width,
@@ -100,7 +103,7 @@ export class GetItemsFromDOM {
         this.addItem(box(leftMargin), element, 0, 0);
       }
 
-      // Add this.items for child nodes.
+      // Add items for child nodes.
       this.getItemsFromNode(element, false);
 
       // Add box for margin/border/padding at end of box.
@@ -113,6 +116,7 @@ export class GetItemsFromDOM {
     } else {
       // Treat this item as an opaque box.
       this.addItem(box(parseFloat(width!)), element, 0, 1);
+      // this.addItem(box(parseFloat(width!)), parentNode, startOffset, startOffset + 1);
     }
   }
 
