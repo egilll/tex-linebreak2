@@ -42,84 +42,79 @@ export function justifyContent(
     elements = [elements];
   }
 
-  // console.log(elements);
-
   const domTextMeasureFn = new DOMTextMeasurer().measure;
   const floatingElements = getFloatingElements();
 
   elements.forEach((element) => {
-    // Undo the changes made by any previous justification of this content.
+    /** Undo the changes made by any previous justification of this content. */
     unjustifyContent(element);
-
     try {
       const lineWidth = getElementLineWidth(element, floatingElements);
-
-      // let items: DOMItem[] = [];
-      // addItemsForNode(items, element, { ...options, measureFn });
-
       const items = new GetItemsFromDOM(element, options, domTextMeasureFn).items;
 
-      // Disable automatic line wrap.
+      /** Disable automatic line wrap. */
       element.style.whiteSpace = 'nowrap';
 
       const lines = new TexLinebreak<DOMItem>({
         ...options,
-        // Todo: do sth about adjacent glues ...
         items,
         lineWidth,
         isHTML: true,
       }).lines;
 
-      // console.log(element.textContent);
-
       console.log(items);
 
+      let ranges: Array<{
+        glueRanges: Range[];
+        firstBoxRange: Range;
+        finalBoxRange: Range;
+      }> = [];
+
+      /** We have to calculate all of the ranges before making any changes */
+      lines.forEach((line) => {
+        ranges.push({
+          glueRanges: line.itemsFiltered.filter((item) => item.type === 'glue').map(getRangeOfItem),
+          firstBoxRange: getRangeOfItem(line.itemsFiltered[0]),
+          finalBoxRange: getRangeOfItem(line.itemsFiltered.at(-1)),
+        });
+      });
+
+      /** Now the ranges have been calculated and we can alter the DOM. */
       lines.forEach((line, i) => {
-        let glueRangesInLine: Range[] = [];
-        line.itemsFiltered.forEach((item) => {
-          if (item.type === 'glue') {
-            const range = document.createRange();
-            range.setStart(item.startContainer, item.startOffset);
-            range.setEnd(item.endContainer, item.endOffset);
-            glueRangesInLine.push(range);
-          }
+        const { glueRanges, firstBoxRange, finalBoxRange } = ranges[i];
+
+        /** Give all glue items a fixed width */
+        glueRanges.forEach((glueRange) => {
+          const span = tagNode(document.createElement('span'));
+          span.style.width = `${line.glueWidth}px`;
+          span.style.display = 'inline-block';
+          span.innerHTML = glueRange.toString();
+          glueRange.deleteContents();
+          glueRange.insertNode(span);
         });
 
-        const firstBox = line.itemsFiltered[0];
-        const range2 = document.createRange();
-        range2.setEnd(firstBox.endContainer, firstBox.endOffset);
-        range2.setStart(firstBox.startContainer, firstBox.startOffset);
+        /** Insert <br/> elements to separate the lines */
+        if (line.lineIndex > 0) {
+          firstBoxRange.insertNode(tagNode(document.createElement('br')));
+        }
 
-        setTimeout(() => {
-          glueRangesInLine.forEach((glueRange) => {
-            const contents = glueRange.toString();
-            const span = tagNode(document.createElement('span'));
-            span.style.width = `${line.glueWidth}px`;
-            span.style.display = 'inline-block';
+        /**
+         * Hanging punctuation is added by inserting
+         * an empty span with a negative margin
+         */
+        if (line.leftHangingPunctuationWidth) {
+          const span = tagNode(document.createElement('span'));
+          span.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
+          firstBoxRange.insertNode(span);
+        }
+        console.log(line);
 
-            glueRange.deleteContents();
-            glueRange.insertNode(span);
-            span.innerHTML = contents;
-
-            span.style.background = 'blue';
-            span.style.height = '10px';
-          });
-
-          if (line.lineIndex > 0) {
-            range2.insertNode(tagNode(document.createElement('br')));
-          }
-          if (line.leftHangingPunctuationWidth) {
-            const span = tagNode(document.createElement('span'));
-            span.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
-            range2.insertNode(span);
-          }
-        }, 0);
-
-        // if (line.endsWithSoftHyphen && wrappedNodes.length > 0) {
-        //   const lastNode = wrappedNodes[wrappedNodes.length - 1];
-        //   const hyphen = tagNode(document.createTextNode('-'));
-        //   lastNode.parentNode!.appendChild(hyphen);
-        // }
+        /** Add soft hyphens */
+        if (line.endsWithSoftHyphen) {
+          const span = tagNode(document.createElement('span'));
+          finalBoxRange.surroundContents(span);
+          span.appendChild(tagNode(document.createTextNode('-')));
+        }
       });
 
       if (debug) debugHtmlLines(lines, element);
@@ -127,6 +122,7 @@ export function justifyContent(
       /**
        * In the case of an error, we undo any changes we may have
        * made so that the user isn't left with a broken document.
+       * (Todo: Test if this actually works)
        */
       console.error(e);
       unjustifyContent(element);
@@ -150,3 +146,10 @@ export function unjustifyContent(el: HTMLElement) {
   // Re-join text nodes that were split by `justifyContent`.
   el.normalize();
 }
+
+export const getRangeOfItem = (item: DOMItem): Range => {
+  const range = document.createRange();
+  range.setStart(item.startContainer, item.startOffset);
+  range.setEnd(item.endContainer, item.endOffset);
+  return range;
+};

@@ -32,5 +32,29 @@ export function formatLine(range: Range, glueRangesInLine: Range[], line: Line) 
       span.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
       range2.insertNode(span);
     }
-  }, 0);
+  }, 100);
+
+  /**
+   * Collect all text nodes in range, skipping any non-inline
+   * elements and their children because those are treated as
+   * opaque blocks by the line- breaking step.
+   */
+  // const texts: Text[] = textNodesInRange(range, isTextOrInlineElement);
+  // texts.forEach((t, elementInLineIndex) => {
+  //   const wrapper = tagNode(document.createElement('span'));
+  //   if (elementInLineIndex === 0 && line.leftHangingPunctuationWidth) {
+  //     wrapper.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
+  //   }
+  //   t.parentNode!.replaceChild(wrapper, t);
+  //   wrapper.appendChild(t);
+  //
+  //   if (line.lineIndex > 0 && elementInLineIndex === 0) {
+  //     wrapper.insertAdjacentElement('beforebegin', tagNode(document.createElement('br')));
+  //   }
+  // });
+  // const wrapper = tagNode(document.createElement('span'));
+  // range.surroundContents(wrapper);
+  // wrapper.style.background = 'orange';
+
+  // return texts;
 }
