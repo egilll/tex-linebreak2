@@ -116,7 +116,7 @@ const output = new TexLinebreak({
 }).getPlainText()
 ```
 
-### Options
+### TexLinebreakOptions
 
 ### Methods
 

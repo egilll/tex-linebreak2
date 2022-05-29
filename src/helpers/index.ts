@@ -1,4 +1,4 @@
-import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
+import { TexLinebreakOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
 import { breakLines, Item, MAX_COST, getLineWidth } from 'src/breakLines';
@@ -9,7 +9,7 @@ export type AnyInput = TextInputItem | DOMItem | Item;
 
 export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
   private _items?: InputItemType[];
-  constructor(public options: HelperOptions) {
+  constructor(public options: TexLinebreakOptions) {
     this.options = getOptionsWithDefaults(options);
   }
   getItems(): InputItemType[] {

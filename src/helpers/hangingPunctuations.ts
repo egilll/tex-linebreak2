@@ -1,5 +1,5 @@
 import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
-import { HelperOptions } from 'src/helpers/options';
+import { TexLinebreakOptions } from 'src/helpers/options';
 
 /**
  * The following punctuation items are not included, as it would not look good:
@@ -24,7 +24,7 @@ const hangingPunctuationRegex =
  */
 export const calculateHangingPunctuationWidth = (
   items: TextInputItem[],
-  options: HelperOptions,
+  options: TexLinebreakOptions,
 ): TextInputItem[] => {
   for (let i = 0; i < items.length; i++) {
     const item = items[i];

@@ -1,5 +1,5 @@
 import { Box, Glue, Penalty, MIN_COST, Item, MAX_COST } from 'src/breakLines';
-import { HelperOptions } from 'src/helpers/options';
+import { TexLinebreakOptions } from 'src/helpers/options';
 import { PenaltyClasses } from 'src/helpers/splitTextIntoItems/penalty';
 
 /**
@@ -24,7 +24,7 @@ export function box(width: number, text: string): TextBox;
 export function box(width: number, text?: string): Box | TextBox {
   return { type: 'box', width, text };
 }
-export function textBox(text: string, options: HelperOptions): TextBox {
+export function textBox(text: string, options: TexLinebreakOptions): TextBox {
   return box(options.measureFn!(text), text);
 }
 
@@ -38,7 +38,7 @@ export function glue(
 ): Glue | TextGlue {
   return { type: 'glue', width, shrink, stretch, text };
 }
-export function textGlue(text: string, options: HelperOptions): TextGlue {
+export function textGlue(text: string, options: TexLinebreakOptions): TextGlue {
   const spaceWidth = options.measureFn!(' ');
   const spaceShrink = 0;
   const spaceStretch = spaceWidth * 2;
@@ -49,7 +49,7 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
   return { type: 'penalty', width, cost, flagged };
 }
 
-export const softHyphen = (options: HelperOptions) => {
+export const softHyphen = (options: TexLinebreakOptions) => {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn!('-');
   return penalty(hyphenWidth, options.softHyphenationPenalty ?? PenaltyClasses.SoftHyphen, true);
   // return penalty(options.measureFn!('-'), PenaltyClasses.SoftHyphen, true);

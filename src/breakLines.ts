@@ -79,6 +79,46 @@ export const MIN_ADJUSTMENT_RATIO = -1;
 export class MaxAdjustmentExceededError extends Error {}
 
 /**
+ * Parameters for the layout process. A part of {@link TexLinebreakOptions}.
+ */
+export interface LineBreakingOptions {
+  /**
+   * A factor indicating the maximum amount by which items in a line can be
+   * spaced out by expanding `Glue` items.
+   *
+   * The maximum size which a `Glue` on a line can expand to is `glue.width +
+   * (maxAdjustmentRatio * glue.stretch)`.
+   *
+   * If the paragraph cannot be laid out without exceeding this threshold then a
+   * `MaxAdjustmentExceededError` error is thrown. The caller can use this to
+   * apply hyphenation and try again. If `null`, lines are stretched as far as
+   * necessary.
+   */
+  maxAdjustmentRatio: number | null;
+
+  /**
+   * The maximum adjustment ratio used for the initial line breaking attempt.
+   */
+  initialMaxAdjustmentRatio: number;
+
+  /**
+   * Penalty for consecutive hyphenated lines.
+   */
+  doubleHyphenPenalty: number;
+
+  /**
+   * Penalty for significant differences in the tightness of adjacent lines.
+   */
+  adjacentLooseTightPenalty: number;
+}
+export const defaultLineBreakingOptions: LineBreakingOptions = {
+  maxAdjustmentRatio: null,
+  initialMaxAdjustmentRatio: 1,
+  doubleHyphenPenalty: 0,
+  adjacentLooseTightPenalty: 0,
+};
+
+/**
  * Break a paragraph of text into justified lines.
  *
  * Returns the indexes from `items` which have been chosen as breakpoints.
@@ -102,11 +142,9 @@ export function breakLines(
   lineWidths: LineWidth,
   _options: Partial<LineBreakingOptions> = {},
 ): number[] {
-  if (items.length === 0) {
-    return [];
-  }
+  if (items.length === 0) return [];
 
-  /** Validate */
+  /** Validate input */
   const lastItem = items[items.length - 1];
   if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
     throw new Error(
@@ -239,9 +277,11 @@ export function breakLines(
         adjustmentRatio = (idealLen - actualLen) / lineShrink;
       }
       if (adjustmentRatio > currentMaxAdjustmentRatio) {
-        // In case we need to try again later with a higher
-        // `maxAdjustmentRatio`, track the minimum value needed to produce
-        // different output.
+        /**
+         * In case we need to try again later with a higher
+         * `maxAdjustmentRatio`, track the minimum value needed to produce
+         * different output.
+         */
         minAdjustmentRatioAboveThreshold = Math.min(
           adjustmentRatio,
           minAdjustmentRatioAboveThreshold,
@@ -249,13 +289,17 @@ export function breakLines(
       }
 
       if (adjustmentRatio < MIN_ADJUSTMENT_RATIO || isForcedBreak(item)) {
-        // Items from `a` to `b` cannot fit on one line.
+        /**
+         * Items from `a` to `b` cannot fit on one line.
+         */
         active.delete(a);
         lastActive = a;
       }
       if (adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio) {
-        // We found a feasible breakpoint. Compute a `demerits` score for it as
-        // per formula on p. 1128.
+        /**
+         * We found a feasible breakpoint. Compute a `demerits` score for it as
+         * per formula on p. 1128.
+         */
         let demerits;
         const badness = 100 * Math.abs(adjustmentRatio) ** 3;
         const penalty = item.type === 'penalty' ? item.cost : 0;
@@ -292,10 +336,12 @@ export function breakLines(
           demerits += options.adjacentLooseTightPenalty;
         }
 
-        // If this breakpoint is followed by glue or non-breakable penalty items
-        // then we don't want to include the width of those when calculating the
-        // width of lines starting after this breakpoint. This is because when
-        // rendering we ignore glue/penalty items at the start of lines.
+        /**
+         * If this breakpoint is followed by glue or non-breakable penalty items
+         * then we don't want to include the width of those when calculating the
+         * width of lines starting after this breakpoint. This is because when
+         * rendering we ignore glue/penalty items at the start of lines.
+         */
         let widthToNextBox = 0;
         let shrinkToNextBox = 0;
         let stretchToNextBox = 0;
@@ -327,7 +373,9 @@ export function breakLines(
       }
     });
 
-    // Add feasible breakpoint with lowest score to active set.
+    /**
+     * Add feasible breakpoint with lowest score to active set.
+     */
     if (feasible.length > 0) {
       let bestNode = feasible[0];
       for (let f of feasible) {
@@ -338,25 +386,31 @@ export function breakLines(
       active.add(bestNode);
     }
 
-    // Handle situation where there is no way to break the paragraph without
-    // shrinking or stretching a line beyond [-1, currentMaxAdjustmentRatio].
+    /**
+     * Handle situation where there is no way to break the paragraph without
+     * shrinking or stretching a line beyond [-1, currentMaxAdjustmentRatio].
+     */
     if (active.size === 0) {
       if (isFinite(minAdjustmentRatioAboveThreshold)) {
         if (options.maxAdjustmentRatio === currentMaxAdjustmentRatio) {
           throw new MaxAdjustmentExceededError();
         }
-        // Too much stretching was required for an earlier ignored breakpoint.
-        // Try again with a higher threshold.
+        /**
+         * Too much stretching was required for an earlier ignored breakpoint.
+         * Try again with a higher threshold.
+         */
         return breakLines(items, lineWidths, {
           ..._options,
           initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
         });
       } else {
-        // We cannot create a breakpoint sequence by increasing the max
-        // adjustment ratio. This could happen if a box is too wide or there are
-        // glue items with zero stretch/shrink.
-        //
-        // Give up and create a breakpoint at the current position.
+        /**
+         * We cannot create a breakpoint sequence by increasing the max
+         * adjustment ratio. This could happen if a box is too wide or there are
+         * glue items with zero stretch/shrink.
+         *
+         * Give up and create a breakpoint at the current position.
+         */
         active.add({
           index: b,
           line: lastActive!.line + 1,
@@ -377,14 +431,16 @@ export function breakLines(
     }
   }
 
-  // Choose active node with fewest total demerits as the last breakpoint.
-  //
-  // There should always be an active node at this point since:
-  //
-  //  1. We add a node to the active set before entering the loop.
-  //  2. Each iteration of the loop either returns from the function, leaves the
-  //     active set unchanged and breaks early or finishes with a non-empty active
-  //     set.
+  /**
+   * Choose active node with fewest total demerits as the last breakpoint.
+   *
+   * There should always be an active node at this point since:
+   *
+   *  1. We add a node to the active set before entering the loop.
+   *  2. Each iteration of the loop either returns from the function, leaves
+   *     the active set unchanged and breaks early or finishes with a non-empty
+   *     active set.
+   */
   let bestNode: LineBreakingNode | null = null;
   active.forEach((a) => {
     if (!bestNode || a.totalDemerits < bestNode.totalDemerits) {
@@ -392,8 +448,10 @@ export function breakLines(
     }
   });
 
-  // Follow the chain backwards from the chosen node to get the sequence of
-  // chosen breakpoints.
+  /**
+   * Follow the chain backwards from the chosen node to get the sequence of
+   * chosen breakpoints.
+   */
   const output = [];
   let next: LineBreakingNode | null = bestNode!;
   while (next) {

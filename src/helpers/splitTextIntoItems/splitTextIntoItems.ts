@@ -4,7 +4,7 @@ import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
 } from 'src/typings/unicodeLineBreakingClasses';
 import LineBreaker, { Break } from 'linebreak';
-import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
+import { TexLinebreakOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { TextInputItem, textGlue, penalty, textBox, softHyphen, glue } from 'src/helpers/util';
 import { getBreakpointPenalty, PenaltyClasses } from 'src/helpers/splitTextIntoItems/penalty';
 import { calculateHangingPunctuationWidth } from 'src/helpers/hangingPunctuations';
@@ -34,7 +34,7 @@ export type BreakpointInformation = {
 
 export const splitTextIntoItems = (
   input: string,
-  options: HelperOptions,
+  options: TexLinebreakOptions,
   /** When splitting text inside HTML elements, the text that surrounds it matters */
   precedingText: string = '',
   followingText: string = '',

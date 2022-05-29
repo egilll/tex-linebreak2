@@ -1,7 +1,7 @@
 import DOMTextMeasurer from 'src/util/domTextMeasurer';
 import { getFloatingElements } from 'src/html/htmlHelpers';
 import { TexLinebreak } from 'src/helpers';
-import { HelperOptions } from 'src/helpers/options';
+import { TexLinebreakOptions } from 'src/helpers/options';
 import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getTaggedChildren, tagNode } from 'src/html/tagNode';
 import { debugHtmlLines } from 'src/util/debugHtmlLines';
@@ -23,7 +23,7 @@ import { getElementLineWidth } from 'src/html/lineWidth';
 export function justifyContent(
   elements: HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
   /** For backwards compatibility, this parameter also accepts a `hyphenateFn`. */
-  _options: HelperOptions | ((word: string) => string[]) = {},
+  _options: TexLinebreakOptions | ((word: string) => string[]) = {},
   debug = false,
 ) {
   /**
@@ -34,7 +34,7 @@ export function justifyContent(
     _options = { hyphenateFn: _options };
   }
 
-  const options: HelperOptions = { ..._options, isHTML: true };
+  const options: TexLinebreakOptions = { ..._options, isHTML: true };
 
   if (!elements) {
     return console.error("justifyContent didn't receive any items");

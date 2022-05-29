@@ -46,6 +46,7 @@
     "install": "^0.13.0",
     "linebreak": "^1.1.0",
     "npm": "^8.10.0",
+    "prettier-plugin-jsdoc": "file:/Users/egill/prettier-plugin-jsdoc",
     "unicode-trie": "^2.0.0"
   }
 }

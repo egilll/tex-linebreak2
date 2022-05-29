@@ -1,5 +1,5 @@
 import { Glue, Penalty, Box, MAX_COST } from 'src/breakLines';
-import { HelperOptions } from 'src/helpers/options';
+import { TexLinebreakOptions } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { TextInputItem, forcedBreak, glue, box } from 'src/helpers/util';
 
@@ -27,7 +27,7 @@ export class GetItemsFromDOM {
   textOffsetInParagraph: number = 0;
   constructor(
     public paragraphElement: HTMLElement,
-    public options: HelperOptions,
+    public options: TexLinebreakOptions,
     public domTextMeasureFn: (text: string, context: Element) => number,
   ) {
     this.paragraphText = paragraphElement.textContent || '';
