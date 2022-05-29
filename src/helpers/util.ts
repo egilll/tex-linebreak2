@@ -35,7 +35,11 @@ export function glue(
   stretch: number,
   text?: string,
 ): Glue | TextGlue {
-  return { type: 'glue', width, shrink, stretch, text };
+  if (text) {
+    return { type: 'glue', width, shrink, stretch, text };
+  } else {
+    return { type: 'glue', width, shrink, stretch };
+  }
 }
 export function textGlue(text: string, options: TexLinebreakOptions): TextGlue {
   const spaceWidth = options.measureFn!(' ');
@@ -130,19 +134,25 @@ export function isForcedBreak(item: Item) {
   return item.type === 'penalty' && item.cost <= MIN_COST;
 }
 
-/*
-not used now, but would have to support glue stretching
+/**
+ * This is necessary in order to allow glue to stretch over
+ * multiple text nodes, for example, the HTML "text <!--
+ * comment node --> text" would otherwise become ["text", " ",
+ * " ", "text"] and the glue wouldn't be of the correct size.
  */
 export const collapseAdjacentGlue = <T extends TextItem | DOMItem>(items: T[]): T[] => {
   let output: T[] = [];
   items.forEach((item) => {
     if (item.type === 'glue' && output.at(-1)?.type === 'glue') {
-      // output.at(-1)!.width += item.width;
+      const lastItem = output.at(-1)! as Glue;
+      lastItem.width = Math.max(item.width, lastItem.width);
+      lastItem.stretch = Math.max(item.stretch, lastItem.stretch);
+      lastItem.shrink = Math.max(item.shrink, lastItem.shrink);
       if ('text' in item) {
         (output.at(-1) as TextGlue).text += item.text;
       }
       if ('endOffset' in item) {
-        (output.at(-1) as DOMGlue).endOffsetNode = item.endOffsetNode;
+        (output.at(-1) as DOMGlue).endOffsetParentNode = item.endOffsetParentNode;
         (output.at(-1) as DOMGlue).endOffset = item.endOffset;
       }
     } else {

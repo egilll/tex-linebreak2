@@ -81,8 +81,8 @@ export function justifyContent(
       line.itemsFiltered.forEach((item) => {
         if (item.type === 'glue') {
           const range = document.createRange();
-          range.setStart(item.startOffsetNode, item.startOffset);
-          range.setEnd(item.startOffsetNode, item.endOffset);
+          range.setStart(item.startOffsetParentNode, item.startOffset);
+          range.setEnd(item.endOffsetParentNode, item.endOffset);
           glueRangesInLine.push(range);
         }
       });
@@ -98,11 +98,11 @@ export function justifyContent(
     lines.forEach((line, i) => {
       const range = document.createRange();
       if (i > 0) {
-        range.setStart(line.prevBreakItem.startOffsetNode, line.prevBreakItem.endOffset);
+        range.setStart(line.prevBreakItem.endOffsetParentNode, line.prevBreakItem.endOffset);
       } else {
         range.setStart(element, 0);
       }
-      range.setEnd(line.breakItem.startOffsetNode, line.breakItem.startOffset);
+      range.setEnd(line.breakItem.startOffsetParentNode, line.breakItem.startOffset);
       lineRanges.push(range);
     });
 
@@ -137,7 +137,7 @@ export function justifyContent(
       if (line.endsWithSoftHyphen && wrappedNodes.length > 0) {
         const lastNode = wrappedNodes[wrappedNodes.length - 1];
         const hyphen = tagNode(document.createTextNode('-'));
-        lastNode.startOffsetNode!.appendChild(hyphen);
+        lastNode.parentNode!.appendChild(hyphen);
       }
     });
 
@@ -150,7 +150,7 @@ export function unjustifyContent(el: HTMLElement) {
   // Find and remove all elements inserted by `justifyContent`.
   const tagged = getTaggedChildren(el);
   for (let node of tagged) {
-    const parent = node.startOffsetNode!;
+    const parent = node.parentNode!;
     const children = Array.from(node.childNodes);
     children.forEach((child) => {
       parent.insertBefore(child, node);

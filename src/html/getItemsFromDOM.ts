@@ -4,11 +4,11 @@ import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextInto
 import { TextItem, forcedBreak, glue, box, collapseAdjacentGlue } from 'src/helpers/util';
 
 export interface NodeOffset {
-  startOffsetNode: Node;
   /** Character offset of this item (box/penalty/glue) in the parent DOM node */
   startOffset: number;
-  endOffsetNode: Node;
+  startOffsetParentNode: Node;
   endOffset: number;
+  endOffsetParentNode: Node;
 }
 
 export type DOMBox = Box & NodeOffset;
@@ -45,9 +45,9 @@ export class GetItemsFromDOM {
   ) {
     this.#items.push({
       ...item,
-      startOffsetNode: parentNode,
+      startOffsetParentNode: parentNode,
       startOffset,
-      endOffsetNode: parentNode,
+      endOffsetParentNode: parentNode,
       endOffset,
     });
   }
@@ -113,7 +113,7 @@ export class GetItemsFromDOM {
 
   getItemsFromText(textNode: Text, addParagraphEnd = true) {
     const text = textNode.nodeValue!;
-    const element = textNode.startOffsetNode! as Element;
+    const element = textNode.parentNode! as Element;
 
     const precedingText = this.paragraphText.slice(0, this.textOffsetInParagraph);
     const followingText = this.paragraphText.slice(this.textOffsetInParagraph + text.length);
@@ -131,16 +131,11 @@ export class GetItemsFromDOM {
       followingText,
     );
 
-    console.log(text);
-
     textItems.forEach((item: TextItem) => {
       const startOffset = textOffsetInThisNode;
       textOffsetInThisNode += ('text' in item ? item.text : '').length;
-      console.log({ item });
       this.addItemWithOffset(item, textNode, startOffset, textOffsetInThisNode);
     });
-
-    console.log({ i: this.#items });
 
     this.textOffsetInParagraph += textOffsetInThisNode;
   }

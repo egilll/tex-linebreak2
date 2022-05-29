@@ -29,7 +29,7 @@ export function formatLine(range: Range, glueRangesInLine: Range[], line: Line):
   //   if (elementInLineIndex === 0 && line.leftHangingPunctuationWidth) {
   //     wrapper.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
   //   }
-  //   t.startOffsetNode!.replaceChild(wrapper, t);
+  //   t.startOffsetParentNode!.replaceChild(wrapper, t);
   //   wrapper.appendChild(t);
   //
   //   // /** Absolute spacing of spaces */
