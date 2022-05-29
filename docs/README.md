@@ -7,22 +7,12 @@ would find in a newspaper, book or technical paper. It implements the
 [Knuth-Plass line-breaking algorithm](#references), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
 Features include:
-
-* 
-
-* Hanging punctuation
-
+* Can be applied to webpages (but see [caveats](#caveats)).
+* Can be used for custom purposes (rendering to a canvas, getting plain text) in both browsers and Node.js environments.
+* Hanging punctuation.
 * Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 
-It contains various customizable functions that can be used to wrap text in webpages, WebGL, plain text etc., with breakpoints according to the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
-
-**See the examples**
-
-## Table of contents
-
-* Introduction
-
-* 
+**[Click here](#)** to see the a demonstration of this library.
 
 ## WIP
 
@@ -30,7 +20,6 @@ Monospace
 
 `Nulla ultricies, dolor in sagittis rutrum, nibh purus bibendum dui, nec aliquet ligula mi eget lectus. Nulla eget metus scelerisque, venenatis sapien ut, congue eros. Morbi convallis venenatis mauris, laoreet faucibus magna malesuada sed. Nulla consequat dignissim arcu non vestibulum. In commodo tristique scelerisque.`
 
-<!--
 ## Introduction
 
 Most text on the web is presented with "ragged-right" margins, as opposed to
@@ -79,7 +68,7 @@ hyphenation and this library:
 _tex-linebreak_ has no dependencies on a particular JS environment (browser,
 Node) or render target (`<canvas>`, HTML elements, PDF).
 
-## Try it out
+## Bookmarklet
 
 The easiest way to see what the library can do is to [install the bookmarklet](
 bookmarklet.js) and activate it on an existing web page, such as this
@@ -101,12 +90,6 @@ First, add the _tex-linebreak_ package to your dependencies:
 npm install tex-linebreak
 ```
 
-The library has low-level APIs which implement the core line-breaking and
-positioning algorithm, as well as higher-level APIs that provide a convenient
-way to justify existing HTML content.
-
--->
-
 ### Low-level APIs
 
 The low-level APIs `breakLines` and `positionItems` work with generic "box"
@@ -116,13 +99,14 @@ represent hyphenation points or the end of a paragraph. However you can use them
 to lay out arbitrary content.
 
 ```js
+import {texLinebreak} from 'tex-linebreak';
 const output = texLinebreak({
   text: "",
   lineWidth: 200,
-}).getPlainText()
+}).getPlainText();
 ```
 
-### TexLinebreakOptions
+### Options
 
 ### Methods
 
@@ -178,7 +162,7 @@ positions.forEach(pos => {
 The source files in [src/](src/) have documentation in the form of TypeScript
 annotations.
 
-# 
+#
 
 ## References
 
@@ -186,4 +170,5 @@ annotations.
 
 **Notes**
 
-[^1]: However there may exist a handful of exceptions regarding certain non-Latin scripts.
+[^1]: But see the comments regarding the option `preventSingleWordLines`.
+[^2]: However there may exist a handful of exceptions regarding certain non-Latin scripts.
