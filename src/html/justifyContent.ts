@@ -70,34 +70,26 @@ export function justifyContent(
         finalBoxRange: Range;
       }> = [];
 
-      /** We have to calculate all of the ranges before making any changes */
-      lines.forEach((line) => {
-        ranges.push({
-          glueRanges: line.itemsFiltered.filter((item) => item.type === 'glue').map(getRangeOfItem),
-          firstBoxRange: getRangeOfItem(line.itemsFiltered[0]),
-          finalBoxRange: getRangeOfItem(line.itemsFiltered.at(-1)),
-        });
-      });
-
       /**
-       * Now the ranges have been calculated and we can alter the DOM.
-       * This system is however not very robust, the addition of the soft
-       * hyphens messes up our ranges, so we go through the ranges backwards so
-       * the ranges we're working on won't have shifted by previous changes.
+       * Since `Range`s are fragile and will easily go out of sync when we make
+       * changes to the DOM, we go through the lines in a reverse order. We
+       * also only alter one item at a time instead of wrapping the entire line.
        */
       lines
         .slice()
         .reverse()
         .forEach((line, i) => {
-          const { glueRanges, firstBoxRange, finalBoxRange } = ranges[lines.length - 1 - i];
+          const glueRanges = line.itemsFiltered
+            .filter((item) => item.type === 'glue')
+            .map(getRangeOfItem);
+          const firstBoxRange = getRangeOfItem(line.itemsFiltered[0]);
+          const finalBoxRange = getRangeOfItem(line.itemsFiltered.at(-1));
 
           /** Give all glue items a fixed width */
           glueRanges.forEach((glueRange) => {
             const span = tagNode(document.createElement('span'));
             span.style.width = `${line.glueWidth}px`;
             span.style.display = 'inline-block';
-            // glueRange.deleteContents();
-            // glueRange.insertNode(span);
             glueRange.surroundContents(span);
           });
 
