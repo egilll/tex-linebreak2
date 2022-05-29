@@ -46,8 +46,8 @@ export const splitTextIntoItems = (
 
   let items: TextItem[] = [];
 
-  precedingText = precedingText.slice(-3);
-  followingText = followingText.slice(0, 3);
+  precedingText = ''; //precedingText.slice(-3);
+  followingText = ''; //followingText.slice(0, 3);
   const inputWithSurroundingText = precedingText + input + followingText;
   const breakpoints: Record<number, BreakpointInformation> =
     getBreakpoints(inputWithSurroundingText);
@@ -103,7 +103,6 @@ export const splitTextIntoItems = (
       segments.at(-1)!.breakpoint = breakpoint;
     }
   }
-  // console.log({ segments });
 
   segments.forEach((segment, index) => {
     if (segment.type === 'glue') {
@@ -132,19 +131,7 @@ export const splitTextIntoItems = (
 
       /** Paragraph-final infinite glue */
       if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
-        // /**
-        //  * If the previous item was a glue, we convert it into an infinite
-        //  * glue instead of adding new glue.
-        //  *
-        //  * Temporarily disactivated since it's better to make the
-        //  * breaklines support adjacent glues
-        //  */
-        // if (items.at(-1)?.type === 'glue') {
-        //   (items.at(-1) as TextGlue).stretch = MAX_COST;
-        //   (items.at(-1) as TextGlue).shrink = 0;
-        // } else {
         items.push(glue(0, 0, MAX_COST, ''));
-        // }
       }
 
       /**
@@ -176,12 +163,12 @@ export const getBreakpoints = (input: string): Record<number, BreakpointInformat
   let currentBreak: Break;
   let positionToBreakpointInformation: Record<number, BreakpointInformation> = {};
   while ((currentBreak = lineBreaker.nextBreak())) {
-    const lastLetterClass = getLineBreakingClassOfLetterAt(input, currentBreak.position);
-    const nextLetterClass = getLineBreakingClassOfLetterAt(input, currentBreak.position + 1);
+    const lastLetterClass = getLineBreakingClassOfLetterAt(input, currentBreak.position - 1);
+    const nextLetterClass = getLineBreakingClassOfLetterAt(input, currentBreak.position);
     positionToBreakpointInformation[currentBreak.position] = {
       position: currentBreak.position,
       required: currentBreak.required,
-      lastLetter: input.slice(currentBreak.position, currentBreak.position + 1),
+      lastLetter: input.slice(currentBreak.position - 1, currentBreak.position),
       lastLetterClass,
       nextLetterClass,
     };

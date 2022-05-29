@@ -62,7 +62,7 @@ export function justifyContent(
         isHTML: true,
       }).lines;
 
-      console.log(items);
+      // console.log(items);
 
       let ranges: Array<{
         glueRanges: Range[];
@@ -79,43 +79,50 @@ export function justifyContent(
         });
       });
 
-      /** Now the ranges have been calculated and we can alter the DOM. */
-      lines.forEach((line, i) => {
-        const { glueRanges, firstBoxRange, finalBoxRange } = ranges[i];
+      /**
+       * Now the ranges have been calculated and we can alter the DOM.
+       * This system is however not very robust, the addition of the soft
+       * hyphens messes up our ranges, so we go through the ranges backwards so
+       * the ranges we're working on won't have shifted by previous changes.
+       */
+      lines
+        .slice()
+        .reverse()
+        .forEach((line, i) => {
+          const { glueRanges, firstBoxRange, finalBoxRange } = ranges[lines.length - 1 - i];
 
-        /** Give all glue items a fixed width */
-        glueRanges.forEach((glueRange) => {
-          const span = tagNode(document.createElement('span'));
-          span.style.width = `${line.glueWidth}px`;
-          span.style.display = 'inline-block';
-          span.innerHTML = glueRange.toString();
-          glueRange.deleteContents();
-          glueRange.insertNode(span);
+          /** Give all glue items a fixed width */
+          glueRanges.forEach((glueRange) => {
+            const span = tagNode(document.createElement('span'));
+            span.style.width = `${line.glueWidth}px`;
+            span.style.display = 'inline-block';
+            // glueRange.deleteContents();
+            // glueRange.insertNode(span);
+            glueRange.surroundContents(span);
+          });
+
+          /** Insert <br/> elements to separate the lines */
+          if (line.lineIndex > 0) {
+            firstBoxRange.insertNode(tagNode(document.createElement('br')));
+          }
+
+          /**
+           * Hanging punctuation is added by inserting
+           * an empty span with a negative margin
+           */
+          if (line.leftHangingPunctuationWidth) {
+            const span = tagNode(document.createElement('span'));
+            span.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
+            firstBoxRange.insertNode(span);
+          }
+
+          /** Add soft hyphens */
+          if (line.endsWithSoftHyphen) {
+            const span = tagNode(document.createElement('span'));
+            finalBoxRange.surroundContents(span);
+            span.appendChild(tagNode(document.createTextNode('-')));
+          }
         });
-
-        /** Insert <br/> elements to separate the lines */
-        if (line.lineIndex > 0) {
-          firstBoxRange.insertNode(tagNode(document.createElement('br')));
-        }
-
-        /**
-         * Hanging punctuation is added by inserting
-         * an empty span with a negative margin
-         */
-        if (line.leftHangingPunctuationWidth) {
-          const span = tagNode(document.createElement('span'));
-          span.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
-          firstBoxRange.insertNode(span);
-        }
-        console.log(line);
-
-        /** Add soft hyphens */
-        if (line.endsWithSoftHyphen) {
-          const span = tagNode(document.createElement('span'));
-          finalBoxRange.surroundContents(span);
-          span.appendChild(tagNode(document.createTextNode('-')));
-        }
-      });
 
       if (debug) debugHtmlLines(lines, element);
     } catch (e) {
