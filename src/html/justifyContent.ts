@@ -64,12 +64,6 @@ export function justifyContent(
 
       // console.log(items);
 
-      let ranges: Array<{
-        glueRanges: Range[];
-        firstBoxRange: Range;
-        finalBoxRange: Range;
-      }> = [];
-
       /**
        * Since `Range`s are fragile and will easily go out of sync when we make
        * changes to the DOM, we go through the lines in a reverse order. We
@@ -78,20 +72,22 @@ export function justifyContent(
       lines
         .slice()
         .reverse()
-        .forEach((line, i) => {
+        .forEach((line) => {
           const glueRanges = line.itemsFiltered
             .filter((item) => item.type === 'glue')
             .map(getRangeOfItem);
           const firstBoxRange = getRangeOfItem(line.itemsFiltered[0]);
           const finalBoxRange = getRangeOfItem(line.itemsFiltered.at(-1));
 
-          /** Give all glue items a fixed width */
-          glueRanges.forEach((glueRange) => {
-            const span = tagNode(document.createElement('span'));
-            span.style.width = `${line.glueWidth}px`;
-            span.style.display = 'inline-block';
-            glueRange.surroundContents(span);
-          });
+          if(!line.endsWithInfiniteGlue) {
+            glueRanges.forEach((glueRange) => {
+              const span = tagNode(document.createElement('span'));
+              // span.style.width = `${line.glueWidth}px`;
+              // span.style.display = 'inline-block';
+              span.style.wordSpacing = `${line.extraSpacePerGlue}px`;
+              glueRange.surroundContents(span);
+            });
+          }
 
           /** Insert <br/> elements to separate the lines */
           if (line.lineIndex > 0) {

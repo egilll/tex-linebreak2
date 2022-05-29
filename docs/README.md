@@ -6,6 +6,14 @@ _tex-linebreak_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
 [Knuth-Plass line-breaking algorithm](#references), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
+Features include:
+
+* 
+
+* Hanging punctuation
+
+* Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
+
 It contains various customizable functions that can be used to wrap text in webpages, WebGL, plain text etc., with breakpoints according to the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 
 **See the examples**
@@ -108,45 +116,15 @@ represent hyphenation points or the end of a paragraph. However you can use them
 to lay out arbitrary content.
 
 ```js
-const output = new TexLinebreak({
+const output = texLinebreak({
   text: "",
   lineWidth: 200,
-  preset: 'monospace',
-  hyphenate: false,
 }).getPlainText()
 ```
 
 ### TexLinebreakOptions
 
 ### Methods
-
-```js
-import { layoutItemsFromString, breakLines, positionItems } from 'tex-linebreak';
-
-// Convert your text to a set of "box", "glue" and "penalty" items used by the
-// line-breaking process.
-//
-// "Box" items are things (typically words) to typeset.
-// "Glue" items are spaces that can stretch or shrink or be a breakpoint.
-// "Penalty" items are possible breakpoints (hyphens, end of a paragraph etc.).
-const items = [
-    { type: "box" }
-]
-
-// Find where to insert line-breaks in order to optimally lay out the text.
-const lineWidth = 200;
-const breakpoints = breakLines(items, lineWidth)
-
-// Compute the (xOffset, line number) at which to draw each box item.
-const positionedItems = positionItems(items, lineWidth, breakpoints);
-positionedItems.forEach(pi => {
-  const item = items[pi.item];
-
-  // Add code to draw `item.text` at `(box.xOffset, box.line)` to whatever output
-  // you want, eg. `<canvas>`, HTML elements with spacing created using CSS,
-  // WebGL, ...
-});
-```
 
 ### High-level APIs
 
@@ -200,36 +178,7 @@ positions.forEach(pos => {
 The source files in [src/](src/) have documentation in the form of TypeScript
 annotations.
 
-## Examples
-
-For working code showing different ways to use this library, see [the
-demos](../src/demo/). You can build and run the demos using:
-
-```
-npm i -g http-server
-
-git clone https://github.com/robertknight/tex-linebreak.git
-cd tex-linebreak
-yarn
-yarn build-dev
-http-server -c-1
-```
-
-Then navigate to http://127.0.0.1:8080/src/demos/layout.html (note that
-http-server may choose a different port).
-
-## Caveats
-
-The library currently has a number of caveats:
-
-- It is [not aware of floated content](https://github.com/robertknight/tex-linebreak/issues/1)
-  which can affect the available space in a paragraph to lay out text into.
-  In the presence of floats lines can exceed the width of the paragraph.
-- Justification of existing HTML content relies on modifying the DOM to insert
-  linebreaks and wrap text nodes in order to adjust inter-word spacing on each
-  line. This can be in slow in large documents. Test it on your content to
-  decide whether the overhead is acceptable for your use case. Also limit the
-  number of elements which you apply justification to.
+# 
 
 ## References
 
@@ -237,19 +186,4 @@ The library currently has a number of caveats:
 
 **Notes**
 
-[^1]: With a handful of exceptions regarding certain non-Latin scripts.
-
-<details>
-  <summary>Click to expand!</summary>
-
-## Heading
-
-1. A numbered
-
-2. list
-   
-   * With some
-   
-   * Sub bullets
-     
-     </details>
+[^1]: However there may exist a handful of exceptions regarding certain non-Latin scripts.
