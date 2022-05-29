@@ -1,6 +1,4 @@
-/**
- * An object (eg. a word) to be typeset.
- */
+/** An object (eg. a word) to be typeset. */
 import { penalty, isForcedBreak } from 'src/helpers/util';
 import { LineWidth } from 'src/html/lineWidth';
 
@@ -11,17 +9,13 @@ export interface Box {
 }
 
 /**
- * A space between `Box` items with a preferred width and some
- * capacity to stretch or shrink.
+ * A space between `Box` items with a preferred width and some capacity to stretch or shrink.
  *
- * `Glue` items are also candidates for breakpoints if they immediately follow a
- * `Box`.
+ * `Glue` items are also candidates for breakpoints if they immediately follow a `Box`.
  */
 export interface Glue {
   type: 'glue';
-  /**
-   * Preferred width of this space. Must be >= 0.
-   */
+  /** Preferred width of this space. Must be >= 0. */
   width: number;
   /** Maximum amount by which this space can grow. */
   stretch: number;
@@ -29,28 +23,24 @@ export interface Glue {
   shrink: number;
 }
 
-/**
- * An explicit candidate position for breaking a line.
- */
+/** An explicit candidate position for breaking a line. */
 export interface Penalty {
   type: 'penalty';
 
   /**
-   * Amount of space required for typeset content to be added (eg. a hyphen) if
-   * a line is broken here. Must be >= 0.
+   * Amount of space required for typeset content to be added
+   * (eg. a hyphen) if a line is broken here. Must be >= 0.
    */
   width: number;
   /**
    * The undesirability of breaking the line at this point.
    *
-   * Values <= `MIN_COST` and >= `MAX_COST` mandate or prevent breakpoints
-   * respectively.
+   * Values <= `MIN_COST` and >= `MAX_COST` mandate or prevent breakpoints respectively.
    */
   cost: number;
   /**
-   * A hint used to prevent successive lines being broken with hyphens. The
-   * layout algorithm will try to avoid successive lines being broken at flagged
-   * `Penalty` items.
+   * A hint used to prevent successive lines being broken with hyphens. The layout
+   * algorithm will try to avoid successive lines being broken at flagged `Penalty` items.
    */
   flagged?: boolean;
 }
@@ -73,42 +63,31 @@ export const MAX_COST = 1000;
 
 export const MIN_ADJUSTMENT_RATIO = -1;
 
-/**
- * Error thrown by `breakLines` when `maxAdjustmentRatio` is exceeded.
- */
+/** Error thrown by `breakLines` when `maxAdjustmentRatio` is exceeded. */
 export class MaxAdjustmentExceededError extends Error {}
 
-/**
- * Parameters for the layout process. A part of {@link TexLinebreakOptions}.
- */
+/** Parameters for the layout process. A part of {@link TexLinebreakOptions}. */
 export interface LineBreakingOptions {
   /**
-   * A factor indicating the maximum amount by which items in a line can be
-   * spaced out by expanding `Glue` items.
+   * A factor indicating the maximum amount by which items in a line can be spaced
+   * out by expanding `Glue` items.
    *
    * The maximum size which a `Glue` on a line can expand to is `glue.width +
    * (maxAdjustmentRatio * glue.stretch)`.
    *
    * If the paragraph cannot be laid out without exceeding this threshold then a
-   * `MaxAdjustmentExceededError` error is thrown. The caller can use this to
-   * apply hyphenation and try again. If `null`, lines are stretched as far as
-   * necessary.
+   * `MaxAdjustmentExceededError` error is thrown. The caller can use this to apply
+   * hyphenation and try again. If `null`, lines are stretched as far as necessary.
    */
   maxAdjustmentRatio: number | null;
 
-  /**
-   * The maximum adjustment ratio used for the initial line breaking attempt.
-   */
+  /** The maximum adjustment ratio used for the initial line breaking attempt. */
   initialMaxAdjustmentRatio: number;
 
-  /**
-   * Penalty for consecutive hyphenated lines.
-   */
+  /** Penalty for consecutive hyphenated lines. */
   doubleHyphenPenalty: number;
 
-  /**
-   * Penalty for significant differences in the tightness of adjacent lines.
-   */
+  /** Penalty for significant differences in the tightness of adjacent lines. */
   adjacentLooseTightPenalty: number;
 }
 export const defaultLineBreakingOptions: LineBreakingOptions = {
@@ -125,13 +104,13 @@ export const defaultLineBreakingOptions: LineBreakingOptions = {
  * `positionBoxes` can be used to generate the X offsets and line numbers of
  * each box using the resulting breakpoints.
  *
- * May throw an `Error` if valid breakpoints cannot be found given the specified
- * adjustment ratio thresholds.
+ * May throw an `Error` if valid breakpoints cannot be found given the
+ * specified adjustment ratio thresholds.
  *
  * The implementation uses the "TeX algorithm" from [1].
  *
  * [1] D. E. Knuth and M. F. Plass, “Breaking paragraphs into lines,” Softw.
- *     Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
+ * Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
  *
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param lineWidths - Length or lengths of each line.
@@ -201,16 +180,19 @@ export function breakLines(
   for (let b = 0; b < items.length; b++) {
     const item = items[b];
 
-    // TeX allows items with negative widths or stretch factors but imposes two
-    // restrictions for efficiency. These restrictions are not yet implemented
-    // here and we avoid the problem by just disallowing negative
-    // width/shrink/stretch amounts.
+    /**
+     * TeX allows items with negative widths or stretch factors but imposes two
+     * restrictions for efficiency. These restrictions are not yet implemented here and
+     * we avoid the problem by just disallowing negative width/shrink/stretch amounts.
+     */
     if (item.width < 0) {
       throw new Error(`Item ${b} has disallowed negative width`);
     }
 
-    // Determine if this is a feasible breakpoint and update `sumWidth`,
-    // `sumStretch` and `sumShrink`.
+    /**
+     * Determine if this is a feasible breakpoint and
+     * update `sumWidth`, `sumStretch` and `sumShrink`.
+     */
     let canBreak = false;
     if (item.type === 'box') {
       sumWidth += item.width;
@@ -232,7 +214,7 @@ export function breakLines(
       continue;
     }
 
-    // Update the set of active nodes.
+    /** Update the set of active nodes. */
     let lastActive: LineBreakingNode | null = null;
 
     const feasible: LineBreakingNode[] = [];
@@ -244,18 +226,19 @@ export function breakLines(
 
       /**
        * NOTE:
-       * This goes against the original paper, but it simply
-       * does not work correctly when the text includes an item that fills
-       * the entire line. In that case, the adjustment ratio is infinite,
-       * the line can never be broken, causing one of two things to occur:
-       *   1. The word OVERLAPS with the next one
-       *   2. The line is split in an extremely silly manner, such as
-       *        "bla          bla         bla
-       *         bla https://example.com/bla-
-       *         bla"
-       *      instead of:
-       *        "bla      bla    bla      bla
-       *         https://example.com/bla-bla"
+       * This goes against the original paper, but it simply does not work
+       * correctly when the text includes an item that fills the entire line.
+       * In that case, the adjustment ratio is infinite, the line can never
+       * be broken, causing one of two things to occur:
+       *
+       * 1. The word OVERLAPS with the next one
+       * 2. The line is split in an extremely silly manner, such as \
+       * "bla bla bla \
+       * bla https://example.com/bla- \
+       * bla" \
+       * instead of: \
+       * "bla bla bla bla \
+       * https://example.com/bla-bla" \
        */
       if (lineStretch === 0) {
         lineStretch = 1;
@@ -278,9 +261,8 @@ export function breakLines(
       }
       if (adjustmentRatio > currentMaxAdjustmentRatio) {
         /**
-         * In case we need to try again later with a higher
-         * `maxAdjustmentRatio`, track the minimum value needed to produce
-         * different output.
+         * In case we need to try again later with a higher `maxAdjustmentRatio`,
+         * track the minimum value needed to produce different output.
          */
         minAdjustmentRatioAboveThreshold = Math.min(
           adjustmentRatio,
@@ -289,16 +271,14 @@ export function breakLines(
       }
 
       if (adjustmentRatio < MIN_ADJUSTMENT_RATIO || isForcedBreak(item)) {
-        /**
-         * Items from `a` to `b` cannot fit on one line.
-         */
+        /** Items from `a` to `b` cannot fit on one line. */
         active.delete(a);
         lastActive = a;
       }
       if (adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio) {
         /**
-         * We found a feasible breakpoint. Compute a `demerits` score for it as
-         * per formula on p. 1128.
+         * We found a feasible breakpoint. Compute a
+         * `demerits` score for it as per formula on p. 1128.
          */
         let demerits;
         const badness = 100 * Math.abs(adjustmentRatio) ** 3;
@@ -373,9 +353,7 @@ export function breakLines(
       }
     });
 
-    /**
-     * Add feasible breakpoint with lowest score to active set.
-     */
+    /** Add feasible breakpoint with lowest score to active set. */
     if (feasible.length > 0) {
       let bestNode = feasible[0];
       for (let f of feasible) {
@@ -405,9 +383,8 @@ export function breakLines(
         });
       } else {
         /**
-         * We cannot create a breakpoint sequence by increasing the max
-         * adjustment ratio. This could happen if a box is too wide or there are
-         * glue items with zero stretch/shrink.
+         * We cannot create a breakpoint sequence by increasing the max adjustment ratio. This
+         * could happen if a box is too wide or there are glue items with zero stretch/shrink.
          *
          * Give up and create a breakpoint at the current position.
          */
@@ -436,10 +413,9 @@ export function breakLines(
    *
    * There should always be an active node at this point since:
    *
-   *  1. We add a node to the active set before entering the loop.
-   *  2. Each iteration of the loop either returns from the function, leaves
-   *     the active set unchanged and breaks early or finishes with a non-empty
-   *     active set.
+   * 1. We add a node to the active set before entering the loop.
+   * 2. Each iteration of the loop either returns from the function, leaves the active
+   * set unchanged and breaks early or finishes with a non-empty active set.
    */
   let bestNode: LineBreakingNode | null = null;
   active.forEach((a) => {
@@ -448,10 +424,7 @@ export function breakLines(
     }
   });
 
-  /**
-   * Follow the chain backwards from the chosen node to get the sequence of
-   * chosen breakpoints.
-   */
+  /** Follow the chain backwards from the chosen node to get the sequence of chosen breakpoints. */
   const output = [];
   let next: LineBreakingNode | null = bestNode!;
   while (next) {
