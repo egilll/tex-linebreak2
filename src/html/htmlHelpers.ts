@@ -1,22 +1,58 @@
-export function getElementLineWidth(element: HTMLElement): number | number[] {
+import { getLineWidth } from 'src/breakLines';
+
+export type LineWidth =
+  | number
+  | number[]
+  | {
+      defaultLineWidth: number;
+      [lineIndex: number]: number;
+    };
+export function getElementLineWidth(
+  element: HTMLElement,
+  floatingElements?: HTMLElement[],
+): LineWidth {
   let { width, boxSizing, paddingLeft, paddingRight, textIndent } = getComputedStyle(element);
-  let _width = parseFloat(width!);
+  let defaultLineWidth: number | number[] = parseFloat(width!);
   if (boxSizing === 'border-box') {
-    _width -= parseFloat(paddingLeft!);
-    _width -= parseFloat(paddingRight!);
+    defaultLineWidth -= parseFloat(paddingLeft!);
+    defaultLineWidth -= parseFloat(paddingRight!);
   }
+
+  let lineWidths: LineWidth = { defaultLineWidth };
 
   const indentationOfFirstLine = parseInt(textIndent);
   if (indentationOfFirstLine) {
-    /**
-     * Here we return an array of line lengths consisting of the first line
-     * and the second line widths. {@link getLineWidth} uses the last width
-     * for all lines that follow it.
-     */
-    return [_width - indentationOfFirstLine, _width];
+    lineWidths[0] = defaultLineWidth - indentationOfFirstLine;
   }
 
-  return _width;
+  if (floatingElements && floatingElements.length > 0) {
+    const { lineHeight } = window.getComputedStyle(element);
+    console.log(lineHeight);
+    const elRect = element.getBoundingClientRect();
+    let firstLine: number;
+    let lineIndex = 0;
+    floatingElements.forEach((floatingElement) => {
+      const flRect = floatingElement.getBoundingClientRect();
+      const { float } = window.getComputedStyle(element);
+      let overlapWidth = 0;
+      if (float === 'right') {
+        overlapWidth = elRect.width - (flRect.left - elRect.left);
+      } else if (float === 'left') {
+        overlapWidth = elRect.width - (flRect.right - elRect.right);
+      }
+
+      console.log(getLineWidth(lineWidths, lineIndex));
+      console.log(lineWidths[lineIndex]);
+      firstLine =
+        getLineWidth(lineWidths, lineIndex++) - (elRect.width - (flRect.left - elRect.left));
+    });
+    return firstLine!;
+  }
+  console.log(`
+  ---------------
+         ----------`);
+
+  return lineWidths;
 }
 
 export function isTextOrInlineElement(node: Node) {

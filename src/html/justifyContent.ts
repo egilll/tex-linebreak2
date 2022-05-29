@@ -6,6 +6,7 @@ import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getTaggedChildren, tagNode } from 'src/html/tag';
 import { debugHtmlLines } from 'src/util/debugHtmlLines';
 import { formatLine } from 'src/html/formatLine';
+import { getFloatingElements } from 'src/html/floats';
 
 /**
  * Reverse the changes made to an element by `justifyContent`.
@@ -55,7 +56,7 @@ export function justifyContent(
     elements = [elements];
   }
 
-  console.log(elements);
+  // console.log(elements);
 
   // Undo the changes made by any previous justification of this content.
   elements.forEach((el) => unjustifyContent(el));
@@ -63,13 +64,10 @@ export function justifyContent(
   // Calculate line-break positions given current element width and content.
   const domTextMeasureFn = new DOMTextMeasurer().measure;
 
-  /** TODO!!!! ÉG TÓK ÞETTA TIL BAKA, VERÐUR AÐ ENDURSKOÐA!!!! */
-  // To avoid layout thrashing, we batch DOM layout reads and writes in this
-  // function. ie. we first measure the available width and compute linebreaks
-  // for all elements and then afterwards modify all the elements.
+  const floatingElements = getFloatingElements();
 
   elements.forEach((element) => {
-    const lineWidth = getElementLineWidth(element);
+    const lineWidth = getElementLineWidth(element, floatingElements);
 
     // let items: DOMItem[] = [];
     // addItemsForNode(items, element, { ...options, measureFn });

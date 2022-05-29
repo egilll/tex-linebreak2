@@ -1,12 +1,13 @@
 import { TextInputItem } from 'src/helpers/util';
 import { InputItem } from 'src/breakLines';
 import { DOMItem } from 'src/html/getItemsFromDOM';
+import { LineWidth } from 'src/html/htmlHelpers';
 
 export type HelperOptions = Partial<{
   text: string;
   lineBreakingType: 'fullWidth' | 'findOptimalWidth' | 'greedy';
   alignment: 'justify' | 'left' /*| 'right' | 'center'*/;
-  lineWidth: number | number[];
+  lineWidth: LineWidth;
   /**
    * If the user wants to supply his own items
    */

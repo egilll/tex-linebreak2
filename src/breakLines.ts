@@ -2,6 +2,7 @@
  * An object (eg. a word) to be typeset.
  */
 import { penalty } from 'src/helpers/util';
+import { LineWidth } from 'src/html/htmlHelpers';
 
 export interface Box {
   type: 'box';
@@ -449,7 +450,7 @@ export function breakLines(
   return output;
 }
 
-export const getLineWidth = (lineWidths: number | number[], lineIndex: number): number => {
+export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number => {
   if (Array.isArray(lineWidths)) {
     if (lineIndex < lineWidths.length) {
       return lineWidths[lineIndex];
