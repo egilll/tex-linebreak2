@@ -461,7 +461,9 @@ export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number =
        */
       return lineWidths.at(-1)!;
     }
-  } else {
+  } else if (typeof lineWidths === 'number') {
     return lineWidths;
+  } else {
+    return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
   }
 };

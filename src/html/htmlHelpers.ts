@@ -34,17 +34,16 @@ export function getElementLineWidth(
     floatingElements.forEach((floatingElement) => {
       const flRect = floatingElement.getBoundingClientRect();
       const { float } = window.getComputedStyle(element);
-      let overlapWidth = 0;
+      let xAxisOverlap = 0;
       if (float === 'right') {
-        overlapWidth = elRect.width - (flRect.left - elRect.left);
+        xAxisOverlap = elRect.width - (flRect.left - elRect.left);
       } else if (float === 'left') {
-        overlapWidth = elRect.width - (flRect.right - elRect.right);
+        xAxisOverlap = elRect.width - (flRect.right - elRect.right);
       }
 
       console.log(getLineWidth(lineWidths, lineIndex));
       console.log(lineWidths[lineIndex]);
-      firstLine =
-        getLineWidth(lineWidths, lineIndex++) - (elRect.width - (flRect.left - elRect.left));
+      firstLine = getLineWidth(lineWidths, lineIndex++) - (elRect.width - xAxisOverlap);
     });
     return firstLine!;
   }
