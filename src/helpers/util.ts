@@ -1,4 +1,4 @@
-import { Box, Glue, Penalty, MIN_COST, InputItem, MAX_COST } from 'src/breakLines';
+import { Box, Glue, Penalty, MIN_COST, Item, MAX_COST } from 'src/breakLines';
 import { HelperOptions } from 'src/helpers/options';
 import { PenaltyClasses } from 'src/helpers/splitTextIntoItems/penalty';
 
@@ -56,7 +56,7 @@ export const softHyphen = (options: HelperOptions) => {
 };
 
 /** Todo: Should regular hyphens not be flagged? */
-export const isSoftHyphen = (item: InputItem | undefined): boolean => {
+export const isSoftHyphen = (item: Item | undefined): boolean => {
   if (!item) return false;
   return Boolean(item.type === 'penalty' && item.flagged /*&& item.width > 0*/);
 };
@@ -123,7 +123,7 @@ export function chunk<T>(breakpoints: T[], width: number) {
  * Note: This results in the paragraph not filling the entire allowed width,
  * but the output will have all lines balanced.
  */
-export const removeGlueFromEndOfParagraphs = <T extends InputItem>(items: T[]): T[] => {
+export const removeGlueFromEndOfParagraphs = <T extends Item>(items: T[]): T[] => {
   return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
 };
 
@@ -146,3 +146,7 @@ not used now, but would have to support glue stretching
 //   });
 //   return output;
 // };
+
+export function isForcedBreak(item: Item) {
+  return item.type === 'penalty' && item.cost <= MIN_COST;
+}

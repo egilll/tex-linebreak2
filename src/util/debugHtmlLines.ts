@@ -1,5 +1,5 @@
 import { Line } from 'src/helpers';
-import { tagNode } from 'src/html/tag';
+import { tagNode } from 'src/html/tagNode';
 
 /**
  * Draw boxes on screen to see any possible mismatches in size calculations

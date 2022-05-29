@@ -1,7 +1,7 @@
 import { TextInputItem } from 'src/helpers/util';
-import { InputItem } from 'src/breakLines';
+import { Item } from 'src/breakLines';
 import { DOMItem } from 'src/html/getItemsFromDOM';
-import { LineWidth } from 'src/html/htmlHelpers';
+import { LineWidth } from 'src/html/lineWidth';
 
 export type HelperOptions = Partial<{
   text: string;
@@ -11,7 +11,7 @@ export type HelperOptions = Partial<{
   /**
    * If the user wants to supply his own items
    */
-  items: (TextInputItem | DOMItem | InputItem)[];
+  items: (TextInputItem | DOMItem | Item)[];
 
   /**
    * Callback that calculates the width of a given string.
@@ -52,6 +52,39 @@ export type HelperOptions = Partial<{
   renderLineAsLeftAlignedIfSpaceIsLargerThan: number;
 
   addParagraphEnd: boolean;
+
+  /** ////////////////////////////////////////////
+  //    Options used by {@link breakLines}     //
+  /////////////////////////////////////////////*/
+
+  /**
+   * A factor indicating the maximum amount by which items in a line can be
+   * spaced out by expanding `Glue` items.
+   *
+   * The maximum size which a `Glue` on a line can expand to is `glue.width +
+   * (maxAdjustmentRatio * glue.stretch)`.
+   *
+   * If the paragraph cannot be laid out without exceeding this threshold then a
+   * `MaxAdjustmentExceededError` error is thrown. The caller can use this to
+   * apply hyphenation and try again. If `null`, lines are stretched as far as
+   * necessary.
+   */
+  maxAdjustmentRatio: number | null;
+
+  /**
+   * The maximum adjustment ratio used for the initial line breaking attempt.
+   */
+  initialMaxAdjustmentRatio: number;
+
+  /**
+   * Penalty for consecutive hyphenated lines.
+   */
+  doubleHyphenPenalty: number;
+
+  /**
+   * Penalty for significant differences in the tightness of adjacent lines.
+   */
+  adjacentLooseTightPenalty: number;
 }>;
 
 export const helperOptionsDefaults: Partial<HelperOptions> = {
@@ -63,6 +96,11 @@ export const helperOptionsDefaults: Partial<HelperOptions> = {
   addParagraphEnd: true,
   // /** If no callback is provided, default to a monospace */
   // measureFn: (word: string) => word.length,
+
+  maxAdjustmentRatio: null,
+  initialMaxAdjustmentRatio: 1,
+  doubleHyphenPenalty: 0,
+  adjacentLooseTightPenalty: 0,
 };
 
 export const getOptionsWithDefaults = (options: HelperOptions): HelperOptions => {

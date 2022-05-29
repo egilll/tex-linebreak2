@@ -1,10 +1,5 @@
 import { TextInputItem } from 'src/helpers/util';
-import {
-  breakLines,
-  MaxAdjustmentExceededError,
-  InputItem,
-  MIN_ADJUSTMENT_RATIO,
-} from 'src/breakLines';
+import { breakLines, MaxAdjustmentExceededError, Item, MIN_ADJUSTMENT_RATIO } from 'src/breakLines';
 import { layoutItemsFromString } from 'src/helpers/deprecated/layoutItemsFromString';
 
 export interface PositionedItem {
@@ -36,7 +31,7 @@ export interface PositionOptions {
  * @param breakpoints - Indexes within `items` of the start of each line.
  */
 export function positionItems(
-  items: InputItem[],
+  items: Item[],
   lineWidths: number | number[],
   breakpoints: number[],
   options: PositionOptions = {},
@@ -152,7 +147,7 @@ export const layoutText = positionText;
  * @deprecated
  */
 export function adjustmentRatios(
-  items: InputItem[],
+  items: Item[],
   lineWidths: number | number[],
   breakpoints: number[],
 ) {

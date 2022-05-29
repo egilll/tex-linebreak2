@@ -1,6 +1,6 @@
 import { Line } from 'src/helpers';
 import { textNodesInRange } from 'src/util/range';
-import { tagNode } from 'src/html/tag';
+import { tagNode } from 'src/html/tagNode';
 import { isTextOrInlineElement } from 'src/html/htmlHelpers';
 
 /**

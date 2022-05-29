@@ -1,8 +1,8 @@
 /**
  * An object (eg. a word) to be typeset.
  */
-import { penalty } from 'src/helpers/util';
-import { LineWidth } from 'src/html/htmlHelpers';
+import { penalty, isForcedBreak } from 'src/helpers/util';
+import { LineWidth } from 'src/html/lineWidth';
 
 export interface Box {
   type: 'box';
@@ -55,41 +55,7 @@ export interface Penalty {
   flagged?: boolean;
 }
 
-export type InputItem = Box | Penalty | Glue;
-
-/**
- * Parameters for the layout process.
- */
-export interface LineBreakingOptions {
-  /**
-   * A factor indicating the maximum amount by which items in a line can be
-   * spaced out by expanding `Glue` items.
-   *
-   * The maximum size which a `Glue` on a line can expand to is `glue.width +
-   * (maxAdjustmentRatio * glue.stretch)`.
-   *
-   * If the paragraph cannot be laid out without exceeding this threshold then a
-   * `MaxAdjustmentExceededError` error is thrown. The caller can use this to
-   * apply hyphenation and try again. If `null`, lines are stretched as far as
-   * necessary.
-   */
-  maxAdjustmentRatio: number | null;
-
-  /**
-   * The maximum adjustment ratio used for the initial line breaking attempt.
-   */
-  initialMaxAdjustmentRatio: number;
-
-  /**
-   * Penalty for consecutive hyphenated lines.
-   */
-  doubleHyphenPenalty: number;
-
-  /**
-   * Penalty for significant differences in the tightness of adjacent lines.
-   */
-  adjacentLooseTightPenalty: number;
-}
+export type Item = Box | Penalty | Glue;
 
 /**
  * Minimum cost for a breakpoint.
@@ -106,17 +72,6 @@ export const MIN_COST = -1000;
 export const MAX_COST = 1000;
 
 export const MIN_ADJUSTMENT_RATIO = -1;
-
-function isForcedBreak(item: InputItem) {
-  return item.type === 'penalty' && item.cost <= MIN_COST;
-}
-
-const defaultOptions: LineBreakingOptions = {
-  maxAdjustmentRatio: null,
-  initialMaxAdjustmentRatio: 1,
-  doubleHyphenPenalty: 0,
-  adjacentLooseTightPenalty: 0,
-};
 
 /**
  * Error thrown by `breakLines` when `maxAdjustmentRatio` is exceeded.
@@ -143,8 +98,8 @@ export class MaxAdjustmentExceededError extends Error {}
  * @param _options
  */
 export function breakLines(
-  items: InputItem[],
-  lineWidths: number | number[],
+  items: Item[],
+  lineWidths: LineWidth,
   _options: Partial<LineBreakingOptions> = {},
 ): number[] {
   if (items.length === 0) {
@@ -159,7 +114,7 @@ export function breakLines(
     );
   }
 
-  const options: LineBreakingOptions = { ...defaultOptions, ..._options };
+  const options: LineBreakingOptions = { ...defaultLineBreakingOptions, ..._options };
 
   const currentMaxAdjustmentRatio = Math.min(
     options.initialMaxAdjustmentRatio,

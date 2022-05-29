@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import { XorShift } from 'xorshift';
 
-import { breakLines, InputItem, MaxAdjustmentExceededError, Penalty } from 'src/breakLines';
+import { breakLines, Item, MaxAdjustmentExceededError, Penalty } from 'src/breakLines';
 
 import {
   box,
@@ -155,7 +155,7 @@ describe('layout', () => {
       // (10).
       // We'll give up and make lines which exceed the specified length.
       const lines = repeat([box(10), glue(5, 1, 1)], 5);
-      const items: InputItem[] = [...lines, forcedBreak()];
+      const items: Item[] = [...lines, forcedBreak()];
       const breakpoints = breakLines(items, 5, {
         maxAdjustmentRatio: 1,
       });
@@ -245,7 +245,7 @@ describe('layout', () => {
       // are large enough to fall into different "fitness class" thresholds.
       const prng = new (XorShift as any)([1, 10, 15, 20]);
       const wordSoup = (length: number) => {
-        let result: InputItem[] = [];
+        let result: Item[] = [];
         let wordLen = 5;
         while (result.length < length) {
           result.push({ type: 'box', width: prng.random() * 20 });

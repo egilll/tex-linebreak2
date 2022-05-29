@@ -1,11 +1,12 @@
-import { InputItem } from 'src/breakLines';
+import { Item } from 'src/breakLines';
+import { LineWidth } from 'src/html/lineWidth';
 
 /**
  * This utility function does not use TeX's line breaking algorithm,
  * but it is included here for the convenience users who may wish
  * to utilize the same chunking function to greedily break lines.
  */
-export function breakLinesGreedy(items: InputItem[], lineWidths: number | number[]): number[] {
+export function breakLinesGreedy(items: Item[], lineWidths: LineWidth): number[] {
   let breakpoints: number[] = [];
 
   // for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {

@@ -1,31 +1,12 @@
 import DOMTextMeasurer from 'src/util/domTextMeasurer';
-import { getElementLineWidth } from 'src/html/htmlHelpers';
+import { getFloatingElements } from 'src/html/htmlHelpers';
 import { TexLinebreak } from 'src/helpers';
 import { HelperOptions } from 'src/helpers/options';
 import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
-import { getTaggedChildren, tagNode } from 'src/html/tag';
+import { getTaggedChildren, tagNode } from 'src/html/tagNode';
 import { debugHtmlLines } from 'src/util/debugHtmlLines';
 import { formatLine } from 'src/html/formatLine';
-import { getFloatingElements } from 'src/html/floats';
-
-/**
- * Reverse the changes made to an element by `justifyContent`.
- */
-export function unjustifyContent(el: HTMLElement) {
-  // Find and remove all elements inserted by `justifyContent`.
-  const tagged = getTaggedChildren(el);
-  for (let node of tagged) {
-    const parent = node.parentNode!;
-    const children = Array.from(node.childNodes);
-    children.forEach((child) => {
-      parent.insertBefore(child, node);
-    });
-    parent.removeChild(node);
-  }
-
-  // Re-join text nodes that were split by `justifyContent`.
-  el.normalize();
-}
+import { getElementLineWidth } from 'src/html/lineWidth';
 
 /**
  * Justify an existing paragraph.
@@ -41,12 +22,19 @@ export function unjustifyContent(el: HTMLElement) {
  */
 export function justifyContent(
   elements: HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
-  /** Todo: Remove... */
-  USE_OPTIONS_INSTEAD_hyphenateFn?: ((word: string) => string[]) | null,
-  options: HelperOptions = {},
+  /** For backwards compatibility, this parameter also accepts a `hyphenateFn`. */
+  _options: HelperOptions | ((word: string) => string[]) = {},
   debug = false,
 ) {
-  options = { ...options, isHTML: true };
+  /**
+   * Done for backwards compatibility:
+   * Previous versions accepted a `hyphenateFn` as the second parameter.
+   */
+  if (typeof _options === 'function') {
+    _options = { hyphenateFn: _options };
+  }
+
+  const options: HelperOptions = { ..._options, isHTML: true };
 
   if (!elements) {
     return console.error("justifyContent didn't receive any items");
@@ -58,15 +46,13 @@ export function justifyContent(
 
   // console.log(elements);
 
-  // Undo the changes made by any previous justification of this content.
-  elements.forEach((el) => unjustifyContent(el));
-
-  // Calculate line-break positions given current element width and content.
   const domTextMeasureFn = new DOMTextMeasurer().measure;
-
   const floatingElements = getFloatingElements();
 
   elements.forEach((element) => {
+    // Undo the changes made by any previous justification of this content.
+    unjustifyContent(element);
+
     const lineWidth = getElementLineWidth(element, floatingElements);
 
     // let items: DOMItem[] = [];
@@ -140,4 +126,23 @@ export function justifyContent(
 
     if (debug) debugHtmlLines(lines, element);
   });
+}
+
+/**
+ * Reverse the changes made to an element by `justifyContent`.
+ */
+export function unjustifyContent(el: HTMLElement) {
+  // Find and remove all elements inserted by `justifyContent`.
+  const tagged = getTaggedChildren(el);
+  for (let node of tagged) {
+    const parent = node.parentNode!;
+    const children = Array.from(node.childNodes);
+    children.forEach((child) => {
+      parent.insertBefore(child, node);
+    });
+    parent.removeChild(node);
+  }
+
+  // Re-join text nodes that were split by `justifyContent`.
+  el.normalize();
 }

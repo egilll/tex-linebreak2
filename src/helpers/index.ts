@@ -1,11 +1,11 @@
 import { HelperOptions, getOptionsWithDefaults } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { TextInputItem, isSoftHyphen } from 'src/helpers/util';
-import { breakLines, InputItem, MAX_COST, getLineWidth } from 'src/breakLines';
+import { breakLines, Item, MAX_COST, getLineWidth } from 'src/breakLines';
 import { breakLinesGreedy } from 'src/helpers/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 
-export type AnyInput = TextInputItem | DOMItem | InputItem;
+export type AnyInput = TextInputItem | DOMItem | Item;
 
 export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
   private _items?: InputItemType[];
@@ -212,3 +212,4 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
     );
   }
 }
+export { isForcedBreak } from 'src/helpers/util';

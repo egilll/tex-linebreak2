@@ -30,7 +30,6 @@ export function rerender() {
 
   justifyContent(
     htmlParagraph,
-    null,
     {
       softHyphenationPenalty: 30,
     },
@@ -49,4 +48,4 @@ textarea.addEventListener('input', rerender);
 lineWidthSlider.addEventListener('input', rerender);
 // rerender();
 
-justifyContent(document.querySelectorAll('p.demo-static, div.demo-static p'), null, {});
+justifyContent(document.querySelectorAll('p.demo-static, div.demo-static p'), {});
