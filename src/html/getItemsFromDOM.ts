@@ -3,7 +3,7 @@ import { TexLinebreakOptions } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { TextItem, forcedBreak, glue, box, collapseAdjacentGlue } from 'src/helpers/util';
 
-export interface RangeData {
+export interface RangeInfo {
   /**
    * Character offset of this item (box/penalty/glue)
    * in the parent DOM node, used to create a `Range`
@@ -14,9 +14,9 @@ export interface RangeData {
   endContainer: Node;
 }
 
-export type DOMBox = Box & RangeData;
-export type DOMGlue = Glue & RangeData;
-export type DOMPenalty = Penalty & RangeData;
+export type DOMBox = Box & RangeInfo;
+export type DOMGlue = Glue & RangeInfo;
+export type DOMPenalty = Penalty & RangeInfo;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
 export class GetItemsFromDOM {

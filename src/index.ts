@@ -16,7 +16,7 @@ export { DOMItem } from 'src/html/getItemsFromDOM';
 export { DOMPenalty } from 'src/html/getItemsFromDOM';
 export { DOMGlue } from 'src/html/getItemsFromDOM';
 export { DOMBox } from 'src/html/getItemsFromDOM';
-export { RangeData } from 'src/html/getItemsFromDOM';
+export { RangeInfo } from 'src/html/getItemsFromDOM';
 export { getTaggedChildren } from 'src/html/tagNode';
 export { isTaggedNode } from 'src/html/tagNode';
 export { tagNode } from 'src/html/tagNode';
