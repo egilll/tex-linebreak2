@@ -1,7 +1,7 @@
-/** An object (eg. a word) to be typeset. */
 import { penalty, isForcedBreak } from 'src/helpers/util';
 import { LineWidth } from 'src/html/lineWidth';
 
+/** An object (eg. a word) to be typeset. */
 export interface Box {
   type: 'box';
   /** Amount of space required by this content. Must be >= 0. */
@@ -34,7 +34,6 @@ export interface Penalty {
   width: number;
   /**
    * The undesirability of breaking the line at this point.
-   *
    * Values <= `MIN_COST` and >= `MAX_COST` mandate or prevent breakpoints respectively.
    */
   cost: number;
@@ -101,16 +100,16 @@ export const defaultLineBreakingOptions: LineBreakingOptions = {
  * Break a paragraph of text into justified lines.
  *
  * Returns the indexes from `items` which have been chosen as breakpoints.
- * `positionBoxes` can be used to generate the X offsets and line numbers of
- * each box using the resulting breakpoints.
+ * `positionBoxes` can be used to generate the X offsets and line numbers
+ * of each box using the resulting breakpoints.
  *
  * May throw an `Error` if valid breakpoints cannot be found given the
  * specified adjustment ratio thresholds.
  *
  * The implementation uses the "TeX algorithm" from [1].
  *
- * [1] D. E. Knuth and M. F. Plass, “Breaking paragraphs into lines,” Softw.
- * Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
+ * [1] D. E. Knuth and M. F. Plass, “Breaking paragraphs into lines,” \
+ * Softw. Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
  *
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param lineWidths - Length or lengths of each line.
@@ -244,17 +243,17 @@ export function breakLines(
         lineStretch = 1;
       }
 
-      // Include width of penalty in line length if chosen as a breakpoint.
+      /** Include width of penalty in line length if chosen as a breakpoint. */
       if (item.type === 'penalty') {
         actualLen += item.width;
       }
 
-      // Compute adjustment ratio from `a` to `b`.
+      /** Compute adjustment ratio from `a` to `b`. */
       let adjustmentRatio;
       if (actualLen === idealLen) {
         adjustmentRatio = 0;
       } else if (actualLen < idealLen) {
-        // nb. Division by zero produces `Infinity` here, which is what we want.
+        /** Nb. Division by zero produces `Infinity` here, which is what we want. */
         adjustmentRatio = (idealLen - actualLen) / lineStretch;
       } else {
         adjustmentRatio = (idealLen - actualLen) / lineShrink;
@@ -301,7 +300,7 @@ export function breakLines(
         }
         demerits += doubleHyphenPenalty;
 
-        // Fitness classes are defined on p. 1155
+        /** Fitness classes are defined on p. 1155 */
         let fitness;
         if (adjustmentRatio < -0.5) {
           fitness = 0;

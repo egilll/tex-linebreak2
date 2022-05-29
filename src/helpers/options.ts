@@ -9,19 +9,14 @@ export type TexLinebreakOptions = Partial<
     lineBreakingType: 'fullWidth' | 'findOptimalWidth' | 'greedy';
     alignment: 'justify' | 'left' /*| 'right' | 'center'*/;
     lineWidth: LineWidth;
-    /**
-     * If the user wants to supply his own items
-     */
+    /** If the user wants to supply his own items */
     items: (TextInputItem | DOMItem | Item)[];
 
-    /**
-     * Callback that calculates the width of a given string.
-     */
+    /** Callback that calculates the width of a given string. */
     measureFn: (word: string, ...args: any[]) => number;
     /**
-     * Callback that calculates legal hyphenation points in a
-     * word and returns an array of pieces that can be joined
-     * with hyphens.
+     * Callback that calculates legal hyphenation points in a word and
+     * returns an array of pieces that can be joined with hyphens.
      */
     hyphenateFn: (word: string) => string[];
 
@@ -29,8 +24,8 @@ export type TexLinebreakOptions = Partial<
      * A value between 0 <= n <= MAX_COST (i.e. 1000).
      * Default is 10.
      * A value over 40 will only break on long words.
-     * A value of MAX_COST will never break, but a value of MAX_COST - 1 will
-     * still break on long words.
+     * A value of MAX_COST will never break, but a value
+     * of MAX_COST - 1 will still break on long words.
      */
     softHyphenationPenalty: number;
 
