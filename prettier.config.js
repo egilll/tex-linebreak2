@@ -3,6 +3,6 @@ module.exports = {
   trailingComma: 'all',
   singleQuote: true,
   quoteProps: 'consistent',
-  // plugins: ['prettier-plugin-jsdoc'],
-  // jsdocPrintWidth: 80,
+  plugins: ['prettier-plugin-jsdoc'],
+  jsdocPrintWidth: 80,
 };

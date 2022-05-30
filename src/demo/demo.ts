@@ -29,7 +29,7 @@ export function rerender() {
   const textContent = htmlParagraph.textContent!;
 
   justifyContent(htmlParagraph, {
-    softHyphenationPenalty: 30,
+    softHyphenPenalty: 30,
   });
 
   // Render to canvas.

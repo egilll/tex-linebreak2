@@ -10,9 +10,11 @@ export interface Box {
 }
 
 /**
- * A space between `Box` items with a preferred width and some capacity to stretch or shrink.
+ * A space between `Box` items with a preferred
+ * width and some capacity to stretch or shrink.
  *
- * `Glue` items are also candidates for breakpoints if they immediately follow a `Box`.
+ * `Glue` items are also candidates for
+ * breakpoints if they immediately follow a `Box`.
  */
 export interface Glue {
   type: 'glue';
@@ -35,12 +37,14 @@ export interface Penalty {
   width: number;
   /**
    * The undesirability of breaking the line at this point.
-   * Values <= `MIN_COST` and >= `MAX_COST` mandate or prevent breakpoints respectively.
+   * Values <= `MIN_COST` and >= `MAX_COST` mandate or
+   * prevent breakpoints respectively.
    */
   cost: number;
   /**
-   * A hint used to prevent successive lines being broken with hyphens. The layout
-   * algorithm will try to avoid successive lines being broken at flagged `Penalty` items.
+   * A hint used to prevent successive lines being broken
+   * with hyphens. The layout algorithm will try to avoid
+   * successive lines being broken at flagged `Penalty` items.
    */
   flagged?: boolean;
 }
@@ -70,21 +74,24 @@ export class MaxAdjustmentExceededError extends Error {}
  * Break a paragraph of text into justified lines.
  *
  * Returns the indexes from `items` which have been chosen as breakpoints.
- * `positionBoxes` can be used to generate the X offsets and line numbers of each box
- * using the resulting breakpoints.
+ * `positionBoxes` can be used to generate the X offsets and line numbers
+ * of each box using the resulting breakpoints.
  *
- * May throw an `Error` if valid breakpoints cannot be found given the specified
- * adjustment ratio thresholds.
+ * May throw an `Error` if valid breakpoints cannot be found given the
+ * specified adjustment ratio thresholds.
  *
- * The implementation uses the "TeX algorithm" from [1].
+ * The implementation uses the "TeX algorithm" from [1], with one
+ * small deviation which can be turned off, see the comments at
+ * {@link TexLinebreakOptions#allowSingleWordLines}.
  *
- * [1] D. E. Knuth and M. F. Plass, “Breaking paragraphs into lines,” \
+ * [1] D. E. Knuth and M. F. Plass, “Breaking paragraphs into lines,”
  * Softw. Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
  *
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param lineWidth - Length or lengths of each line.
- * @param _options - The following options are used by this function: `maxAdjustmentRatio`,
- *       `initialMaxAdjustmentRatio`, `doubleHyphenPenalty`, and `adjacentLooseTightPenalty`
+ * @param _options - The following options are used here: `maxAdjustmentRatio`,
+ *       `initialMaxAdjustmentRatio`, `doubleHyphenPenalty`,
+ *       `adjacentLooseTightPenalty`, and `allowSingleWordLines`.
  */
 export function breakLines(
   items: Item[],
@@ -152,9 +159,10 @@ export function breakLines(
     const item = items[b];
 
     /**
-     * TeX allows items with negative widths or stretch factors but imposes two
-     * restrictions for efficiency. These restrictions are not yet implemented here and
-     * we avoid the problem by just disallowing negative width/shrink/stretch amounts.
+     * TeX allows items with negative widths or stretch factors but
+     * imposes two restrictions for efficiency. These restrictions
+     * are not yet implemented here and we avoid the problem by
+     * just disallowing negative width/shrink/stretch amounts.
      */
     if (item.width < 0) {
       throw new Error(`Item ${b} has disallowed negative width`);
@@ -196,23 +204,12 @@ export function breakLines(
       let actualLen = sumWidth - a.totalWidth;
 
       /**
-       * NOTE:
-       * This goes against the original paper, but it simply does not work
-       * correctly when the text includes an item that fills the entire line.
-       * In that case, the adjustment ratio is infinite, the line can never
-       * be broken, causing one of two things to occur:
-       *
-       * 1. The word OVERLAPS with the next one
-       * 2. The line is split in an extremely silly manner, such as \
-       *    "bla bla bla \
-       *    bla https://example.com/bla- \
-       *    bla" \
-       *    instead of: \
-       *    "bla bla bla bla \
-       *    https://example.com/bla-bla" \
+       * NOTE: This goes against the original paper, but without it
+       * the output is extremely counter-intuitive. See the comments
+       * at {@link TexLinebreakOptions#allowSingleWordLines}.
        */
-      if (lineStretch === 0) {
-        lineStretch = 1;
+      if (options.allowSingleWordLines && lineStretch === 0) {
+        lineStretch = 0.1;
       }
 
       /** Include width of penalty in line length if chosen as a breakpoint. */
@@ -225,15 +222,19 @@ export function breakLines(
       if (actualLen === idealLen) {
         adjustmentRatio = 0;
       } else if (actualLen < idealLen) {
-        /** Nb. Division by zero produces `Infinity` here, which is what we want. */
+        /**
+         * Note: Division by zero produces
+         * `Infinity` here, which is what we want.
+         */
         adjustmentRatio = (idealLen - actualLen) / lineStretch;
       } else {
         adjustmentRatio = (idealLen - actualLen) / lineShrink;
       }
       if (adjustmentRatio > currentMaxAdjustmentRatio) {
         /**
-         * In case we need to try again later with a higher `maxAdjustmentRatio`,
-         * track the minimum value needed to produce different output.
+         * In case we need to try again later with a
+         * higher `maxAdjustmentRatio`, track the minimum
+         * value needed to produce different output.
          */
         minAdjustmentRatioAboveThreshold = Math.min(
           adjustmentRatio,
@@ -289,9 +290,9 @@ export function breakLines(
 
         /**
          * If this breakpoint is followed by glue or non-breakable penalty items
-         * then we don't want to include the width of those when calculating the
-         * width of lines starting after this breakpoint. This is because when
-         * rendering we ignore glue/penalty items at the start of lines.
+         * then we don't want to include the width of those when calculating
+         * the width of lines starting after this breakpoint. This is because
+         * when rendering we ignore glue/penalty items at the start of lines.
          */
         let widthToNextBox = 0;
         let shrinkToNextBox = 0;
@@ -354,8 +355,9 @@ export function breakLines(
         });
       } else {
         /**
-         * We cannot create a breakpoint sequence by increasing the max adjustment ratio. This
-         * could happen if a box is too wide or there are glue items with zero stretch/shrink.
+         * We cannot create a breakpoint sequence by increasing the
+         * max adjustment ratio. This could happen if a box is too
+         * wide or there are glue items with zero stretch/shrink.
          *
          * Give up and create a breakpoint at the current position.
          */
@@ -385,8 +387,9 @@ export function breakLines(
    * There should always be an active node at this point since:
    *
    * 1. We add a node to the active set before entering the loop.
-   * 2. Each iteration of the loop either returns from the function, leaves the active
-   *    set unchanged and breaks early or finishes with a non-empty active set.
+   * 2. Each iteration of the loop either returns from the function,
+   *    leaves the active set unchanged and breaks early or finishes with a
+   *    non-empty active set.
    */
   let bestNode: LineBreakingNode | null = null;
   active.forEach((a) => {
@@ -395,7 +398,10 @@ export function breakLines(
     }
   });
 
-  /** Follow the chain backwards from the chosen node to get the sequence of chosen breakpoints. */
+  /**
+   * Follow the chain backwards from the chosen node
+   * to get the sequence of chosen breakpoints.
+   */
   const output = [];
   let next: LineBreakingNode | null = bestNode!;
   while (next) {

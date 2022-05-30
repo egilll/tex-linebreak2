@@ -54,7 +54,7 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
 
 export const softHyphen = (options: TexLinebreakOptions) => {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn!('-');
-  return penalty(hyphenWidth, options.softHyphenationPenalty ?? PenaltyClasses.SoftHyphen, true);
+  return penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true);
   // return penalty(options.measureFn!('-'), PenaltyClasses.SoftHyphen, true);
 };
 
@@ -103,10 +103,7 @@ export function lineStrings(items: TextItem[], breakpoints: number[]): string[] 
   return chunk(breakpoints, 2).map(([a, b]) =>
     pieces
       .slice(start(a), b + 1)
-      /**
-       * TODO: Not good enough, the !== '-' removes
-       * standalone hyphens in the middle of strings
-       */
+      /** TODO: Not good enough, the !== '-' removes standalone hyphens in the middle of strings */
       .filter((w, i, ary) => w !== '-' || i === ary.length - 1)
       .join('')
       .trim(),
@@ -135,10 +132,9 @@ export function isForcedBreak(item: Item) {
 }
 
 /**
- * This is necessary in order to allow glue to stretch over
- * multiple text nodes, for example, the HTML "text <!--
- * comment node --> text" would otherwise become ["text", " ",
- * " ", "text"] and the glue wouldn't be of the correct size.
+ * This is necessary in order to allow glue to stretch over multiple text nodes,
+ * for example, the HTML "text <!-- comment node --> text" would otherwise become
+ * ["text", " ", " ", "text"] and the glue wouldn't be of the correct size.
  */
 export const collapseAdjacentGlue = <T extends TextItem | DOMItem>(items: T[]): T[] => {
   let output: T[] = [];
