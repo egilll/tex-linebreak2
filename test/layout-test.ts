@@ -1,7 +1,6 @@
-import { assert } from 'chai';
 import { XorShift } from 'xorshift';
 
-import { breakLines, Item, MaxAdjustmentExceededError, Penalty } from 'src/breakLines';
+import { breakLines, Item, Penalty } from 'src/breakLines';
 
 import { box, glue, penalty, forcedBreak, TextItem, TextGlue, TextBox } from 'src/helpers/util';
 
@@ -100,12 +99,12 @@ describe('layout', () => {
   describe('breakLines', () => {
     it('returns an empty list if the input is empty', () => {
       const breakpoints = breakLines([], 100);
-      assert.deepEqual(breakpoints, []);
+      expect(breakpoints).toEqual([]);
     });
 
     it('returns just the initial breakpoint if there are no legal breakpoints', () => {
       const breakpoints = breakLines([box(10)], 100);
-      assert.deepEqual(breakpoints, [0]);
+      expect(breakpoints).toEqual([0]);
     });
 
     it('generates expected layout', () => {
@@ -121,13 +120,13 @@ describe('layout', () => {
           .map(([start, end]) => items.slice(start, end).map(itemText).join('').trim())
           .filter((l) => l.length > 0);
 
-        assert.deepEqual(actualLines, lines);
+        expect(actualLines).toEqual(lines);
 
         // Check that adjustment ratios for each line are in range.
         const adjRatios = adjustmentRatios(items, layoutOptions.lineWidths, breakpoints);
         adjRatios.forEach((ar) => {
-          assert.isAtLeast(ar, -1);
-          assert.isAtMost(ar, layoutOptions.maxAdjustmentRatio);
+          expect(ar).toBeGreaterThanOrEqual(-1);
+          expect(ar).toBeLessThanOrEqual(layoutOptions.maxAdjustmentRatio);
         });
       });
     });
@@ -136,7 +135,7 @@ describe('layout', () => {
       const measure = (text: string) => text.length * 5;
       const items = layoutItemsFromString('one fine day in the middle of the night', measure);
       const breakpoints = breakLines(items, 100);
-      assert.deepEqual(breakpoints, [0, 9, 18]);
+      expect(breakpoints).toEqual([0, 9, 18]);
     });
 
     it('succeeds when min adjustment ratio is exceeded', () => {
@@ -148,25 +147,25 @@ describe('layout', () => {
       const breakpoints = breakLines(items, 5, {
         maxAdjustmentRatio: 1,
       });
-      assert.deepEqual(breakpoints, [0, 1, 3, 5, 7, 9, 10]);
+      expect(breakpoints).toEqual([0, 1, 3, 5, 7, 9, 10]);
     });
 
     it('handles glue with zero stretch', () => {
       const items = [box(10), glue(5, 0, 0), box(10), forcedBreak()];
       const breakpoints = breakLines(items, 50);
-      assert.deepEqual(breakpoints, [0, 3]);
+      expect(breakpoints).toEqual([0, 3]);
     });
 
     it('handles glue with zero shrink', () => {
       const items = [box(10), glue(5, 0, 0), box(10), forcedBreak()];
       const breakpoints = breakLines(items, 21);
-      assert.deepEqual(breakpoints, [0, 3]);
+      expect(breakpoints).toEqual([0, 3]);
     });
 
     it('handles boxes that are wider than the line width', () => {
       const items = [box(5), glue(5, 10, 10), box(100), glue(5, 10, 10), forcedBreak()];
       const breakpoints = breakLines(items, 50);
-      assert.deepEqual(breakpoints, [0, 3, 4]);
+      expect(breakpoints).toEqual([0, 3, 4]);
     });
 
     [
@@ -192,7 +191,7 @@ describe('layout', () => {
         const breakpoints = breakLines(items, lineWidth, {
           initialMaxAdjustmentRatio: 1,
         });
-        assert.deepEqual(breakpoints, expectedBreakpoints);
+        expect(breakpoints).toEqual(expectedBreakpoints);
       });
     });
 
@@ -206,22 +205,14 @@ describe('layout', () => {
       // Break lines without a double-hyphen penalty.
       let breakpoints = breakLines(items, lineWidth);
       let lines = lineStrings(items, breakpoints);
-      assert.deepEqual(
-        lines,
-        ['one two long-', 'word one long-', 'word'],
-        'did not break as expected without penalty',
-      );
+      expect(lines).toEqual(['one two long-', 'word one long-', 'word']);
 
       // Break lines with a double-hyphen penalty.
       breakpoints = breakLines(items, lineWidth, {
         doubleHyphenPenalty: 200,
       });
       lines = lineStrings(items, breakpoints);
-      assert.deepEqual(
-        lines,
-        ['one two', 'longword one', 'longword'],
-        'did not break as expected with penalty',
-      );
+      expect(lines).toEqual(['one two', 'longword one', 'longword']);
     });
 
     it('applies a penalty when adjacent lines have different tightness', () => {
@@ -232,7 +223,7 @@ describe('layout', () => {
       // It requires that boxes have enough variety and maximum width, and glues
       // have sufficiently small stretch, that adjustment ratios between lines
       // are large enough to fall into different "fitness class" thresholds.
-      const prng = new (XorShift as any)([1, 10, 15, 20]);
+      const prng = new XorShift([1, 10, 15, 20]);
       const wordSoup = (length: number) => {
         let result: Item[] = [];
         let wordLen = 5;
@@ -255,28 +246,28 @@ describe('layout', () => {
         adjacentLooseTightPenalty: 10000,
       });
 
-      assert.notDeepEqual(breakpointsA, breakpointsB);
+      expect(breakpointsA).not.toEqual(breakpointsB);
     });
 
     it('throws if an item has negative width', () => {
       const items = [box(-10), glue(5, 10, 10), forcedBreak()];
-      assert.throws(() => breakLines(items, 15));
+      expect(() => breakLines(items, 15)).toThrow();
     });
 
     it('throws if a glue item has negative shrink', () => {
       const items = [box(10), glue(5, -10, 10), forcedBreak()];
-      assert.throws(() => breakLines(items, 15));
+      expect(() => breakLines(items, 15)).toThrow();
     });
 
     it('throws if a glue item has negative stretch', () => {
       const items = [box(10), glue(5, 10, -10), forcedBreak()];
-      assert.throws(() => breakLines(items, 15));
+      expect(() => breakLines(items, 15)).toThrow();
     });
 
     it('throws `MaxAdjustmentExceededError` if max adjustment ratio is exceeded', () => {
       const items = [box(10), glue(5, 10, 10), box(10), forcedBreak()];
       const opts = { maxAdjustmentRatio: 1 };
-      assert.throws(() => breakLines(items, 100, opts), MaxAdjustmentExceededError);
+      expect(() => breakLines(items, 100, opts)).toThrow();
     });
   });
 
@@ -296,7 +287,7 @@ describe('layout', () => {
 
       const boxes = positionItems(items, lineWidth, breakpoints);
 
-      assert.deepEqual(boxes, [
+      expect(boxes).toEqual([
         {
           item: 0,
           line: 0,
@@ -325,7 +316,7 @@ describe('layout', () => {
 
       const boxes = positionItems(items, lineWidth, breakpoints);
 
-      assert.deepEqual(boxes, [
+      expect(boxes).toEqual([
         {
           item: 0,
           line: 0,

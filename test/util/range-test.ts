@@ -1,5 +1,3 @@
-import { assert } from 'chai';
-
 import { textNodesInRange } from 'src/helpers/deprecated/textNodesInRange';
 
 function acceptAllNodes() {
@@ -25,7 +23,7 @@ describe('range', () => {
       const range = document.createRange();
       range.selectNode(para);
 
-      assert.deepEqual(textNodesInRange(range, acceptAllNodes), texts);
+      expect(textNodesInRange(range, acceptAllNodes)).toEqual(texts);
     });
 
     it('does not return non-Text nodes', () => {
@@ -35,7 +33,7 @@ describe('range', () => {
       range.selectNode(para);
       const texts = textNodesInRange(range, acceptAllNodes);
 
-      texts.forEach((t) => assert.instanceOf(t, Text));
+      texts.forEach((t) => expect(t).toBeInstanceOf(Text));
     });
 
     it('returns text nodes in a range with only one node', () => {
@@ -45,7 +43,7 @@ describe('range', () => {
       range.setStart(para.childNodes[0], 1);
       range.setEnd(para.childNodes[0], 3);
 
-      assert.deepEqual(textNodesInRange(range, acceptAllNodes), [para.childNodes[0]]);
+      expect(textNodesInRange(range, acceptAllNodes)).toEqual([para.childNodes[0]]);
     });
 
     it('does not return text nodes outside of range', () => {
@@ -56,7 +54,7 @@ describe('range', () => {
       range.setStart(para, 1);
       range.setEnd(para, 2);
 
-      assert.deepEqual(textNodesInRange(range, acceptAllNodes), [texts[1]]);
+      expect(textNodesInRange(range, acceptAllNodes)).toEqual([texts[1]]);
     });
 
     it('skips subtrees which are filtered out', () => {
@@ -78,7 +76,7 @@ describe('range', () => {
         return node.tagName !== 'SPAN';
       };
 
-      assert.deepEqual(textNodesInRange(range, rejectSpans), [texts[0], texts[2]]);
+      expect(textNodesInRange(range, rejectSpans)).toEqual([texts[0], texts[2]]);
     });
   });
 });

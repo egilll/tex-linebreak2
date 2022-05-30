@@ -1,4 +1,3 @@
-import { assert } from 'chai';
 import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 
@@ -15,17 +14,14 @@ describe('helpers', () => {
       const measure = () => 5;
       const str = 'One fine day';
       const items = layoutItemsFromString(str, measure);
-      assert.deepEqual(
-        items.map((it) => it.type),
-        ['box', 'glue', 'box', 'glue', 'box', 'glue', 'penalty'],
-      );
+      expect(items.map((it) => it.type)).toEqual(['box', 'glue', 'box', 'glue', 'box', 'glue', 'penalty']);
     });
 
     it('adds a glue that stretches to fill the last line', () => {
       const measure = () => 5;
       const str = 'Test line';
       const items = layoutItemsFromString(str, measure);
-      assert.deepEqual(items[items.length - 2], {
+      expect(items[items.length - 2]).toEqual({
         type: 'glue',
         width: 0,
         stretch: 1000,
@@ -38,7 +34,7 @@ describe('helpers', () => {
       const measure = () => 5;
       const str = 'Test line';
       const items = layoutItemsFromString(str, measure);
-      assert.deepEqual(items[items.length - 1], {
+      expect(items[items.length - 1]).toEqual({
         type: 'penalty',
         cost: -1000,
         flagged: false,
@@ -55,7 +51,7 @@ describe('helpers', () => {
         (it) => (delete (it as any).text, it),
       );
 
-      assert.deepEqual(items, [
+      expect(items).toEqual([
         box(15),
         penalty(1, 10, true),
         box(10),
@@ -90,7 +86,7 @@ describe('helpers', () => {
         'produced a "good classic style"',
         'appreciated by Knuth.',
       ];
-      assert.deepEqual(lines, expectedLines);
+      expect(lines).toEqual(expectedLines);
     });
   });
 });
