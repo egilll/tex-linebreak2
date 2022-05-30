@@ -47,6 +47,7 @@
     "linebreak": "^1.1.0",
     "npm": "^8.10.0",
     "prettier-plugin-jsdoc": "file:/Users/egill/prettier-plugin-jsdoc",
+    "string-width": "^5.1.2",
     "unicode-trie": "^2.0.0"
   }
 }

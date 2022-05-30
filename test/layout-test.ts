@@ -3,21 +3,12 @@ import { XorShift } from 'xorshift';
 
 import { breakLines, Item, MaxAdjustmentExceededError, Penalty } from 'src/breakLines';
 
-import {
-  box,
-  chunk,
-  glue,
-  lineStrings,
-  penalty,
-  forcedBreak,
-  TextItem,
-  TextGlue,
-  TextBox,
-} from 'src/helpers/util';
+import { box, glue, penalty, forcedBreak, TextItem, TextGlue, TextBox } from 'src/helpers/util';
 
 import fixture from './fixtures/layout';
 import { positionItems, adjustmentRatios } from 'src/helpers/deprecated/positionItems';
 import { layoutItemsFromString } from 'src';
+import { chunk, lineStrings } from 'src/helpers/deprecated/deprecatedTestUtils';
 
 interface LayoutFixture {
   /** Input text of paragraph. */

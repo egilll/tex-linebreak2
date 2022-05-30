@@ -97,27 +97,6 @@ export function itemToString(item: TextItem) {
   }
 }
 
-export function lineStrings(items: TextItem[], breakpoints: number[]): string[] {
-  const pieces = items.map(itemToString);
-  const start = (pos: number) => (pos === 0 ? 0 : pos + 1);
-  return chunk(breakpoints, 2).map(([a, b]) =>
-    pieces
-      .slice(start(a), b + 1)
-      /** TODO: Not good enough, the !== '-' removes standalone hyphens in the middle of strings */
-      .filter((w, i, ary) => w !== '-' || i === ary.length - 1)
-      .join('')
-      .trim(),
-  );
-}
-
-export function chunk<T>(breakpoints: T[], width: number) {
-  let chunks: T[][] = [];
-  for (let i = 0; i <= breakpoints.length - width; i++) {
-    chunks.push(breakpoints.slice(i, i + width));
-  }
-  return chunks;
-}
-
 /**
  * Used to prevent the last line from having a hanging last line.
  * Note: This results in the paragraph not filling the entire
@@ -132,9 +111,10 @@ export function isForcedBreak(item: Item) {
 }
 
 /**
- * This is necessary in order to allow glue to stretch over multiple text nodes,
- * for example, the HTML "text <!-- comment node --> text" would otherwise become
- * ["text", " ", " ", "text"] and the glue wouldn't be of the correct size.
+ * This is necessary in order to allow glue to stretch over
+ * multiple text nodes, for example, the HTML "text <!--
+ * comment node --> text" would otherwise become ["text", " ",
+ * " ", "text"] and the glue wouldn't be of the correct size.
  */
 export const collapseAdjacentGlue = <T extends TextItem | DOMItem>(items: T[]): T[] => {
   let output: T[] = [];

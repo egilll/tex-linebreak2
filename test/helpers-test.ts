@@ -2,9 +2,10 @@ import { assert } from 'chai';
 import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 
-import { box, glue, lineStrings, penalty, forcedBreak } from 'src/helpers/util';
+import { box, glue, penalty, forcedBreak } from 'src/helpers/util';
 import { layoutText } from 'src/helpers/deprecated/positionItems';
 import { layoutItemsFromString } from 'src';
+import { lineStrings } from 'src/helpers/deprecated/deprecatedTestUtils';
 
 const hyphenator = new Hypher(enUsPatterns);
 

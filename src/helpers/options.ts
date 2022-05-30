@@ -172,14 +172,14 @@ export interface TexLinebreakOptions {
    *    to allow a forced break inside a word or to allow the text to overflow.
    * 2. The line may be split in an extremely silly manner, such as:
    *
-   *        bla         bla         bla
-   *        bla https://example.com/bla-
+   *        bla         bla          bla
+   *        bla https://example.com/bla/
    *        bla
    *
    * Instead of:
    *
-   *        bla     bla     bla     bla
-   *        https://example.com/bla-bla
+   *        bla     bla     bla      bla
+   *        https://example.com/bla/bla
    *
    * To get the same output as Knuth & Plass's original paper, set this option
    * to `false`.
@@ -197,15 +197,13 @@ const defaultOptions: TexLinebreakOptions = {
   addInfiniteGlueToTheEndOfTheLine: true,
   addParagraphEnd: true,
   collapseNewlines: true,
-  /** If no callback is provided, default to a monospace */
-  measureFn: (word: string) => word.length,
   maxAdjustmentRatio: null,
   initialMaxAdjustmentRatio: 1,
   doubleHyphenPenalty: 0,
   adjacentLooseTightPenalty: 0,
   onlyBreakOnWhitespace: false,
   forceOverflowToBreak: true,
-  allowSingleWordLines: false,
+  allowSingleWordLines: true,
 } as const;
 
 export const getOptionsWithDefaults = (

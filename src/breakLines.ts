@@ -74,11 +74,9 @@ export class MaxAdjustmentExceededError extends Error {}
  * Break a paragraph of text into justified lines.
  *
  * Returns the indexes from `items` which have been chosen as breakpoints.
- * `positionBoxes` can be used to generate the X offsets and line numbers
- * of each box using the resulting breakpoints.
  *
- * May throw an `Error` if valid breakpoints cannot be found given the
- * specified adjustment ratio thresholds.
+ * May throw a {@link MaxAdjustmentExceededError} if valid breakpoints
+ * cannot be found given the specified adjustment ratio thresholds.
  *
  * The implementation uses the "TeX algorithm" from [1], with one
  * small deviation which can be turned off, see the comments at
