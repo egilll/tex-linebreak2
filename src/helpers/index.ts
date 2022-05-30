@@ -1,4 +1,8 @@
-import { TexLinebreakOptions, getOptionsWithDefaults } from 'src/helpers/options';
+import {
+  TexLinebreakOptions,
+  getOptionsWithDefaults,
+  RequireCertainKeys,
+} from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { TextItem, isSoftHyphen, TextBox } from 'src/helpers/util';
 import { breakLines, Item, MAX_COST, getLineWidth } from 'src/breakLines';
@@ -9,7 +13,10 @@ export class TexLinebreak<
   InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item,
 > {
   items: InputItemType[];
-  constructor(input: string | InputItemType[], public options: TexLinebreakOptions) {
+  constructor(
+    input: string | InputItemType[],
+    public options: RequireCertainKeys<TexLinebreakOptions, 'lineWidth' | 'measureFn'>,
+  ) {
     this.options = getOptionsWithDefaults(options);
     if (typeof input === 'string') {
       this.items = splitTextIntoItems(input, this.options) as InputItemType[];
@@ -33,11 +40,11 @@ export class TexLinebreak<
     }
     return lines;
   }
-  get linesAsPlainText(): string[] {
+  get plainTextLines(): string[] {
     return this.lines.map((line) => line.plainText);
   }
   get plainText(): string {
-    return this.linesAsPlainText.join('\n');
+    return this.plainTextLines.join('\n');
   }
 }
 

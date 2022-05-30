@@ -216,4 +216,5 @@ export const getOptionsWithDefaults = (
   };
 };
 
-type RequireCertainKeys<T, TRequired extends keyof T> = T & Required<Pick<T, TRequired>>;
+export type RequireCertainKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
+export type OptionalCertainKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
