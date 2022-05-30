@@ -132,12 +132,9 @@ The contents of an existing HTML element can be justified using the
 `justifyContent` function.
 
 ```js
-import enUsPatterns from 'hyphenation.en-us';
-import { createHyphenator, justifyContent } from 'tex-linebreak';
+import { justifyContent } from 'tex-linebreak';
 
-const hyphenate = createHyphenator(enUsPatterns);
-const paragraphs = Array.from(document.querySelectorAll('p'));
-justifyContent(paragraphs, hyphenate);
+justifyContent('p');
 ```
 
 After an element is justified, its layout will remain fixed until `justifyContent`
@@ -152,16 +149,12 @@ WebGL etc.), the `layoutText` helper can be used to lay out justifed text and
 obtain the positions which each word should be drawn at.
 
 ```js
-import { createHyphenator, layoutText } from 'tex-linebreak';
+const { positionedItems } = new TexLinebreak(text, {
+  lineWidth: 300,
+  measureFn: (word) => word.length * 5,
+});
 
-import enUsPatterns from 'hyphenation.en-us';
-
-const hyphenate = createHyphenator(enUsPatterns);
-const measure = (word) => word.length * 5;
-
-const { items, positions } = layoutText(text, lineWidth, measure, hyphenate);
-
-positions.forEach((pos) => {
+positionedItems.forEach((positionedItem) => {
   // Draw text as in the above example for the low-level APIs
 });
 ```

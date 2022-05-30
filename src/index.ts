@@ -1,6 +1,6 @@
 export * from 'src/breakLines';
 export * from 'src/html/htmlHelpers';
-export * from 'src/util/hyphenate';
+export * from 'src/helpers/deprecated/createHyphenator';
 export { forcedBreak } from 'src/helpers/util';
 export { TextItem } from 'src/helpers/util';
 export { TextGlue } from 'src/helpers/util';

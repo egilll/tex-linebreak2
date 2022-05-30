@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import enUsPatterns from 'hyphenation.en-us';
 
-import { createHyphenator } from 'src/util/hyphenate';
+import { createHyphenator } from 'src/helpers/deprecated/createHyphenator';
 import { justifyContent } from 'src/html/justifyContent';
 
 const hyphenate = createHyphenator(enUsPatterns);

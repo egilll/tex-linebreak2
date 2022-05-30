@@ -14,7 +14,7 @@ export const debugHtmlLines = (lines: Line[], appendToElement: HTMLElement) => {
   console.log({ lines });
 
   lines.forEach((line) => {
-    let yOffset = line.lineNumber * 15;
+    let yOffset = (line.lineIndex + 1) * 15;
     line.positionedItems.forEach((item) => {
       let xOffset = item.xOffset;
       const box = tagNode(document.createElement('div'));

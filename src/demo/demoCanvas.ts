@@ -29,7 +29,7 @@ export function renderToCanvas(
   }).lines;
 
   lines.forEach((line) => {
-    const yOffset = line.lineNumber * lineSpacing;
+    const yOffset = (line.lineIndex + 1) * lineSpacing;
     line.positionedItems.forEach((item) => {
       let text = item.type === 'box' && item.text;
       if (isSoftHyphen(item)) {
