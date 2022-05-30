@@ -105,7 +105,7 @@ const text =
 const output = new TexLinebreak(text, {
   lineWidth: 45,
   monospace: true,
-}).getPlainText();
+}).plainText;
 
 // Output:
 // Chamæleon animal est quadrupes, macrum &

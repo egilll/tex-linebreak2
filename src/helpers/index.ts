@@ -5,9 +5,9 @@ import { breakLines, Item, MAX_COST, getLineWidth } from 'src/breakLines';
 import { breakLinesGreedy } from 'src/helpers/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 
-export type AnyInput = TextItem | DOMItem | Item;
+export type AnyItem = TextItem | DOMItem | Item;
 
-export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
+export class TexLinebreak<InputItemType extends AnyItem = AnyItem> {
   items: InputItemType[];
   constructor(input: string | InputItemType[], public options: TexLinebreakOptions) {
     this.options = getOptionsWithDefaults(options);
@@ -17,7 +17,7 @@ export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
       this.items = input;
     }
   }
-  getBreakpoints(): number[] {
+  get breakpoints(): number[] {
     if (!this.options.lineWidth) throw new Error('The option `lineWidth` is required');
     if (this.options.lineBreakingType === 'greedy') {
       return breakLinesGreedy(this.items, this.options.lineWidth);
@@ -27,21 +27,21 @@ export class TexLinebreak<InputItemType extends AnyInput = AnyInput> {
   }
   get lines(): Line<InputItemType>[] {
     let lines: Line<InputItemType>[] = [];
-    const breakpoints = this.getBreakpoints();
+    const breakpoints = this.breakpoints;
     for (let b = 0; b < breakpoints.length - 1; b++) {
       lines.push(new Line<InputItemType>(this, breakpoints[b], breakpoints[b + 1], b));
     }
     return lines;
   }
-  getLinesAsPlainText(): string[] {
+  get linesAsPlainText(): string[] {
     return this.lines.map((line) => line.plainText);
   }
-  getPlainText(): string {
-    return this.getLinesAsPlainText().join('\n');
+  get plainText(): string {
+    return this.linesAsPlainText.join('\n');
   }
 }
 
-export class Line<InputItemType extends AnyInput = AnyInput> {
+export class Line<InputItemType extends AnyItem = AnyItem> {
   items: InputItemType[];
   itemsFiltered: InputItemType[];
   constructor(
@@ -51,12 +51,12 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
     public lineIndex: number,
   ) {
     this.items = parentClass.items.slice(this.startBreakpoint, this.endBreakpoint);
+
     /**
-     * Filter glues and penalties that do not matter
-     * for the purposes of rendering this line.
+     * Filter glues and penalties that do not matter for the purposes of rendering this line.
      *
-     * This goes through three steps for a reason, otherwise we
-     * haven't filtered out [Penalty, Glue, Box] into [Box].
+     * This goes through three steps for a reason, otherwise we haven't filtered out
+     * [Penalty, Glue, Box] into [Box].
      */
     this.itemsFiltered = this.items
       // Ignore penalty that's not at the end of the line
@@ -83,10 +83,7 @@ export class Line<InputItemType extends AnyInput = AnyInput> {
   }
 
   get idealWidth(): number {
-    if (!this.parentClass.options.lineWidth) {
-      throw new Error('The option `lineWidth` is required');
-    }
-    return getLineWidth(this.parentClass.options.lineWidth, this.lineIndex);
+    return getLineWidth(this.parentClass.options.lineWidth!, this.lineIndex);
   }
 
   getActualWidth(options?: { ignoreGlue: boolean }): number {

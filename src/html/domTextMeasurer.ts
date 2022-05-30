@@ -33,9 +33,7 @@ class TextMetricsCache {
   }
 }
 
-/**
- * Return the computed CSS `font` property value for an element.
- */
+/** Return the computed CSS `font` property value for an element. */
 function cssFontForElement(el: Element) {
   const style = getComputedStyle(el);
 
@@ -55,8 +53,8 @@ function cssFontForElement(el: Element) {
 let measureCtx: CanvasRenderingContext2D;
 
 /**
- * Measure the width of `text` as it would appear if rendered within an
- * `Element` with a given computed `font` style.
+ * Measure the width of `text` as it would appear if rendered
+ * within an `Element` with a given computed `font` style.
  */
 function measureText(cssFont: string, text: string) {
   if (!measureCtx) {
@@ -64,13 +62,14 @@ function measureText(cssFont: string, text: string) {
     measureCtx = canvas.getContext('2d')!;
   }
 
-  // Capture as much of the style as possible. Note that some properties such
-  // as `font-stretch`, `font-size-adjust` and `font-kerning` are not settable
-  // through the CSS `font` property.
-  //
-  // Apparently in some browsers the canvas context's text style inherits
-  // style properties from the `<canvas>` element.
-  // See https://stackoverflow.com/a/8955835/434243
+  /**
+   * Capture as much of the style as possible. Note that some properties such as `font-stretch`,
+   * `font-size-adjust` and `font-kerning` are not settable through the CSS `font` property.
+   *
+   * Apparently in some browsers the canvas context's text style inherits style properties from
+   * the `<canvas>` element.
+   * See https://stackoverflow.com/a/8955835/434243
+   */
   measureCtx.font = cssFont;
   return measureCtx.measureText(text).width;
 }
@@ -83,9 +82,7 @@ export default class DOMTextMeasurer {
     this._cache = new TextMetricsCache();
   }
 
-  /**
-   * Return the width of `text` rendered by a `Text` node child of `context`.
-   */
+  /** Return the width of `text` rendered by a `Text` node child of `context`. */
   measure = (text: string, context: Element) => {
     let cssFont = this._cache.cssFontForElement(context);
     if (!cssFont) {

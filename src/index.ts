@@ -22,8 +22,6 @@ export { isTaggedNode } from 'src/html/tagNode';
 export { tagNode } from 'src/html/tagNode';
 export { NODE_TAG } from 'src/html/tagNode';
 export { layoutItemsFromString } from 'src/helpers/deprecated/layoutItemsFromString';
-export { formatLine } from 'src/html/formatLine';
 export { getElementLineWidth } from 'src/html/lineWidth';
 export { LineWidthObject } from 'src/html/lineWidth';
 export { LineWidth } from 'src/html/lineWidth';
-export { isForcedBreak } from 'src/helpers';

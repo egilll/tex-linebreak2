@@ -11,7 +11,7 @@ import { TexLinebreak } from 'src/helpers/index';
 //     // },
 //     // preset: 'monospace',
 //     // hyphenate: false,
-//   }).getPlainText(),
+//   }).plainText,
 // );
 
 console.log(
@@ -32,5 +32,5 @@ const text =
   'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
 const output = new TexLinebreak(text, {
   lineWidth: 45,
-}).getPlainText();
+}).plainText;
 console.log(output);

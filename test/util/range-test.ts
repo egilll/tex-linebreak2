@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 
-import { textNodesInRange } from 'src/util/range';
+import { textNodesInRange } from 'src/helpers/deprecated/textNodesInRange';
 
 function acceptAllNodes() {
   return true;

@@ -2,10 +2,14 @@ import { Line } from 'src/helpers';
 import { tagNode } from 'src/html/tagNode';
 
 /**
- * Draw boxes on screen to see any possible mismatches in size calculations
+ * Draw boxes
+ *
+ * At the end of a paragraph (in a browser context).
+ *
+ * On screen to see any possible mismatches in size calculations
  */
-export const debugHtmlLines = (lines: Line[], appendToElement: HTMLElement) => {
-  /* Remove previous */
+export const visualizeBoxesForDebugging = (lines: Line[], appendToElement: HTMLElement) => {
+  /* Remove previous debugging boxes */
   document.querySelectorAll('.debug-line').forEach((el) => el.remove());
   const box1 = tagNode(document.createElement('div'));
   box1.classList.add('debug-line');
@@ -25,8 +29,7 @@ export const debugHtmlLines = (lines: Line[], appendToElement: HTMLElement) => {
       box.style.width = item.width + 'px';
       box.style.background = '#7272ed80';
       box.style.font = '9px sans-serif';
-      // @ts-ignore
-      box.innerHTML = item.text || '?';
+      box.innerHTML = 'text' in item ? item.text : '?';
       box1.appendChild(box);
     });
   });

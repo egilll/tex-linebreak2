@@ -100,11 +100,11 @@ export const defaultLineBreakingOptions: LineBreakingOptions = {
  * Break a paragraph of text into justified lines.
  *
  * Returns the indexes from `items` which have been chosen as breakpoints.
- * `positionBoxes` can be used to generate the X offsets and line numbers
- * of each box using the resulting breakpoints.
+ * `positionBoxes` can be used to generate the X offsets and line numbers of each box
+ * using the resulting breakpoints.
  *
- * May throw an `Error` if valid breakpoints cannot be found given the
- * specified adjustment ratio thresholds.
+ * May throw an `Error` if valid breakpoints cannot be found given the specified
+ * adjustment ratio thresholds.
  *
  * The implementation uses the "TeX algorithm" from [1].
  *
@@ -113,7 +113,8 @@ export const defaultLineBreakingOptions: LineBreakingOptions = {
  *
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param lineWidths - Length or lengths of each line.
- * @param _options
+ * @param _options - The following options are used by this function: `maxAdjustmentRatio`,
+ *       `initialMaxAdjustmentRatio`, `doubleHyphenPenalty`, and `adjacentLooseTightPenalty`
  */
 export function breakLines(
   items: Item[],
@@ -126,7 +127,8 @@ export function breakLines(
   const lastItem = items[items.length - 1];
   if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
     throw new Error(
-      `The last item in breakLines must be a penalty of cost MIN_COST, otherwise the last line will not be broken.`,
+      'The last item in breakLines must be a penalty of cost MIN_COST, otherwise the last line will not be broken. ' +
+        '`splitTextIntoItems` will automatically add this with the `addParagraphEnd` option.',
     );
   }
 
@@ -232,12 +234,12 @@ export function breakLines(
        *
        * 1. The word OVERLAPS with the next one
        * 2. The line is split in an extremely silly manner, such as \
-       * "bla bla bla \
-       * bla https://example.com/bla- \
-       * bla" \
-       * instead of: \
-       * "bla bla bla bla \
-       * https://example.com/bla-bla" \
+       *    "bla bla bla \
+       *    bla https://example.com/bla- \
+       *    bla" \
+       *    instead of: \
+       *    "bla bla bla bla \
+       *    https://example.com/bla-bla" \
        */
       if (lineStretch === 0) {
         lineStretch = 1;
@@ -414,7 +416,7 @@ export function breakLines(
    *
    * 1. We add a node to the active set before entering the loop.
    * 2. Each iteration of the loop either returns from the function, leaves the active
-   * set unchanged and breaks early or finishes with a non-empty active set.
+   *    set unchanged and breaks early or finishes with a non-empty active set.
    */
   let bestNode: LineBreakingNode | null = null;
   active.forEach((a) => {

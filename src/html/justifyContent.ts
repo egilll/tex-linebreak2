@@ -1,32 +1,30 @@
-import DOMTextMeasurer from 'src/util/domTextMeasurer';
+import DOMTextMeasurer from 'src/html/domTextMeasurer';
 import { getFloatingElements } from 'src/html/htmlHelpers';
 import { TexLinebreak } from 'src/helpers';
 import { TexLinebreakOptions } from 'src/helpers/options';
 import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getTaggedChildren, tagNode } from 'src/html/tagNode';
-import { debugHtmlLines } from 'src/util/debugHtmlLines';
+import { visualizeBoxesForDebugging } from 'src/html/debugging';
 import { getElementLineWidth } from 'src/html/lineWidth';
 
 /**
  * Justify an existing paragraph.
  *
- * Justify the contents of `elements`, using `hyphenateFn` to apply
- * hyphenation if necessary.
+ * Justify the contents of `elements`, using `hyphenateFn` to apply hyphenation if necessary.
  *
- * To justify multiple paragraphs, it is more efficient to call
- * `justifyContent` once with all the elements to be processed, than
- * to call `justifyContent` separately for each element. Passing a
- * list allows `justifyContent` to optimize DOM manipulations.
+ * To justify multiple paragraphs, it is more efficient to call `justifyContent` once with
+ * all the elements to be processed, than to call `justifyContent` separately for each
+ * element. Passing a list allows `justifyContent` to optimize DOM manipulations.
  */
 export function justifyContent(
-  elements: HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
+  elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
   /** For backwards compatibility, this parameter also accepts a `hyphenateFn`. */
   _options: TexLinebreakOptions | ((word: string) => string[]) = {},
   debug = false,
 ) {
   /**
-   * Done for backwards compatibility:
-   * Previous versions accepted a `hyphenateFn` as the second parameter.
+   * Done for backwards compatibility: Previous versions
+   * accepted a `hyphenateFn` as the second parameter.
    */
   if (typeof _options === 'function') {
     _options = { hyphenateFn: _options };
@@ -36,6 +34,8 @@ export function justifyContent(
 
   if (!elements) {
     return console.error("justifyContent didn't receive any items");
+  } else if (typeof elements === 'string') {
+    elements = document.querySelectorAll(elements);
   } else if (elements instanceof NodeList) {
     elements = Array.from(elements);
   } else if (!Array.isArray(elements)) {
@@ -65,8 +65,8 @@ export function justifyContent(
 
       /**
        * Since `Range`s are fragile and will easily go out of sync when we make
-       * changes to the DOM, we go through the lines in a reverse order. We
-       * also only alter one item at a time instead of wrapping the entire line.
+       * changes to the DOM, we go through the lines in a reverse order. We also
+       * only alter one item at a time instead of wrapping the entire line.
        */
       lines
         .slice()
@@ -76,13 +76,15 @@ export function justifyContent(
             .filter((item) => item.type === 'glue')
             .map(getRangeOfItem);
           const firstBoxRange = getRangeOfItem(line.itemsFiltered[0]);
-          const finalBoxRange = getRangeOfItem(line.itemsFiltered.at(-1));
+          const finalBoxRange = getRangeOfItem(line.itemsFiltered.at(-1)!);
 
           if (!line.endsWithInfiniteGlue) {
             glueRanges.forEach((glueRange) => {
               const span = tagNode(document.createElement('span'));
-              // span.style.width = `${line.glueWidth}px`;
-              // span.style.display = 'inline-block';
+              /**
+               * A glue cannot be `inline-block` since that messes with the
+               * formatting of links (each word gets its own underline)
+               */
               span.style.wordSpacing = `${line.extraSpacePerGlue}px`;
               glueRange.surroundContents(span);
             });
@@ -93,10 +95,7 @@ export function justifyContent(
             firstBoxRange.insertNode(tagNode(document.createElement('br')));
           }
 
-          /**
-           * Hanging punctuation is added by inserting
-           * an empty span with a negative margin
-           */
+          /** Hanging punctuation is added by inserting an empty span with a negative margin */
           if (line.leftHangingPunctuationWidth) {
             const span = tagNode(document.createElement('span'));
             span.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
@@ -111,7 +110,7 @@ export function justifyContent(
           }
         });
 
-      if (debug) debugHtmlLines(lines, element);
+      if (debug) visualizeBoxesForDebugging(lines, element);
     } catch (e) {
       /**
        * In the case of an error, we undo any changes we may have
@@ -124,7 +123,7 @@ export function justifyContent(
   });
 }
 
-/** Reverse the changes made to an element by `justifyContent`. */
+/** Reverse the changes made to an element by {@link justifyContent}. */
 export function unjustifyContent(el: HTMLElement) {
   // Find and remove all elements inserted by `justifyContent`.
   const tagged = getTaggedChildren(el);

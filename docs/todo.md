@@ -5,5 +5,5 @@
 - break only visible paragraphs
 - demo should respect newlines
 - hypher very slow since it needs to initialize tries
-- adjacent glues
 - inline block elements do not have stretchy glue
+- optimal width ætti að prófa nokkrar stærðir
