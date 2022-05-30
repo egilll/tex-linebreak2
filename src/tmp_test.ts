@@ -1,5 +1,5 @@
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
-import { TexLinebreak } from 'src/helpers/index';
+import { TexLinebreak } from 'src/helpers';
 
 // console.log(
 //   new TexLinebreak({

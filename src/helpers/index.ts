@@ -5,9 +5,9 @@ import { breakLines, Item, MAX_COST, getLineWidth } from 'src/breakLines';
 import { breakLinesGreedy } from 'src/helpers/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 
-export type AnyItem = TextItem | DOMItem | Item;
-
-export class TexLinebreak<InputItemType extends AnyItem = AnyItem> {
+export class TexLinebreak<
+  InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item,
+> {
   items: InputItemType[];
   constructor(input: string | InputItemType[], public options: TexLinebreakOptions) {
     this.options = getOptionsWithDefaults(options);
@@ -41,7 +41,7 @@ export class TexLinebreak<InputItemType extends AnyItem = AnyItem> {
   }
 }
 
-export class Line<InputItemType extends AnyItem = AnyItem> {
+export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item> {
   items: InputItemType[];
   itemsFiltered: InputItemType[];
   constructor(
@@ -53,10 +53,10 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
     this.items = parentClass.items.slice(this.startBreakpoint, this.endBreakpoint);
 
     /**
-     * Filter glues and penalties that do not matter for the purposes of rendering this line.
-     *
-     * This goes through three steps for a reason, otherwise we haven't filtered out
-     * [Penalty, Glue, Box] into [Box].
+     * Filter glues and penalties that do not matter for the
+     * purposes of rendering this line.
+     * This goes through three steps for a reason, otherwise we
+     * haven't filtered out [Penalty, Glue, Box] into [Box].
      */
     this.itemsFiltered = this.items
       // Ignore penalty that's not at the end of the line
@@ -177,3 +177,7 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
     );
   }
 }
+
+export const texLinebreak = (...args: ConstructorParameters<typeof TexLinebreak>): TexLinebreak => {
+  return new TexLinebreak(...args);
+};

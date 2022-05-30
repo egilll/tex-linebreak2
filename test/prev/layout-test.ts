@@ -4,7 +4,7 @@ import { breakLines, Item, Penalty } from 'src/breakLines';
 
 import { box, glue, penalty, forcedBreak, TextItem, TextGlue, TextBox } from 'src/helpers/util';
 
-import fixture from './fixtures/layout';
+import fixture from 'test/prev/fixtures/layout';
 import { positionItems, adjustmentRatios } from 'src/helpers/deprecated/positionItems';
 import { layoutItemsFromString } from 'src';
 import { chunk, lineStrings } from 'src/helpers/deprecated/deprecatedTestUtils';
