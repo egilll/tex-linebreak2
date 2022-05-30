@@ -30,7 +30,7 @@ export function justifyContent(
     _options = { hyphenateFn: _options };
   }
 
-  const options: TexLinebreakOptions = { ..._options, isHTML: true };
+  const options: TexLinebreakOptions = { ..._options, collapseNewlines: true };
 
   if (!elements) {
     return console.error("justifyContent didn't receive any items");
@@ -58,7 +58,7 @@ export function justifyContent(
       const lines = new TexLinebreak<DOMItem>(items, {
         ...options,
         lineWidth,
-        isHTML: true,
+        collapseNewlines: true,
       }).lines;
 
       // console.log(items);

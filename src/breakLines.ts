@@ -1,5 +1,6 @@
 import { penalty, isForcedBreak } from 'src/helpers/util';
 import { LineWidth } from 'src/html/lineWidth';
+import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/helpers/options';
 
 /** An object (eg. a word) to be typeset. */
 export interface Box {
@@ -65,37 +66,6 @@ export const MIN_ADJUSTMENT_RATIO = -1;
 /** Error thrown by `breakLines` when `maxAdjustmentRatio` is exceeded. */
 export class MaxAdjustmentExceededError extends Error {}
 
-/** Parameters for the layout process. A part of {@link TexLinebreakOptions}. */
-export interface LineBreakingOptions {
-  /**
-   * A factor indicating the maximum amount by which items in a line can be spaced
-   * out by expanding `Glue` items.
-   *
-   * The maximum size which a `Glue` on a line can expand to is `glue.width +
-   * (maxAdjustmentRatio * glue.stretch)`.
-   *
-   * If the paragraph cannot be laid out without exceeding this threshold then a
-   * `MaxAdjustmentExceededError` error is thrown. The caller can use this to apply
-   * hyphenation and try again. If `null`, lines are stretched as far as necessary.
-   */
-  maxAdjustmentRatio: number | null;
-
-  /** The maximum adjustment ratio used for the initial line breaking attempt. */
-  initialMaxAdjustmentRatio: number;
-
-  /** Penalty for consecutive hyphenated lines. */
-  doubleHyphenPenalty: number;
-
-  /** Penalty for significant differences in the tightness of adjacent lines. */
-  adjacentLooseTightPenalty: number;
-}
-export const defaultLineBreakingOptions: LineBreakingOptions = {
-  maxAdjustmentRatio: null,
-  initialMaxAdjustmentRatio: 1,
-  doubleHyphenPenalty: 0,
-  adjacentLooseTightPenalty: 0,
-};
-
 /**
  * Break a paragraph of text into justified lines.
  *
@@ -112,14 +82,14 @@ export const defaultLineBreakingOptions: LineBreakingOptions = {
  * Softw. Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
  *
  * @param items - Sequence of box, glue and penalty items to layout.
- * @param lineWidths - Length or lengths of each line.
+ * @param lineWidth - Length or lengths of each line.
  * @param _options - The following options are used by this function: `maxAdjustmentRatio`,
  *       `initialMaxAdjustmentRatio`, `doubleHyphenPenalty`, and `adjacentLooseTightPenalty`
  */
 export function breakLines(
   items: Item[],
-  lineWidths: LineWidth,
-  _options: Partial<LineBreakingOptions> = {},
+  lineWidth: LineWidth,
+  _options: TexLinebreakOptions = {},
 ): number[] {
   if (items.length === 0) return [];
 
@@ -127,12 +97,12 @@ export function breakLines(
   const lastItem = items[items.length - 1];
   if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
     throw new Error(
-      'The last item in breakLines must be a penalty of cost MIN_COST, otherwise the last line will not be broken. ' +
+      'The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. ' +
         '`splitTextIntoItems` will automatically add this with the `addParagraphEnd` option.',
     );
   }
 
-  const options: LineBreakingOptions = { ...defaultLineBreakingOptions, ..._options };
+  const options = getOptionsWithDefaults(_options);
 
   const currentMaxAdjustmentRatio = Math.min(
     options.initialMaxAdjustmentRatio,
@@ -222,7 +192,7 @@ export function breakLines(
     active.forEach((a) => {
       const lineShrink = sumShrink - a.totalShrink;
       let lineStretch = sumStretch - a.totalStretch;
-      const idealLen = getLineWidth(lineWidths, a.line);
+      const idealLen = getLineWidth(lineWidth, a.line);
       let actualLen = sumWidth - a.totalWidth;
 
       /**
@@ -378,7 +348,7 @@ export function breakLines(
          * Too much stretching was required for an earlier ignored breakpoint.
          * Try again with a higher threshold.
          */
-        return breakLines(items, lineWidths, {
+        return breakLines(items, lineWidth, {
           ..._options,
           initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
         });

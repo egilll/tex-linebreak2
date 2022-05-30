@@ -139,7 +139,7 @@ export class GetItemsFromDOM {
         ...this.options,
         measureFn: (word) => this.domTextMeasureFn(word, element),
         addParagraphEnd,
-        isHTML: true,
+        collapseNewlines: true,
       },
       precedingText,
       followingText,

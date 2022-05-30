@@ -22,89 +22,124 @@ export type TexLinebreakOptions = Partial<{
   /** @default `justify` */
   alignment: 'justify' | 'left' /*| 'right' | 'center'*/;
 
+  /** Ratio compared to a normal space */
+  renderLineAsLeftAlignedIfSpaceIsLargerThan: number;
+
+  /** If alignment is `left`, we can still allow the glue to stretch a bit. */
+  leftAlignmentStretchinessFactor: number;
+
   /**
    * Function that calculates the width of a given string.
-   * For DOM elements, this can be done with {@link DOMTextMeasurer} which draws the text
-   * to a canvas. This function called for every item, you may wish to cache your output.
+   * For DOM elements, this can be done with {@link DOMTextMeasurer} which draws the text to
+   * a canvas. This function called for every item, so you may wish to cache your output.
    */
   measureFn: (word: string) => number;
+
   /**
    * Function that calculates legal hyphenation points in a word and
    * returns an array of pieces that can be joined with hyphens.
    */
   hyphenateFn: (word: string) => string[];
 
-  /**
-   * A value between 0 <= n <= MAX_COST (which is 1,000).
-   * Default is 10.
-   * A value over 40 will only break on long words.
-   * A value of MAX_COST will never break, but a value of
-   * MAX_COST - 1 will still break on long words.
-   */
-  softHyphenationPenalty: number;
-
   /** @default true */
   hangingPunctuation: boolean;
 
-  /** Only applicable to lineBreakingType 'findOptimalWidth' */
+  /**
+   * If the lineBreakingType option is set to `findOptimalWidth` or
+   * `compact`, this value may be used to set a lower limit for the width.
+   */
   minWidth: number;
 
-  keepNewlines: boolean;
-  keepNewlinesAfter: RegExp;
-  dontBreakOnSpacesMatching: (
-    textBeforeSpace: string | undefined,
-    textAfterSpace: string | undefined,
-  ) => boolean;
+  /**
+   * HTML content collapses all whitespace and displays it as a single space.
+   *
+   * @default true
+   */
+  collapseNewlines: boolean;
 
-  /** HTML content does not mind newlines */
-  isHTML: boolean;
+  keepNewlinesAfter: (string | RegExp) | (string | RegExp)[];
+  prohibitBreakingOn: (string | RegExp) | (string | RegExp)[];
 
-  /** Ratio compared to a normal space */
-  renderLineAsLeftAlignedIfSpaceIsLargerThan: number;
-
+  /** @default true */
+  addInfiniteGlueToTheEndOfTheLine: boolean;
   addParagraphEnd: boolean;
 
   overflow: 'break' | 'truncate' | 'ellipsis';
 
   /**
-   * A factor indicating the maximum amount by which items in a line can be spaced
-   * out by expanding `Glue` items.
+   * A factor indicating the maximum amount by which items in a
+   * line can be spaced out by expanding `Glue` items.
    *
-   * The maximum size which a `Glue` on a line can expand to is `glue.width +
-   * (maxAdjustmentRatio * glue.stretch)`.
+   * The maximum size which a `Glue` on a line can expand to is
+   * `glue.width + (maxAdjustmentRatio * glue.stretch)`.
    *
-   * If the paragraph cannot be laid out without exceeding this threshold then a
-   * `MaxAdjustmentExceededError` error is thrown. The caller can use this to apply
-   * hyphenation and try again. If `null`, lines are stretched as far as necessary.
+   * If the paragraph cannot be laid out without exceeding this
+   * threshold then a `MaxAdjustmentExceededError` error is thrown.
+   * The caller can use this to apply hyphenation and try again. If
+   * `null`, lines are stretched as far as necessary.
+   *
+   * @default null
    */
   maxAdjustmentRatio: number | null;
 
-  /** The maximum adjustment ratio used for the initial line breaking attempt. */
+  /**
+   * The maximum adjustment ratio used for the initial line breaking attempt.
+   *
+   * @default 0
+   */
   initialMaxAdjustmentRatio: number;
 
-  /** Penalty for consecutive hyphenated lines. */
+  /**
+   * Penalty for consecutive hyphenated lines.
+   * A value between 0 <= n <= MAX_COST.
+   *
+   * @default 0
+   */
   doubleHyphenPenalty: number;
 
-  /** Penalty for significant differences in the tightness of adjacent lines. */
+  /**
+   * Penalty for breaking on soft hyphens.
+   *
+   * A value between 0 <= n <= MAX_COST (which is 1,000).
+   * A value over 40 will only break on long words.
+   * A value of MAX_COST - 1 will break on long words.
+   *
+   * @default 10
+   */
+  softHyphenationPenalty: number;
+
+  /**
+   * Penalty for significant differences in the tightness of adjacent lines.
+   *
+   * @default 0
+   */
   adjacentLooseTightPenalty: number;
 }>;
 
-const defaultOptions: Partial<TexLinebreakOptions> = {
+const defaultOptions: TexLinebreakOptions = {
   lineBreakingType: 'normal',
-  keepNewlines: false,
   keepNewlinesAfter: /[.:?!\\]$/,
   alignment: 'justify',
   hangingPunctuation: true,
+  addInfiniteGlueToTheEndOfTheLine: true,
   addParagraphEnd: true,
+  collapseNewlines: true,
   /** If no callback is provided, default to a monospace */
   measureFn: (word: string) => word.length,
   maxAdjustmentRatio: null,
   initialMaxAdjustmentRatio: 1,
   doubleHyphenPenalty: 0,
   adjacentLooseTightPenalty: 0,
+} as const;
+
+export const getOptionsWithDefaults = (
+  options: TexLinebreakOptions = {},
+): RequireCertainKeys<TexLinebreakOptions, keyof typeof defaultOptions> => {
+  // todo: validation
+  return {
+    ...(defaultOptions as RequireCertainKeys<TexLinebreakOptions, keyof typeof defaultOptions>),
+    ...options,
+  };
 };
 
-export const getOptionsWithDefaults = (options: TexLinebreakOptions): TexLinebreakOptions => {
-  // todo: validation
-  return { ...defaultOptions, ...options };
-};
+type RequireCertainKeys<T, TRequired extends keyof T> = T & Required<Pick<T, TRequired>>;

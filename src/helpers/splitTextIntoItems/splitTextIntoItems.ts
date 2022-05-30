@@ -13,8 +13,7 @@ export const NON_BREAKING_SPACE = '\u00A0';
 export const SOFT_HYPHEN = '\u00AD';
 
 /**
- * Characters that can stretch as glue, no matter
- * whether they are actually breakpoints or not.
+ * Characters that can stretch as glue, no matter whether they are actually breakpoints or not.
  * `General_Category=Zs` are space separators
  */
 const glueCharacterRegex = new RegExp(`[ \\t\\p{General_Category=Zs}${NON_BREAKING_SPACE}]`, 'u');
@@ -35,10 +34,7 @@ export type BreakpointInformation = {
 export const splitTextIntoItems = (
   input: string,
   options: TexLinebreakOptions,
-  /**
-   * When splitting text inside HTML elements,
-   * the text that surrounds it matters
-   */
+  /** When splitting text inside HTML elements, the text that surrounds it matters */
   precedingText: string = '',
   followingText: string = '',
 ): TextItem[] => {
@@ -53,15 +49,14 @@ export const splitTextIntoItems = (
     getBreakpoints(inputWithSurroundingText);
 
   /**
-   * We start by splitting the input into segments of either boxes (text) or
-   * glue (stretchable spaces) which each may or may not end in a breakpoint.
+   * We start by splitting the input into segments of either boxes (text) or glue
+   * (stretchable spaces) which each may or may not end in a breakpoint.
    *
    * We go over each character in the input one by one.
    *
-   * The reason for this is that the input may contain many spaces such as
-   * non-breaking spaces and spaces before slashes, which are not breakpoints
-   * but which have to stretch as glue. Pre-processing these segments in this
-   * manner makes the next step more manageable.
+   * The reason for this is that the input may contain many spaces such as non-breaking
+   * spaces and spaces before slashes, which are not breakpoints but which have to stretch as
+   * glue. Pre-processing these segments in this manner makes the next step more manageable.
    */
   let segments: Segment[] = [];
   for (let charIndex = 0; charIndex < input.length; charIndex++) {
@@ -70,7 +65,8 @@ export const splitTextIntoItems = (
     const breakpoint: BreakpointInformation | undefined =
       breakpoints[indexInInputWithSurroundingText + 1];
     /** Newline characters are just glue in HTML */
-    const isGlue = glueCharacterRegex.test(char) || (options.isHTML && breakpoint?.required);
+    const isGlue =
+      glueCharacterRegex.test(char) || (options.collapseNewlines && breakpoint?.required);
     let type: Segment['type'] = isGlue ? 'glue' : 'box';
 
     if (
@@ -85,9 +81,8 @@ export const splitTextIntoItems = (
 
     if (breakpoint) {
       /**
-       * The breakpoint library we're using will always mark
-       * the end of a string as a breakpoint. Here we check
-       * if it is actually something we need to break after.
+       * The breakpoint library we're using will always mark the end of a string as a
+       * breakpoint. Here we check if it is actually something we need to break after.
        */
       if (
         charIndex === input.length - 1 &&
@@ -101,7 +96,7 @@ export const splitTextIntoItems = (
        * Treat newline as just a space character in HTML.
        * Todo: Should perhaps be done elsewhere
        */
-      if (options.isHTML && breakpoint.required) {
+      if (options.collapseNewlines && breakpoint.required) {
         breakpoint.required = false;
         breakpoint.lastLetterClass = UnicodeLineBreakingClasses.Space;
       }
@@ -113,10 +108,7 @@ export const splitTextIntoItems = (
   segments.forEach((segment, index) => {
     if (segment.type === 'glue') {
       items.push(textGlue(segment.text, options));
-      /**
-       * Non-breaking spaces and normal spaces that
-       * cannot be broken, e.g. spaces before slashes.
-       */
+      /** Non-breaking spaces and normal spaces that cannot be broken, e.g. spaces before slashes. */
       if (!segment.breakpoint) {
         items.push(penalty(0, MAX_COST));
       }
@@ -140,10 +132,7 @@ export const splitTextIntoItems = (
         items.push(glue(0, 0, MAX_COST, ''));
       }
 
-      /**
-       * Ignore zero-cost penalty after glue, since
-       * glues already have a zero-cost penalty
-       */
+      /** Ignore zero-cost penalty after glue, since glues already have a zero-cost penalty */
       if (items.at(-1)!.type === 'glue' && cost === 0 && cost != null) {
         return;
       }
