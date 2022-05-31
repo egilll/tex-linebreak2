@@ -132,20 +132,19 @@ export const forciblySplitLongWords = (
   let output: TextItem[] = [];
   const minLineWidth = getMinLineWidth(options.lineWidth);
   items.forEach((item) => {
-    if (item.type === 'box' && item.width > minLineWidth) {
+    if (item.type === 'box' /*&& item.width > minLineWidth*/) {
       for (let i = 0; i < item.text.length; i++) {
         const char = item.text[i];
         output.push(textBox(char, options));
-
         // Separators
         if (/\p{General_Category=Z}/u.test(char)) {
-          output.push(penalty(0, 20));
+          output.push(penalty(0, 0));
         }
         // Punctuation
         else if (/\p{General_Category=P}/u.test(char)) {
           output.push(penalty(0, 0));
         } else {
-          // output.push(penalty(0, MAX_COST - 1));
+          output.push(penalty(0, 999));
         }
       }
     } else {
