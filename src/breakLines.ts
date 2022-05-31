@@ -7,6 +7,10 @@ export interface Box {
   type: 'box';
   /** Amount of space required by this content. Must be >= 0. */
   width: number;
+
+  /** Values for hanging punctuation. */
+  rightHangingPunctuationWidth?: number;
+  leftHangingPunctuationWidth?: number;
 }
 
 /**

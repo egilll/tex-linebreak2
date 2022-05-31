@@ -7,10 +7,6 @@ import { LineWidth } from 'src/html/lineWidth';
 /** Useful when working with raw strings instead of DOM nodes. */
 export interface TextBox extends Box {
   text: string;
-
-  /** Values for hanging punctuation. */
-  rightHangingPunctuationWidth?: number;
-  leftHangingPunctuationWidth?: number;
 }
 
 export interface TextGlue extends Glue {
@@ -133,17 +129,29 @@ export const forciblySplitLongWords = (
   const minLineWidth = getMinLineWidth(options.lineWidth);
   items.forEach((item) => {
     if (item.type === 'box' && item.width > minLineWidth) {
+      let penaltiesAfterEachCharacter = [];
       for (let i = 0; i < item.text.length; i++) {
         const char = item.text[i];
         output.push(textBox(char, options));
 
         // Separators
         if (/\p{General_Category=Z}/u.test(char)) {
-          output.push(penalty(0, 20));
+          penaltiesAfterEachCharacter[i] = 500;
+          output.push(penalty(0, 500));
+        }
+        // Opening brackets
+        else if (/\p{General_Category=Ps}/u.test(char) && i > 0) {
+          penaltiesAfterEachCharacter[i - 1] = 800;
+        }
+        // Closing brackets
+        else if (/\p{General_Category=Pe}/u.test(char)) {
+          penaltiesAfterEachCharacter[i] = 800;
+
+          output.push(penalty(0, 800));
         }
         // Punctuation
         else if (/\p{General_Category=P}/u.test(char)) {
-          output.push(penalty(0, 0));
+          output.push(penalty(0, 800));
         } else {
           // output.push(penalty(0, MAX_COST - 1));
         }
