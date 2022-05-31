@@ -1,4 +1,4 @@
-import { penalty, isForcedBreak } from 'src/helpers/util';
+import { penalty, isForcedBreak, getLineWidth } from 'src/helpers/util';
 import { LineWidth } from 'src/html/lineWidth';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/helpers/options';
 
@@ -410,21 +410,3 @@ export function breakLines(
 
   return output;
 }
-
-export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number => {
-  if (Array.isArray(lineWidths)) {
-    if (lineIndex < lineWidths.length) {
-      return lineWidths[lineIndex];
-    } else {
-      /**
-       * If out of bounds, return the last width of the last line.
-       * This is done since the first line may have indentation.
-       */
-      return lineWidths.at(-1)!;
-    }
-  } else if (typeof lineWidths === 'number') {
-    return lineWidths;
-  } else {
-    return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
-  }
-};

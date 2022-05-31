@@ -25,3 +25,4 @@ export { layoutItemsFromString } from 'src/helpers/deprecated/layoutItemsFromStr
 export { getElementLineWidth } from 'src/html/lineWidth';
 export { LineWidthObject } from 'src/html/lineWidth';
 export { LineWidth } from 'src/html/lineWidth';
+export { getLineWidth } from 'src/helpers';

@@ -3,7 +3,8 @@ import {
   BreakpointInformation,
 } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
 import { UnicodeLineBreakingClasses } from 'src/typings/unicodeLineBreakingClasses';
-import { MIN_COST } from 'src/breakLines';
+import { MIN_COST, MAX_COST } from 'src/breakLines';
+import { TexLinebreakOptions } from 'src/helpers/options';
 
 export enum PenaltyClasses {
   MandatoryBreak = MIN_COST,
@@ -17,7 +18,7 @@ export enum PenaltyClasses {
 
 export const getBreakpointPenalty = (
   breakpoint: BreakpointInformation,
-  // options: HelperOptions,
+  options: TexLinebreakOptions,
 ): number => {
   const { lastLetter, lastLetterClass, nextLetterClass } = breakpoint;
 
@@ -37,6 +38,8 @@ export const getBreakpointPenalty = (
     lastLetterClass === UnicodeLineBreakingClasses.ZeroWidthSpace
   ) {
     return PenaltyClasses.Space;
+  } else if (options.onlyBreakOnWhitespace) {
+    return MAX_COST;
   }
 
   // Em dash
@@ -70,7 +73,10 @@ export const getBreakpointPenalty = (
 
   // Break-before class (rare)
   else if (nextLetterClass === UnicodeLineBreakingClasses.BreakBefore) {
-    /** TODO: Incomplete: Certain symbols in this class cause a preceding soft hyphen */
+    /**
+     * TODO: Incomplete: Certain symbols in
+     * this class cause a preceding soft hyphen
+     */
     return PenaltyClasses.OKBreak;
   }
 
@@ -78,10 +84,10 @@ export const getBreakpointPenalty = (
   else if (lastLetterClass === UnicodeLineBreakingClasses.SymbolAllowingBreakAfter) {
     /**
      * Todo:
-     * "The recommendation in this case is for the layout system not to
-     * utilize a line break opportunity allowed by SY unless the distance
-     * between it and the next line break opportunity exceeds an
-     * implementation-defined minimal distance."
+     * "The recommendation in this case is for the layout system
+     * not to utilize a line break opportunity allowed by SY unless
+     * the distance between it and the next line break opportunity
+     * exceeds an implementation-defined minimal distance."
      */
     return PenaltyClasses.VeryBadBreak;
   }

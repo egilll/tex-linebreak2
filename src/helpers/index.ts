@@ -4,8 +4,8 @@ import {
   RequireCertainKeys,
 } from 'src/helpers/options';
 import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
-import { TextItem, isSoftHyphen, TextBox } from 'src/helpers/util';
-import { breakLines, Item, MAX_COST, getLineWidth } from 'src/breakLines';
+import { TextItem, isSoftHyphen, TextBox, getLineWidth } from 'src/helpers/util';
+import { breakLines, Item, MAX_COST } from 'src/breakLines';
 import { breakLinesGreedy } from 'src/helpers/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 
@@ -188,3 +188,4 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
 export const texLinebreak = (...args: ConstructorParameters<typeof TexLinebreak>): TexLinebreak => {
   return new TexLinebreak(...args);
 };
+export { getLineWidth } from 'src/helpers/util';

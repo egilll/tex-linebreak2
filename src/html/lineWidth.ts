@@ -1,4 +1,4 @@
-import { getLineWidth } from 'src/breakLines';
+import { getLineWidth } from 'src/helpers';
 
 export type LineWidth = number | number[] | LineWidthObject;
 export type LineWidthObject = {

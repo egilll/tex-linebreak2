@@ -1,5 +1,4 @@
-import { splitTextIntoItems } from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
-import { TexLinebreak } from 'src/helpers';
+import { texLinebreakMonospace } from 'src/helpers/monospace';
 
 // console.log(
 //   new TexLinebreak({
@@ -14,23 +13,29 @@ import { TexLinebreak } from 'src/helpers';
 //   }).plainText,
 // );
 
-console.log(
-  splitTextIntoItems(
-    'export j',
-    {
-      addParagraphEnd: false,
-      measureFn: (text: string) => {
-        return text.length;
-      },
-    },
-    '',
-    '',
-  ),
-);
+// console.log(
+//   splitTextIntoItems(
+//     'export j',
+//     {
+//       addParagraphEnd: false,
+//       measureFn: (text: string) => {
+//         return text.length;
+//       },
+//     },
+//     '',
+//     '',
+//   ),
+// );
+//
+// const text =
+//   'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
+// const output = new TexLinebreak(text, {
+//   lineWidth: 45,
+// }).plainText;
 
-const text =
-  'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
-const output = new TexLinebreak(text, {
-  lineWidth: 45,
-}).plainText;
+const output = texLinebreakMonospace('A very_very_very_very_very_long_string here.', {
+  forceOverflowToBreak: true,
+  lineWidth: 20,
+}).plainTextLines;
+
 console.log(output);

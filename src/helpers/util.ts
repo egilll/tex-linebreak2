@@ -2,6 +2,7 @@ import { Box, Glue, Penalty, MIN_COST, Item, MAX_COST } from 'src/breakLines';
 import { TexLinebreakOptions } from 'src/helpers/options';
 import { PenaltyClasses } from 'src/helpers/splitTextIntoItems/penalty';
 import { DOMItem, DOMGlue } from 'src/html/getItemsFromDOM';
+import { LineWidth } from 'src/html/lineWidth';
 
 /** Useful when working with raw strings instead of DOM nodes. */
 export interface TextBox extends Box {
@@ -58,7 +59,7 @@ export const softHyphen = (options: TexLinebreakOptions) => {
   // return penalty(options.measureFn!('-'), PenaltyClasses.SoftHyphen, true);
 };
 
-/** Todo: Should regular hyphens not be flagged? */
+/** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
 export const isSoftHyphen = (item: Item | undefined): boolean => {
   if (!item) return false;
   return Boolean(item.type === 'penalty' && item.flagged /*&& item.width > 0*/);
@@ -67,20 +68,6 @@ export const isSoftHyphen = (item: Item | undefined): boolean => {
 export function forcedBreak(): Penalty {
   return penalty(0, MIN_COST);
 }
-
-// export function paragraphEnd(): [TextGlue, Penalty] {
-//   return [
-//     /** Glue that can fill the entire line. */
-//     {
-//       type: 'glue',
-//       width: 0,
-//       shrink: 0,
-//       stretch: MAX_COST,
-//       text: '',
-//     },
-//     forcedBreak(),
-//   ];
-// }
 
 /**
  * Retrieves the text from an input item.
@@ -136,4 +123,62 @@ export const collapseAdjacentGlue = <T extends TextItem | DOMItem>(items: T[]): 
     }
   });
   return output;
+};
+
+export const forciblySplitLongWords = (
+  items: TextItem[],
+  options: TexLinebreakOptions,
+): TextItem[] => {
+  let output: TextItem[] = [];
+  const minLineWidth = getMinLineWidth(options.lineWidth);
+  items.forEach((item) => {
+    if (item.type === 'box' && item.width > minLineWidth) {
+      for (let i = 0; i < item.text.length; i++) {
+        const char = item.text[i];
+        output.push(textBox(char, options));
+
+        // Separators
+        if (/\p{General_Category=Z}/u.test(char)) {
+          output.push(penalty(0, 20));
+        }
+        // Punctuation
+        else if (/\p{General_Category=P}/u.test(char)) {
+          output.push(penalty(0, 0));
+        } else {
+          // output.push(penalty(0, MAX_COST - 1));
+        }
+      }
+    } else {
+      output.push(item);
+    }
+  });
+  return output;
+};
+
+export const getMinLineWidth = (lineWidths: LineWidth): number => {
+  if (Array.isArray(lineWidths)) {
+    return Math.min(...lineWidths);
+  } else if (typeof lineWidths === 'number') {
+    return lineWidths;
+  } else {
+    return Math.min(...[...Object.values(lineWidths), lineWidths.defaultLineWidth]);
+  }
+};
+
+export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number => {
+  if (Array.isArray(lineWidths)) {
+    if (lineIndex < lineWidths.length) {
+      return lineWidths[lineIndex];
+    } else {
+      /**
+       * If out of bounds, return the last width of the last line.
+       * This is done since the first line may have indentation.
+       */
+      return lineWidths.at(-1)!;
+    }
+  } else if (typeof lineWidths === 'number') {
+    return lineWidths;
+  } else {
+    return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
+  }
 };

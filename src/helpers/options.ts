@@ -6,7 +6,21 @@ export interface TexLinebreakOptions {
    * the entire paragraph), or, when the line width varies
    * for each line, an array of numbers or an object.
    */
-  lineWidth?: LineWidth;
+  lineWidth: LineWidth;
+
+  /**
+   * Function that calculates the width of a given string.
+   * For DOM elements, this can be done with {@link DOMTextMeasurer}
+   * which draws the text to a canvas. This function called for
+   * every item, so you may wish to cache your output.
+   */
+  measureFn: (word: string) => number;
+
+  /**
+   * Function that calculates legal hyphenation points in a word and
+   * returns an array of pieces that can be joined with hyphens.
+   */
+  hyphenateFn?: (word: string) => string[];
 
   /**
    * - `normal` fills the entire allowed width, with the the last line of each
@@ -29,20 +43,6 @@ export interface TexLinebreakOptions {
 
   /** If alignment is `left`, we can still allow the glue to stretch a bit. */
   leftAlignmentStretchinessFactor?: number;
-
-  /**
-   * Function that calculates the width of a given string.
-   * For DOM elements, this can be done with {@link DOMTextMeasurer}
-   * which draws the text to a canvas. This function called for
-   * every item, so you may wish to cache your output.
-   */
-  measureFn?: (word: string) => number;
-
-  /**
-   * Function that calculates legal hyphenation points in a word and
-   * returns an array of pieces that can be joined with hyphens.
-   */
-  hyphenateFn?: (word: string) => string[];
 
   /** @default true */
   hangingPunctuation?: boolean;
