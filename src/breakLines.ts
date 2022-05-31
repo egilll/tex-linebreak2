@@ -79,15 +79,18 @@ export class MaxAdjustmentExceededError extends Error {}
  *
  * Returns the indexes from `items` which have been chosen as breakpoints.
  *
- * May throw a {@link MaxAdjustmentExceededError} if valid breakpoints
- * cannot be found given the specified adjustment ratio thresholds.
+ * If the user has specified a {@link TexLinebreakOptions#maxAdjustmentRatio},
+ * this function may throw a {@link MaxAdjustmentExceededError} if valid
+ * breakpoints cannot be found.
  *
- * The implementation uses the "TeX algorithm" from [1], with one
- * small deviation which can be turned off, see the comments at
+ * The implementation uses the "TeX algorithm" from:
+ *
+ *     D. E. Knuth and M. F. Plass, “Breaking paragraphs into lines,”
+ *     Softw. Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
+ *     http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf
+ *
+ * There is one small deviation from the original paper, see the comments at
  * {@link TexLinebreakOptions#allowSingleWordLines}.
- *
- * [1] D. E. Knuth and M. F. Plass, “Breaking paragraphs into lines,”
- * Softw. Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
  *
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param lineWidth - Length or lengths of each line.
@@ -98,7 +101,7 @@ export class MaxAdjustmentExceededError extends Error {}
 export function breakLines(
   items: Item[],
   lineWidth: LineWidth,
-  _options: TexLinebreakOptions = {},
+  _options: TexLinebreakOptions,
 ): number[] {
   if (items.length === 0) return [];
 
@@ -119,16 +122,18 @@ export function breakLines(
   );
 
   type LineBreakingNode = {
-    index: number; // Index in `items`.
-    line: number; // Line number.
+    /** Index in `items`. */
+    index: number;
+    /** Line number. */
+    line: number;
     fitness: number;
-    // Sum of `width` up to first box or forced break after this break.
+    /** Sum of `width` up to first box or forced break after this break. */
     totalWidth: number;
-    // Sum of `stretch` up to first box or forced break after this break.
+    /** Sum of `stretch` up to first box or forced break after this break. */
     totalStretch: number;
-    // Sum of `shrink` up to first box or forced break after this break.
+    /** Sum of `shrink` up to first box or forced break after this break. */
     totalShrink: number;
-    // Minimum sum of demerits up this break.
+    /** Minimum sum of demerits up to this break. */
     totalDemerits: number;
     prev: null | LineBreakingNode;
   };
@@ -206,8 +211,9 @@ export function breakLines(
       let actualLen = sumWidth - a.totalWidth;
 
       /**
-       * NOTE: This goes against the original paper, but without it
-       * the output is extremely counter-intuitive. See the comments
+       * NOTE:
+       * This deviates the original paper, but without it the
+       * output is very counter-intuitive. See the comments
        * at {@link TexLinebreakOptions#allowSingleWordLines}.
        */
       if (options.allowSingleWordLines && lineStretch === 0) {
@@ -249,16 +255,21 @@ export function breakLines(
         active.delete(a);
         lastActive = a;
       }
-      if (adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio) {
+      /** TEMP TESTING */
+      if (
+        true /*adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio*/
+      ) {
         /**
          * We found a feasible breakpoint. Compute a
          * `demerits` score for it as per formula on p. 1128.
          */
         let demerits;
-        const badness = 100 * Math.abs(adjustmentRatio) ** 3;
+        const badness = 0.1 * Math.abs(adjustmentRatio) ** 3;
         const penalty = item.type === 'penalty' ? item.cost : 0;
 
         if (penalty >= 0) {
+          // demerits = (1 + badness + penalty) ** 2;
+          // TEMP!
           demerits = (1 + badness + penalty) ** 2;
         } else if (penalty > MIN_COST) {
           demerits = (1 + badness) ** 2 - penalty ** 2;

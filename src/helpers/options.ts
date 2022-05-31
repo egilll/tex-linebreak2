@@ -101,10 +101,10 @@ export interface TexLinebreakOptions {
   addParagraphEnd?: boolean;
 
   /**
-   * Whether to force words that are longer than the allowed
-   * width to break, with the breakpoint being chosen at random
-   * (equivalent to CSS's "word-wrap: break-word").
-   * Turn this off if working with plaintext that a user will copy.
+   * Whether to force words that are longer than the allowed width to
+   * break, with the breakpoint being chosen at random (equivalent to
+   * CSS's "word-wrap: break-word").
+   * Turn this off if working with plaintext that a user will be copying.
    *
    * @default true
    */
@@ -189,9 +189,9 @@ export interface TexLinebreakOptions {
   allowSingleWordLines?: boolean;
 }
 
-const defaultOptions: TexLinebreakOptions = {
+const defaultOptions: Partial<TexLinebreakOptions> = {
   lineBreakingType: 'normal',
-  keepNewlinesAfter: /[.:?!\\]$/,
+  // keepNewlinesAfter: /[.:?!\\]$/,
   alignment: 'justify',
   hangingPunctuation: true,
   addInfiniteGlueToTheEndOfTheLine: true,
@@ -207,7 +207,7 @@ const defaultOptions: TexLinebreakOptions = {
 } as const;
 
 export const getOptionsWithDefaults = (
-  options: TexLinebreakOptions = {},
+  options: Partial<TexLinebreakOptions> = {},
 ): RequireCertainKeys<TexLinebreakOptions, keyof typeof defaultOptions> => {
   // todo: validation
   return {

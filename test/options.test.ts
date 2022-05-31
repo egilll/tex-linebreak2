@@ -8,12 +8,13 @@ it('onlyBreakOnWhitespace', () => {
       lineWidth: 20,
     }).plainTextLines,
   ).toEqual(['Ilex-grandis-arbor-est-patula-quanta', 'Pyrus.']);
+  console.log('haha');
 });
 
 it('forceOverflowToBreak', () => {
   // On by default
   expect(
-    texLinebreakMonospace('A very_very_very_very_very_long_string here.', {
+    texLinebreakMonospace('A very_very_very_very_very_l here.', {
       lineWidth: 20,
     }).plainTextLines,
   ).toEqual(['A', 'very_very_very_very_very_long_string', 'here.']);

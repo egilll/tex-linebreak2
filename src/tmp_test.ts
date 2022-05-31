@@ -33,9 +33,15 @@ import { texLinebreakMonospace } from 'src/helpers/monospace';
 //   lineWidth: 45,
 // }).plainText;
 
-const output = texLinebreakMonospace('A very_very_very_very_very_long_string here.', {
-  forceOverflowToBreak: true,
-  lineWidth: 20,
-}).plainTextLines;
+// const output = texLinebreakMonospace('A very_very_very_very_very_long_string here.', {
+//   forceOverflowToBreak: true,
+//   lineWidth: 20,
+// }).plainTextLines;
+// console.log(output);
 
-console.log(output);
+console.log(
+  texLinebreakMonospace('Test long string.', {
+    forceOverflowToBreak: true,
+    lineWidth: 13,
+  }).plainTextLines,
+);
