@@ -1,6 +1,5 @@
-import { LineWidth } from 'src/html/lineWidth';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
-import { getLineWidth, isForcedBreak, penalty } from 'src/utils';
+import { getLineWidth, isForcedBreak, LineWidth, penalty } from 'src/utils';
 
 /** An object (eg. a word) to be typeset. */
 export interface Box {
@@ -116,7 +115,7 @@ export class MaxAdjustmentExceededError extends Error {}
  *       {@link TexLinebreakOptions#adjacentLooseTightPenalty}
  *       {@link TexLinebreakOptions#allowSingleWordLines}
  * @param currentRecursionDepth - Used internally to keep track of how often this function has called itself
- *       (done when increasing the allowed adjustmend ratio).
+ *       (which it does after increasing the allowed adjustment ratio).
  */
 export function breakLines(
   items: Item[],
@@ -141,7 +140,7 @@ export function breakLines(
         (item, index) =>
           item.type === 'glue' &&
           items[index + 1].type === 'penalty' &&
-          (items[index + 1] as Penalty).cost! > MIN_COST,
+          !isForcedBreak(items[index + 1]),
       )
     ) {
       throw new Error(
@@ -220,7 +219,6 @@ export function breakLines(
     if (item.type === 'box') {
       sumWidth += item.width;
     } else if (item.type === 'glue') {
-      /** TODO: redo */
       canBreak = b > 0 && items[b - 1].type === 'box';
       if (!canBreak) {
         sumWidth += item.width;

@@ -1,4 +1,21 @@
-import { TextItem, itemToString } from 'src/utils';
+import { TextItem } from 'src/utils';
+
+/**
+ * Retrieves the text from an input item.
+ * Text is included in {@link TextItem}s by {@link splitTextIntoItems}.
+ *
+ * @deprecated
+ */
+export function itemToString(item: TextItem) {
+  switch (item.type) {
+    case 'box':
+      return item.text;
+    case 'glue':
+      return ' '; // TODO: check
+    case 'penalty':
+      return item.flagged ? '-' : ''; // TODO: See comment in {@link lineStrings}
+  }
+}
 
 /** @deprecated */
 export function lineStrings(items: TextItem[], breakpoints: number[]): string[] {

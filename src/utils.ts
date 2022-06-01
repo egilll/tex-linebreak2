@@ -1,6 +1,5 @@
 import { Box, Glue, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines/breakLines';
 import { DOMGlue, DOMItem } from 'src/html/getItemsFromDOM';
-import { LineWidth } from 'src/html/lineWidth';
 import { TexLinebreakOptions } from 'src/options';
 import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 
@@ -38,28 +37,30 @@ export function glue(
     return { type: 'glue', width, shrink, stretch };
   }
 }
+
 export function textGlue(text: string, options: TexLinebreakOptions): TextGlue | TextItem[] {
-  const spaceWidth = options.measureFn(' ');
-  const spaceShrink = spaceWidth * options.glueShrinkFactor;
-  const spaceStretch = spaceWidth * options.glueStretchFactor;
-  if (options.justify) {
-    /** Spaces in justified lines */
-    return glue(spaceWidth, spaceShrink, spaceStretch, text);
-  } else {
-    /**
-     * Spaces in ragged lines. See p. 1139.
-     * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=21
-     * (Todo: Ragged line spaces should perhaps be allowed to stretch
-     * a bit, but it should probably still be listed as zero here since
-     * otherwise a line with many spaces is more likely to be a good fit.)
-     */
-    const lineFinalStretch = 3 * spaceWidth;
-    return [
-      glue(0, 0, lineFinalStretch, text),
-      penalty(0, 0),
-      glue(spaceWidth, 0, -lineFinalStretch, text),
-    ];
-  }
+  throw new Error('Not implemented');
+  // const spaceWidth = options.measureFn(' ');
+  // const spaceShrink = spaceWidth * options.glueShrinkFactor;
+  // const spaceStretch = spaceWidth * options.glueStretchFactor;
+  // if (options.justify) {
+  //   /** Spaces in justified lines */
+  //   return glue(spaceWidth, spaceShrink, spaceStretch, text);
+  // } else {
+  //   /**
+  //    * Spaces in ragged lines. See p. 1139.
+  //    * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=21
+  //    * (Todo: Ragged line spaces should perhaps be allowed to stretch
+  //    * a bit, but it should probably still be listed as zero here since
+  //    * otherwise a line with many spaces is more likely to be a good fit.)
+  //    */
+  //   const lineFinalStretch = 3 * spaceWidth;
+  //   return [
+  //     glue(0, 0, lineFinalStretch, text),
+  //     penalty(0, 0),
+  //     glue(spaceWidth, 0, -lineFinalStretch, text),
+  //   ];
+  // }
 }
 
 export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
@@ -87,21 +88,6 @@ export const isSoftHyphen = (item: Item | undefined): boolean => {
 
 export function forcedBreak(): Penalty {
   return penalty(0, MIN_COST);
-}
-
-/**
- * Retrieves the text from an input item.
- * Text is included in {@link TextItem}s by {@link splitTextIntoItems}.
- */
-export function itemToString(item: TextItem) {
-  switch (item.type) {
-    case 'box':
-      return item.text;
-    case 'glue':
-      return ' '; // TODO: check
-    case 'penalty':
-      return item.flagged ? '-' : ''; // TODO: See comment in {@link lineStrings}
-  }
 }
 
 /**
@@ -176,6 +162,31 @@ export const forciblySplitLongWords = (
   return output;
 };
 
+export type LineWidth = number | number[] | LineWidthObject;
+/**
+ * It may be useful to only indicate certain lines as being smaller
+ * than the default, since the content may be arbitrarily long.
+ */
+export type LineWidthObject = {
+  defaultLineWidth: number;
+  [lineIndex: number]: number;
+};
+
+/** Gets line width for a given line number */
+export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number => {
+  if (typeof lineWidths === 'number') {
+    return lineWidths;
+  } else if (Array.isArray(lineWidths)) {
+    if (lineIndex < lineWidths.length) {
+      return lineWidths[lineIndex];
+    } else {
+      /** If out of bounds, return the last width of the last line. */
+      return lineWidths.at(-1)!;
+    }
+  } else {
+    return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
+  }
+};
 export const getMinLineWidth = (lineWidths: LineWidth): number => {
   if (Array.isArray(lineWidths)) {
     return Math.min(...lineWidths);
@@ -183,23 +194,5 @@ export const getMinLineWidth = (lineWidths: LineWidth): number => {
     return lineWidths;
   } else {
     return Math.min(...[...Object.values(lineWidths), lineWidths.defaultLineWidth]);
-  }
-};
-
-export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number => {
-  if (Array.isArray(lineWidths)) {
-    if (lineIndex < lineWidths.length) {
-      return lineWidths[lineIndex];
-    } else {
-      /**
-       * If out of bounds, return the last width of the last line.
-       * This is done since the first line may have indentation.
-       */
-      return lineWidths.at(-1)!;
-    }
-  } else if (typeof lineWidths === 'number') {
-    return lineWidths;
-  } else {
-    return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
   }
 };
