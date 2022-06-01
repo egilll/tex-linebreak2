@@ -1,21 +1,21 @@
-import { MIN_COST, MAX_COST } from 'src/breakLines';
-import {
-  UnicodeLineBreakingClasses,
-  convertEnumValuesOfLineBreakingPackageToUnicodeNames,
-} from 'src/typings/unicodeLineBreakingClasses';
 import LineBreaker, { Break } from 'linebreak';
-import { TexLinebreakOptions, getOptionsWithDefaults } from 'src/helpers/options';
+import { INFINITE_STRETCH, MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
+import { addHangingPunctuation } from 'src/hangingPunctuation';
+import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
+import { getBreakpointPenalty, PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 import {
-  TextItem,
-  textGlue,
-  penalty,
-  textBox,
-  softHyphen,
-  glue,
+  convertEnumValuesOfLineBreakingPackageToUnicodeNames,
+  UnicodeLineBreakingClasses,
+} from 'src/typings/unicodeLineBreakingClasses';
+import {
   forciblySplitLongWords,
-} from 'src/helpers/util';
-import { getBreakpointPenalty, PenaltyClasses } from 'src/helpers/splitTextIntoItems/penalty';
-import { calculateHangingPunctuationWidth } from 'src/helpers/hangingPunctuations';
+  glue,
+  penalty,
+  softHyphen,
+  textBox,
+  textGlue,
+  TextItem,
+} from 'src/utils';
 
 export const NON_BREAKING_SPACE = '\u00A0';
 export const SOFT_HYPHEN = '\u00AD';
@@ -146,7 +146,7 @@ export const splitTextIntoItems = (
 
       /** Paragraph-final infinite glue */
       if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
-        items.push(glue(0, 0, MAX_COST, ''));
+        items.push(glue(0, 0, INFINITE_STRETCH, ''));
       }
 
       /**
@@ -163,7 +163,7 @@ export const splitTextIntoItems = (
   });
 
   if (options.hangingPunctuation) {
-    items = calculateHangingPunctuationWidth(items, options);
+    items = addHangingPunctuation(items, options);
   }
 
   if (options.forceOverflowToBreak) {

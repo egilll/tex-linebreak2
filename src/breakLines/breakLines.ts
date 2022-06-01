@@ -1,6 +1,6 @@
-import { penalty, isForcedBreak, getLineWidth } from 'src/helpers/util';
 import { LineWidth } from 'src/html/lineWidth';
-import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/helpers/options';
+import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
+import { getLineWidth, isForcedBreak, penalty } from 'src/utils';
 
 /** An object (eg. a word) to be typeset. */
 export interface Box {
@@ -69,6 +69,8 @@ export const MIN_COST = -1000;
  */
 export const MAX_COST = 1000;
 
+export const INFINITE_STRETCH = Infinity;
+
 export const MIN_ADJUSTMENT_RATIO = -1;
 
 /** Error thrown by `breakLines` when `maxAdjustmentRatio` is exceeded. */
@@ -89,19 +91,22 @@ export class MaxAdjustmentExceededError extends Error {}
  *     Softw. Pract. Exp., vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
  *     http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf
  *
- * There is one small deviation from the original paper, see the comments at
+ * There is a small deviation from the original paper, see the comments at
  * {@link TexLinebreakOptions#allowSingleWordLines}.
  *
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param lineWidth - Length or lengths of each line.
+ *       (Although this parameter could be removed (it's already a part of
+ *       {@link TexLinebreakOptions}), it's kept here for backwards compatibility
+ *       with versions <=0.6.)
  * @param _options - The following options are used here: `maxAdjustmentRatio`,
  *       `initialMaxAdjustmentRatio`, `doubleHyphenPenalty`,
  *       `adjacentLooseTightPenalty`, and `allowSingleWordLines`.
  */
 export function breakLines(
   items: Item[],
-  lineWidth: LineWidth,
-  _options: TexLinebreakOptions,
+  lineWidth: LineWidth | null,
+  _options: Partial<TexLinebreakOptions> = {},
 ): number[] {
   if (items.length === 0) return [];
 
@@ -115,6 +120,7 @@ export function breakLines(
   }
 
   const options = getOptionsWithDefaults(_options);
+  if (lineWidth) options.lineWidth = lineWidth;
 
   const currentMaxAdjustmentRatio = Math.min(
     options.initialMaxAdjustmentRatio,
@@ -138,6 +144,11 @@ export function breakLines(
     prev: null | LineBreakingNode;
   };
 
+  /**
+   * The list of "active" breakpoints represents all feasible breakpoints
+   * that might be a candidate for future breaks. See page 1148.
+   * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=30
+   */
   const active = new Set<LineBreakingNode>();
 
   // Add initial active node for beginning of paragraph.
@@ -162,18 +173,13 @@ export function breakLines(
 
   let minAdjustmentRatioAboveThreshold = Infinity;
 
+  /**
+   * "Whenever a potential breakpoint `b` is encountered, the algorithm
+   * tests to see if there is any active breakpoint `a` such that the
+   * line from `a` to `b` has an acceptable adjustment ratio."
+   */
   for (let b = 0; b < items.length; b++) {
     const item = items[b];
-
-    /**
-     * TeX allows items with negative widths or stretch factors but
-     * imposes two restrictions for efficiency. These restrictions
-     * are not yet implemented here and we avoid the problem by
-     * just disallowing negative width/shrink/stretch amounts.
-     */
-    if (item.width < 0) {
-      throw new Error(`Item ${b} has disallowed negative width`);
-    }
 
     /**
      * Determine if this is a feasible breakpoint and
@@ -183,10 +189,6 @@ export function breakLines(
     if (item.type === 'box') {
       sumWidth += item.width;
     } else if (item.type === 'glue') {
-      if (item.shrink < 0 || item.stretch < 0) {
-        throw new Error(`Item ${b} has disallowed negative stretch or shrink`);
-      }
-
       canBreak = b > 0 && items[b - 1].type === 'box';
       if (!canBreak) {
         sumWidth += item.width;
@@ -207,7 +209,7 @@ export function breakLines(
     active.forEach((a) => {
       const lineShrink = sumShrink - a.totalShrink;
       let lineStretch = sumStretch - a.totalStretch;
-      const idealLen = getLineWidth(lineWidth, a.line);
+      const idealLen = getLineWidth(options.lineWidth, a.line);
       let actualLen = sumWidth - a.totalWidth;
 
       /**

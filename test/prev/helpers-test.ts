@@ -1,10 +1,10 @@
 import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 
-import { box, glue, penalty, forcedBreak } from 'src/helpers/util';
-import { layoutText } from 'src/helpers/deprecated/positionItems';
+import { box, glue, penalty, forcedBreak } from 'src/utils';
+import { layoutText } from 'src/deprecated/positionItems';
 import { layoutItemsFromString } from 'src';
-import { lineStrings } from 'src/helpers/deprecated/deprecatedTestUtils';
+import { lineStrings } from 'src/deprecated/deprecatedTestUtils';
 
 const hyphenator = new Hypher(enUsPatterns);
 
@@ -14,7 +14,15 @@ describe('helpers', () => {
       const measure = () => 5;
       const str = 'One fine day';
       const items = layoutItemsFromString(str, measure);
-      expect(items.map((it) => it.type)).toEqual(['box', 'glue', 'box', 'glue', 'box', 'glue', 'penalty']);
+      expect(items.map((it) => it.type)).toEqual([
+        'box',
+        'glue',
+        'box',
+        'glue',
+        'box',
+        'glue',
+        'penalty',
+      ]);
     });
 
     it('adds a glue that stretches to fill the last line', () => {

@@ -1,4 +1,4 @@
-import { textNodesInRange } from 'src/helpers/deprecated/textNodesInRange';
+import { textNodesInRange } from 'src/deprecated/textNodesInRange';
 
 function acceptAllNodes() {
   return true;

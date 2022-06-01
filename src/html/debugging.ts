@@ -1,4 +1,4 @@
-import { Line } from 'src/helpers';
+import { Line } from 'src/index';
 import { tagNode } from 'src/html/tagNode';
 
 /**

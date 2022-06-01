@@ -1,10 +1,7 @@
-import {
-  SOFT_HYPHEN,
-  BreakpointInformation,
-} from 'src/helpers/splitTextIntoItems/splitTextIntoItems';
+import { MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
+import { TexLinebreakOptions } from 'src/options';
+import { BreakpointInformation, SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
 import { UnicodeLineBreakingClasses } from 'src/typings/unicodeLineBreakingClasses';
-import { MIN_COST, MAX_COST } from 'src/breakLines';
-import { TexLinebreakOptions } from 'src/helpers/options';
 
 export enum PenaltyClasses {
   MandatoryBreak = MIN_COST,

@@ -1,4 +1,4 @@
-import { getLineWidth } from 'src/helpers';
+import { getLineWidth } from 'src/index';
 
 export type LineWidth = number | number[] | LineWidthObject;
 export type LineWidthObject = {

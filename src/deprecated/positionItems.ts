@@ -1,6 +1,11 @@
-import { TextItem } from 'src/helpers/util';
-import { breakLines, MaxAdjustmentExceededError, Item, MIN_ADJUSTMENT_RATIO } from 'src/breakLines';
-import { layoutItemsFromString } from 'src/helpers/deprecated/layoutItemsFromString';
+import {
+  breakLines,
+  Item,
+  MaxAdjustmentExceededError,
+  MIN_ADJUSTMENT_RATIO,
+} from 'src/breakLines/breakLines';
+import { layoutItemsFromString } from 'src/deprecated/layoutItemsFromString';
+import { TextItem } from 'src/utils';
 
 export interface PositionedItem {
   /** Index of the item. */

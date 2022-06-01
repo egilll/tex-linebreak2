@@ -1,13 +1,13 @@
-import { XorShift } from 'xorshift';
+import { layoutItemsFromString } from 'src';
 
-import { breakLines, Item, Penalty } from 'src/breakLines';
+import { breakLines, Item, Penalty } from 'src/breakLines/breakLines';
+import { chunk, lineStrings } from 'src/deprecated/deprecatedTestUtils';
+import { adjustmentRatios, positionItems } from 'src/deprecated/positionItems';
 
-import { box, glue, penalty, forcedBreak, TextItem, TextGlue, TextBox } from 'src/helpers/util';
+import { box, forcedBreak, glue, penalty, TextBox, TextGlue, TextItem } from 'src/utils';
 
 import fixture from 'test/prev/fixtures/layout';
-import { positionItems, adjustmentRatios } from 'src/helpers/deprecated/positionItems';
-import { layoutItemsFromString } from 'src';
-import { chunk, lineStrings } from 'src/helpers/deprecated/deprecatedTestUtils';
+import { XorShift } from 'xorshift';
 
 interface LayoutFixture {
   /** Input text of paragraph. */
@@ -236,12 +236,12 @@ describe('layout', () => {
       const items = wordSoup(100);
       const lineWidth = 50;
 
-      // Break lines without contrasting tightess penalty.
+      // Break lines without contrasting tightness penalty.
       let breakpointsA = breakLines(items, lineWidth, {
         adjacentLooseTightPenalty: 0,
       });
 
-      // Break lines with constrasting tightness penalty.
+      // Break lines with contrasting tightness penalty.
       let breakpointsB = breakLines(items, lineWidth, {
         adjacentLooseTightPenalty: 10000,
       });

@@ -1,4 +1,4 @@
-import { texLinebreakMonospace } from 'src/helpers/monospace';
+import { texLinebreakMonospace } from 'src/monospace';
 
 it('onlyBreakOnWhitespace', () => {
   expect(

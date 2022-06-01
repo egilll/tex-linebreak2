@@ -1,6 +1,6 @@
-import { TextItem, isSoftHyphen } from 'src/helpers/util';
+import { TextItem, isSoftHyphen } from 'src/utils';
 import { outputElement } from 'src/demo/demo';
-import { TexLinebreak } from 'src/helpers';
+import { TexLinebreak } from 'src/index';
 
 export const canvas = document.querySelector('canvas')!;
 

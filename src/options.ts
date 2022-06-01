@@ -33,10 +33,10 @@ export interface TexLinebreakOptions {
    *
    * @default `normal`
    */
-  lineBreakingType?: 'normal' | 'findOptimalWidth' | 'compact' | 'greedy';
+  lineBreakingType: 'normal' | 'findOptimalWidth' | 'compact' | 'greedy';
 
-  /** @default `justify` */
-  alignment?: 'justify' | 'left' /*| 'right' | 'center'*/;
+  /** @default true */
+  justify: boolean;
 
   /** Ratio compared to a normal space */
   renderLineAsLeftAlignedIfSpaceIsLargerThan?: number;
@@ -58,7 +58,7 @@ export interface TexLinebreakOptions {
    *
    * @default true
    */
-  collapseNewlines?: boolean;
+  collapseNewlines: boolean;
 
   keepNewlinesAfter?: (string | RegExp) | (string | RegExp)[];
 
@@ -81,7 +81,7 @@ export interface TexLinebreakOptions {
    *
    * @default false
    */
-  onlyBreakOnWhitespace?: boolean;
+  onlyBreakOnWhitespace: boolean;
 
   /**
    * Allows the last line of a paragraph to be shorter than the rest.
@@ -89,7 +89,7 @@ export interface TexLinebreakOptions {
    *
    * @default true
    */
-  addInfiniteGlueToTheEndOfTheLine?: boolean;
+  addInfiniteGlueToTheEndOfTheLine: boolean;
 
   /**
    * Adds a MIN_COST penalty to the end of the paragraph. Without it,
@@ -98,7 +98,7 @@ export interface TexLinebreakOptions {
    *
    * @default true
    */
-  addParagraphEnd?: boolean;
+  addParagraphEnd: boolean;
 
   /**
    * Whether to force words that are longer than the allowed width to
@@ -108,7 +108,7 @@ export interface TexLinebreakOptions {
    *
    * @default true
    */
-  forceOverflowToBreak?: boolean;
+  forceOverflowToBreak: boolean;
 
   /**
    * A factor indicating the maximum amount by which items in a
@@ -124,14 +124,14 @@ export interface TexLinebreakOptions {
    *
    * @default null
    */
-  maxAdjustmentRatio?: number | null;
+  maxAdjustmentRatio: number | null;
 
   /**
    * The maximum adjustment ratio used for the initial line breaking attempt.
    *
    * @default 0
    */
-  initialMaxAdjustmentRatio?: number;
+  initialMaxAdjustmentRatio: number;
 
   /**
    * Penalty for consecutive hyphenated lines.
@@ -139,7 +139,7 @@ export interface TexLinebreakOptions {
    *
    * @default 0
    */
-  doubleHyphenPenalty?: number;
+  doubleHyphenPenalty: number;
 
   /**
    * Penalty for breaking on soft hyphens.
@@ -150,19 +150,19 @@ export interface TexLinebreakOptions {
    *
    * @default 10
    */
-  softHyphenPenalty?: number;
+  softHyphenPenalty: number;
 
   /**
    * Penalty for significant differences in the tightness of adjacent lines.
    *
    * @default 0
    */
-  adjacentLooseTightPenalty?: number;
+  adjacentLooseTightPenalty: number;
 
   /**
    * Whether to allow a single long word that does not fill 100% of the allowed
    * width to occupy a line by itself, thus leaving behind space on its right
-   * side.
+   * side. This setting does not apply to the last line of a paragraph.
    *
    * Note: This goes against Knuth & Plass's original paper, however without it
    * the output is extremely counter-intuitive. Two things can occur when this
@@ -186,13 +186,25 @@ export interface TexLinebreakOptions {
    *
    * @default true
    */
-  allowSingleWordLines?: boolean;
+  allowSingleWordLines: boolean;
+
+  /** @default 0.1 */
+  defaultGlueShrinkFactor: number;
+
+  /** @default 1.5 */
+  defaultGlueStretchFactor: number;
 }
 
-const defaultOptions: Partial<TexLinebreakOptions> = {
+type OptionKeysRequiredFromUser = 'lineWidth' | 'measureFn';
+export type OptionsRequiredFromUser = RequireOnlyCertainKeys<
+  TexLinebreakOptions,
+  OptionKeysRequiredFromUser
+>;
+
+const defaultOptions: OptionalCertainKeys<TexLinebreakOptions, OptionKeysRequiredFromUser> = {
   lineBreakingType: 'normal',
   // keepNewlinesAfter: /[.:?!\\]$/,
-  alignment: 'justify',
+  justify: true,
   hangingPunctuation: true,
   addInfiniteGlueToTheEndOfTheLine: true,
   addParagraphEnd: true,
@@ -204,17 +216,27 @@ const defaultOptions: Partial<TexLinebreakOptions> = {
   onlyBreakOnWhitespace: false,
   forceOverflowToBreak: true,
   allowSingleWordLines: true,
+  defaultGlueShrinkFactor: 0.1,
+  defaultGlueStretchFactor: 1.5,
+  softHyphenPenalty: 10,
 } as const;
 
-export const getOptionsWithDefaults = (
-  options: Partial<TexLinebreakOptions> = {},
-): RequireCertainKeys<TexLinebreakOptions, keyof typeof defaultOptions> => {
+export const getOptionsWithDefaults = <T extends Partial<TexLinebreakOptions>>(
+  options: T,
+): RequireOnlyCertainKeys<Partial<TexLinebreakOptions>, keyof typeof defaultOptions> => {
   // todo: validation
   return {
-    ...(defaultOptions as RequireCertainKeys<TexLinebreakOptions, keyof typeof defaultOptions>),
+    ...(defaultOptions as RequireCertainKeys<
+      Partial<TexLinebreakOptions>,
+      keyof typeof defaultOptions
+    >),
     ...options,
   };
 };
 
+const j = getOptionsWithDefaults({});
+console.log(j.lineWidth);
+
 export type RequireCertainKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
+export type RequireOnlyCertainKeys<T, K extends keyof T> = Partial<T> & Required<Pick<T, K>>;
 export type OptionalCertainKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;

@@ -20,3 +20,15 @@
 - treat "\ " as a non-breaking space
 - include spaces in output
 - interface Point extends PartialPointX { y: number; }
+
+- optimum fit
+- vera viss um að webpack exporti öllu
+
+- Under certain circumstances we can also combine two adjacent penalty items into a
+  single one; for example, if - 00 < p, p’< +Infinity we have
+  penalty(w,p,f) penalty(w,p’,f) = penalty(w, min(p,p’),f)
+- Furthermore we can delete any penalty item with p = if it is not immediately preceded by a box item.
+
+- p 1156: We have seen that it is occasionally useful to permit boxes, glue, and penalties to have negative widths and even negative stretchability; but a completely unrestricted use of negative values leads to unpleasant complications. For reasons of efficiency, it is desirable to place two limitations on the paragraphs that will be treated:
+- Since the task of word division is nontrivial, TEX first tries to break a paragraph into lines without any discretionary hyphens
+- The second pass would only try to hyphenate uncapitalized words of five or more letters

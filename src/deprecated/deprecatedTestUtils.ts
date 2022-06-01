@@ -1,4 +1,4 @@
-import { TextItem, itemToString } from 'src/helpers/util';
+import { TextItem, itemToString } from 'src/utils';
 
 /** @deprecated */
 export function lineStrings(items: TextItem[], breakpoints: number[]): string[] {

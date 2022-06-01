@@ -1,7 +1,7 @@
 import DOMTextMeasurer from 'src/html/domTextMeasurer';
 import { getFloatingElements } from 'src/html/htmlHelpers';
-import { TexLinebreak } from 'src/helpers';
-import { TexLinebreakOptions } from 'src/helpers/options';
+import { TexLinebreak } from 'src/index';
+import { TexLinebreakOptions } from 'src/options';
 import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getTaggedChildren, tagNode } from 'src/html/tagNode';
 import { visualizeBoxesForDebugging } from 'src/html/debugging';
@@ -10,11 +10,13 @@ import { getElementLineWidth } from 'src/html/lineWidth';
 /**
  * Justify an existing paragraph.
  *
- * Justify the contents of `elements`, using `hyphenateFn` to apply hyphenation if necessary.
+ * Justify the contents of `elements`, using `hyphenateFn` to apply
+ * hyphenation if necessary.
  *
- * To justify multiple paragraphs, it is more efficient to call `justifyContent` once with
- * all the elements to be processed, than to call `justifyContent` separately for each
- * element. Passing a list allows `justifyContent` to optimize DOM manipulations.
+ * To justify multiple paragraphs, it is more efficient to call
+ * `justifyContent` once with all the elements to be processed, than
+ * to call `justifyContent` separately for each element. Passing a
+ * list allows `justifyContent` to optimize DOM manipulations.
  */
 export function justifyContent(
   elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
@@ -65,8 +67,8 @@ export function justifyContent(
 
       /**
        * Since `Range`s are fragile and will easily go out of sync when we make
-       * changes to the DOM, we go through the lines in a reverse order. We also
-       * only alter one item at a time instead of wrapping the entire line.
+       * changes to the DOM, we go through the lines in a reverse order. We
+       * also only alter one item at a time instead of wrapping the entire line.
        */
       lines
         .slice()
@@ -95,7 +97,10 @@ export function justifyContent(
             firstBoxRange.insertNode(tagNode(document.createElement('br')));
           }
 
-          /** Hanging punctuation is added by inserting an empty span with a negative margin */
+          /**
+           * Hanging punctuation is added by inserting
+           * an empty span with a negative margin
+           */
           if (line.leftHangingPunctuationWidth) {
             const span = tagNode(document.createElement('span'));
             span.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;

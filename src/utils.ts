@@ -1,16 +1,12 @@
-import { Box, Glue, Penalty, MIN_COST, Item, MAX_COST } from 'src/breakLines';
-import { TexLinebreakOptions } from 'src/helpers/options';
-import { PenaltyClasses } from 'src/helpers/splitTextIntoItems/penalty';
-import { DOMItem, DOMGlue } from 'src/html/getItemsFromDOM';
+import { Box, Glue, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines/breakLines';
+import { DOMGlue, DOMItem } from 'src/html/getItemsFromDOM';
 import { LineWidth } from 'src/html/lineWidth';
+import { TexLinebreakOptions } from 'src/options';
+import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 
 /** Useful when working with raw strings instead of DOM nodes. */
 export interface TextBox extends Box {
   text: string;
-
-  /** Values for hanging punctuation. */
-  rightHangingPunctuationWidth?: number;
-  leftHangingPunctuationWidth?: number;
 }
 
 export interface TextGlue extends Glue {
@@ -25,7 +21,7 @@ export function box(width: number, text?: string): Box | TextBox {
   return { type: 'box', width, text };
 }
 export function textBox(text: string, options: TexLinebreakOptions): TextBox {
-  return box(options.measureFn!(text), text);
+  return box(options.measureFn(text), text);
 }
 
 export function glue(width: number, shrink: number, stretch: number): Glue;
@@ -43,9 +39,9 @@ export function glue(
   }
 }
 export function textGlue(text: string, options: TexLinebreakOptions): TextGlue {
-  const spaceWidth = options.measureFn!(' ');
-  const spaceShrink = 0;
-  const spaceStretch = spaceWidth * 2;
+  const spaceWidth = options.measureFn(' ');
+  const spaceShrink = spaceWidth + options.defaultGlueShrinkFactor;
+  const spaceStretch = spaceWidth + options.defaultGlueStretchFactor;
   return glue(spaceWidth, spaceShrink, spaceStretch, text);
 }
 
@@ -54,9 +50,8 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
 }
 
 export const softHyphen = (options: TexLinebreakOptions) => {
-  const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn!('-');
+  const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn('-');
   return penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true);
-  // return penalty(options.measureFn!('-'), PenaltyClasses.SoftHyphen, true);
 };
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
