@@ -1,5 +1,5 @@
-import { TextItem } from 'src/utils';
 import { TexLinebreak } from 'src/index';
+import { TextItem } from 'src/utils';
 
 /**
  * @deprecated This function is deprecated due to the name being confusing,
@@ -18,5 +18,9 @@ export function layoutItemsFromString(
   measureFn: (word: string) => number,
   hyphenateFn?: (word: string) => string[],
 ): TextItem[] {
-  return new TexLinebreak<TextItem>(input, { measureFn, hyphenateFn }).items;
+  return new TexLinebreak<TextItem>(input, {
+    measureFn,
+    hyphenateFn,
+    /** Not important for this step */ lineWidth: [],
+  }).items;
 }

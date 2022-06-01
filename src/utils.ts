@@ -38,11 +38,28 @@ export function glue(
     return { type: 'glue', width, shrink, stretch };
   }
 }
-export function textGlue(text: string, options: TexLinebreakOptions): TextGlue {
+export function textGlue(text: string, options: TexLinebreakOptions): TextGlue | TextItem[] {
   const spaceWidth = options.measureFn(' ');
-  const spaceShrink = spaceWidth + options.defaultGlueShrinkFactor;
-  const spaceStretch = spaceWidth + options.defaultGlueStretchFactor;
-  return glue(spaceWidth, spaceShrink, spaceStretch, text);
+  const spaceShrink = spaceWidth * options.glueShrinkFactor;
+  const spaceStretch = spaceWidth * options.glueStretchFactor;
+  if (options.justify) {
+    /** Spaces in justified lines */
+    return glue(spaceWidth, spaceShrink, spaceStretch, text);
+  } else {
+    /**
+     * Spaces in ragged lines. See p. 1139.
+     * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=21
+     * (Todo: Ragged line spaces should perhaps be allowed to stretch
+     * a bit, but it should probably still be listed as zero here since
+     * otherwise a line with many spaces is more likely to be a good fit.)
+     */
+    const lineFinalStretch = 3 * spaceWidth;
+    return [
+      glue(0, 0, lineFinalStretch, text),
+      penalty(0, 0),
+      glue(spaceWidth, 0, -lineFinalStretch, text),
+    ];
+  }
 }
 
 export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
@@ -52,6 +69,14 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
 export const softHyphen = (options: TexLinebreakOptions) => {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn('-');
   return penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true);
+  /**
+   * Todo: Optional hyphenations in unjustified text, p 1139. Slightly
+   * tricky as:
+   * "After the breakpoints have been chosen using the above sequences
+   * for spaces and for optional hyphens, the individual lines
+   * should not actually be justified, since a hyphen inserted by the
+   * ‘penalty(6,500,1)’ would otherwise appear at the right margin."
+   */
 };
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
@@ -130,7 +155,7 @@ export const forciblySplitLongWords = (
     if (item.type === 'box' /*&& item.width > minLineWidth*/) {
       for (let i = 0; i < item.text.length; i++) {
         const char = item.text[i];
-        output.push(textBox(char, options));
+        /** Add penalty */
         // Separators
         if (/\p{General_Category=Z}/u.test(char)) {
           output.push(penalty(0, 0));
@@ -141,6 +166,8 @@ export const forciblySplitLongWords = (
         } else {
           output.push(penalty(0, 999));
         }
+        /** Add glue */
+        output.push(textBox(char, options));
       }
     } else {
       output.push(item);

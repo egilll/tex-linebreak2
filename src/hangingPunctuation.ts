@@ -26,8 +26,8 @@ export const addHangingPunctuation = (
     /** Left hanging punctuation */
     if (
       hangingPunctuationRegex.test(item.text.slice(0, 1)) &&
-      // Multiple punctuation marks will not be hanged
-      !hangingPunctuationRegex.test(item.text.slice(1, 2))
+      // If the character is repeated ("...", "??"), we don't hang
+      item.text.slice(0, 1) !== item.text.slice(1, 2)
     ) {
       item.leftHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(1));
     }
@@ -35,8 +35,7 @@ export const addHangingPunctuation = (
     /** Right hanging punctuation */
     if (
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
-      // Multiple punctuation marks will not be hanged
-      !hangingPunctuationRegex.test(item.text.slice(-2, -1))
+      item.text.slice(-1) !== item.text.slice(-2, -1)
     ) {
       item.rightHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(0, -1));
     }
@@ -48,11 +47,11 @@ export const addHangingPunctuation = (
 /**
  * The following punctuation items are not included, as it would not look good:
  *
- * - Dashes
- * - Em hyphens
+ * - Slashes (/)
+ * - Em and en dashes
  *
- * `General_Category=Pi` are initial quotes `General_Category=Pf` are final
- * quotes
+ * (`General_Category=Pi` are initial quotes, and `General_Category=Pf` are
+ * final quotes)
  */
 const hangingPunctuationRegex =
   /[.,;:!?\-()\[\]{}'"\p{General_Category=Pi}\p{General_Category=Pf}]/u;

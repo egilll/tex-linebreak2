@@ -1,11 +1,11 @@
-import DOMTextMeasurer from 'src/html/domTextMeasurer';
-import { getFloatingElements } from 'src/html/htmlHelpers';
-import { TexLinebreak } from 'src/index';
-import { TexLinebreakOptions } from 'src/options';
-import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
-import { getTaggedChildren, tagNode } from 'src/html/tagNode';
 import { visualizeBoxesForDebugging } from 'src/html/debugging';
+import DOMTextMeasurer from 'src/html/domTextMeasurer';
+import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
+import { getFloatingElements } from 'src/html/htmlHelpers';
 import { getElementLineWidth } from 'src/html/lineWidth';
+import { getTaggedChildren, tagNode } from 'src/html/tagNode';
+import { TexLinebreak } from 'src/index';
+import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 
 /**
  * Justify an existing paragraph.
@@ -21,18 +21,18 @@ import { getElementLineWidth } from 'src/html/lineWidth';
 export function justifyContent(
   elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
   /** For backwards compatibility, this parameter also accepts a `hyphenateFn`. */
-  _options: TexLinebreakOptions | ((word: string) => string[]) = {},
+  options: Partial<TexLinebreakOptions> | ((word: string) => string[]) = {},
   debug = false,
 ) {
   /**
    * Done for backwards compatibility: Previous versions
    * accepted a `hyphenateFn` as the second parameter.
    */
-  if (typeof _options === 'function') {
-    _options = { hyphenateFn: _options };
+  if (typeof options === 'function') {
+    options = { hyphenateFn: options };
   }
 
-  const options: TexLinebreakOptions = { ..._options, collapseNewlines: true };
+  const _options = getOptionsWithDefaults({ ...options, collapseNewlines: true });
 
   if (!elements) {
     return console.error("justifyContent didn't receive any items");
@@ -52,13 +52,13 @@ export function justifyContent(
     unjustifyContent(element);
     try {
       const lineWidth = getElementLineWidth(element, floatingElements);
-      const items = new GetItemsFromDOM(element, options, domTextMeasureFn).items;
+      const items = new GetItemsFromDOM(element, _options, domTextMeasureFn).items;
 
       /** Disable automatic line wrap. */
       element.style.whiteSpace = 'nowrap';
 
       const lines = new TexLinebreak<DOMItem>(items, {
-        ...options,
+        ..._options,
         lineWidth,
         collapseNewlines: true,
       }).lines;

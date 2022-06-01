@@ -1,7 +1,6 @@
-import { layoutItemsFromString } from 'src';
-
 import { breakLines, Item, Penalty } from 'src/breakLines/breakLines';
 import { chunk, lineStrings } from 'src/deprecated/deprecatedTestUtils';
+import { layoutItemsFromString } from 'src/deprecated/layoutItemsFromString';
 import { adjustmentRatios, positionItems } from 'src/deprecated/positionItems';
 
 import { box, forcedBreak, glue, penalty, TextBox, TextGlue, TextItem } from 'src/utils';

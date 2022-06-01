@@ -32,3 +32,5 @@
 - p 1156: We have seen that it is occasionally useful to permit boxes, glue, and penalties to have negative widths and even negative stretchability; but a completely unrestricted use of negative values leads to unpleasant complications. For reasons of efficiency, it is desirable to place two limitations on the paragraphs that will be treated:
 - Since the task of word division is nontrivial, TEX first tries to break a paragraph into lines without any discretionary hyphens
 - The second pass would only try to hyphenate uncapitalized words of five or more letters
+
+-If the paragraph is to be indented, the first item x,will be an empty box whose width is the amount of indentation.

@@ -1,10 +1,10 @@
-import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
-
-import { box, glue, penalty, forcedBreak } from 'src/utils';
-import { layoutText } from 'src/deprecated/positionItems';
-import { layoutItemsFromString } from 'src';
+import Hypher from 'hypher';
 import { lineStrings } from 'src/deprecated/deprecatedTestUtils';
+import { layoutItemsFromString } from 'src/deprecated/layoutItemsFromString';
+import { layoutText } from 'src/deprecated/positionItems';
+
+import { box, forcedBreak, glue, penalty } from 'src/utils';
 
 const hyphenator = new Hypher(enUsPatterns);
 

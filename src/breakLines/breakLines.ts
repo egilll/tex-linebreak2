@@ -14,19 +14,29 @@ export interface Box {
 }
 
 /**
- * A space between `Box` items with a preferred
- * width and some capacity to stretch or shrink.
+ * A space between `Box` items with a preferred width
+ * and some capacity to stretch or shrink.
  *
- * `Glue` items are also candidates for
- * breakpoints if they immediately follow a `Box`.
+ * `Glue` items are also candidates for breakpoints
+ * if they immediately follow a `Box`. // TODO: Check
  */
 export interface Glue {
   type: 'glue';
-  /** Preferred width of this space. Must be >= 0. */
+  /** Preferred width of this space. */
   width: number;
-  /** Maximum amount by which this space can grow. */
+  /**
+   * Maximum amount by which this space can grow (given a
+   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
+   * A `width` of 5 and a `stretch` of 1 means that the glue can have
+   * a width of 6. A value of 0 means that it cannot stretch.
+   */
   stretch: number;
-  /** Maximum amount by which this space can shrink. */
+  /**
+   * Maximum amount by which this space can shrink (given a
+   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
+   * A `width` of 5 and a `shrink` of 1 means that the glue can have a
+   * width of 4. A value of 0 means that it cannot shrink.
+   */
   shrink: number;
 }
 
@@ -99,24 +109,45 @@ export class MaxAdjustmentExceededError extends Error {}
  *       (Although this parameter could be removed (it's already a part of
  *       {@link TexLinebreakOptions}), it's kept here for backwards compatibility
  *       with versions <=0.6.)
- * @param _options - The following options are used here: `maxAdjustmentRatio`,
- *       `initialMaxAdjustmentRatio`, `doubleHyphenPenalty`,
- *       `adjacentLooseTightPenalty`, and `allowSingleWordLines`.
+ * @param _options - The following options are used here:
+ *       {@link TexLinebreakOptions#maxAdjustmentRatio}
+ *       {@link TexLinebreakOptions#initialMaxAdjustmentRatio}
+ *       {@link TexLinebreakOptions#doubleHyphenPenalty}
+ *       {@link TexLinebreakOptions#adjacentLooseTightPenalty}
+ *       {@link TexLinebreakOptions#allowSingleWordLines}
+ * @param currentRecursionDepth - Used internally to keep track of how often this function has called itself
+ *       (done when increasing the allowed adjustmend ratio).
  */
 export function breakLines(
   items: Item[],
   lineWidth: LineWidth | null,
   _options: Partial<TexLinebreakOptions> = {},
+  currentRecursionDepth = 0,
 ): number[] {
   if (items.length === 0) return [];
 
-  /** Validate input */
-  const lastItem = items[items.length - 1];
-  if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
-    throw new Error(
-      'The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. ' +
-        '`splitTextIntoItems` will automatically add this with the `addParagraphEnd` option.',
-    );
+  /** Validate input (if this is the first time the function is called) */
+  if (currentRecursionDepth === 0) {
+    /** Input has to end in a MIN_COST penalty */
+    const lastItem = items[items.length - 1];
+    if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
+      throw new Error(
+        "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off.",
+      );
+    }
+    /** A glue cannot be followed by a non-MIN_COST penalty */
+    if (
+      items.some(
+        (item, index) =>
+          item.type === 'glue' &&
+          items[index + 1].type === 'penalty' &&
+          (items[index + 1] as Penalty).cost! > MIN_COST,
+      )
+    ) {
+      throw new Error(
+        "A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it.",
+      );
+    }
   }
 
   const options = getOptionsWithDefaults(_options);
@@ -189,6 +220,7 @@ export function breakLines(
     if (item.type === 'box') {
       sumWidth += item.width;
     } else if (item.type === 'glue') {
+      /** TODO: redo */
       canBreak = b > 0 && items[b - 1].type === 'box';
       if (!canBreak) {
         sumWidth += item.width;
@@ -202,30 +234,44 @@ export function breakLines(
       continue;
     }
 
-    /** Update the set of active nodes. */
+    /**
+     * Used when we fail to find a suitable breaking
+     * point and instead give up and break anyway.
+     */
     let lastActive: LineBreakingNode | null = null;
 
     const feasible: LineBreakingNode[] = [];
     active.forEach((a) => {
       const lineShrink = sumShrink - a.totalShrink;
       let lineStretch = sumStretch - a.totalStretch;
-      const idealLen = getLineWidth(options.lineWidth, a.line);
-      let actualLen = sumWidth - a.totalWidth;
-
       /**
-       * NOTE:
-       * This deviates the original paper, but without it the
-       * output is very counter-intuitive. See the comments
+       * NOTE: This deviates the original paper, but without it
+       * the output is very counter-intuitive. See the comments
        * at {@link TexLinebreakOptions#allowSingleWordLines}.
        */
       if (options.allowSingleWordLines && lineStretch === 0) {
         lineStretch = 0.1;
       }
 
+      const idealLen = getLineWidth(options.lineWidth, a.line);
+      let actualLen = sumWidth - a.totalWidth;
+      if (options.hangingPunctuation) {
+        actualLen -=
+          ('leftHangingPunctuationWidth' in item && item.leftHangingPunctuationWidth) || 0;
+        actualLen -=
+          ('rightHangingPunctuationWidth' in item && item.rightHangingPunctuationWidth) || 0;
+      }
       /** Include width of penalty in line length if chosen as a breakpoint. */
       if (item.type === 'penalty') {
         actualLen += item.width;
       }
+
+      /** TODO: wip */
+      /**
+       * Restriction no. 1 on negative breaks. See page 1156.
+       * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=38
+       */
+      // const M_b = (sumWidth+actualLen)-sumShrink
 
       /** Compute adjustment ratio from `a` to `b`. */
       let adjustmentRatio;
@@ -257,10 +303,7 @@ export function breakLines(
         active.delete(a);
         lastActive = a;
       }
-      /** TEMP TESTING */
-      if (
-        true /*adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio*/
-      ) {
+      if (adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio) {
         /**
          * We found a feasible breakpoint. Compute a
          * `demerits` score for it as per formula on p. 1128.
@@ -270,8 +313,6 @@ export function breakLines(
         const penalty = item.type === 'penalty' ? item.cost : 0;
 
         if (penalty >= 0) {
-          // demerits = (1 + badness + penalty) ** 2;
-          // TEMP!
           demerits = (1 + badness + penalty) ** 2;
         } else if (penalty > MIN_COST) {
           demerits = (1 + badness) ** 2 - penalty ** 2;
@@ -364,10 +405,15 @@ export function breakLines(
          * Too much stretching was required for an earlier ignored breakpoint.
          * Try again with a higher threshold.
          */
-        return breakLines(items, lineWidth, {
-          ..._options,
-          initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
-        });
+        return breakLines(
+          items,
+          lineWidth,
+          {
+            ..._options,
+            initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
+          },
+          (currentRecursionDepth = 1),
+        );
       } else {
         /**
          * We cannot create a breakpoint sequence by increasing the
