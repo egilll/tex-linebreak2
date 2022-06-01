@@ -1,7 +1,6 @@
 import { Box, Glue, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines/breakLines';
 import { DOMGlue, DOMItem } from 'src/html/getItemsFromDOM';
 import { TexLinebreakOptions } from 'src/options';
-import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 
 /** Useful when working with raw strings instead of DOM nodes. */
 export interface TextBox extends Box {
@@ -68,16 +67,16 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
 }
 
 export const softHyphen = (options: TexLinebreakOptions) => {
-  const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn('-');
-  return penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true);
-  /**
-   * Todo: Optional hyphenations in unjustified text, p 1139. Slightly
-   * tricky as:
-   * "After the breakpoints have been chosen using the above sequences
-   * for spaces and for optional hyphens, the individual lines
-   * should not actually be justified, since a hyphen inserted by the
-   * ‘penalty(6,500,1)’ would otherwise appear at the right margin."
-   */
+  // const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn('-');
+  // return penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true);
+  // /**
+  //  * Todo: Optional hyphenations in unjustified text, p 1139. Slightly
+  //  * tricky as:
+  //  * "After the breakpoints have been chosen using the above sequences
+  //  * for spaces and for optional hyphens, the individual lines
+  //  * should not actually be justified, since a hyphen inserted by the
+  //  * ‘penalty(6,500,1)’ would otherwise appear at the right margin."
+  //  */
 };
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */

@@ -1,10 +1,14 @@
-import { Box, Glue, Penalty } from 'src/breakLines/breakLines';
+import { Box, Glue, MIN_COST, Penalty } from 'src/breakLines/breakLines';
 import { TexLinebreakOptions } from 'src/options';
-import { glue, penalty } from 'src/utils';
+import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
+import { box, glue, penalty } from 'src/utils';
 
 export class Items2 extends Array /*<Item2>*/ {
   constructor(public options: TexLinebreakOptions) {
     super();
+  }
+  addTextBox(text: string) {
+    this.push(box(this.options.measureFn(text), text));
   }
   addTextGlue(text: string = '') {
     const spaceWidth = this.options.measureFn(' ');
@@ -29,62 +33,77 @@ export class Items2 extends Array /*<Item2>*/ {
       );
     }
   }
+  addForcedBreak() {
+    this.push(penalty(0, MIN_COST));
+  }
+  addSoftHyphen() {
+    const hyphenWidth = this.options.hangingPunctuation ? 0 : this.options.measureFn('-');
+    this.push(
+      penalty(hyphenWidth, this.options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true),
+    );
+    /**
+     * Todo: Optional hyphenations in unjustified text, p 1139. Slightly
+     * tricky as:
+     * "After the breakpoints have been chosen using the above sequences
+     * for spaces and for optional hyphens, the individual lines
+     * should not actually be justified, since a hyphen inserted by the
+     * ‘penalty(6,500,1)’ would otherwise appear at the right margin."
+     */
+  }
   get last() {
     return this[this.length - 1];
   }
 }
 
-export class Item2 {
-  type!: 'box' | 'glue' | 'penalty';
+export class Item2<T extends Box | Glue | Penalty> {
+  values: T;
+  // type!: T['type'];
+  // width!: T['width'];
+  // rightHangingPunctuationWidth?: T extends Box ? T['rightHangingPunctuationWidth'] : undefined;
+  // leftHangingPunctuationWidth?: T extends Box ? T['leftHangingPunctuationWidth']:undefined;
+  // stretch?: T extends Glue ? T['stretch']:undefined;
+  // shrink?: T extends Glue ? T['shrink']:undefined;
+  // cost!: T extends Penalty ? T['cost']:undefined;
+  // flagged?: T extends Penalty ? T['flagged']:undefined;
 
-  /**
-   * For boxes, this is the amount of space required by the content.
-   * For glues, this is the preferred width.
-   */
-  width!: number;
-
-  /** Values for hanging punctuation. */
-  rightHangingPunctuationWidth?: number;
-  leftHangingPunctuationWidth?: number;
-
-  /**
-   * Maximum amount by which this space can grow (given a
-   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
-   * A `width` of 5 and a `stretch` of 1 means that the glue can have
-   * a width of 6. A value of 0 means that it cannot stretch.
-   */
-  stretch?: number;
-  /**
-   * Maximum amount by which this space can shrink (given a
-   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
-   * A `width` of 5 and a `shrink` of 1 means that the glue can have a
-   * width of 4. A value of 0 means that it cannot shrink.
-   */
-  shrink?: number;
-  /**
-   * The undesirability of breaking the line at this point.
-   * Values <= `MIN_COST` and >= `MAX_COST` mandate or
-   * prevent breakpoints respectively.
-   */
-  cost?: number;
-  /**
-   * A hint used to prevent successive lines being broken
-   * with hyphens. The layout algorithm will try to avoid
-   * successive lines being broken at flagged `Penalty` items.
-   */
-  flagged?: boolean;
+  get type() {
+    return this.values.type;
+  }
+  get width() {
+    return this.values.width;
+  }
+  get rightHangingPunctuationWidth(): number | undefined {
+    return this.values.type === 'box' ? this.values.rightHangingPunctuationWidth : undefined;
+  }
+  get leftHangingPunctuationWidth(): number | undefined {
+    return this.values.type === 'box' ? this.values.leftHangingPunctuationWidth : undefined;
+  }
+  get stretch(): T extends Glue ? T['stretch'] : undefined {
+    return this.values.type === 'glue' ? this.values.stretch : undefined;
+  }
+  get shrink(): T extends Glue ? T['shrink'] : null {
+    return this.values.shrink;
+  }
+  get cost(): T extends Penalty ? T['cost'] : null {
+    return this.values.cost;
+  }
+  get flagged(): T extends Penalty ? T['flagged'] : null {
+    return this.values.flagged;
+  }
 
   get isPenalty() {
     return this.type === 'penalty';
   }
 
-  // get isForcedBreak() {
-  //
-  //   // items[index + 1].type === 'penalty' &&
-  //   // (items[index + 1] as Penalty).cost! > MIN_COST,
-  // }
+  get isForcedBreak() {
+    return this.type === 'glue' && this.cost > MIN_COST;
+  }
 
-  constructor(item: Box | Glue | Penalty) {
-    Object.assign(this, item);
+  get isSoftHyphen() {
+    return this.type === 'penalty' && this.flagged && this.width > 0;
+  }
+
+  constructor(values: T) {
+    this.values = values;
   }
 }
