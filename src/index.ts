@@ -1,6 +1,7 @@
-import { breakLines, Item, MAX_COST } from 'src/breakLines/breakLines';
+import { breakLines, MAX_COST } from 'src/breakLines/breakLines';
 import { breakLinesGreedy } from 'src/breakLines/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
+import { Item } from 'src/items';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
 import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
 import { getLineWidth, isSoftHyphen, TextBox, TextItem } from 'src/utils';

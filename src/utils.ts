@@ -1,5 +1,6 @@
-import { Box, Glue, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines/breakLines';
+import { MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
 import { DOMGlue, DOMItem } from 'src/html/getItemsFromDOM';
+import { Box, Glue, Item, Penalty } from 'src/items';
 import { TexLinebreakOptions } from 'src/options';
 
 /** Useful when working with raw strings instead of DOM nodes. */

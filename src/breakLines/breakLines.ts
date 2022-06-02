@@ -1,68 +1,6 @@
+import { Items } from 'src/items';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
 import { getLineWidth, isForcedBreak, penalty } from 'src/utils';
-
-/** An object (eg. a word) to be typeset. */
-export interface Box {
-  type: 'box';
-  /** Amount of space required by this content. Must be >= 0. */
-  width: number;
-
-  /** Values for hanging punctuation. */
-  rightHangingPunctuationWidth?: number;
-  leftHangingPunctuationWidth?: number;
-}
-
-/**
- * A space between `Box` items with a preferred width
- * and some capacity to stretch or shrink.
- *
- * `Glue` items are also candidates for breakpoints
- * if they immediately follow a `Box`. // TODO: Check
- */
-export interface Glue {
-  type: 'glue';
-  /** Preferred width of this space. */
-  width: number;
-  /**
-   * Maximum amount by which this space can grow (given a
-   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
-   * A `width` of 5 and a `stretch` of 1 means that the glue can have
-   * a width of 6. A value of 0 means that it cannot stretch.
-   */
-  stretch: number;
-  /**
-   * Maximum amount by which this space can shrink (given a
-   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
-   * A `width` of 5 and a `shrink` of 1 means that the glue can have a
-   * width of 4. A value of 0 means that it cannot shrink.
-   */
-  shrink: number;
-}
-
-/** An explicit candidate position for breaking a line. */
-export interface Penalty {
-  type: 'penalty';
-
-  /**
-   * Amount of space required for typeset content to be added
-   * (eg. a hyphen) if a line is broken here. Must be >= 0.
-   */
-  width: number;
-  /**
-   * The undesirability of breaking the line at this point.
-   * Values <= `MIN_COST` and >= `MAX_COST` mandate or
-   * prevent breakpoints respectively.
-   */
-  cost: number;
-  /**
-   * A hint used to prevent successive lines being broken
-   * with hyphens. The layout algorithm will try to avoid
-   * successive lines being broken at flagged `Penalty` items.
-   */
-  flagged?: boolean;
-}
-
-export type Item = Box | Penalty | Glue;
 
 /**
  * Minimum cost for a breakpoint.
@@ -115,7 +53,7 @@ export class MaxAdjustmentExceededError extends Error {}
  *       (which it does after increasing the allowed adjustment ratio).
  */
 export function breakLines(
-  items: Item[],
+  items: Items, //Item[],
   _options: RequireOnlyCertainKeys<TexLinebreakOptions, 'lineWidth'>,
   currentRecursionDepth = 0,
 ): number[] {
@@ -124,21 +62,13 @@ export function breakLines(
   /** Validate input (if this is the first time the function is called) */
   if (currentRecursionDepth === 0) {
     /** Input has to end in a MIN_COST penalty */
-    const lastItem = items[items.length - 1];
-    if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
+    if (!items.last?.isForcedBreak) {
       throw new Error(
         "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off.",
       );
     }
     /** A glue cannot be followed by a non-MIN_COST penalty */
-    if (
-      items.some(
-        (item, index) =>
-          item.type === 'glue' &&
-          items[index + 1].type === 'penalty' &&
-          !isForcedBreak(items[index + 1]),
-      )
-    ) {
+    if (items.some((item) => item.isGlue && item.next?.isPenalty && !item.next?.isForcedBreak)) {
       throw new Error(
         "A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it.",
       );
@@ -213,7 +143,7 @@ export function breakLines(
     let canBreak = false;
     if (item.type === 'box') {
       sumWidth += item.width;
-    } else if (item.type === 'glue') {
+    } else if (item.isGlue) {
       canBreak = b > 0 && items[b - 1].type === 'box';
       if (!canBreak) {
         sumWidth += item.width;
@@ -351,11 +281,11 @@ export function breakLines(
           if (item.type === 'box') {
             break;
           }
-          if (item.type === 'penalty' && item.cost >= MAX_COST) {
+          if (item.isPenaltyThatDoesNotForceBreak) {
             break;
           }
           widthToNextBox += item.width;
-          if (item.type === 'glue') {
+          if (item.isGlue) {
             shrinkToNextBox += item.shrink;
             stretchToNextBox += item.stretch;
           }
@@ -421,7 +351,7 @@ export function breakLines(
       }
     }
 
-    if (item.type === 'glue') {
+    if (item.isGlue) {
       sumWidth += item.width;
       sumStretch += item.stretch;
       sumShrink += item.shrink;

@@ -1,4 +1,4 @@
-import { Item } from 'src/breakLines/breakLines';
+import { Item } from 'src/items';
 import { LineWidth } from 'src/utils';
 
 /**

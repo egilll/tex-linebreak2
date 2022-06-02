@@ -1,4 +1,5 @@
-import { Box, Glue, INFINITE_STRETCH, Penalty } from 'src/breakLines/breakLines';
+import { INFINITE_STRETCH } from 'src/breakLines/breakLines';
+import { Box, Glue, Penalty } from 'src/items';
 import { TexLinebreakOptions } from 'src/options';
 import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
 import {
