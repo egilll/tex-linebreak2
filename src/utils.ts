@@ -1,7 +1,6 @@
 import { MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
 import { DOMGlue, DOMItem } from 'src/html/getItemsFromDOM';
-import { Box, Glue, Item, Penalty } from 'src/items';
-import { TexLinebreakOptions } from 'src/options';
+import { Box, Glue, Item, Items, Penalty } from 'src/items';
 
 /** Useful when working with raw strings instead of DOM nodes. */
 export interface TextBox extends Box {
@@ -19,9 +18,6 @@ export function box(width: number, text: string): TextBox;
 export function box(width: number, text?: string): Box | TextBox {
   return { type: 'box', width, text };
 }
-export function textBox(text: string, options: TexLinebreakOptions): TextBox {
-  return box(options.measureFn(text), text);
-}
 
 export function glue(width: number, shrink: number, stretch: number): Glue;
 export function glue(width: number, shrink: number, stretch: number, text: string): TextGlue;
@@ -38,47 +34,9 @@ export function glue(
   }
 }
 
-export function textGlue(text: string, options: TexLinebreakOptions): TextGlue | TextItem[] {
-  throw new Error('Not implemented');
-  // const spaceWidth = options.measureFn(' ');
-  // const spaceShrink = spaceWidth * options.glueShrinkFactor;
-  // const spaceStretch = spaceWidth * options.glueStretchFactor;
-  // if (options.justify) {
-  //   /** Spaces in justified lines */
-  //   return glue(spaceWidth, spaceShrink, spaceStretch, text);
-  // } else {
-  //   /**
-  //    * Spaces in ragged lines. See p. 1139.
-  //    * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=21
-  //    * (Todo: Ragged line spaces should perhaps be allowed to stretch
-  //    * a bit, but it should probably still be listed as zero here since
-  //    * otherwise a line with many spaces is more likely to be a good fit.)
-  //    */
-  //   const lineFinalStretch = 3 * spaceWidth;
-  //   return [
-  //     glue(0, 0, lineFinalStretch, text),
-  //     penalty(0, 0),
-  //     glue(spaceWidth, 0, -lineFinalStretch, text),
-  //   ];
-  // }
-}
-
 export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
   return { type: 'penalty', width, cost, flagged };
 }
-
-export const softHyphen = (options: TexLinebreakOptions) => {
-  // const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn('-');
-  // return penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true);
-  // /**
-  //  * Todo: Optional hyphenations in unjustified text, p 1139. Slightly
-  //  * tricky as:
-  //  * "After the breakpoints have been chosen using the above sequences
-  //  * for spaces and for optional hyphens, the individual lines
-  //  * should not actually be justified, since a hyphen inserted by the
-  //  * ‘penalty(6,500,1)’ would otherwise appear at the right margin."
-  //  */
-};
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
 export const isSoftHyphen = (item: Item | undefined): boolean => {
@@ -131,35 +89,30 @@ export const collapseAdjacentGlue = <T extends TextItem | DOMItem>(items: T[]): 
   return output;
 };
 
-export const forciblySplitLongWords = (
-  items: TextItem[],
-  options: TexLinebreakOptions,
-): TextItem[] => {
-  let output: TextItem[] = [];
-  const minLineWidth = getMinLineWidth(options.lineWidth);
+export const forciblySplitLongWords = (items: Items) => {
+  const minLineWidth = getMinLineWidth(items.options.lineWidth);
   items.forEach((item) => {
-    if (item.type === 'box' /*&& item.width > minLineWidth*/) {
+    if (item.type === 'box' && item.width > minLineWidth) {
       for (let i = 0; i < item.text.length; i++) {
         const char = item.text[i];
-        /** Add penalty */
-        // Separators
-        if (/\p{General_Category=Z}/u.test(char)) {
-          output.push(penalty(0, 0));
-        }
-        // Punctuation
-        else if (/\p{General_Category=P}/u.test(char)) {
-          output.push(penalty(0, 0));
-        } else {
-          output.push(penalty(0, 999));
-        }
-        /** Add glue */
-        output.push(textBox(char, options));
+        throw new Error('Not implemented');
+        // todo: ekki rétt gert hjá mér að replace-a svona
+        // /** Add penalty */
+        // // Separators
+        // if (/\p{General_Category=Z}/u.test(char)) {
+        //   items.add(penalty(0, 0));
+        // }
+        // // Punctuation
+        // else if (/\p{General_Category=P}/u.test(char)) {
+        //   items.add(penalty(0, 0));
+        // } else {
+        //   items.add(penalty(0, 999));
+        // }
+        // /** Add glue */
+        // items.addTextBox(char, );
       }
-    } else {
-      output.push(item);
     }
   });
-  return output;
 };
 
 export type LineWidth = number | number[] | LineWidthObject;

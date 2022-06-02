@@ -1,7 +1,8 @@
 import { MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
+import { DOMItem, DomOffset } from 'src/html/getItemsFromDOM';
 import { TexLinebreakOptions } from 'src/options';
 import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
-import { box, glue, penalty } from 'src/utils';
+import { box, glue, penalty, TextItem } from 'src/utils';
 
 /** An object (eg. a word) to be typeset. */
 export interface Box {
@@ -69,7 +70,7 @@ export class Items extends Array<Item> {
   constructor(public options: TexLinebreakOptions) {
     super();
   }
-  add(itemData: Box | Glue | Penalty) {
+  add(itemData: Box | Glue | Penalty | TextItem | DOMItem) {
     this.push(new Item(itemData, this));
   }
   addTextBox(text: string) {
@@ -136,6 +137,7 @@ export class Items extends Array<Item> {
 export class Item<T = Box | Glue | Penalty> {
   constructor(input: T, public parentArray: Items) {
     Object.assign(this, input);
+    this.#index = parentArray.length;
   }
 
   type!: 'box' | 'glue' | 'penalty';
@@ -156,6 +158,9 @@ export class Item<T = Box | Glue | Penalty> {
   /** Values for hanging punctuation. Only used by boxes. */
   rightHangingPunctuationWidth?: number;
   leftHangingPunctuationWidth?: number;
+
+  text: string = '';
+  domOffset?: DomOffset;
 
   get isBox() {
     return this.type === 'box';
@@ -186,10 +191,48 @@ export class Item<T = Box | Glue | Penalty> {
   }
 
   get prev(): Item | undefined {
-    return this.parentArray[this.parentArray.indexOf(this) - 1];
+    return this.parentArray[this.index - 1];
   }
 
   get next(): Item | undefined {
-    return this.parentArray[this.parentArray.indexOf(this) + 1];
+    return this.parentArray[this.index + 1];
+  }
+
+  /**
+   * It may be useful to have an item's index be dynamic
+   * since items may be merged or split. Cached since
+   * `this.parentArray.indexOf(this)` may be expensive
+   */
+  get index(): number {
+    if (this.#index != null && this.parentArray[this.#index] === this) {
+      return this.#index;
+    } else {
+      return (this.#index = this.parentArray.indexOf(this));
+    }
+  }
+  #index?: number;
+
+  /** Get the nearest previous item that matches a predicate. */
+  getPrevMatching(
+    callbackFn: (item: Item) => boolean,
+    options: { minIndex?: number },
+  ): Item | undefined {
+    for (let j = this.index - 1; j >= (options.minIndex || 0); j--) {
+      const item = this.parentArray[j];
+      if (callbackFn(item)) return item;
+    }
+    return undefined;
+  }
+
+  /** Get the next item that matches a predicate. */
+  getNextMatching(
+    callbackFn: (item: Item) => boolean,
+    options: { maxIndex?: number },
+  ): Item | undefined {
+    for (let j = this.index + 1; j <= (options.maxIndex || this.parentArray.length); j++) {
+      const item = this.parentArray[j];
+      if (callbackFn(item)) return item;
+    }
+    return undefined;
   }
 }

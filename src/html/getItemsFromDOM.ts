@@ -1,18 +1,10 @@
 import { INFINITE_STRETCH } from 'src/breakLines/breakLines';
-import { Box, Glue, Penalty } from 'src/items';
+import { Box, Glue, Items, Penalty } from 'src/items';
 import { TexLinebreakOptions } from 'src/options';
 import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
-import {
-  box,
-  collapseAdjacentGlue,
-  forcedBreak,
-  glue,
-  TextBox,
-  TextGlue,
-  TextItem,
-} from 'src/utils';
+import { box, forcedBreak, glue, TextBox, TextGlue, TextItem } from 'src/utils';
 
-export interface RangeInfo {
+export interface DomOffset {
   /**
    * Character offset of this item (box/penalty/glue)
    * in the parent DOM node, used to create a `Range`
@@ -23,13 +15,13 @@ export interface RangeInfo {
   endContainer: Node;
 }
 
-export type DOMBox = (Box | TextBox) & RangeInfo;
-export type DOMGlue = (Glue | TextGlue) & RangeInfo;
-export type DOMPenalty = Penalty & RangeInfo;
+export type DOMBox = (Box | TextBox) & { domOffset: DomOffset };
+export type DOMGlue = (Glue | TextGlue) & { domOffset: DomOffset };
+export type DOMPenalty = Penalty & { domOffset: DomOffset };
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
 export class GetItemsFromDOM {
-  #items: DOMItem[] = [];
+  items: Items;
   paragraphText: string;
   /**
    * This is done since we need to be aware of the
@@ -41,27 +33,30 @@ export class GetItemsFromDOM {
     public options: TexLinebreakOptions,
     public domTextMeasureFn: (text: string, context: Element) => number,
   ) {
+    this.items = new Items(options);
     this.paragraphText = paragraphElement.textContent || '';
     this.getItemsFromNode(paragraphElement);
   }
 
-  get items() {
-    return collapseAdjacentGlue(this.#items);
-  }
+  // getItems() {
+  //   return collapseAdjacentGlue(this.items);
+  // }
 
   /** Adds an item and makes a record of its DOM range */
-  addItem(
+  addItemWithDomOffset(
     item: Box | Glue | Penalty,
     startContainer: Node,
     startOffset: number,
     endOffset: number,
   ) {
-    this.#items.push({
+    this.items.add({
       ...item,
-      startContainer: startContainer,
-      startOffset,
-      endContainer: startContainer,
-      endOffset,
+      domOffset: {
+        startContainer: startContainer,
+        startOffset,
+        endContainer: startContainer,
+        endOffset,
+      },
     });
   }
 
@@ -85,10 +80,10 @@ export class GetItemsFromDOM {
        * Add a synthetic glue that absorbs any
        * left-over space at the end of the last line.
        */
-      this.addItem(glue(0, 0, INFINITE_STRETCH), node, endOffset, endOffset);
+      this.addItemWithDomOffset(glue(0, 0, INFINITE_STRETCH), node, endOffset, endOffset);
 
       /** Add a forced break to end the paragraph. */
-      this.addItem(forcedBreak(), node, endOffset, endOffset);
+      this.addItemWithDomOffset(forcedBreak(), node, endOffset, endOffset);
     }
   }
 
@@ -109,7 +104,7 @@ export class GetItemsFromDOM {
       const leftMargin =
         parseFloat(marginLeft!) + parseFloat(borderLeftWidth!) + parseFloat(paddingLeft!);
       if (leftMargin > 0) {
-        this.addItem(box(leftMargin), element, 0, 0);
+        this.addItemWithDomOffset(box(leftMargin), element, 0, 0);
       }
 
       // Add items for child nodes.
@@ -120,11 +115,11 @@ export class GetItemsFromDOM {
         parseFloat(marginRight!) + parseFloat(borderRightWidth!) + parseFloat(paddingRight!);
       if (rightMargin > 0) {
         const length = element.childNodes.length;
-        this.addItem(box(rightMargin), element, length, length);
+        this.addItemWithDomOffset(box(rightMargin), element, length, length);
       }
     } else {
       // Treat this item as an opaque box.
-      this.addItem(box(parseFloat(width!)), element, 0, 1);
+      this.addItemWithDomOffset(box(parseFloat(width!)), element, 0, 1);
       // this.addItem(box(parseFloat(width!)), parentNode, startOffset, startOffset + 1);
     }
   }
@@ -152,7 +147,7 @@ export class GetItemsFromDOM {
     textItems.forEach((item: TextItem) => {
       const startOffset = textOffsetInThisNode;
       textOffsetInThisNode += ('text' in item ? item.text : '').length;
-      this.addItem(item, textNode, startOffset, textOffsetInThisNode);
+      this.addItemWithDomOffset(item, textNode, startOffset, textOffsetInThisNode);
     });
 
     this.textOffsetInParagraph += textOffsetInThisNode;

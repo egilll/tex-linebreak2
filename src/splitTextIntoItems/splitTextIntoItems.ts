@@ -8,15 +8,7 @@ import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
   UnicodeLineBreakingClasses,
 } from 'src/typings/unicodeLineBreakingClasses';
-import {
-  forciblySplitLongWords,
-  glue,
-  penalty,
-  softHyphen,
-  textBox,
-  textGlue,
-  TextItem,
-} from 'src/utils';
+import { forciblySplitLongWords, glue, penalty } from 'src/utils';
 
 export const NON_BREAKING_SPACE = '\u00A0';
 export const SOFT_HYPHEN = '\u00AD';
@@ -50,7 +42,7 @@ export const splitTextIntoItems = (
    */
   precedingText: string = '',
   followingText: string = '',
-): TextItem[] => {
+): Items => {
   options = getOptionsWithDefaults(options);
 
   let items = new Items(options);
@@ -59,7 +51,7 @@ export const splitTextIntoItems = (
   followingText = followingText.slice(0, 3);
   const inputWithSurroundingText = precedingText + input + followingText;
   const breakpoints: Record<number, BreakpointInformation> =
-    getBreakpoints(inputWithSurroundingText);
+    getAllowableUnicodeBreakpoints(inputWithSurroundingText);
 
   /**
    * We start by splitting the input into segments of either boxes (text) or
@@ -122,7 +114,7 @@ export const splitTextIntoItems = (
 
   segments.forEach((segment, index) => {
     if (segment.type === 'glue') {
-      items.add(textGlue(segment.text, options));
+      items.addTextGlue(segment.text);
       /**
        * Non-breaking spaces and normal spaces that
        * cannot be broken, e.g. spaces before slashes.
@@ -131,13 +123,13 @@ export const splitTextIntoItems = (
         items.add(penalty(0, MAX_COST));
       }
     } else if (segment.type === 'box') {
-      items.add(textBox(segment.text, options));
+      items.addTextBox(segment.text);
     }
 
     if (segment.breakpoint) {
       /** Soft hyphens */
       if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
-        items.add(softHyphen(options));
+        items.addSoftHyphen();
         return;
       }
 
@@ -164,11 +156,11 @@ export const splitTextIntoItems = (
   });
 
   if (options.hangingPunctuation) {
-    items = addHangingPunctuation(items, options);
+    addHangingPunctuation(items);
   }
 
   if (options.forceOverflowToBreak) {
-    items = forciblySplitLongWords(items, options);
+    forciblySplitLongWords(items);
   }
 
   return items;
@@ -178,13 +170,15 @@ export const splitTextIntoItems = (
  * A helper function around the {@link LineBreaker} module.
  * Returns breakpoints and their Unicode breakpoint letter classification.
  */
-export const getBreakpoints = (input: string): Record<number, BreakpointInformation> => {
+export const getAllowableUnicodeBreakpoints = (
+  input: string,
+): Record<number, BreakpointInformation> => {
   const lineBreaker = new LineBreaker(input);
   let currentBreak: Break;
   let positionToBreakpointInformation: Record<number, BreakpointInformation> = {};
   while ((currentBreak = lineBreaker.nextBreak())) {
-    const lastLetterClass = getLineBreakingClassOfLetterAt(input, currentBreak.position - 1);
-    const nextLetterClass = getLineBreakingClassOfLetterAt(input, currentBreak.position);
+    const lastLetterClass = getUnicodeLineBreakingClassOfLetterAt(input, currentBreak.position - 1);
+    const nextLetterClass = getUnicodeLineBreakingClassOfLetterAt(input, currentBreak.position);
     positionToBreakpointInformation[currentBreak.position] = {
       position: currentBreak.position,
       required: currentBreak.required,
@@ -200,7 +194,7 @@ export const getBreakpoints = (input: string): Record<number, BreakpointInformat
  * Input should be the full string and not a substring – it has to
  * include the surrounding characters to get an accurate classification.
  */
-export const getLineBreakingClassOfLetterAt = (
+export const getUnicodeLineBreakingClassOfLetterAt = (
   input: string,
   position: number,
 ): UnicodeLineBreakingClasses => {

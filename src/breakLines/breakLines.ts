@@ -76,11 +76,6 @@ export function breakLines(
     /** Line number. */
     line: number;
     fitness: number;
-    /**
-     * Sum of `width` up to this point (todo: tmp,
-     * checking regarding negative requirements)
-     */
-    sumWidth: number;
     /** Sum of `width` up to first box or forced break after this break. */
     totalWidth: number;
     /** Sum of `stretch` up to first box or forced break after this break. */
@@ -105,7 +100,6 @@ export function breakLines(
     line: 0,
     // Fitness is ignored for this node.
     fitness: 0,
-    sumWidth: 0,
     totalWidth: 0,
     totalStretch: 0,
     totalShrink: 0,
@@ -138,15 +132,24 @@ export function breakLines(
     if (item.isBox) {
       sumWidth += item.width;
     } else if (item.isGlue) {
-      /* TODO: verify */
+      /**
+       * Only glue that comes immediately after a
+       * box is a possible breakpoint (p. 1158).
+       */
       canBreak = b > 0 && item.prev!.isBox;
+      /**
+       * If the glue cannot break, we add its width
+       * here since the main loop will not run.
+       * However, for glue that can break, we add
+       * its width at the end of the main loop.
+       */
       if (!canBreak) {
         sumWidth += item.width;
         sumShrink += item.shrink;
         sumStretch += item.stretch;
       }
     } else if (item.isPenalty) {
-      canBreak = item.cost < MAX_COST;
+      canBreak = item.isBreakablePenalty;
     }
     if (!canBreak) {
       continue;
@@ -174,26 +177,34 @@ export function breakLines(
       const idealLen = getLineWidth(options.lineWidth, a.line);
       let actualLen = sumWidth - a.totalWidth;
       if (options.hangingPunctuation) {
-        actualLen -= item.leftHangingPunctuationWidth || 0;
-        actualLen -= item.rightHangingPunctuationWidth || 0;
+        actualLen -=
+          items[a.index].getNextMatching((i) => i.isBox, { maxIndex: b - 1 })
+            ?.leftHangingPunctuationWidth || 0;
+        actualLen -=
+          items[b].getPrevMatching((i) => i.isBox, { minIndex: a.index + 1 })
+            ?.rightHangingPunctuationWidth || 0;
       }
       /** Include width of penalty in line length if chosen as a breakpoint. */
       if (item.isPenalty) {
         actualLen += item.width;
       }
 
-      /** Compute adjustment ratio from `a` to `b`. */
+      /** Adjustment ratio from `a` to `b`. */
       let adjustmentRatio;
       if (actualLen === idealLen) {
         adjustmentRatio = 0;
       } else if (actualLen < idealLen) {
-        /**
-         * Note: Division by zero produces
-         * `Infinity` here, which is what we want.
-         */
-        adjustmentRatio = (idealLen - actualLen) / lineStretch;
+        if (lineStretch > 0) {
+          adjustmentRatio = (idealLen - actualLen) / lineStretch;
+        } else {
+          adjustmentRatio = Infinity;
+        }
       } else {
-        adjustmentRatio = (idealLen - actualLen) / lineShrink;
+        if (lineShrink > 0) {
+          adjustmentRatio = (idealLen - actualLen) / lineShrink;
+        } else {
+          adjustmentRatio = Infinity;
+        }
       }
       if (adjustmentRatio > currentMaxAdjustmentRatio) {
         /**
@@ -218,13 +229,12 @@ export function breakLines(
          * Restriction no. 1 on negative breaks. (See page 1156,
          * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=38)
          *
-         * The total width up to `a` cannot be larger than the total width
-         * up to `b`.
+         * The total width up to `a` cannot be larger than the total width up
+         * to `b`.
          *
-         * Todo: Test, and verify that it is sumWidth rather than totalWidth
-         * that we're discussing.
+         * Todo: Test, and verify that it is totalWidth that we're discussing.
          */
-        a.sumWidth > sumWidth ||
+        a.totalWidth > sumWidth ||
         /**
          * Restriction no. 2 on negative breaks:
          *
@@ -308,7 +318,6 @@ export function breakLines(
           index: b,
           line: a.line + 1,
           fitness,
-          sumWidth,
           totalWidth: sumWidth + widthToNextBox,
           totalShrink: sumShrink + shrinkToNextBox,
           totalStretch: sumStretch + stretchToNextBox,
