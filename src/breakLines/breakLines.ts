@@ -1,5 +1,5 @@
-import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
-import { getLineWidth, isForcedBreak, LineWidth, penalty } from 'src/utils';
+import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
+import { getLineWidth, isForcedBreak, penalty } from 'src/utils';
 
 /** An object (eg. a word) to be typeset. */
 export interface Box {
@@ -104,11 +104,8 @@ export class MaxAdjustmentExceededError extends Error {}
  * {@link TexLinebreakOptions#allowSingleWordLines}.
  *
  * @param items - Sequence of box, glue and penalty items to layout.
- * @param lineWidth - Length or lengths of each line.
- *       (Although this parameter could be removed (it's already a part of
- *       {@link TexLinebreakOptions}), it's kept here for backwards compatibility
- *       with versions <=0.6.)
  * @param _options - The following options are used here:
+ *       {@link TexLinebreakOptions#lineWidth}
  *       {@link TexLinebreakOptions#maxAdjustmentRatio}
  *       {@link TexLinebreakOptions#initialMaxAdjustmentRatio}
  *       {@link TexLinebreakOptions#doubleHyphenPenalty}
@@ -119,8 +116,7 @@ export class MaxAdjustmentExceededError extends Error {}
  */
 export function breakLines(
   items: Item[],
-  lineWidth: LineWidth | null,
-  _options: Partial<TexLinebreakOptions> = {},
+  _options: RequireOnlyCertainKeys<TexLinebreakOptions, 'lineWidth'>,
   currentRecursionDepth = 0,
 ): number[] {
   if (items.length === 0) return [];
@@ -150,7 +146,6 @@ export function breakLines(
   }
 
   const options = getOptionsWithDefaults(_options);
-  if (lineWidth) options.lineWidth = lineWidth;
 
   const currentMaxAdjustmentRatio = Math.min(
     options.initialMaxAdjustmentRatio,
@@ -403,15 +398,8 @@ export function breakLines(
          * Too much stretching was required for an earlier ignored breakpoint.
          * Try again with a higher threshold.
          */
-        return breakLines(
-          items,
-          lineWidth,
-          {
-            ..._options,
-            initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
-          },
-          (currentRecursionDepth = 1),
-        );
+        options.initialMaxAdjustmentRatio = minAdjustmentRatioAboveThreshold * 2;
+        return breakLines(items, options, currentRecursionDepth + 1);
       } else {
         /**
          * We cannot create a breakpoint sequence by increasing the

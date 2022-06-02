@@ -26,7 +26,7 @@ export class TexLinebreak<
     if (this.options.lineBreakingType === 'greedy') {
       return breakLinesGreedy(this.items, this.options.lineWidth);
     } else {
-      return breakLines(this.items, null, this.options);
+      return breakLines(this.items, this.options);
     }
   }
   get lines(): Line<InputItemType>[] {
