@@ -69,12 +69,18 @@ export function breakLines(
     options.maxAdjustmentRatio !== null ? options.maxAdjustmentRatio : Infinity,
   );
 
+  /** A line-breaking node either represents a glue or a penalty. */
   type LineBreakingNode = {
     /** Index in `items`. */
     index: number;
     /** Line number. */
     line: number;
     fitness: number;
+    /**
+     * Sum of `width` up to this point (todo: tmp,
+     * checking regarding negative requirements)
+     */
+    sumWidth: number;
     /** Sum of `width` up to first box or forced break after this break. */
     totalWidth: number;
     /** Sum of `stretch` up to first box or forced break after this break. */
@@ -99,6 +105,7 @@ export function breakLines(
     line: 0,
     // Fitness is ignored for this node.
     fitness: 0,
+    sumWidth: 0,
     totalWidth: 0,
     totalStretch: 0,
     totalShrink: 0,
@@ -131,7 +138,7 @@ export function breakLines(
     if (item.isBox) {
       sumWidth += item.width;
     } else if (item.isGlue) {
-      /* þetta er ekki rétt... TODO */
+      /* TODO: verify */
       canBreak = b > 0 && item.prev!.isBox;
       if (!canBreak) {
         sumWidth += item.width;
@@ -152,7 +159,7 @@ export function breakLines(
     let lastActive: LineBreakingNode | null = null;
 
     const feasible: LineBreakingNode[] = [];
-    active.forEach((a) => {
+    active.forEach((a: LineBreakingNode) => {
       const lineShrink = sumShrink - a.totalShrink;
       let lineStretch = sumStretch - a.totalStretch;
       /**
@@ -174,13 +181,6 @@ export function breakLines(
       if (item.isPenalty) {
         actualLen += item.width;
       }
-
-      /** TODO: wip */
-      /**
-       * Restriction no. 1 on negative breaks. See page 1156.
-       * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=38
-       */
-      // const M_b = (sumWidth+actualLen)-sumShrink
 
       /** Compute adjustment ratio from `a` to `b`. */
       let adjustmentRatio;
@@ -207,11 +207,46 @@ export function breakLines(
         );
       }
 
-      if (adjustmentRatio < MIN_ADJUSTMENT_RATIO || isForcedBreak(item)) {
-        /** Items from `a` to `b` cannot fit on one line. */
+      /**
+       * Check whether items from `a` to `b` can fit
+       * on one line, if not, remove the active node.
+       */
+      if (
+        adjustmentRatio < MIN_ADJUSTMENT_RATIO ||
+        isForcedBreak(item) ||
+        /**
+         * Restriction no. 1 on negative breaks. (See page 1156,
+         * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=38)
+         *
+         * The total width up to `a` cannot be larger than the total width
+         * up to `b`.
+         *
+         * Todo: Test, and verify that it is sumWidth rather than totalWidth
+         * that we're discussing.
+         */
+        a.sumWidth > sumWidth ||
+        /**
+         * Restriction no. 2 on negative breaks:
+         *
+         * If no item between `a` and `b` is a box or
+         * a forced break, then `b` has to either
+         *
+         * - Be the last item, or
+         * - Be followed by a box or breakable penalty.
+         */
+        // No item between `a` and `b` is a box or forced break
+        (!items.slice(a.index, b).some((i) => i.isBox || i.isForcedBreak) &&
+          !(
+            b === items.length - 1 || // Is the last item
+            items[b + 1].isBox || // Is followed by a box
+            // Is followed by a breakable penalty
+            items[b + 1].isBreakablePenalty
+          ))
+      ) {
         active.delete(a);
         lastActive = a;
       }
+
       if (adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio) {
         /**
          * We found a feasible breakpoint. Compute a
@@ -273,6 +308,7 @@ export function breakLines(
           index: b,
           line: a.line + 1,
           fitness,
+          sumWidth,
           totalWidth: sumWidth + widthToNextBox,
           totalShrink: sumShrink + shrinkToNextBox,
           totalStretch: sumStretch + stretchToNextBox,
@@ -330,6 +366,7 @@ export function breakLines(
     }
 
     if (item.isGlue) {
+      /** The widths of boxes were already added above */
       sumWidth += item.width;
       sumStretch += item.stretch;
       sumShrink += item.shrink;

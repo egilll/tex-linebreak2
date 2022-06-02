@@ -1,4 +1,4 @@
-import { MIN_COST } from 'src/breakLines/breakLines';
+import { MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
 import { TexLinebreakOptions } from 'src/options';
 import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 import { box, glue, penalty } from 'src/utils';
@@ -171,6 +171,10 @@ export class Item<T = Box | Glue | Penalty> {
 
   get isForcedBreak() {
     return this.type === 'penalty' && this.cost <= MIN_COST;
+  }
+
+  get isBreakablePenalty() {
+    return this.type === 'penalty' && this.cost < MAX_COST;
   }
 
   get isPenaltyThatDoesNotForceBreak() {
