@@ -1,6 +1,7 @@
 import LineBreaker, { Break } from 'linebreak';
 import { INFINITE_STRETCH, MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
 import { addHangingPunctuation } from 'src/hangingPunctuation';
+import { Items2 } from 'src/items';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 import { getBreakpointPenalty, PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 import {
@@ -52,10 +53,10 @@ export const splitTextIntoItems = (
 ): TextItem[] => {
   options = getOptionsWithDefaults(options);
 
-  let items: TextItem[] = [];
+  let items = new Items2(options);
 
-  precedingText = ''; //precedingText.slice(-3);
-  followingText = ''; //followingText.slice(0, 3);
+  precedingText = precedingText.slice(-3);
+  followingText = followingText.slice(0, 3);
   const inputWithSurroundingText = precedingText + input + followingText;
   const breakpoints: Record<number, BreakpointInformation> =
     getBreakpoints(inputWithSurroundingText);
@@ -121,22 +122,22 @@ export const splitTextIntoItems = (
 
   segments.forEach((segment, index) => {
     if (segment.type === 'glue') {
-      items.push(textGlue(segment.text, options));
+      items.add(textGlue(segment.text, options));
       /**
        * Non-breaking spaces and normal spaces that
        * cannot be broken, e.g. spaces before slashes.
        */
       if (!segment.breakpoint) {
-        items.push(penalty(0, MAX_COST));
+        items.add(penalty(0, MAX_COST));
       }
     } else if (segment.type === 'box') {
-      items.push(textBox(segment.text, options));
+      items.add(textBox(segment.text, options));
     }
 
     if (segment.breakpoint) {
       /** Soft hyphens */
       if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
-        items.push(softHyphen(options));
+        items.add(softHyphen(options));
         return;
       }
 
@@ -146,7 +147,7 @@ export const splitTextIntoItems = (
 
       /** Paragraph-final infinite glue */
       if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
-        items.push(glue(0, 0, INFINITE_STRETCH, ''));
+        items.add(glue(0, 0, INFINITE_STRETCH, ''));
       }
 
       /**
@@ -158,7 +159,7 @@ export const splitTextIntoItems = (
       }
 
       /** Add the penalty for this break. */
-      items.push(penalty(0, cost));
+      items.add(penalty(0, cost));
     }
   });
 
