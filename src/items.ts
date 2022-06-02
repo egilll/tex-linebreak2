@@ -1,5 +1,5 @@
 import { MIN_COST } from 'src/breakLines/breakLines';
-import { RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
+import { TexLinebreakOptions } from 'src/options';
 import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 import { box, glue, penalty } from 'src/utils';
 
@@ -69,13 +69,7 @@ export class Items extends Array<Item> {
     super();
   }
   add(itemData: Box | Glue | Penalty) {
-    if(itemData.type==='box'){
-    this.push(new Box2(itemData, this));
-    } else if (itemData.type==='glue'){
-    this.push(new Glue2(itemData, this));
-    } else if (itemData.type==='penalty'){
-    this.push(new Penalty2(itemData, this));
-    }
+    this.push(new Item(itemData, this));
   }
   addTextBox(text: string) {
     this.add(box(this.options.measureFn(text), text));
@@ -124,67 +118,89 @@ export class Items extends Array<Item> {
 }
 
 /** A wrapper around boxes, glue, and penalties. */
-export class BaseItem {
-  constructor(public values: Partial<Box2|Glue2|Penalty2>, public parentArray: Items) {}
+export class Item {
+  constructor(input: Box | Glue | Penalty, public parentArray: Items) {
+    Object.assign(this, input);
+  }
 
-  // /** Value getters */
-  //
-  // get type(): T['type'] {
-  //   return this.values.type;
-  // }
-  //
-  // get width() {
-  //   return this.values.width;
-  // }
-  //
-  // get stretch(): Glue['stretch'] | null {
-  //   return this.values.type === 'glue' ? this.values.stretch : null;
-  // }
-  //
-  // get shrink(): Glue['shrink'] | null {
-  //   return 'shrink' in this.values ? this.values.shrink : null;
-  // }
-  //
-  // get cost(): Penalty['cost'] | null {
-  //   return 'cost' in this.values ? this.values.cost : null;
-  // }
-  //
-  // get flagged(): Penalty['flagged'] | null {
-  //   return 'flagged' in this.values ? this.values.flagged : null;
-  // }
-  //
-  // get rightHangingPunctuationWidth(): Box['rightHangingPunctuationWidth'] | undefined {
-  //   return this.values.type === 'box' ? this.values.rightHangingPunctuationWidth : undefined;
-  // }
-  //
-  // get leftHangingPunctuationWidth(): Box['leftHangingPunctuationWidth'] | undefined {
-  //   return this.values.type === 'box' ? this.values.leftHangingPunctuationWidth : undefined;
-  // }
+  type!: 'box' | 'glue' | 'penalty';
 
-  /** Helper functions */
+  /**
+   * For boxes, this is the amount of space required by the content.
+   * For glues, this is the preferred width.
+   * For penalties, this is the amount of space required for typeset
+   * content to be added (eg. a hyphen) if a line is broken here.
+   */
+  width!: number;
+
+  /**
+   * Only applies to glue.
+   *
+   * Maximum amount by which this space can grow (given a
+   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
+   * A `width` of 5 and a `stretch` of 1 means that the glue can have
+   * a width of 6. A value of 0 means that it cannot stretch.
+   */
+  stretch: number = 0;
+
+  /**
+   * Only applies to glue.
+   *
+   * Maximum amount by which this space can shrink (given a
+   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
+   * A `width` of 5 and a `shrink` of 1 means that the glue can have a
+   * width of 4. A value of 0 means that it cannot shrink.
+   */
+  shrink: number = 0;
+
+  /**
+   * Only applies to penalties.
+   *
+   * The undesirability of breaking the line at this point.
+   * Values <= `MIN_COST` and >= `MAX_COST` mandate or
+   * prevent breakpoints respectively.
+   */
+  cost: number = 0;
+
+  /**
+   * Only applies to penalties.
+   *
+   * A hint used to prevent successive lines being broken
+   * with hyphens. The layout algorithm will try to avoid
+   * successive lines being broken at flagged `Penalty` items.
+   */
+  flagged?: boolean;
+
+  /**
+   * Only applies to boxes.
+   *
+   * Values for hanging punctuation. Only used by boxes.
+   */
+  rightHangingPunctuationWidth?: number;
+  leftHangingPunctuationWidth?: number;
 
   get isBox() {
-    return this.values.type === 'box';
+    return this.type === 'box';
   }
 
   get isGlue() {
-    return this.values.type === 'glue';
+    return this.type === 'glue';
   }
 
   get isPenalty() {
-    return this.values.type === 'penalty';
+    return this.type === 'penalty';
   }
 
   get isForcedBreak() {
-    return this.values.type === 'penalty' && this.values.cost <= MIN_COST;
+    return this.type === 'penalty' && this.cost <= MIN_COST;
   }
 
   get isPenaltyThatDoesNotForceBreak() {
-    return this.values.type === 'penalty' && this.values.cost > MIN_COST;
+    return this.type === 'penalty' && this.cost > MIN_COST;
   }
 
   get isSoftHyphen() {
-    return this.values.type === 'penalty' && this.values.flagged && this.values.width > 0;
+    return this.type === 'penalty' && this.flagged && this.width > 0;
   }
 
   get prev(): Item | undefined {
@@ -195,92 +211,3 @@ export class BaseItem {
     return this.parentArray[this.parentArray.indexOf(this) + 1];
   }
 }
-
-export type Item = Box2| Glue2 | Penalty2;
-
-
-
-export class Glue2 extends BaseItem {
-  type = 'glue';
-
-  /** Preferred width of this space. */
-  width: number;
-
-  /**
-   * Maximum amount by which this space can grow (given a
-   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
-   * A `width` of 5 and a `stretch` of 1 means that the glue can have
-   * a width of 6. A value of 0 means that it cannot stretch.
-   */
-  stretch: number;
-
-  /**
-   * Maximum amount by which this space can shrink (given a
-   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
-   * A `width` of 5 and a `shrink` of 1 means that the glue can have a
-   * width of 4. A value of 0 means that it cannot shrink.
-   */
-  shrink: number;
-  constructor(values: RequireOnlyCertainKeys<Glue2, 'width' | 'stretch' | 'shrink'>, parentArray: Items) {
-    super(values, parentArray);
-    this.width = values.width
-    this.stretch = values.stretch
-    this.shrink = values.shrink
-  }
-}
-
-export class Box2 extends BaseItem {
-  type = 'box';
-  /** Amount of space required by this content. Must be >= 0. */
-  width: number;
-
-  /** Values for hanging punctuation. */
-  rightHangingPunctuationWidth?: number;
-  leftHangingPunctuationWidth?: number;
-  constructor(values: RequireOnlyCertainKeys<Box2, 'width'>, parentArray: Items) {
-      super(values, parentArray)
-    this.width=values.width
-    this.rightHangingPunctuationWidth=values.rightHangingPunctuationWidth
-    this.leftHangingPunctuationWidth=values.leftHangingPunctuationWidth
-  }
-}
-
-/** An explicit candidate position for breaking a line. */
-export class Penalty2 extends BaseItem {
-
-type='penalty';
-  /**
-   * Amount of space required for typeset content to be added
-   * (eg. a hyphen) if a line is broken here. Must be >= 0.
-   */
-  width: number;
-
-  /**
-   * The undesirability of breaking the line at this point.
-   * Values <= `MIN_COST` and >= `MAX_COST` mandate or
-   * prevent breakpoints respectively.
-   */
-  cost: number;
-
-  /**
-   * A hint used to prevent successive lines being broken
-   * with hyphens. The layout algorithm will try to avoid
-   * successive lines being broken at flagged `Penalty` items.
-   */
-  flagged?: boolean;
-
-  constructor(values: RequireOnlyCertainKeys<Penalty2, 'width' | 'cost'>, parentArray: Items) {
-      super(values, parentArray)
-    this.width = values.width
-    this.cost = values.cost
-    this.flagged = values.flagged
-}
-
-export const glue2 = (width: number, shrink: number, stretch: number, text?: string) => {
-  // return new Glue2({
-  //   width,
-  //   shrink,
-  //   stretch,
-  //   text,
-  // });
-};

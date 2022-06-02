@@ -1,6 +1,6 @@
 import { Items } from 'src/items';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
-import { getLineWidth, isForcedBreak, penalty } from 'src/utils';
+import { getLineWidth, isForcedBreak } from 'src/utils';
 
 /**
  * Minimum cost for a breakpoint.
@@ -141,16 +141,16 @@ export function breakLines(
      * update `sumWidth`, `sumStretch` and `sumShrink`.
      */
     let canBreak = false;
-    if (item.type === 'box') {
+    if (item.isBox) {
       sumWidth += item.width;
     } else if (item.isGlue) {
-      canBreak = b > 0 && items[b - 1].type === 'box';
+      canBreak = b > 0 && item.prev!.isBox;
       if (!canBreak) {
         sumWidth += item.width;
         sumShrink += item.shrink;
         sumStretch += item.stretch;
       }
-    } else if (item.type === 'penalty') {
+    } else if (item.isPenalty) {
       canBreak = item.cost < MAX_COST;
     }
     if (!canBreak) {
@@ -179,13 +179,11 @@ export function breakLines(
       const idealLen = getLineWidth(options.lineWidth, a.line);
       let actualLen = sumWidth - a.totalWidth;
       if (options.hangingPunctuation) {
-        actualLen -=
-          ('leftHangingPunctuationWidth' in item && item.leftHangingPunctuationWidth) || 0;
-        actualLen -=
-          ('rightHangingPunctuationWidth' in item && item.rightHangingPunctuationWidth) || 0;
+        actualLen -= item.leftHangingPunctuationWidth || 0;
+        actualLen -= item.rightHangingPunctuationWidth || 0;
       }
       /** Include width of penalty in line length if chosen as a breakpoint. */
-      if (item.type === 'penalty') {
+      if (item.isPenalty) {
         actualLen += item.width;
       }
 
@@ -233,7 +231,7 @@ export function breakLines(
          */
         let demerits;
         const badness = 0.1 * Math.abs(adjustmentRatio) ** 3;
-        const penalty = item.type === 'penalty' ? item.cost : 0;
+        const penalty = item.isPenalty ? item.cost : 0;
 
         if (penalty >= 0) {
           demerits = (1 + badness + penalty) ** 2;
@@ -243,14 +241,9 @@ export function breakLines(
           demerits = (1 + badness) ** 2;
         }
 
-        let doubleHyphenPenalty = 0;
-        const prevItem = items[a.index];
-        if (item.type === 'penalty' && prevItem.type === 'penalty') {
-          if (item.flagged && prevItem.flagged) {
-            doubleHyphenPenalty = options.doubleHyphenPenalty;
-          }
+        if (item.flagged && item.prev!.flagged) {
+          demerits += options.doubleHyphenPenalty;
         }
-        demerits += doubleHyphenPenalty;
 
         /** Fitness classes are defined on p. 1155 */
         let fitness;
@@ -278,10 +271,7 @@ export function breakLines(
         let stretchToNextBox = 0;
         for (let bp = b; bp < items.length; bp++) {
           const item = items[bp];
-          if (item.type === 'box') {
-            break;
-          }
-          if (item.isPenaltyThatDoesNotForceBreak) {
+          if (item.isBox || item.isForcedBreak) {
             break;
           }
           widthToNextBox += item.width;
