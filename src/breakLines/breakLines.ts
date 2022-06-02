@@ -53,27 +53,14 @@ export class MaxAdjustmentExceededError extends Error {}
  *       (which it does after increasing the allowed adjustment ratio).
  */
 export function breakLines(
-  items: Items, //Item[],
+  items: Items,
   _options: RequireOnlyCertainKeys<TexLinebreakOptions, 'lineWidth'>,
   currentRecursionDepth = 0,
 ): number[] {
   if (items.length === 0) return [];
 
-  /** Validate input (if this is the first time the function is called) */
-  if (currentRecursionDepth === 0) {
-    /** Input has to end in a MIN_COST penalty */
-    if (!items.last?.isForcedBreak) {
-      throw new Error(
-        "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off.",
-      );
-    }
-    /** A glue cannot be followed by a non-MIN_COST penalty */
-    if (items.some((item) => item.isGlue && item.next?.isPenalty && !item.next?.isForcedBreak)) {
-      throw new Error(
-        "A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it.",
-      );
-    }
-  }
+  /** Validate input if this is the first time the function is called */
+  if (currentRecursionDepth === 0) items.validate();
 
   const options = getOptionsWithDefaults(_options);
 
@@ -144,6 +131,7 @@ export function breakLines(
     if (item.isBox) {
       sumWidth += item.width;
     } else if (item.isGlue) {
+      /* þetta er ekki rétt... TODO */
       canBreak = b > 0 && item.prev!.isBox;
       if (!canBreak) {
         sumWidth += item.width;

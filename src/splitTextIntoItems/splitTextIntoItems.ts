@@ -1,7 +1,7 @@
 import LineBreaker, { Break } from 'linebreak';
 import { INFINITE_STRETCH, MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
 import { addHangingPunctuation } from 'src/hangingPunctuation';
-import { Items2 } from 'src/items';
+import { Items } from 'src/items';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 import { getBreakpointPenalty, PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 import {
@@ -53,7 +53,7 @@ export const splitTextIntoItems = (
 ): TextItem[] => {
   options = getOptionsWithDefaults(options);
 
-  let items = new Items2(options);
+  let items = new Items(options);
 
   precedingText = precedingText.slice(-3);
   followingText = followingText.slice(0, 3);

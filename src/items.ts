@@ -64,6 +64,7 @@ export interface Penalty {
   flagged?: boolean;
 }
 
+/** An array containing items. */
 export class Items extends Array<Item> {
   constructor(public options: TexLinebreakOptions) {
     super();
@@ -112,14 +113,28 @@ export class Items extends Array<Item> {
       penalty(hyphenWidth, this.options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true),
     );
   }
+  validate() {
+    /** Input has to end in a MIN_COST penalty */
+    if (!this.last?.isForcedBreak) {
+      throw new Error(
+        "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off.",
+      );
+    }
+    /** A glue cannot be followed by a non-MIN_COST penalty */
+    if (this.some((item) => item.isGlue && item.next?.isPenaltyThatDoesNotForceBreak)) {
+      throw new Error(
+        "A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it.",
+      );
+    }
+  }
   get last(): Item | undefined {
     return this[this.length - 1];
   }
 }
 
 /** A wrapper around boxes, glue, and penalties. */
-export class Item {
-  constructor(input: Box | Glue | Penalty, public parentArray: Items) {
+export class Item<T = Box | Glue | Penalty> {
+  constructor(input: T, public parentArray: Items) {
     Object.assign(this, input);
   }
 
@@ -133,49 +148,12 @@ export class Item {
    */
   width!: number;
 
-  /**
-   * Only applies to glue.
-   *
-   * Maximum amount by which this space can grow (given a
-   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
-   * A `width` of 5 and a `stretch` of 1 means that the glue can have
-   * a width of 6. A value of 0 means that it cannot stretch.
-   */
-  stretch: number = 0;
+  stretch: Glue['stretch'] = 0;
+  shrink: Glue['shrink'] = 0;
+  cost: Penalty['cost'] = 0;
+  flagged?: Penalty['flagged'];
 
-  /**
-   * Only applies to glue.
-   *
-   * Maximum amount by which this space can shrink (given a
-   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
-   * A `width` of 5 and a `shrink` of 1 means that the glue can have a
-   * width of 4. A value of 0 means that it cannot shrink.
-   */
-  shrink: number = 0;
-
-  /**
-   * Only applies to penalties.
-   *
-   * The undesirability of breaking the line at this point.
-   * Values <= `MIN_COST` and >= `MAX_COST` mandate or
-   * prevent breakpoints respectively.
-   */
-  cost: number = 0;
-
-  /**
-   * Only applies to penalties.
-   *
-   * A hint used to prevent successive lines being broken
-   * with hyphens. The layout algorithm will try to avoid
-   * successive lines being broken at flagged `Penalty` items.
-   */
-  flagged?: boolean;
-
-  /**
-   * Only applies to boxes.
-   *
-   * Values for hanging punctuation. Only used by boxes.
-   */
+  /** Values for hanging punctuation. Only used by boxes. */
   rightHangingPunctuationWidth?: number;
   leftHangingPunctuationWidth?: number;
 
