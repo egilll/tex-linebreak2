@@ -11,11 +11,11 @@ import {
   TextItem,
 } from 'src/utils';
 
+/**
+ * Information used to construct a `Range` later.
+ * Records character offset in a parent container.
+ */
 export interface DOMRangeOffset {
-  /**
-   * Character offset of this item (box/penalty/glue)
-   * in the parent DOM node, used to create a `Range`
-   */
   startOffset: number;
   startContainer: Node;
   endOffset: number;
@@ -28,8 +28,8 @@ export type DOMPenalty = Penalty & DOMRangeOffset;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
 /**
- * These functions are placed inside a class only due to the fact that we
- * need to keep track of our current position in the paragraph's text.
+ * These functions are placed inside a class since we need to
+ * keep track of our current position in the paragraph's text.
  */
 export class GetItemsFromDOM {
   #items: DOMItem[] = [];

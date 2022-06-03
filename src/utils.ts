@@ -4,7 +4,6 @@ import { LineWidth } from 'src/html/lineWidth';
 import { TexLinebreakOptions } from 'src/options';
 import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 
-/** Useful when working with raw strings instead of DOM nodes. */
 export interface TextBox extends Box {
   text: string;
 }
@@ -20,9 +19,6 @@ export function box(width: number, text: string): TextBox;
 export function box(width: number, text?: string): Box | TextBox {
   return { type: 'box', width, text };
 }
-export function textBox(text: string, options: TexLinebreakOptions): TextBox {
-  return box(options.measureFn(text), text);
-}
 
 export function glue(width: number, shrink: number, stretch: number): Glue;
 export function glue(width: number, shrink: number, stretch: number, text: string): TextGlue;
@@ -37,6 +33,14 @@ export function glue(
   } else {
     return { type: 'glue', width, shrink, stretch };
   }
+}
+
+export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
+  return { type: 'penalty', width, cost, flagged };
+}
+
+export function textBox(text: string, options: TexLinebreakOptions): TextBox {
+  return box(options.measureFn(text), text);
 }
 
 export function textGlue(text: string, options: TexLinebreakOptions): TextItem[] {
@@ -63,13 +67,9 @@ export function textGlue(text: string, options: TexLinebreakOptions): TextItem[]
   }
 }
 
-export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
-  return { type: 'penalty', width, cost, flagged };
-}
-
-export const softHyphen = (options: TexLinebreakOptions) => {
+export const softHyphen = (options: TexLinebreakOptions): TextItem[] => {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn('-');
-  return penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true);
+  return [penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true)];
   /**
    * Todo: Optional hyphenations in unjustified text, p 1139. Slightly
    * tricky as:

@@ -8,6 +8,7 @@ export enum PenaltyClasses {
   Space = 0,
   GoodBreak = 10,
   OKBreak = 20,
+  /** @deprecated */
   SoftHyphen = PenaltyClasses.OKBreak,
   BadBreak = 50,
   VeryBadBreak = 0,
