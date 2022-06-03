@@ -38,13 +38,14 @@ export function glue(
     return { type: 'glue', width, shrink, stretch };
   }
 }
-export function textGlue(text: string, options: TexLinebreakOptions): TextGlue | TextItem[] {
+
+export function textGlue(text: string, options: TexLinebreakOptions): TextItem[] {
   const spaceWidth = options.measureFn(' ');
   const spaceShrink = spaceWidth * options.glueShrinkFactor;
   const spaceStretch = spaceWidth * options.glueStretchFactor;
   if (options.justify) {
     /** Spaces in justified lines */
-    return glue(spaceWidth, spaceShrink, spaceStretch, text);
+    return [glue(spaceWidth, spaceShrink, spaceStretch, text)];
   } else {
     /**
      * Spaces in ragged lines. See p. 1139.
@@ -81,27 +82,11 @@ export const softHyphen = (options: TexLinebreakOptions) => {
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
 export const isSoftHyphen = (item: Item | undefined): boolean => {
-  if (!item) return false;
-  return Boolean(item.type === 'penalty' && item.flagged /*&& item.width > 0*/);
+  return Boolean(item && item.type === 'penalty' && item.flagged && item.width > 0);
 };
 
 export function forcedBreak(): Penalty {
   return penalty(0, MIN_COST);
-}
-
-/**
- * Retrieves the text from an input item.
- * Text is included in {@link TextItem}s by {@link splitTextIntoItems}.
- */
-export function itemToString(item: TextItem) {
-  switch (item.type) {
-    case 'box':
-      return item.text;
-    case 'glue':
-      return ' '; // TODO: check
-    case 'penalty':
-      return item.flagged ? '-' : ''; // TODO: See comment in {@link lineStrings}
-  }
 }
 
 /**
@@ -116,8 +101,13 @@ export const removeGlueFromEndOfParagraphs = <T extends Item>(items: T[]): T[] =
 export function isForcedBreak(item: Item) {
   return item.type === 'penalty' && item.cost <= MIN_COST;
 }
+
 export const isBreakablePenalty = (item: Item) => {
-  throw new Error('Not implemented');
+  return item.type === 'penalty' && item.cost < MAX_COST;
+};
+
+export const isPenaltyThatDoesNotForceBreak = (item: Item) => {
+  return item.type === 'penalty' && item.cost > MIN_COST;
 };
 
 /**

@@ -121,7 +121,7 @@ export const splitTextIntoItems = (
 
   segments.forEach((segment, index) => {
     if (segment.type === 'glue') {
-      items.push(textGlue(segment.text, options));
+      items.push(...textGlue(segment.text, options));
       /**
        * Non-breaking spaces and normal spaces that
        * cannot be broken, e.g. spaces before slashes.
