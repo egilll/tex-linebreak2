@@ -2,14 +2,13 @@ import { Box, Glue, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines/bre
 import { DOMGlue, DOMItem } from 'src/html/getItemsFromDOM';
 import { LineWidth } from 'src/html/lineWidth';
 import { TexLinebreakOptions } from 'src/options';
-import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 
 export interface TextBox extends Box {
   text: string;
 }
 
 export interface TextGlue extends Glue {
-  text: string;
+  text?: string;
 }
 
 export type TextItem = TextBox | TextGlue | Penalty;
@@ -20,12 +19,11 @@ export function box(width: number, text?: string): Box | TextBox {
   return { type: 'box', width, text };
 }
 
-export function glue(width: number, shrink: number, stretch: number): Glue;
-export function glue(width: number, shrink: number, stretch: number, text: string): TextGlue;
+/** (Stretch comes before shrink as in the original paper) */
 export function glue(
   width: number,
-  shrink: number,
   stretch: number,
+  shrink: number,
   text?: string,
 ): Glue | TextGlue {
   if (text) {
@@ -44,12 +42,11 @@ export function textBox(text: string, options: TexLinebreakOptions): TextBox {
 }
 
 export function textGlue(text: string, options: TexLinebreakOptions): TextItem[] {
-  const spaceWidth = options.measureFn(' ');
-  const spaceShrink = spaceWidth * options.glueShrinkFactor;
-  const spaceStretch = spaceWidth * options.glueStretchFactor;
+  const spaceShrink = options.spaceWidth * options.glueShrinkFactor;
+  const spaceStretch = options.spaceWidth * options.glueStretchFactor;
   if (options.justify) {
     /** Spaces in justified lines */
-    return [glue(spaceWidth, spaceShrink, spaceStretch, text)];
+    return [glue(options.spaceWidth, spaceStretch, spaceShrink, text)];
   } else {
     /**
      * Spaces in ragged lines. See p. 1139.
@@ -58,26 +55,33 @@ export function textGlue(text: string, options: TexLinebreakOptions): TextItem[]
      * a bit, but it should probably still be listed as zero here since
      * otherwise a line with many spaces is more likely to be a good fit.)
      */
-    const lineFinalStretch = 3 * spaceWidth;
     return [
-      glue(0, 0, lineFinalStretch, text),
+      glue(0, options.lineFinalStretchInNonJustified, 0, text),
       penalty(0, 0),
-      glue(spaceWidth, 0, -lineFinalStretch, text),
+      glue(options.spaceWidth, -options.lineFinalStretchInNonJustified, 0, text),
     ];
   }
 }
 
 export const softHyphen = (options: TexLinebreakOptions): TextItem[] => {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn('-');
-  return [penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true)];
-  /**
-   * Todo: Optional hyphenations in unjustified text, p 1139. Slightly
-   * tricky as:
-   * "After the breakpoints have been chosen using the above sequences
-   * for spaces and for optional hyphens, the individual lines
-   * should not actually be justified, since a hyphen inserted by the
-   * ‘penalty(6,500,1)’ would otherwise appear at the right margin."
-   */
+  if (options.justify) {
+    return [penalty(hyphenWidth, options.softHyphenPenalty, true)];
+  } else {
+    /**
+     * Optional hyphenations in unjustified text are slightly tricky as:
+     * "After the breakpoints have been chosen using the above sequences
+     * for spaces and for optional hyphens, the individual lines
+     * should not actually be justified, since a hyphen inserted by the
+     * ‘penalty(6,500,1)’ would otherwise appear at the right margin." (p. 1139)
+     */
+    return [
+      penalty(0, MAX_COST),
+      glue(0, options.lineFinalStretchInNonJustified, 0),
+      penalty(hyphenWidth, options.softHyphenPenalty, true),
+      glue(options.spaceWidth, -options.lineFinalStretchInNonJustified, 0),
+    ];
+  }
 };
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
@@ -111,27 +115,29 @@ export const isPenaltyThatDoesNotForceBreak = (item: Item) => {
 };
 
 /**
- * This is necessary in order to allow glue to stretch over
- * multiple text nodes, for example, the HTML "text <!--
- * comment node --> text" would otherwise become ["text", " ",
- * " ", "text"] and the glue wouldn't be of the correct size.
+ * Collapsing adjacent glue is easier on the algorithm, but is also necessary
+ * in order to allow glue to stretch over multiple text nodes, for example,
+ * the HTML "text <!-- comment node --> text" would otherwise become ["text",
+ * " ", " ", "text"] and the glue wouldn't be of the correct size.
  */
-export const collapseAdjacentGlue = <T extends TextItem | DOMItem>(items: T[]): T[] => {
+export const normalizeItems = <T extends TextItem | DOMItem>(items: T[]): T[] => {
   let output: T[] = [];
   items.forEach((item) => {
+    /** Collapse adjacent glue */
     if (item.type === 'glue' && output.at(-1)?.type === 'glue') {
       const lastItem = output.at(-1)! as Glue;
       lastItem.width = Math.max(item.width, lastItem.width);
       lastItem.stretch = Math.max(item.stretch, lastItem.stretch);
       lastItem.shrink = Math.max(item.shrink, lastItem.shrink);
       if ('text' in item) {
-        (output.at(-1) as TextGlue).text += item.text;
+        (output.at(-1) as TextGlue).text = ((output.at(-1) as TextGlue).text || '') + item.text;
       }
       if ('endOffset' in item) {
         (output.at(-1) as DOMGlue).endContainer = item.endContainer;
         (output.at(-1) as DOMGlue).endOffset = item.endOffset;
       }
     } else {
+      // todo, finish
       output.push(item);
     }
   });

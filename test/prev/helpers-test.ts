@@ -63,11 +63,11 @@ describe('helpers', () => {
         box(15),
         penalty(1, 10, true),
         box(10),
-        glue(5, 3, 7.5),
+        glue(5, 7.5, 3),
         box(10),
         penalty(1, 10, true),
         box(15),
-        glue(0, 0, 1000),
+        glue(0, 1000, 0),
         forcedBreak(),
       ]);
     });

@@ -255,12 +255,12 @@ describe('layout', () => {
     });
 
     it('throws if a glue item has negative shrink', () => {
-      const items = [box(10), glue(5, -10, 10), forcedBreak()];
+      const items = [box(10), glue(5, 10, -10), forcedBreak()];
       expect(() => breakLines(items, 15)).toThrow();
     });
 
     it('throws if a glue item has negative stretch', () => {
-      const items = [box(10), glue(5, 10, -10), forcedBreak()];
+      const items = [box(10), glue(5, -10, 10), forcedBreak()];
       expect(() => breakLines(items, 15)).toThrow();
     });
 

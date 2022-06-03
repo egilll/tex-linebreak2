@@ -146,7 +146,7 @@ export const splitTextIntoItems = (
 
       /** Paragraph-final infinite glue */
       if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
-        items.push(glue(0, 0, INFINITE_STRETCH, ''));
+        items.push(glue(0, INFINITE_STRETCH, 0, ''));
       }
 
       /**

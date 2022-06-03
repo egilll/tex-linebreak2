@@ -36,10 +36,7 @@ export class TexLinebreakOptions {
   justify: boolean = true;
 
   /** Ratio compared to a normal space */
-  renderLineAsLeftAlignedIfSpaceIsLargerThan?: number;
-
-  /** If alignment is `left`, we can still allow the glue to stretch a bit. */
-  leftAlignmentStretchinessFactor?: number;
+  renderLineAsLeftAlignedIfSpaceIsLargerThanFactor?: number;
 
   /** @default true */
   hangingPunctuation?: boolean;
@@ -124,8 +121,10 @@ export class TexLinebreakOptions {
    * A value between 0 <= n <= MAX_COST (which is 1,000).
    * A value over 40 will only break on long words.
    * A value of MAX_COST - 1 will break on long words.
+   *
+   * @default 50 for justified text, 500 for non-justified
    */
-  softHyphenPenalty: number = 10;
+  softHyphenPenalty: number = 50;
 
   /** Penalty for significant differences in the tightness of adjacent lines. */
   adjacentLooseTightPenalty: number = 0;
@@ -165,7 +164,9 @@ export class TexLinebreakOptions {
    * A value of 0 means that the glue cannot shrink.
    * A value of 1 means that the glue can shrink to nothing.
    *
-   * @default 0.2 - A glue can shrink by 20%.
+   * @default - For justified: 0.2 - A glue can shrink by 20%.
+   *   - For unjustified: 0. See comments on p. 1131, otherwise this would result in many lines having a justified
+   *     appearance.
    */
   glueShrinkFactor: number = 0.2;
 
@@ -175,12 +176,59 @@ export class TexLinebreakOptions {
    * A value of 0 means that the glue cannot shrink.
    * A value of 1 means that the glue can double in size
    *
-   * @default 1.2 - A glue can stretch by 120% (becoming 220% of its original size).
+   * @default - For justified: 1.2 - A glue can stretch by 120% (becoming 220% of its original size).
+   *   - For unjustified: 0.3 - A glue can stretch by 30%
    */
   glueStretchFactor: number = 1.2;
 
+  /**
+   * Whether soft hyphens in the input text should be removed from the output
+   * text. This is recommended for websites, as users can then copy the text
+   * without being annoyed by the invisible soft hyphen characters.
+   */
+  stripSoftHyphensFromOutputText: boolean = true;
+
+  /**
+   * If a soft hyphen is chosen as a breakpoint, what character should be
+   * used to display it?
+   *
+   * - 'HTML_UNCOPYABLE_HYPHEN' – Recommended for websites. Outputs a hyphen
+   *   using CSS so that it will not be included in the user's output.
+   * - 'HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN' - Outputs a hyphen using
+   *   CSS, but includes an invisible soft hyphen that will be included in
+   *   the text that a user copies.
+   * - 'HYPHEN' - Recommended for plain text. Will be included as an
+   *   always-visible hyphen in the text that the user copies.
+   * - 'SOFT_HYPHEN' - Outputs just a simple soft hyphen unicode character.
+   *   This option should only be used if your
+   *   intended output is a terminal emulator, see
+   *   https://en.wikipedia.org/wiki/Soft_hyphen#Text_preformatted_by_the_originator
+   *
+   * @default 'HTML_UNCOPYABLE_HYPHEN' for websites, 'HYPHEN' for plain text.
+   */
+  softHyphenOutput:
+    | 'HTML_UNCOPYABLE_HYPHEN'
+    | 'HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN'
+    | 'HYPHEN'
+    | 'SOFT_HYPHEN' = 'HTML_UNCOPYABLE_HYPHEN';
+
+  /** ====================== End of options ====================== */
+
   constructor(options: Partial<TexLinebreakOptions> = {}) {
+    if (options.justify === false) {
+      this.softHyphenPenalty = 500;
+      this.glueShrinkFactor = 0;
+      this.glueStretchFactor = 0.3;
+    }
     Object.assign(this, options);
+  }
+
+  get spaceWidth(): number {
+    return this.measureFn(' ');
+  }
+
+  get lineFinalStretchInNonJustified() {
+    return 3 * this.spaceWidth;
   }
 }
 

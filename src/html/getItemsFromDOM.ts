@@ -1,15 +1,7 @@
 import { Box, Glue, INFINITE_STRETCH, Penalty } from 'src/breakLines/breakLines';
 import { TexLinebreakOptions } from 'src/options';
 import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
-import {
-  box,
-  collapseAdjacentGlue,
-  forcedBreak,
-  glue,
-  TextBox,
-  TextGlue,
-  TextItem,
-} from 'src/utils';
+import { box, forcedBreak, glue, normalizeItems, TextBox, TextGlue, TextItem } from 'src/utils';
 
 /**
  * Information used to construct a `Range` later.
@@ -49,7 +41,7 @@ export class GetItemsFromDOM {
   }
 
   get items() {
-    return collapseAdjacentGlue(this.#items);
+    return normalizeItems(this.#items);
   }
 
   /** Adds an item and makes a record of its DOM range */
@@ -88,7 +80,7 @@ export class GetItemsFromDOM {
        * Add a synthetic glue that absorbs any
        * left-over space at the end of the last line.
        */
-      this.addItem(glue(0, 0, INFINITE_STRETCH), node, endOffset, endOffset);
+      this.addItem(glue(0, INFINITE_STRETCH, 0), node, endOffset, endOffset);
 
       /** Add a forced break to end the paragraph. */
       this.addItem(forcedBreak(), node, endOffset, endOffset);

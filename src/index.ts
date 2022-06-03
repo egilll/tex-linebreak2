@@ -2,7 +2,7 @@ import { breakLines, Item, MAX_COST } from 'src/breakLines/breakLines';
 import { breakLinesGreedy } from 'src/breakLines/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
-import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
+import { SOFT_HYPHEN, splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
 import { getLineWidth, isSoftHyphen, TextBox, TextItem } from 'src/utils';
 
 export class TexLinebreak<
@@ -61,16 +61,18 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
      * purposes of rendering this line.
      * This goes through three steps for a reason, otherwise we
      * haven't filtered out [Penalty, Glue, Box] into [Box].
+     *
+     * TODO!!! Is glue visible in left-aligned??
      */
-    this.itemsFiltered = this.items
+    let itemsFiltered = this.items
       // Ignore penalty that's not at the end of the line
       .filter((item, curIndex, items) => {
         return !(item.type === 'penalty' && curIndex !== items.length - 1);
       })
-      // Ignore adjacent glues
-      .filter((item, curIndex, items) => {
-        return !(item.type === 'glue' && items[curIndex - 1]?.type === 'glue');
-      })
+      // // Ignore adjacent glues TODO: should be covered by normalization
+      // .filter((item, curIndex, items) => {
+      //   return !(item.type === 'glue' && items[curIndex - 1]?.type === 'glue');
+      // })
       .filter((item, curIndex, items) => {
         return !(
           item.type === 'glue' &&
@@ -80,10 +82,31 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
             curIndex === items.length - 1)
         );
       });
+    /** Cleanup .TODO : Immutable */
+    itemsFiltered.forEach((item) => {
+      /** StripSoftHyphensFromOutputText */
+      if (this.parentClass.options.stripSoftHyphensFromOutputText && 'text' in item) {
+        item.text = item.text!.replaceAll(SOFT_HYPHEN, '');
+      }
+    });
+
+    // /**  TODO!!!
+    //  * Handle soft hyphens in non-justified
+    //  * text, see comment at {@link softHyphen}
+    //  */
+    // if (this.endsWithSoftHyphen && this.items.at(-2)?.type === 'glue') {
+    //   itemsFiltered.splice(
+    //     itemsFiltered.length - 2,
+    //     0,
+    //     itemsFiltered.splice(itemsFiltered.length - 1, 1)[0],
+    //   );
+    // }
+
+    this.itemsFiltered = itemsFiltered;
   }
 
   get endsWithSoftHyphen(): boolean {
-    return isSoftHyphen(this.parentClass.items[this.endBreakpoint]);
+    return isSoftHyphen(this.items.at(-1));
   }
 
   get idealWidth(): number {
