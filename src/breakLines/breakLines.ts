@@ -1,6 +1,68 @@
-import { Items } from 'src/items';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
-import { getLineWidth, isForcedBreak } from 'src/utils';
+import { getLineWidth, isBreakablePenalty, isForcedBreak, penalty, validateItems } from 'src/utils';
+
+/** An object (eg. a word) to be typeset. */
+export interface Box {
+  type: 'box';
+  /** Amount of space required by this content. Must be >= 0. */
+  width: number;
+
+  /** Values for hanging punctuation. */
+  rightHangingPunctuationWidth?: number;
+  leftHangingPunctuationWidth?: number;
+}
+
+/**
+ * A space between `Box` items with a preferred width
+ * and some capacity to stretch or shrink.
+ *
+ * `Glue` items are also candidates for breakpoints
+ * if they immediately follow a `Box`. // TODO: Check
+ */
+export interface Glue {
+  type: 'glue';
+  /** Preferred width of this space. */
+  width: number;
+  /**
+   * Maximum amount by which this space can grow (given a
+   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
+   * A `width` of 5 and a `stretch` of 1 means that the glue can have
+   * a width of 6. A value of 0 means that it cannot stretch.
+   */
+  stretch: number;
+  /**
+   * Maximum amount by which this space can shrink (given a
+   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
+   * A `width` of 5 and a `shrink` of 1 means that the glue can have a
+   * width of 4. A value of 0 means that it cannot shrink.
+   */
+  shrink: number;
+}
+
+/** An explicit candidate position for breaking a line. */
+export interface Penalty {
+  type: 'penalty';
+
+  /**
+   * Amount of space required for typeset content to be added
+   * (eg. a hyphen) if a line is broken here. Must be >= 0.
+   */
+  width: number;
+  /**
+   * The undesirability of breaking the line at this point.
+   * Values <= `MIN_COST` and >= `MAX_COST` mandate or
+   * prevent breakpoints respectively.
+   */
+  cost: number;
+  /**
+   * A hint used to prevent successive lines being broken
+   * with hyphens. The layout algorithm will try to avoid
+   * successive lines being broken at flagged `Penalty` items.
+   */
+  flagged?: boolean;
+}
+
+export type Item = Box | Penalty | Glue;
 
 /**
  * Minimum cost for a breakpoint.
@@ -43,24 +105,23 @@ export class MaxAdjustmentExceededError extends Error {}
  *
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param _options - The following options are used here:
- *       {@link TexLinebreakOptions#lineWidth}
  *       {@link TexLinebreakOptions#maxAdjustmentRatio}
  *       {@link TexLinebreakOptions#initialMaxAdjustmentRatio}
  *       {@link TexLinebreakOptions#doubleHyphenPenalty}
  *       {@link TexLinebreakOptions#adjacentLooseTightPenalty}
  *       {@link TexLinebreakOptions#allowSingleWordLines}
  * @param currentRecursionDepth - Used internally to keep track of how often this function has called itself
- *       (which it does after increasing the allowed adjustment ratio).
+ *       (done when increasing the allowed adjustmend ratio).
  */
 export function breakLines(
-  items: Items,
+  items: Item[],
   _options: RequireOnlyCertainKeys<TexLinebreakOptions, 'lineWidth'>,
   currentRecursionDepth = 0,
 ): number[] {
   if (items.length === 0) return [];
 
-  /** Validate input if this is the first time the function is called */
-  if (currentRecursionDepth === 0) items.validate();
+  /** Validate input (if this is the first time the function is called) */
+  if (currentRecursionDepth === 0) validateItems(items);
 
   const options = getOptionsWithDefaults(_options);
 
@@ -129,14 +190,14 @@ export function breakLines(
      * update `sumWidth`, `sumStretch` and `sumShrink`.
      */
     let canBreak = false;
-    if (item.isBox) {
+    if (item.type === 'box') {
       sumWidth += item.width;
-    } else if (item.isGlue) {
+    } else if (item.type === 'glue') {
       /**
        * Only glue that comes immediately after a
        * box is a possible breakpoint (p. 1158).
        */
-      canBreak = b > 0 && item.prev!.isBox;
+      canBreak = b > 0 && items[b - 1].type === 'box';
       /**
        * If the glue cannot break, we add its width
        * here since the main loop will not run.
@@ -148,8 +209,8 @@ export function breakLines(
         sumShrink += item.shrink;
         sumStretch += item.stretch;
       }
-    } else if (item.isPenalty) {
-      canBreak = item.isBreakablePenalty;
+    } else if (item.type === 'penalty') {
+      canBreak = item.cost < MAX_COST;
     }
     if (!canBreak) {
       continue;
@@ -184,12 +245,21 @@ export function breakLines(
           items[b].getPrevMatching((i) => i.isBox, { minIndex: a.index + 1 })
             ?.rightHangingPunctuationWidth || 0;
       }
+
       /** Include width of penalty in line length if chosen as a breakpoint. */
-      if (item.isPenalty) {
+      if (item.type === 'penalty') {
         actualLen += item.width;
       }
 
+      /** TODO: wip */
+      /**
+       * Restriction no. 1 on negative breaks. See page 1156.
+       * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=38
+       */
+      // const M_b = (sumWidth+actualLen)-sumShrink
+
       /** Adjustment ratio from `a` to `b`. */
+
       let adjustmentRatio;
       if (actualLen === idealLen) {
         adjustmentRatio = 0;
@@ -245,12 +315,12 @@ export function breakLines(
          * - Be followed by a box or breakable penalty.
          */
         // No item between `a` and `b` is a box or forced break
-        (!items.slice(a.index, b).some((i) => i.isBox || i.isForcedBreak) &&
+        (!items.slice(a.index, b).some((i) => i.type === 'box' || isForcedBreak(i)) &&
           !(
             b === items.length - 1 || // Is the last item
-            items[b + 1].isBox || // Is followed by a box
+            items[b + 1].type === 'box' || // Is followed by a box
             // Is followed by a breakable penalty
-            items[b + 1].isBreakablePenalty
+            isBreakablePenalty(items[b + 1])
           ))
       ) {
         active.delete(a);
@@ -264,7 +334,7 @@ export function breakLines(
          */
         let demerits;
         const badness = 0.1 * Math.abs(adjustmentRatio) ** 3;
-        const penalty = item.isPenalty ? item.cost : 0;
+        const penalty = item.type === 'penalty' ? item.cost : 0;
 
         if (penalty >= 0) {
           demerits = (1 + badness + penalty) ** 2;
@@ -274,8 +344,12 @@ export function breakLines(
           demerits = (1 + badness) ** 2;
         }
 
-        if (item.flagged && item.prev!.flagged) {
-          demerits += options.doubleHyphenPenalty;
+        /** Double hyphen penalty */
+        const prevItem = items[a.index];
+        if (item.type === 'penalty' && prevItem.type === 'penalty') {
+          if (item.flagged && prevItem.flagged) {
+            demerits += options.doubleHyphenPenalty;
+          }
         }
 
         /** Fitness classes are defined on p. 1155 */
@@ -304,11 +378,14 @@ export function breakLines(
         let stretchToNextBox = 0;
         for (let bp = b; bp < items.length; bp++) {
           const item = items[bp];
-          if (item.isBox || item.isForcedBreak) {
+          if (item.type === 'box') {
+            break;
+          }
+          if (item.type === 'penalty' && item.cost >= MAX_COST) {
             break;
           }
           widthToNextBox += item.width;
-          if (item.isGlue) {
+          if (item.type === 'glue') {
             shrinkToNextBox += item.shrink;
             stretchToNextBox += item.stretch;
           }
@@ -374,8 +451,8 @@ export function breakLines(
       }
     }
 
-    if (item.isGlue) {
-      /** The widths of boxes were already added above */
+    /** The widths of boxes and non-breakable glues were already added above */
+    if (item.type === 'glue') {
       sumWidth += item.width;
       sumStretch += item.stretch;
       sumShrink += item.shrink;

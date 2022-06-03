@@ -1,10 +1,10 @@
 import {
   breakLines,
+  Item,
   MaxAdjustmentExceededError,
   MIN_ADJUSTMENT_RATIO,
 } from 'src/breakLines/breakLines';
 import { layoutItemsFromString } from 'src/deprecated/layoutItemsFromString';
-import { Item } from 'src/items';
 import { TextItem } from 'src/utils';
 
 export interface PositionedItem {

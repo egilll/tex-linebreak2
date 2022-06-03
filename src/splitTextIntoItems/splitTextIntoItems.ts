@@ -1,14 +1,21 @@
 import LineBreaker, { Break } from 'linebreak';
 import { INFINITE_STRETCH, MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
 import { addHangingPunctuation } from 'src/hangingPunctuation';
-import { Items } from 'src/items';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 import { getBreakpointPenalty, PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
   UnicodeLineBreakingClasses,
 } from 'src/typings/unicodeLineBreakingClasses';
-import { forciblySplitLongWords, glue, penalty } from 'src/utils';
+import {
+  forciblySplitLongWords,
+  glue,
+  penalty,
+  softHyphen,
+  textBox,
+  textGlue,
+  TextItem,
+} from 'src/utils';
 
 export const NON_BREAKING_SPACE = '\u00A0';
 export const SOFT_HYPHEN = '\u00AD';
@@ -42,13 +49,13 @@ export const splitTextIntoItems = (
    */
   precedingText: string = '',
   followingText: string = '',
-): Items => {
+): TextItem[] => {
   options = getOptionsWithDefaults(options);
 
-  let items = new Items(options);
+  let items: TextItem[] = [];
 
-  precedingText = precedingText.slice(-3);
-  followingText = followingText.slice(0, 3);
+  precedingText = ''; //precedingText.slice(-3);
+  followingText = ''; //followingText.slice(0, 3);
   const inputWithSurroundingText = precedingText + input + followingText;
   const breakpoints: Record<number, BreakpointInformation> =
     getAllowableUnicodeBreakpoints(inputWithSurroundingText);
@@ -114,22 +121,22 @@ export const splitTextIntoItems = (
 
   segments.forEach((segment, index) => {
     if (segment.type === 'glue') {
-      items.addTextGlue(segment.text);
+      items.push(textGlue(segment.text, options));
       /**
        * Non-breaking spaces and normal spaces that
        * cannot be broken, e.g. spaces before slashes.
        */
       if (!segment.breakpoint) {
-        items.add(penalty(0, MAX_COST));
+        items.push(penalty(0, MAX_COST));
       }
     } else if (segment.type === 'box') {
-      items.addTextBox(segment.text);
+      items.push(textBox(segment.text, options));
     }
 
     if (segment.breakpoint) {
       /** Soft hyphens */
       if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
-        items.addSoftHyphen();
+        items.push(softHyphen(options));
         return;
       }
 
@@ -139,7 +146,7 @@ export const splitTextIntoItems = (
 
       /** Paragraph-final infinite glue */
       if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
-        items.add(glue(0, 0, INFINITE_STRETCH, ''));
+        items.push(glue(0, 0, INFINITE_STRETCH, ''));
       }
 
       /**
@@ -151,16 +158,16 @@ export const splitTextIntoItems = (
       }
 
       /** Add the penalty for this break. */
-      items.add(penalty(0, cost));
+      items.push(penalty(0, cost));
     }
   });
 
   if (options.hangingPunctuation) {
-    addHangingPunctuation(items);
+    items = addHangingPunctuation(items, options);
   }
 
   if (options.forceOverflowToBreak) {
-    forciblySplitLongWords(items);
+    items = forciblySplitLongWords(items, options);
   }
 
   return items;

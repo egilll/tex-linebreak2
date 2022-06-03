@@ -1,5 +1,5 @@
-import { Item } from 'src/items';
-import { LineWidth } from 'src/utils';
+import { Item } from 'src/breakLines/breakLines';
+import { LineWidth } from 'src/html/lineWidth';
 
 /**
  * This utility function does not use TeX's line breaking algorithm,

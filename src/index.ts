@@ -1,7 +1,6 @@
-import { breakLines, MAX_COST } from 'src/breakLines/breakLines';
+import { breakLines, Item, MAX_COST } from 'src/breakLines/breakLines';
 import { breakLinesGreedy } from 'src/breakLines/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
-import { Item } from 'src/items';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
 import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
 import { getLineWidth, isSoftHyphen, TextBox, TextItem } from 'src/utils';
@@ -27,7 +26,7 @@ export class TexLinebreak<
     if (this.options.lineBreakingType === 'greedy') {
       return breakLinesGreedy(this.items, this.options.lineWidth);
     } else {
-      return breakLines(this.items, this.options);
+      return breakLines(this.items, null, this.options);
     }
   }
   get lines(): Line<InputItemType>[] {

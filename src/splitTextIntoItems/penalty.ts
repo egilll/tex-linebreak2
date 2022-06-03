@@ -64,7 +64,7 @@ export const getBreakpointPenalty = (
 
   // Soft hyphens
   else if (lastLetter === SOFT_HYPHEN) {
-    /** (Note: Value actually not used, is overwritten in {@link addSoftHyphen}) */
+    /** (Note: Value actually not used, is overwritten in {@link softHyphen}) */
     return PenaltyClasses.SoftHyphen;
   }
 

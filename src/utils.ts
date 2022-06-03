@@ -1,6 +1,8 @@
-import { MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
+import { Box, Glue, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines/breakLines';
 import { DOMGlue, DOMItem } from 'src/html/getItemsFromDOM';
-import { Box, Glue, Item, Items, Penalty } from 'src/items';
+import { LineWidth } from 'src/html/lineWidth';
+import { TexLinebreakOptions } from 'src/options';
+import { PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 
 /** Useful when working with raw strings instead of DOM nodes. */
 export interface TextBox extends Box {
@@ -18,6 +20,9 @@ export function box(width: number, text: string): TextBox;
 export function box(width: number, text?: string): Box | TextBox {
   return { type: 'box', width, text };
 }
+export function textBox(text: string, options: TexLinebreakOptions): TextBox {
+  return box(options.measureFn(text), text);
+}
 
 export function glue(width: number, shrink: number, stretch: number): Glue;
 export function glue(width: number, shrink: number, stretch: number, text: string): TextGlue;
@@ -33,10 +38,46 @@ export function glue(
     return { type: 'glue', width, shrink, stretch };
   }
 }
+export function textGlue(text: string, options: TexLinebreakOptions): TextGlue | TextItem[] {
+  const spaceWidth = options.measureFn(' ');
+  const spaceShrink = spaceWidth * options.glueShrinkFactor;
+  const spaceStretch = spaceWidth * options.glueStretchFactor;
+  if (options.justify) {
+    /** Spaces in justified lines */
+    return glue(spaceWidth, spaceShrink, spaceStretch, text);
+  } else {
+    /**
+     * Spaces in ragged lines. See p. 1139.
+     * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=21
+     * (Todo: Ragged line spaces should perhaps be allowed to stretch
+     * a bit, but it should probably still be listed as zero here since
+     * otherwise a line with many spaces is more likely to be a good fit.)
+     */
+    const lineFinalStretch = 3 * spaceWidth;
+    return [
+      glue(0, 0, lineFinalStretch, text),
+      penalty(0, 0),
+      glue(spaceWidth, 0, -lineFinalStretch, text),
+    ];
+  }
+}
 
 export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
   return { type: 'penalty', width, cost, flagged };
 }
+
+export const softHyphen = (options: TexLinebreakOptions) => {
+  const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn('-');
+  return penalty(hyphenWidth, options.softHyphenPenalty ?? PenaltyClasses.SoftHyphen, true);
+  /**
+   * Todo: Optional hyphenations in unjustified text, p 1139. Slightly
+   * tricky as:
+   * "After the breakpoints have been chosen using the above sequences
+   * for spaces and for optional hyphens, the individual lines
+   * should not actually be justified, since a hyphen inserted by the
+   * ‘penalty(6,500,1)’ would otherwise appear at the right margin."
+   */
+};
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
 export const isSoftHyphen = (item: Item | undefined): boolean => {
@@ -46,6 +87,21 @@ export const isSoftHyphen = (item: Item | undefined): boolean => {
 
 export function forcedBreak(): Penalty {
   return penalty(0, MIN_COST);
+}
+
+/**
+ * Retrieves the text from an input item.
+ * Text is included in {@link TextItem}s by {@link splitTextIntoItems}.
+ */
+export function itemToString(item: TextItem) {
+  switch (item.type) {
+    case 'box':
+      return item.text;
+    case 'glue':
+      return ' '; // TODO: check
+    case 'penalty':
+      return item.flagged ? '-' : ''; // TODO: See comment in {@link lineStrings}
+  }
 }
 
 /**
@@ -60,6 +116,9 @@ export const removeGlueFromEndOfParagraphs = <T extends Item>(items: T[]): T[] =
 export function isForcedBreak(item: Item) {
   return item.type === 'penalty' && item.cost <= MIN_COST;
 }
+export const isBreakablePenalty = (item: Item) => {
+  throw new Error('Not implemented');
+};
 
 /**
  * This is necessary in order to allow glue to stretch over
@@ -89,57 +148,37 @@ export const collapseAdjacentGlue = <T extends TextItem | DOMItem>(items: T[]): 
   return output;
 };
 
-export const forciblySplitLongWords = (items: Items) => {
-  const minLineWidth = getMinLineWidth(items.options.lineWidth);
+export const forciblySplitLongWords = (
+  items: TextItem[],
+  options: TexLinebreakOptions,
+): TextItem[] => {
+  let output: TextItem[] = [];
+  const minLineWidth = getMinLineWidth(options.lineWidth);
   items.forEach((item) => {
-    if (item.type === 'box' && item.width > minLineWidth) {
+    if (item.type === 'box' /*&& item.width > minLineWidth*/) {
       for (let i = 0; i < item.text.length; i++) {
         const char = item.text[i];
-        throw new Error('Not implemented');
-        // todo: ekki rétt gert hjá mér að replace-a svona
-        // /** Add penalty */
-        // // Separators
-        // if (/\p{General_Category=Z}/u.test(char)) {
-        //   items.add(penalty(0, 0));
-        // }
-        // // Punctuation
-        // else if (/\p{General_Category=P}/u.test(char)) {
-        //   items.add(penalty(0, 0));
-        // } else {
-        //   items.add(penalty(0, 999));
-        // }
-        // /** Add glue */
-        // items.addTextBox(char, );
+        /** Add penalty */
+        // Separators
+        if (/\p{General_Category=Z}/u.test(char)) {
+          output.push(penalty(0, 0));
+        }
+        // Punctuation
+        else if (/\p{General_Category=P}/u.test(char)) {
+          output.push(penalty(0, 0));
+        } else {
+          output.push(penalty(0, 999));
+        }
+        /** Add glue */
+        output.push(textBox(char, options));
       }
+    } else {
+      output.push(item);
     }
   });
+  return output;
 };
 
-export type LineWidth = number | number[] | LineWidthObject;
-/**
- * It may be useful to only indicate certain lines as being smaller
- * than the default, since the content may be arbitrarily long.
- */
-export type LineWidthObject = {
-  defaultLineWidth: number;
-  [lineIndex: number]: number;
-};
-
-/** Gets line width for a given line number */
-export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number => {
-  if (typeof lineWidths === 'number') {
-    return lineWidths;
-  } else if (Array.isArray(lineWidths)) {
-    if (lineIndex < lineWidths.length) {
-      return lineWidths[lineIndex];
-    } else {
-      /** If out of bounds, return the last width of the last line. */
-      return lineWidths.at(-1)!;
-    }
-  } else {
-    return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
-  }
-};
 export const getMinLineWidth = (lineWidths: LineWidth): number => {
   if (Array.isArray(lineWidths)) {
     return Math.min(...lineWidths);
@@ -149,3 +188,69 @@ export const getMinLineWidth = (lineWidths: LineWidth): number => {
     return Math.min(...[...Object.values(lineWidths), lineWidths.defaultLineWidth]);
   }
 };
+
+export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number => {
+  if (Array.isArray(lineWidths)) {
+    if (lineIndex < lineWidths.length) {
+      return lineWidths[lineIndex];
+    } else {
+      /**
+       * If out of bounds, return the last width of the last line.
+       * This is done since the first line may have indentation.
+       */
+      return lineWidths.at(-1)!;
+    }
+  } else if (typeof lineWidths === 'number') {
+    return lineWidths;
+  } else {
+    return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
+  }
+};
+
+export const validateItems = (items: Item[]) => {
+  /** Input has to end in a MIN_COST penalty */
+  const lastItem = items[items.length - 1];
+  if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
+    throw new Error(
+      "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off.",
+    );
+  }
+  /** A glue cannot be followed by a non-MIN_COST penalty */
+  if (
+    items.some(
+      (item, index) =>
+        item.type === 'glue' &&
+        items[index + 1].type === 'penalty' &&
+        (items[index + 1] as Penalty).cost! > MIN_COST,
+    )
+  ) {
+    throw new Error(
+      "A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it.",
+    );
+  }
+};
+
+// +  /** Get the nearest previous item that matches a predicate. */
+// +  getPrevMatching(
+// +    callbackFn: (item: Item) => boolean,
+// +    options: { minIndex?: number },
+// +  ): Item | undefined {
+// +    for (let j = this.index - 1; j >= (options.minIndex || 0); j--) {
+// +      const item = this.parentArray[j];
+// +      if (callbackFn(item)) return item;
+// +    }
+// +    return undefined;
+// +  }
+//
+// +  /** Get the next item that matches a predicate. */
+// +  getNextMatching(
+// +    callbackFn: (item: Item) => boolean,
+// +    options: { maxIndex?: number },
+// +  ): Item | undefined {
+// +    for (let j = this.index + 1; j <= (options.maxIndex || this.parentArray.length); j++) {
+// +      const item = this.parentArray[j];
+// +      if (callbackFn(item)) return item;
+// +    }
+// +    return undefined;
+//    }
+//  }

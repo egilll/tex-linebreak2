@@ -1,4 +1,5 @@
-import { Items } from 'src/items';
+import { TexLinebreakOptions } from 'src/options';
+import { isSoftHyphen, TextItem } from 'src/utils';
 
 /**
  * Here we calculate the width of the hanging punctuation of this item,
@@ -13,9 +14,14 @@ import { Items } from 'src/items';
  * (Todo: Actually edits the input items directly, should either be
  * immutable or not return anything)
  */
-export const addHangingPunctuation = (items: Items) => {
-  items.forEach((item) => {
-    if (!item.isBox || !item.text || item.width === 0 || item.next?.isSoftHyphen) return;
+export const addHangingPunctuation = (
+  items: TextItem[],
+  options: TexLinebreakOptions,
+): TextItem[] => {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    if (item.type !== 'box' || !('text' in item) || item.width === 0 || isSoftHyphen(items[i + 1]))
+      continue;
 
     /** Left hanging punctuation */
     if (
@@ -23,7 +29,7 @@ export const addHangingPunctuation = (items: Items) => {
       // If the character is repeated ("...", "??"), we don't hang
       item.text.slice(0, 1) !== item.text.slice(1, 2)
     ) {
-      item.leftHangingPunctuationWidth = item.width - items.options.measureFn(item.text.slice(1));
+      item.leftHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(1));
     }
 
     /** Right hanging punctuation */
@@ -31,10 +37,11 @@ export const addHangingPunctuation = (items: Items) => {
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
       item.text.slice(-1) !== item.text.slice(-2, -1)
     ) {
-      item.rightHangingPunctuationWidth =
-        item.width - items.options.measureFn(item.text.slice(0, -1));
+      item.rightHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(0, -1));
     }
-  });
+  }
+
+  return items;
 };
 
 /**
