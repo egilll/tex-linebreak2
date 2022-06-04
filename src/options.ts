@@ -38,8 +38,7 @@ export class TexLinebreakOptions {
   /** Ratio compared to a normal space */
   renderLineAsLeftAlignedIfSpaceIsLargerThanFactor?: number;
 
-  /** @default true */
-  hangingPunctuation?: boolean;
+  hangingPunctuation: boolean = true;
 
   /**
    * If the lineBreakingType option is set to `findOptimalWidth` or
@@ -212,6 +211,12 @@ export class TexLinebreakOptions {
     | 'HYPHEN'
     | 'SOFT_HYPHEN' = 'HTML_UNCOPYABLE_HYPHEN';
 
+  /**
+   * How many spaces should be allowed at the end of a
+   * non-justified line given an adjustment ratio of 1?
+   */
+  lineFinalSpacesInNonJustified: number = 3;
+
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {
@@ -221,14 +226,6 @@ export class TexLinebreakOptions {
       this.glueStretchFactor = 0.3;
     }
     Object.assign(this, options);
-  }
-
-  get spaceWidth(): number {
-    return this.measureFn(' ');
-  }
-
-  get lineFinalStretchInNonJustified() {
-    return 3 * this.spaceWidth;
   }
 }
 

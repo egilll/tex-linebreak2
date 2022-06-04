@@ -1,5 +1,13 @@
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
-import { getLineWidth, isBreakablePenalty, isForcedBreak, penalty, validateItems } from 'src/utils';
+import {
+  findNextItem,
+  findPrevItem,
+  getLineWidth,
+  isBreakablePenalty,
+  isForcedBreak,
+  penalty,
+  validateItems,
+} from 'src/utils';
 
 /** An object (eg. a word) to be typeset. */
 export interface Box {
@@ -237,13 +245,20 @@ export function breakLines(
 
       const idealLen = getLineWidth(options.lineWidth, a.line);
       let actualLen = sumWidth - a.totalWidth;
+
+      /** Hanging punctuation */
       if (options.hangingPunctuation) {
-        actualLen -=
-          items[a.index].getNextMatching((i) => i.isBox, { maxIndex: b - 1 })
-            ?.leftHangingPunctuationWidth || 0;
-        actualLen -=
-          items[b].getPrevMatching((i) => i.isBox, { minIndex: a.index + 1 })
-            ?.rightHangingPunctuationWidth || 0;
+        /** TODO!: Check if this is also correct for multiple glues/penalties */
+        const firstBoxInLine = findNextItem(items, (i) => i.type === 'box', {
+          startIndex: a.index,
+          maxIndex: b - 1,
+        }) as Box;
+        const lastBoxInLine = findPrevItem(items, (i) => i.type === 'box', {
+          startIndex: b,
+          minIndex: a.index + 1,
+        }) as Box;
+        actualLen -= firstBoxInLine?.leftHangingPunctuationWidth || 0;
+        actualLen -= lastBoxInLine?.rightHangingPunctuationWidth || 0;
       }
 
       /** Include width of penalty in line length if chosen as a breakpoint. */

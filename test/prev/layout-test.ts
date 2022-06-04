@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { breakLines } from 'src/breakLines/breakLines';
 import { chunk, lineStrings } from 'src/deprecated/deprecatedTestUtils';
 import { layoutItemsFromString } from 'src/deprecated/layoutItemsFromString';

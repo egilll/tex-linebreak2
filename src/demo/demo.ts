@@ -3,10 +3,10 @@
  * to lay out a paragraph of justified text and render it into an HTML canvas.
  */
 
-import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
-import { justifyContent } from 'src/html/justifyContent';
+import Hypher from 'hypher';
 import { renderToCanvas } from 'src/demo/demoCanvas';
+import { justifyContent } from 'src/html/justifyContent';
 
 export const hyphenateFn = (word: string) => new Hypher(enUsPatterns).hyphenate(word);
 
@@ -44,4 +44,4 @@ textarea.addEventListener('input', rerender);
 lineWidthSlider.addEventListener('input', rerender);
 // rerender();
 
-justifyContent(document.querySelectorAll('p.demo-static, div.demo-static p'), {});
+justifyContent(document.querySelectorAll('p.demo-static, div.demo-static p'), {}, true);

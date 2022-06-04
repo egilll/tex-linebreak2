@@ -20,38 +20,33 @@ export type DOMPenalty = Penalty & DOMRangeOffset;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
 /**
- * These functions are placed inside a class since we need to
- * keep track of our current position in the paragraph's text.
+ * Multiple functions are placed inside the lexical scope of this function only
+ * since we need to keep track of our current position in the paragraph's text.
  */
-export class GetItemsFromDOM {
-  #items: DOMItem[] = [];
-  paragraphText: string;
+export function getItemsFromDOM(
+  paragraphElement: HTMLElement,
+  options: TexLinebreakOptions,
+  domTextMeasureFn: (text: string, context: Element) => number,
+): DOMItem[] {
+  let items: DOMItem[] = [];
+  let paragraphText = paragraphElement.textContent || '';
   /**
    * This is done since we need to be aware of the
    * surrounding text in order to find correct break points.
    */
-  textOffsetInParagraph: number = 0;
-  constructor(
-    public paragraphElement: HTMLElement,
-    public options: TexLinebreakOptions,
-    public domTextMeasureFn: (text: string, context: Element) => number,
-  ) {
-    this.paragraphText = paragraphElement.textContent || '';
-    this.getItemsFromNode(paragraphElement);
-  }
+  let textOffsetInParagraph: number = 0;
 
-  get items() {
-    return normalizeItems(this.#items);
-  }
-
-  /** Adds an item and makes a record of its DOM range */
-  addItem(
+  /**
+   * Helper function that limits boilerplate below.
+   * Adds an item and makes a record of its DOM range
+   */
+  function addItemWithOffset(
     item: Box | Glue | Penalty,
     startContainer: Node,
     startOffset: number,
     endOffset: number,
   ) {
-    this.#items.push({
+    items.push({
       ...item,
       startContainer: startContainer,
       startOffset,
@@ -60,16 +55,16 @@ export class GetItemsFromDOM {
     });
   }
 
-  getItemsFromNode(node: Node, addParagraphEnd = true) {
+  function getItemsFromNode(node: Node, addParagraphEnd = true) {
     const children = Array.from(node.childNodes);
 
     let curOffset = 0;
     children.forEach((child) => {
       if (child instanceof Text) {
-        this.getItemsFromText(child, false);
+        getItemsFromText(child, false);
         curOffset += 1;
       } else if (child instanceof Element) {
-        this.getItemsFromElement(child, node, curOffset);
+        getItemsFromElement(child, node, curOffset);
         curOffset += 1;
       }
     });
@@ -80,14 +75,14 @@ export class GetItemsFromDOM {
        * Add a synthetic glue that absorbs any
        * left-over space at the end of the last line.
        */
-      this.addItem(glue(0, INFINITE_STRETCH, 0), node, endOffset, endOffset);
+      addItemWithOffset(glue(0, INFINITE_STRETCH, 0), node, endOffset, endOffset);
 
       /** Add a forced break to end the paragraph. */
-      this.addItem(forcedBreak(), node, endOffset, endOffset);
+      addItemWithOffset(forcedBreak(), node, endOffset, endOffset);
     }
   }
 
-  getItemsFromElement(element: Element, parentNode: Node, startOffset: number) {
+  function getItemsFromElement(element: Element, parentNode: Node, startOffset: number) {
     const {
       display,
       width,
@@ -104,39 +99,39 @@ export class GetItemsFromDOM {
       const leftMargin =
         parseFloat(marginLeft!) + parseFloat(borderLeftWidth!) + parseFloat(paddingLeft!);
       if (leftMargin > 0) {
-        this.addItem(box(leftMargin), element, 0, 0);
+        addItemWithOffset(box(leftMargin), element, 0, 0);
       }
 
       // Add items for child nodes.
-      this.getItemsFromNode(element, false);
+      getItemsFromNode(element, false);
 
       // Add box for margin/border/padding at end of box.
       const rightMargin =
         parseFloat(marginRight!) + parseFloat(borderRightWidth!) + parseFloat(paddingRight!);
       if (rightMargin > 0) {
         const length = element.childNodes.length;
-        this.addItem(box(rightMargin), element, length, length);
+        addItemWithOffset(box(rightMargin), element, length, length);
       }
     } else {
       // Treat this item as an opaque box.
-      this.addItem(box(parseFloat(width!)), element, 0, 1);
-      // this.addItem(box(parseFloat(width!)), parentNode, startOffset, startOffset + 1);
+      addItemWithOffset(box(parseFloat(width!)), element, 0, 1);
+      // addItem(box(parseFloat(width!)), parentNode, startOffset, startOffset + 1);
     }
   }
 
-  getItemsFromText(textNode: Text, addParagraphEnd = true) {
+  function getItemsFromText(textNode: Text, addParagraphEnd = true) {
     const text = textNode.nodeValue!;
     const element = textNode.parentNode! as Element;
 
-    const precedingText = this.paragraphText.slice(0, this.textOffsetInParagraph);
-    const followingText = this.paragraphText.slice(this.textOffsetInParagraph + text.length);
+    const precedingText = paragraphText.slice(0, textOffsetInParagraph);
+    const followingText = paragraphText.slice(textOffsetInParagraph + text.length);
 
     let textOffsetInThisNode = 0;
     const textItems = splitTextIntoItems(
       text,
       {
-        ...this.options,
-        measureFn: (word) => this.domTextMeasureFn(word, element),
+        ...options,
+        measureFn: (word) => domTextMeasureFn(word, element),
         addParagraphEnd,
         collapseNewlines: true,
       },
@@ -146,10 +141,13 @@ export class GetItemsFromDOM {
 
     textItems.forEach((item: TextItem) => {
       const startOffset = textOffsetInThisNode;
-      textOffsetInThisNode += ('text' in item ? item.text : '').length;
-      this.addItem(item, textNode, startOffset, textOffsetInThisNode);
+      textOffsetInThisNode += (('text' in item && item.text) || '').length;
+      addItemWithOffset(item, textNode, startOffset, textOffsetInThisNode);
     });
 
-    this.textOffsetInParagraph += textOffsetInThisNode;
+    textOffsetInParagraph += textOffsetInThisNode;
   }
+
+  getItemsFromNode(paragraphElement);
+  return normalizeItems(items);
 }

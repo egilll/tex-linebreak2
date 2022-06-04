@@ -1,20 +1,19 @@
-import { Line } from 'src/index';
 import { tagNode } from 'src/html/tagNode';
+import { Line } from 'src/index';
 
 /**
- * Draw boxes
- *
- * At the end of a paragraph (in a browser context).
- *
- * On screen to see any possible mismatches in size calculations
+ * Draw boxes at the end of a paragraph (in a browser context)
+ * on screen to see any possible mismatches in size calculations
  */
 export const visualizeBoxesForDebugging = (lines: Line[], appendToElement: HTMLElement) => {
   /* Remove previous debugging boxes */
-  document.querySelectorAll('.debug-line').forEach((el) => el.remove());
+  appendToElement.querySelectorAll('.debug-line').forEach((el) => el.remove());
   const box1 = tagNode(document.createElement('div'));
   box1.classList.add('debug-line');
   box1.style.position = 'relative';
   box1.style.height = lines.length * 15 + 'px';
+  box1.style.marginLeft = window.getComputedStyle(appendToElement).paddingLeft;
+  box1.style.height = window.getComputedStyle(appendToElement).height;
   console.log({ lines });
 
   lines.forEach((line) => {
@@ -29,7 +28,7 @@ export const visualizeBoxesForDebugging = (lines: Line[], appendToElement: HTMLE
       box.style.width = item.width + 'px';
       box.style.background = '#7272ed80';
       box.style.font = '9px sans-serif';
-      box.innerHTML = 'text' in item ? item.text : '?';
+      box.innerHTML = ('text' in item && item.text) || '?';
       box1.appendChild(box);
     });
   });

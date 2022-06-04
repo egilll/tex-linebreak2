@@ -1,9 +1,11 @@
-import { breakLines, Item, MAX_COST } from 'src/breakLines/breakLines';
+import { breakLines, Item } from 'src/breakLines/breakLines';
 import { breakLinesGreedy } from 'src/breakLines/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
-import { SOFT_HYPHEN, splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
+import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
 import { getLineWidth, isSoftHyphen, TextBox, TextItem } from 'src/utils';
+
+export type ItemPosition = { xOffset: number; adjustedWidth: number };
 
 export class TexLinebreak<
   InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item,
@@ -26,7 +28,7 @@ export class TexLinebreak<
     if (this.options.lineBreakingType === 'greedy') {
       return breakLinesGreedy(this.items, this.options.lineWidth);
     } else {
-      return breakLines(this.items, null, this.options);
+      return breakLines(this.items, this.options);
     }
   }
   get lines(): Line<InputItemType>[] {
@@ -47,26 +49,65 @@ export class TexLinebreak<
 
 export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item> {
   items: InputItemType[];
+  /**
+   * Items that matter for the purposes of rendering this
+   * line (i.e. filters out certain glues and penalties)
+   */
   itemsFiltered: InputItemType[];
+  idealWidth: number;
+  actualWidth: number;
+  adjustmentRatio: number;
   constructor(
     public parentClass: TexLinebreak<any>,
     public startBreakpoint: number,
     public endBreakpoint: number,
     public lineIndex: number,
   ) {
-    this.items = parentClass.items.slice(this.startBreakpoint, this.endBreakpoint);
+    this.items = parentClass.items.slice(this.startBreakpoint + 1, this.endBreakpoint + 1);
+    this.itemsFiltered = this.getItemsFiltered();
+    this.idealWidth = getLineWidth(this.parentClass.options.lineWidth, this.lineIndex);
+    this.actualWidth = this.getActualWidth();
+    this.adjustmentRatio = this.getAdjustmentRatio();
+  }
 
+  getActualWidth(): number {
+    return (
+      this.itemsFiltered.reduce((sum, item) => {
+        return sum + item.width;
+      }, 0) -
+      this.leftHangingPunctuationWidth -
+      this.rightHangingPunctuationWidth
+    );
+  }
+
+  getAdjustmentRatio(): number {
+    let actualWidth = 0;
+    let lineShrink = 0;
+    let lineStretch = 0;
+    this.itemsFiltered.forEach((item) => {
+      actualWidth += item.width;
+      if (item.type === 'glue') {
+        lineShrink += item.shrink;
+        lineStretch += item.stretch;
+      }
+    });
+    if (actualWidth < this.idealWidth) {
+      return (this.idealWidth - actualWidth) / lineStretch;
+    } else {
+      return (this.idealWidth - actualWidth) / lineShrink;
+    }
+  }
+
+  getItemsFiltered(): InputItemType[] {
     /**
-     * Filter glues and penalties that do not matter for the
-     * purposes of rendering this line.
      * This goes through three steps for a reason, otherwise we
      * haven't filtered out [Penalty, Glue, Box] into [Box].
      *
      * TODO!!! Is glue visible in left-aligned??
      */
     let itemsFiltered = this.items
-      // Ignore penalty that's not at the end of the line
       .filter((item, curIndex, items) => {
+        // Ignore penalty that's not at the end of the line
         return !(item.type === 'penalty' && curIndex !== items.length - 1);
       })
       // // Ignore adjacent glues TODO: should be covered by normalization
@@ -75,20 +116,27 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
       // })
       .filter((item, curIndex, items) => {
         return !(
-          item.type === 'glue' &&
-          // Ignore line-beginning glue
-          (curIndex === 0 ||
-            // Ignore line-ending glue
-            curIndex === items.length - 1)
+          (
+            item.type === 'glue' &&
+            // Ignore line-beginning glue
+            curIndex === 0
+          )
+          //   ||
+          // // Ignore line-ending glue
+          // curIndex === items.length - 1
         );
       });
-    /** Cleanup .TODO : Immutable */
-    itemsFiltered.forEach((item) => {
-      /** StripSoftHyphensFromOutputText */
-      if (this.parentClass.options.stripSoftHyphensFromOutputText && 'text' in item) {
-        item.text = item.text!.replaceAll(SOFT_HYPHEN, '');
-      }
-    });
+    // /** Cleanup .TODO : Immutable */
+    // itemsFiltered.forEach((item) => {
+    //   /** StripSoftHyphensFromOutputText */
+    //   if (
+    //     this.parentClass.options.stripSoftHyphensFromOutputText &&
+    //     'text' in item &&
+    //     item.text
+    //   ) {
+    //     item.text = item.text!.replaceAll(SOFT_HYPHEN, '');
+    //   }
+    // });
 
     // /**  TODO!!!
     //  * Handle soft hyphens in non-justified
@@ -101,98 +149,35 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
     //     itemsFiltered.splice(itemsFiltered.length - 1, 1)[0],
     //   );
     // }
-
-    this.itemsFiltered = itemsFiltered;
-  }
-
-  get endsWithSoftHyphen(): boolean {
-    return isSoftHyphen(this.items.at(-1));
-  }
-
-  get idealWidth(): number {
-    return getLineWidth(this.parentClass.options.lineWidth!, this.lineIndex);
-  }
-
-  getActualWidth(options?: { ignoreGlue: boolean }): number {
-    return (
-      this.itemsFiltered.reduce((sum, item) => {
-        if (options?.ignoreGlue && item.type === 'glue') return sum;
-        return sum + item.width;
-      }, 0) -
-      this.leftHangingPunctuationWidth -
-      this.rightHangingPunctuationWidth
-    );
-  }
-
-  get leftHangingPunctuationWidth() {
-    return (this.itemsFiltered[0] as TextBox)?.leftHangingPunctuationWidth || 0;
-  }
-
-  get rightHangingPunctuationWidth() {
-    return (this.itemsFiltered.at(-1) as TextBox)?.rightHangingPunctuationWidth || 0;
-  }
-
-  get glueCount(): number {
-    return this.itemsFiltered.filter((item) => item.type === 'glue').length;
-  }
-
-  /** Todo: check whether gluewidth is negative before returning! */
-  get extraSpacePerGlue(): number {
-    return (this.idealWidth - this.getActualWidth()) / this.glueCount;
-  }
-
-  get unstretchedGlueWidth(): number {
-    return (
-      this.itemsFiltered.reduce((sum, item) => {
-        if (item.type === 'glue') {
-          return sum + item.width;
-        }
-        return sum;
-      }, 0) / this.glueCount
-    );
-  }
-
-  get endsWithInfiniteGlue(): boolean {
-    const lastItem = this.items.at(-1);
-    return lastItem?.type === 'glue' && lastItem?.stretch === MAX_COST;
-  }
-
-  get glueWidth(): number {
-    if (this.idealWidth < this.getActualWidth({ ignoreGlue: true })) {
-      console.error(`Glue in line ${this.lineIndex + 1} is negative! That's impossible`);
-    }
-    if (this.endsWithInfiniteGlue && this.extraSpacePerGlue >= 0) {
-      return this.unstretchedGlueWidth;
-    } else {
-      const width = (this.idealWidth - this.getActualWidth({ ignoreGlue: true })) / this.glueCount;
-      if (this.parentClass.options.justify && this.extraSpacePerGlue >= 0) {
-        return width - this.extraSpacePerGlue + this.extraSpacePerGlue / 1.5;
-      } else {
-        return width;
-      }
-    }
+    return itemsFiltered;
   }
 
   /**
    * Includes soft hyphens.
    * TODO: what about filtered items ???
    */
-  get positionedItems(): (InputItemType & { xOffset: number })[] {
-    const result: (InputItemType & { xOffset: number })[] = [];
+  get positionedItems(): (InputItemType & ItemPosition)[] {
+    const output: (InputItemType & ItemPosition)[] = [];
     let xOffset = -this.leftHangingPunctuationWidth;
     this.itemsFiltered.forEach((item) => {
-      result.push({
+      let adjustedWidth: number;
+      if (this.adjustmentRatio >= 0) {
+        adjustedWidth =
+          item.width + (('stretch' in item && item.stretch) || 0) * this.adjustmentRatio;
+      } else {
+        adjustedWidth =
+          item.width + (('shrink' in item && item.shrink) || 0) * this.adjustmentRatio;
+      }
+
+      output.push({
         ...item,
         xOffset,
+        adjustedWidth,
       });
-      if (item.type === 'glue') {
-        xOffset += this.glueWidth;
-      } else {
-        xOffset += item.width;
-      }
+      xOffset += adjustedWidth;
     });
 
-    return result;
+    return output;
   }
 
   get plainText() {
@@ -204,6 +189,56 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
         .replace(/\s{2,}/g, ' ')
     );
   }
+
+  get endsWithSoftHyphen(): boolean {
+    return isSoftHyphen(this.items.at(-1));
+  }
+
+  /** TODO!! Should be first box!!! */
+  get leftHangingPunctuationWidth() {
+    return (this.itemsFiltered[0] as TextBox)?.leftHangingPunctuationWidth || 0;
+  }
+
+  get rightHangingPunctuationWidth() {
+    return (this.itemsFiltered.at(-1) as TextBox)?.rightHangingPunctuationWidth || 0;
+  }
+
+  // get glueCount(): number {
+  //   return this.itemsFiltered.filter((item) => item.type === 'glue').length;
+  // }
+
+  // /** Todo: check whether gluewidth is negative before returning! */
+  // get extraSpacePerGlue(): number {
+  //   return (this.idealWidth - this.getActualWidth()) / this.glueCount;
+  // }
+
+  // get endsWithInfiniteGlue(): boolean {
+  //   const lastItem = this.items.at(-1);
+  //   return lastItem?.type === 'glue' && lastItem?.stretch === MAX_COST;
+  // }
+
+  // get glueWidth(): number {
+  //   // if (this.idealWidth < this.getActualWidth({ ignoreGlue: true })) {
+  //   //   console.error(`Glue in line ${this.lineIndex + 1} is negative! That's impossible`);
+  //   // }
+  //   // if (this.endsWithInfiniteGlue && this.extraSpacePerGlue >= 0) {
+  //   //   const unstretchedGlueWidth =
+  //   //     this.itemsFiltered.reduce((sum, item) => {
+  //   //       if (item.type === 'glue') {
+  //   //         return sum + item.width;
+  //   //       }
+  //   //       return sum;
+  //   //     }, 0) / this.glueCount;
+  //   //   return unstretchedGlueWidth;
+  //   // } else {
+  //   //   const width = (this.idealWidth - this.getActualWidth({ ignoreGlue: true })) / this.glueCount;
+  //   //   if (this.parentClass.options.justify && this.extraSpacePerGlue >= 0) {
+  //   //     return width - this.extraSpacePerGlue + this.extraSpacePerGlue / 1.5;
+  //   //   } else {
+  //   //     return width;
+  //   //   }
+  //   // }
+  // }
 }
 
 export const texLinebreak = (...args: ConstructorParameters<typeof TexLinebreak>): TexLinebreak => {

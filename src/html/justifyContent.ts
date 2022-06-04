@@ -1,10 +1,10 @@
 import { visualizeBoxesForDebugging } from 'src/html/debugging';
 import DOMTextMeasurer from 'src/html/domTextMeasurer';
-import { DOMItem, GetItemsFromDOM } from 'src/html/getItemsFromDOM';
+import { DOMGlue, DOMItem, getItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getFloatingElements } from 'src/html/htmlHelpers';
 import { getElementLineWidth } from 'src/html/lineWidth';
 import { getTaggedChildren, tagNode } from 'src/html/tagNode';
-import { TexLinebreak } from 'src/index';
+import { ItemPosition, TexLinebreak } from 'src/index';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 
 /**
@@ -21,18 +21,18 @@ import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 export function justifyContent(
   elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
   /** For backwards compatibility, this parameter also accepts a `hyphenateFn`. */
-  options: Partial<TexLinebreakOptions> | ((word: string) => string[]) = {},
+  _options: Partial<TexLinebreakOptions> | ((word: string) => string[]) = {},
   debug = false,
 ) {
   /**
    * Done for backwards compatibility: Previous versions
    * accepted a `hyphenateFn` as the second parameter.
    */
-  if (typeof options === 'function') {
-    options = { hyphenateFn: options };
+  if (typeof _options === 'function') {
+    _options = { hyphenateFn: _options };
   }
 
-  const _options = getOptionsWithDefaults({ ...options, collapseNewlines: true });
+  const options = getOptionsWithDefaults({ ..._options, collapseNewlines: true });
 
   if (!elements) {
     return console.error("justifyContent didn't receive any items");
@@ -52,13 +52,13 @@ export function justifyContent(
     unjustifyContent(element);
     try {
       const lineWidth = getElementLineWidth(element, floatingElements);
-      const items = new GetItemsFromDOM(element, _options, domTextMeasureFn).items;
+      const items = getItemsFromDOM(element, { ...options, lineWidth }, domTextMeasureFn);
 
       /** Disable automatic line wrap. */
       element.style.whiteSpace = 'nowrap';
 
       const lines = new TexLinebreak<DOMItem>(items, {
-        ..._options,
+        ...options,
         lineWidth,
         collapseNewlines: true,
       }).lines;
@@ -74,23 +74,22 @@ export function justifyContent(
         .slice()
         .reverse()
         .forEach((line) => {
-          const glueRanges = line.itemsFiltered
-            .filter((item) => item.type === 'glue')
-            .map(getRangeOfItem);
+          const glues = line.positionedItems.filter((item) => item.type === 'glue') as (DOMGlue &
+            ItemPosition)[];
+          const glueRanges = glues.map(getRangeOfItem);
           const firstBoxRange = getRangeOfItem(line.itemsFiltered[0]);
           const finalBoxRange = getRangeOfItem(line.itemsFiltered.at(-1)!);
 
-          if (!line.endsWithInfiniteGlue) {
-            glueRanges.forEach((glueRange) => {
-              const span = tagNode(document.createElement('span'));
-              /**
-               * A glue cannot be `inline-block` since that messes with the
-               * formatting of links (each word gets its own underline)
-               */
-              span.style.wordSpacing = `${line.extraSpacePerGlue}px`;
-              glueRange.surroundContents(span);
-            });
-          }
+          glueRanges.forEach((glueRange, index) => {
+            const glue = glues[index];
+            const span = tagNode(document.createElement('span'));
+            /**
+             * A glue cannot be `inline-block` since that messes with the
+             * formatting of links (each word gets its own underline)
+             */
+            span.style.wordSpacing = `${glue.adjustedWidth - glue.width}px`;
+            glueRange.surroundContents(span);
+          });
 
           /** Insert <br/> elements to separate the lines */
           if (line.lineIndex > 0) {
@@ -129,9 +128,9 @@ export function justifyContent(
 }
 
 /** Reverse the changes made to an element by {@link justifyContent}. */
-export function unjustifyContent(el: HTMLElement) {
+export function unjustifyContent(element: HTMLElement) {
   // Find and remove all elements inserted by `justifyContent`.
-  const tagged = getTaggedChildren(el);
+  const tagged = getTaggedChildren(element);
   for (let node of tagged) {
     const parent = node.parentNode!;
     const children = Array.from(node.childNodes);
@@ -142,7 +141,9 @@ export function unjustifyContent(el: HTMLElement) {
   }
 
   // Re-join text nodes that were split by `justifyContent`.
-  el.normalize();
+  element.normalize();
+
+  element.style.whiteSpace = 'initial';
 }
 
 export const getRangeOfItem = (item: DOMItem): Range => {

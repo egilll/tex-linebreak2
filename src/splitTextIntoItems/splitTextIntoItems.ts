@@ -136,7 +136,7 @@ export const splitTextIntoItems = (
     if (segment.breakpoint) {
       /** Soft hyphens */
       if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
-        items.push(softHyphen(options));
+        items.push(...softHyphen(options));
         return;
       }
 

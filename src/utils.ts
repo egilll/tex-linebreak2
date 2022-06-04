@@ -42,11 +42,11 @@ export function textBox(text: string, options: TexLinebreakOptions): TextBox {
 }
 
 export function textGlue(text: string, options: TexLinebreakOptions): TextItem[] {
-  const spaceShrink = options.spaceWidth * options.glueShrinkFactor;
-  const spaceStretch = options.spaceWidth * options.glueStretchFactor;
+  const spaceShrink = getSpaceWidth(options) * options.glueShrinkFactor;
+  const spaceStretch = getSpaceWidth(options) * options.glueStretchFactor;
   if (options.justify) {
     /** Spaces in justified lines */
-    return [glue(options.spaceWidth, spaceStretch, spaceShrink, text)];
+    return [glue(getSpaceWidth(options), spaceStretch, spaceShrink, text)];
   } else {
     /**
      * Spaces in ragged lines. See p. 1139.
@@ -56,9 +56,9 @@ export function textGlue(text: string, options: TexLinebreakOptions): TextItem[]
      * otherwise a line with many spaces is more likely to be a good fit.)
      */
     return [
-      glue(0, options.lineFinalStretchInNonJustified, 0, text),
+      glue(0, getLineFinalStretchInNonJustified(options), 0, text),
       penalty(0, 0),
-      glue(options.spaceWidth, -options.lineFinalStretchInNonJustified, 0, text),
+      glue(getSpaceWidth(options), -getLineFinalStretchInNonJustified(options), 0, text),
     ];
   }
 }
@@ -77,16 +77,24 @@ export const softHyphen = (options: TexLinebreakOptions): TextItem[] => {
      */
     return [
       penalty(0, MAX_COST),
-      glue(0, options.lineFinalStretchInNonJustified, 0),
+      glue(0, getLineFinalStretchInNonJustified(options), 0),
       penalty(hyphenWidth, options.softHyphenPenalty, true),
-      glue(options.spaceWidth, -options.lineFinalStretchInNonJustified, 0),
+      glue(getSpaceWidth(options), -getLineFinalStretchInNonJustified(options), 0),
     ];
   }
 };
 
+export const getSpaceWidth = (options: TexLinebreakOptions): number => {
+  return options.measureFn(' ');
+};
+export const getLineFinalStretchInNonJustified = (options: TexLinebreakOptions): number => {
+  return getSpaceWidth(options) * options.lineFinalSpacesInNonJustified;
+};
+
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
 export const isSoftHyphen = (item: Item | undefined): boolean => {
-  return Boolean(item && item.type === 'penalty' && item.flagged && item.width > 0);
+  // Note: Do not take width into account here as it will be zero for hanging punctuation
+  return Boolean(item && item.type === 'penalty' && item.flagged);
 };
 
 export function forcedBreak(): Penalty {
@@ -144,14 +152,18 @@ export const normalizeItems = <T extends TextItem | DOMItem>(items: T[]): T[] =>
   return output;
 };
 
+/** TODO: Needs rework */
 export const forciblySplitLongWords = (
   items: TextItem[],
   options: TexLinebreakOptions,
 ): TextItem[] => {
+  if (options.lineWidth == null) {
+    throw new Error('lineWidth must be set');
+  }
   let output: TextItem[] = [];
   const minLineWidth = getMinLineWidth(options.lineWidth);
   items.forEach((item) => {
-    if (item.type === 'box' /*&& item.width > minLineWidth*/) {
+    if (item.type === 'box' && item.width > minLineWidth) {
       for (let i = 0; i < item.text.length; i++) {
         const char = item.text[i];
         /** Add penalty */
@@ -211,6 +223,7 @@ export const validateItems = (items: Item[]) => {
       "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off.",
     );
   }
+
   /** A glue cannot be followed by a non-MIN_COST penalty */
   if (
     items.some(
@@ -224,29 +237,37 @@ export const validateItems = (items: Item[]) => {
       "A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it.",
     );
   }
+
+  /** Validate values */
+  if (items.some((item) => !item.type)) {
+    throw new Error(`Missing type for item: ${JSON.stringify(items.find((item) => !item.type))}`);
+  }
+  if (items.some((item) => typeof item.width !== 'number')) {
+    throw new Error(`Width must be a number: ${JSON.stringify(items.find((item) => !item.type))}`);
+  }
 };
 
-// +  /** Get the nearest previous item that matches a predicate. */
-// +  getPrevMatching(
-// +    callbackFn: (item: Item) => boolean,
-// +    options: { minIndex?: number },
-// +  ): Item | undefined {
-// +    for (let j = this.index - 1; j >= (options.minIndex || 0); j--) {
-// +      const item = this.parentArray[j];
-// +      if (callbackFn(item)) return item;
-// +    }
-// +    return undefined;
-// +  }
-//
-// +  /** Get the next item that matches a predicate. */
-// +  getNextMatching(
-// +    callbackFn: (item: Item) => boolean,
-// +    options: { maxIndex?: number },
-// +  ): Item | undefined {
-// +    for (let j = this.index + 1; j <= (options.maxIndex || this.parentArray.length); j++) {
-// +      const item = this.parentArray[j];
-// +      if (callbackFn(item)) return item;
-// +    }
-// +    return undefined;
-//    }
-//  }
+/** Get the nearest previous item that matches a predicate. */
+export function findPrevItem<T>(
+  arr: T[],
+  callbackFn: (item: T) => boolean,
+  options: { startIndex: number; minIndex?: number },
+): T | undefined {
+  for (let j = options.startIndex - 1; j >= (options.minIndex || 0); j--) {
+    const item = arr[j];
+    if (callbackFn(item)) return item;
+  }
+  return undefined;
+}
+/** Get the next item that matches a predicate. */
+export function findNextItem<T>(
+  arr: T[],
+  callbackFn: (item: T) => boolean,
+  options: { startIndex: number; maxIndex?: number },
+): T | undefined {
+  for (let j = options.startIndex + 1; j <= (options.maxIndex || arr.length); j++) {
+    const item = arr[j];
+    if (callbackFn(item)) return item;
+  }
+  return undefined;
+}
