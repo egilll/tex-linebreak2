@@ -114,14 +114,12 @@ export function positionText(
 
   try {
     items = layoutItemsFromString(text, measure);
-    breakpoints = breakLines(items, lineWidth, {
-      maxAdjustmentRatio: 1,
-    });
+    breakpoints = breakLines(items, { lineWidth, maxAdjustmentRatio: 1 });
     positions = positionItems(items, lineWidth, breakpoints);
   } catch (e) {
     if (e instanceof MaxAdjustmentExceededError) {
       items = layoutItemsFromString(text, measure, hyphenate);
-      breakpoints = breakLines(items, lineWidth);
+      breakpoints = breakLines(items, { lineWidth });
       positions = positionItems(items, lineWidth, breakpoints);
     } else {
       throw e;

@@ -188,9 +188,7 @@ describe('layout', () => {
         // we followed TeX's solution (see Knuth-Plass p.1162) then we would first
         // retry with the same threshold after applying hyphenation to break
         // existing boxes and then only after that retry with a higher threshold.
-        const breakpoints = breakLines(items, lineWidth, {
-          initialMaxAdjustmentRatio: 1,
-        });
+        const breakpoints = breakLines(items, { lineWidth, initialMaxAdjustmentRatio: 1 });
         expect(breakpoints).toEqual(expectedBreakpoints);
       });
     });
@@ -203,14 +201,12 @@ describe('layout', () => {
       const lineWidth = 13 * charWidth;
 
       // Break lines without a double-hyphen penalty.
-      let breakpoints = breakLines(items, lineWidth);
+      let breakpoints = breakLines(items, { lineWidth });
       let lines = lineStrings(items, breakpoints);
       expect(lines).toEqual(['one two long-', 'word one long-', 'word']);
 
       // Break lines with a double-hyphen penalty.
-      breakpoints = breakLines(items, lineWidth, {
-        doubleHyphenPenalty: 200,
-      });
+      breakpoints = breakLines(items, { lineWidth, doubleHyphenPenalty: 200 });
       lines = lineStrings(items, breakpoints);
       expect(lines).toEqual(['one two', 'longword one', 'longword']);
     });
@@ -237,14 +233,10 @@ describe('layout', () => {
       const lineWidth = 50;
 
       // Break lines without contrasting tightness penalty.
-      let breakpointsA = breakLines(items, lineWidth, {
-        adjacentLooseTightPenalty: 0,
-      });
+      let breakpointsA = breakLines(items, { lineWidth, adjacentLooseTightPenalty: 0 });
 
       // Break lines with contrasting tightness penalty.
-      let breakpointsB = breakLines(items, lineWidth, {
-        adjacentLooseTightPenalty: 10000,
-      });
+      let breakpointsB = breakLines(items, { lineWidth, adjacentLooseTightPenalty: 10000 });
 
       expect(breakpointsA).not.toEqual(breakpointsB);
     });
