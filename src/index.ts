@@ -2,7 +2,7 @@ import { breakLines, Item } from 'src/breakLines/breakLines';
 import { breakLinesGreedy } from 'src/breakLines/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
-import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
+import { SOFT_HYPHEN, splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
 import { getLineWidth, isSoftHyphen, TextBox, TextItem } from 'src/utils';
 
 export type ItemPosition = { xOffset: number; adjustedWidth: number };
@@ -63,7 +63,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
     public endBreakpoint: number,
     public lineIndex: number,
   ) {
-    this.items = parentClass.items.slice(this.startBreakpoint + 1, this.endBreakpoint + 1);
+    this.items = parentClass.items.slice(this.startBreakpoint, this.endBreakpoint);
     this.itemsFiltered = this.getItemsFiltered();
     this.idealWidth = getLineWidth(this.parentClass.options.lineWidth, this.lineIndex);
     this.actualWidth = this.getActualWidth();
@@ -126,29 +126,28 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
           // curIndex === items.length - 1
         );
       });
-    // /** Cleanup .TODO : Immutable */
-    // itemsFiltered.forEach((item) => {
-    //   /** StripSoftHyphensFromOutputText */
-    //   if (
-    //     this.parentClass.options.stripSoftHyphensFromOutputText &&
-    //     'text' in item &&
-    //     item.text
-    //   ) {
-    //     item.text = item.text!.replaceAll(SOFT_HYPHEN, '');
-    //   }
-    // });
 
-    // /**  TODO!!!
-    //  * Handle soft hyphens in non-justified
-    //  * text, see comment at {@link softHyphen}
-    //  */
-    // if (this.endsWithSoftHyphen && this.items.at(-2)?.type === 'glue') {
-    //   itemsFiltered.splice(
-    //     itemsFiltered.length - 2,
-    //     0,
-    //     itemsFiltered.splice(itemsFiltered.length - 1, 1)[0],
-    //   );
-    // }
+    /** Cleanup .TODO : Immutable */
+    itemsFiltered.forEach((item) => {
+      /** StripSoftHyphensFromOutputText */
+      if (this.parentClass.options.stripSoftHyphensFromOutputText && 'text' in item && item.text) {
+        item.text = item.text!.replaceAll(SOFT_HYPHEN, '');
+      }
+    });
+
+    /**
+     * Handle soft hyphens in non-justified text, see
+     * comment at {@link softHyphen}.
+     * Moves the soft hyphen character to before the glue.
+     */
+    if (this.endsWithSoftHyphen && this.items.at(-2)?.type === 'glue') {
+      itemsFiltered.splice(
+        itemsFiltered.length - 2,
+        0,
+        itemsFiltered.splice(itemsFiltered.length - 1, 1)[0],
+      );
+    }
+
     return itemsFiltered;
   }
 

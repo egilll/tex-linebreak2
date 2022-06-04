@@ -26,6 +26,11 @@ textarea {
   min-height: 120px;
 }
 
+body > p {
+  font-family: serif;
+  font-size: 16px;
+}
+
 .demo-output {
   background-color: white;
   font-family: serif;
@@ -36,51 +41,10 @@ textarea {
   line-height: 1.6;
   width: calc(var(--line-width) + 40px);
 }
-.demo-static {
-  width: 100%;
-}
 
 .canvas {
   display: block;
   padding: 0;
-}
-
-.output-p {
-  /*font-size: 13px;*/
-  /*width: calc(var(--line-width) + 40px);*/
-  /*height: 800px;*/
-  /*border: 1px solid #aaa;*/
-  /*margin-top: 10px;*/
-  /*margin-left: 30px;*/
-  /*margin-right: 30px;*/
-  /*padding-left: 20px;*/
-  /*padding-right: 20px;*/
-  /*padding-top: 10px;*/
-  /*line-height: 30px;*/
-  /*overflow: hidden;*/
-}
-
-.css-output-p {
-  /**
-   * Enable hyphenation where supported. See https://caniuse.com/#feat=css-hyphens
-   *
-   * As of 2018-04-07, Chrome's "auto" implementation is limited to macOS and Android.
-   * See https://bugs.chromium.org/p/chromium/issues/detail?id=652964 and
-   * https://chromium.googlesource.com/chromium/src/+/ed7e106e0e48b3afb160a5bdbb37649e307d2b05
-   */
-  hyphens: auto;
-  text-align: justify;
-}
-
-.html-p {
-  /*width: calc(var(--line-width) + 40px);*/
-  /*font-size: 13px;*/
-  /*margin-left: 30px;*/
-  /*margin-right: 30px;*/
-  /*border: 1px solid #aaa;*/
-  /*line-height: 30px;*/
-  /*padding-left: 20px;*/
-  /*padding-right: 20px;*/
 }
 
 .gutenberg .chapter {

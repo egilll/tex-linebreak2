@@ -1,7 +1,7 @@
 import enUsPatterns from 'hyphenation.en-us';
 
 import { createHyphenator } from 'src/deprecated/createHyphenator';
-import { justifyContent } from 'src/html/justifyContent';
+import { justifyContent } from 'src/html/demo';
 
 const hyphenate = createHyphenator(enUsPatterns);
 
