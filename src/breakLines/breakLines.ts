@@ -121,7 +121,6 @@ export class MaxAdjustmentExceededError extends Error {}
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param _options - The following options are used here:
  *       {@link TexLinebreakOptions#maxAdjustmentRatio}
- *       {@link TexLinebreakOptions#minAdjustmentRatio}
  *       {@link TexLinebreakOptions#initialMaxAdjustmentRatio}
  *       {@link TexLinebreakOptions#doubleHyphenPenalty}
  *       {@link TexLinebreakOptions#adjacentLooseTightPenalty}
@@ -247,8 +246,13 @@ export function breakLines(
        * the output is very counter-intuitive. See the comments
        * at {@link TexLinebreakOptions#allowSingleWordLines}.
        */
-      if (options.allowSingleWordLines && lineStretch === 0) {
-        lineStretch = 0.1;
+      if (options.allowSingleWordLines) {
+        if (lineStretch === 0) {
+          lineStretch = 0.1;
+        }
+        // if (lineStretch === 0) {
+        //   lineStretch = 400;
+        // }
       }
 
       const idealLen = getLineWidth(options.lineWidth, a.line);
@@ -342,13 +346,17 @@ export function breakLines(
         lastActive = a;
       }
 
-      if (adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio) {
+      if (
+        // true ||
+        adjustmentRatio >= MIN_ADJUSTMENT_RATIO &&
+        adjustmentRatio <= currentMaxAdjustmentRatio
+      ) {
         /**
          * We found a feasible breakpoint. Compute a
          * `demerits` score for it as per formula on p. 1128.
          */
         let demerits;
-        const badness = 0.1 * Math.abs(adjustmentRatio) ** 3;
+        const badness = 100 * Math.abs(adjustmentRatio) ** 3;
         const penalty = item.type === 'penalty' ? item.cost : 0;
 
         if (penalty >= 0) {
@@ -419,6 +427,8 @@ export function breakLines(
       }
     });
 
+    console.log({ feasible });
+
     /** Add feasible breakpoint with lowest score to active set. */
     if (feasible.length > 0) {
       let bestNode = feasible[0];
@@ -446,6 +456,7 @@ export function breakLines(
         options.initialMaxAdjustmentRatio = minAdjustmentRatioAboveThreshold * 2;
         return breakLines(items, options, currentRecursionDepth + 1);
       } else {
+        console.log('haha');
         /**
          * We cannot create a breakpoint sequence by increasing the
          * max adjustment ratio. This could happen if a box is too

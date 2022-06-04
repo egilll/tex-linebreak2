@@ -56,9 +56,9 @@ export function textGlue(text: string, options: TexLinebreakOptions): TextItem[]
      * otherwise a line with many spaces is more likely to be a good fit.)
      */
     return [
-      glue(0, getLineFinalStretchInNonJustified(options), 0, text),
+      glue(0, getLineFinalStretchInNonJustified(options) + spaceStretch, spaceShrink, text),
       penalty(0, 0),
-      glue(getSpaceWidth(options), -getLineFinalStretchInNonJustified(options), 0, text),
+      glue(getSpaceWidth(options), -getLineFinalStretchInNonJustified(options), 0),
     ];
   }
 }
@@ -79,7 +79,7 @@ export const softHyphen = (options: TexLinebreakOptions): TextItem[] => {
       penalty(0, MAX_COST),
       glue(0, getLineFinalStretchInNonJustified(options), 0),
       penalty(hyphenWidth, options.softHyphenPenalty, true),
-      glue(getSpaceWidth(options), -getLineFinalStretchInNonJustified(options), 0),
+      glue(0, -getLineFinalStretchInNonJustified(options), 0),
     ];
   }
 };
@@ -128,17 +128,18 @@ export const isPenaltyThatDoesNotForceBreak = (item: Item) => {
  * the HTML "text <!-- comment node --> text" would otherwise become ["text",
  * " ", " ", "text"] and the glue wouldn't be of the correct size.
  */
-export const normalizeItems = <T extends TextItem | DOMItem>(items: T[]): T[] => {
+export const normalizeItems = <T extends TextItem | DOMItem | Item>(items: T[]): T[] => {
   let output: T[] = [];
   items.forEach((item) => {
     /** Collapse adjacent glue */
     if (item.type === 'glue' && output.at(-1)?.type === 'glue') {
       const lastItem = output.at(-1)! as Glue;
-      lastItem.width = Math.max(item.width, lastItem.width);
-      lastItem.stretch = Math.max(item.stretch, lastItem.stretch);
-      lastItem.shrink = Math.max(item.shrink, lastItem.shrink);
-      if ('text' in item) {
-        (output.at(-1) as TextGlue).text = ((output.at(-1) as TextGlue).text || '') + item.text;
+      lastItem.width = item.width + lastItem.width;
+      lastItem.stretch = item.stretch + lastItem.stretch;
+      lastItem.shrink = item.shrink + lastItem.shrink;
+      if ('text' in item || 'text' in output.at(-1)!) {
+        (output.at(-1) as TextGlue).text =
+          ((output.at(-1) as TextGlue).text || '') + ((item as TextGlue).text || '');
       }
       if ('endOffset' in item) {
         (output.at(-1) as DOMGlue).endContainer = item.endContainer;
@@ -225,21 +226,21 @@ export const validateItems = (items: Item[]) => {
     );
   }
 
-  /** A glue cannot be followed by a non-MIN_COST penalty */
-  const glueFollowedByNonMinCostPenalty = items.find(
-    (item, index) =>
-      item.type === 'glue' &&
-      items[index + 1].type === 'penalty' &&
-      (items[index + 1] as Penalty).cost! > MIN_COST,
-  );
-  if (glueFollowedByNonMinCostPenalty) {
-    console.log({ items });
-    throw new Error(
-      `A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it. Found at index ${items.findIndex(
-        (i) => i === glueFollowedByNonMinCostPenalty,
-      )}`,
-    );
-  }
+  // /** A glue cannot be followed by a non-MIN_COST penalty */
+  // const glueFollowedByNonMinCostPenalty = items.find(
+  //   (item, index) =>
+  //     item.type === 'glue' &&
+  //     items[index + 1].type === 'penalty' &&
+  //     (items[index + 1] as Penalty).cost! > MIN_COST,
+  // );
+  // if (glueFollowedByNonMinCostPenalty) {
+  //   console.log({ items });
+  //   throw new Error(
+  //     `A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it. Found at index ${items.findIndex(
+  //       (i) => i === glueFollowedByNonMinCostPenalty,
+  //     )}`,
+  //   );
+  // }
 
   /** Validate values */
   if (items.some((item) => !item.type)) {

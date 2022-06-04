@@ -92,21 +92,26 @@ export class TexLinebreakOptions {
   forceOverflowToBreak: boolean = true;
 
   /**
-   * A factor indicating the maximum amount by which items in a
-   * line can be spaced out by expanding `Glue` items.
+   * The adjustment ratio of a line is the amount by which a line's glue
+   * has been expanded or shrunk.
    *
-   * The maximum size which a `Glue` on a line can expand to is
-   * `glue.width + (maxAdjustmentRatio * glue.stretch)`.
+   * An adjustment ratio of 0 means that all glue items are of their
+   * preferred width. An adjustment ratio of 1 means that all glue items
+   * have expanded by their full `stretch` value. An adjustment ratio of -1
+   * means that all glue items have shrunk by their full `shrink` value.
    *
-   * If the paragraph cannot be laid out without exceeding this
-   * threshold then a `MaxAdjustmentExceededError` error is thrown.
-   * The caller can use this to apply hyphenation and try again. If
-   * `null`, lines are stretched as far as necessary.
+   * Setting `maxAdjustmentRatio` prohibits the line from expanding more
+   * than `glue.width - (maxAdjustmentRatio * glue.stretch)`.
+   *
+   * If the paragraph cannot be laid out without exceeding this threshold
+   * then a `MaxAdjustmentExceededError` error is thrown.
+   * The caller can use this to apply hyphenation and try again.
+   * If `null` (default), lines are stretched as far as necessary.
    */
   maxAdjustmentRatio: number | null = null;
 
   /** The maximum adjustment ratio used for the initial line breaking attempt. */
-  initialMaxAdjustmentRatio: number = 0;
+  initialMaxAdjustmentRatio: number = 0.2;
 
   /**
    * Penalty for consecutive hyphenated lines.
@@ -223,7 +228,8 @@ export class TexLinebreakOptions {
     if (options.justify === false) {
       this.softHyphenPenalty = 500;
       this.glueShrinkFactor = 0;
-      this.glueStretchFactor = 0.3;
+      this.glueStretchFactor = 0;
+      this.glueStretchFactor = 0.1;
     }
     Object.assign(this, options);
   }

@@ -1,13 +1,13 @@
 import enUsPatterns from 'hyphenation.en-us';
 import Hypher from 'hypher';
 import { texts } from 'src/demo/texts/texts';
-import { justifyContent } from 'src/html/demo';
+import { justifyContent } from 'src/html/justifyContent';
 
-const text = new Hypher(enUsPatterns).hyphenateText(texts[0]);
+const text = new Hypher(enUsPatterns).hyphenateText(texts[0]).slice(0, 40);
 
 const outputElement = document.getElementById('demo-output')! as HTMLElement;
 outputElement.innerHTML = text;
-outputElement.style.textAlign = 'center';
+// outputElement.style.textAlign = 'center';
 
 const circleOfHeightOne = (ratioOfTotalHeight: number) => {
   const radius = 1 / 2;
@@ -24,4 +24,4 @@ for (let yOffset = lineHeight / 2; yOffset < height; yOffset += lineHeight) {
   lineWidth.push(circleOfHeightOne(yOffset / height) * height);
 }
 
-justifyContent(outputElement, { lineWidth }, true);
+justifyContent(outputElement, { lineWidth: 10, justify: false }, true);

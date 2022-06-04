@@ -3,7 +3,7 @@ import { breakLinesGreedy } from 'src/breakLines/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
 import { SOFT_HYPHEN, splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
-import { getLineWidth, isSoftHyphen, TextBox, TextItem } from 'src/utils';
+import { getLineWidth, isSoftHyphen, normalizeItems, TextBox, TextItem } from 'src/utils';
 
 export type ItemPosition = { xOffset: number; adjustedWidth: number };
 
@@ -63,7 +63,10 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
     public endBreakpoint: number,
     public lineIndex: number,
   ) {
-    this.items = parentClass.items.slice(this.startBreakpoint, this.endBreakpoint);
+    this.items = parentClass.items.slice(
+      this.startBreakpoint === 0 ? 0 : this.startBreakpoint + 1,
+      this.endBreakpoint + 1,
+    );
     this.itemsFiltered = this.getItemsFiltered();
     this.idealWidth = getLineWidth(this.parentClass.options.lineWidth, this.lineIndex);
     this.actualWidth = this.getActualWidth();
@@ -105,34 +108,9 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
      *
      * TODO!!! Is glue visible in left-aligned??
      */
-    let itemsFiltered = this.items
-      .filter((item, curIndex, items) => {
-        // Ignore penalty that's not at the end of the line
-        return !(item.type === 'penalty' && curIndex !== items.length - 1);
-      })
-      // // Ignore adjacent glues TODO: should be covered by normalization
-      // .filter((item, curIndex, items) => {
-      //   return !(item.type === 'glue' && items[curIndex - 1]?.type === 'glue');
-      // })
-      .filter((item, curIndex, items) => {
-        return !(
-          (
-            item.type === 'glue' &&
-            // Ignore line-beginning glue
-            curIndex === 0
-          )
-          //   ||
-          // // Ignore line-ending glue
-          // curIndex === items.length - 1
-        );
-      });
-
-    /** Cleanup .TODO : Immutable */
-    itemsFiltered.forEach((item) => {
-      /** StripSoftHyphensFromOutputText */
-      if (this.parentClass.options.stripSoftHyphensFromOutputText && 'text' in item && item.text) {
-        item.text = item.text!.replaceAll(SOFT_HYPHEN, '');
-      }
+    let itemsFiltered = this.items.filter((item, curIndex, items) => {
+      // Ignore penalty that's not at the end of the line
+      return !(item.type === 'penalty' && curIndex !== items.length - 1);
     });
 
     /**
@@ -147,6 +125,45 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
         itemsFiltered.splice(itemsFiltered.length - 1, 1)[0],
       );
     }
+
+    // // Ignore adjacent glues TODO: should be covered by normalization
+    // .filter((item, curIndex, items) => {
+    //   return !(item.type === 'glue' && items[curIndex - 1]?.type === 'glue');
+    // })
+    itemsFiltered = itemsFiltered.filter((item, curIndex, items) => {
+      return !(
+        (
+          item.type === 'glue' &&
+          // Ignore line-beginning glue
+          curIndex === 0
+        )
+        //   ||
+        // // Ignore line-ending glue
+        // curIndex === items.length - 1
+      );
+    });
+
+    /** Cleanup .TODO : Immutable */
+    itemsFiltered.forEach((item) => {
+      /** StripSoftHyphensFromOutputText */
+      if (this.parentClass.options.stripSoftHyphensFromOutputText && 'text' in item && item.text) {
+        item.text = item.text!.replaceAll(SOFT_HYPHEN, '');
+      }
+    });
+
+    itemsFiltered = normalizeItems(itemsFiltered);
+
+    /** Filter glues that have canceled out (see discussion on negative glue) */
+    itemsFiltered = itemsFiltered.filter(
+      (i) =>
+        !(
+          i.type === 'glue' &&
+          !('text' in i && i.text) &&
+          i.width === 0 &&
+          i.stretch === 0 &&
+          i.shrink === 0
+        ),
+    );
 
     return itemsFiltered;
   }
