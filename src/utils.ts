@@ -157,34 +157,35 @@ export const forciblySplitLongWords = (
   items: TextItem[],
   options: TexLinebreakOptions,
 ): TextItem[] => {
-  if (options.lineWidth == null) {
-    throw new Error('lineWidth must be set');
-  }
-  let output: TextItem[] = [];
-  const minLineWidth = getMinLineWidth(options.lineWidth);
-  items.forEach((item) => {
-    if (item.type === 'box' && item.width > minLineWidth) {
-      for (let i = 0; i < item.text.length; i++) {
-        const char = item.text[i];
-        /** Add penalty */
-        // Separators
-        if (/\p{General_Category=Z}/u.test(char)) {
-          output.push(penalty(0, 0));
-        }
-        // Punctuation
-        else if (/\p{General_Category=P}/u.test(char)) {
-          output.push(penalty(0, 0));
-        } else {
-          output.push(penalty(0, 999));
-        }
-        /** Add glue */
-        output.push(textBox(char, options));
-      }
-    } else {
-      output.push(item);
-    }
-  });
-  return output;
+  return items;
+  // if (options.lineWidth == null) {
+  //   throw new Error('lineWidth must be set');
+  // }
+  // let output: TextItem[] = [];
+  // const minLineWidth = getMinLineWidth(options.lineWidth);
+  // items.forEach((item) => {
+  //   if (item.type === 'box' && item.width > minLineWidth) {
+  //     for (let i = 0; i < item.text.length; i++) {
+  //       const char = item.text[i];
+  //       /** Add penalty */
+  //       // Separators
+  //       if (/\p{General_Category=Z}/u.test(char)) {
+  //         output.push(penalty(0, 0));
+  //       }
+  //       // Punctuation
+  //       else if (/\p{General_Category=P}/u.test(char)) {
+  //         output.push(penalty(0, 0));
+  //       } else {
+  //         output.push(penalty(0, 999));
+  //       }
+  //       /** Add glue */
+  //       output.push(textBox(char, options));
+  //     }
+  //   } else {
+  //     output.push(item);
+  //   }
+  // });
+  // return output;
 };
 
 export const getMinLineWidth = (lineWidths: LineWidth): number => {
@@ -225,16 +226,18 @@ export const validateItems = (items: Item[]) => {
   }
 
   /** A glue cannot be followed by a non-MIN_COST penalty */
-  if (
-    items.some(
-      (item, index) =>
-        item.type === 'glue' &&
-        items[index + 1].type === 'penalty' &&
-        (items[index + 1] as Penalty).cost! > MIN_COST,
-    )
-  ) {
+  const glueFollowedByNonMinCostPenalty = items.find(
+    (item, index) =>
+      item.type === 'glue' &&
+      items[index + 1].type === 'penalty' &&
+      (items[index + 1] as Penalty).cost! > MIN_COST,
+  );
+  if (glueFollowedByNonMinCostPenalty) {
+    console.log({ items });
     throw new Error(
-      "A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it.",
+      `A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it. Found at index ${items.findIndex(
+        (i) => i === glueFollowedByNonMinCostPenalty,
+      )}`,
     );
   }
 

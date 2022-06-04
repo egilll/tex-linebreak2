@@ -1,4 +1,4 @@
-import { breakLines, Item } from 'src/breakLines/breakLines';
+import { breakLines, Item, MIN_ADJUSTMENT_RATIO } from 'src/breakLines/breakLines';
 import { breakLinesGreedy } from 'src/breakLines/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
@@ -94,7 +94,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
     if (actualWidth < this.idealWidth) {
       return (this.idealWidth - actualWidth) / lineStretch;
     } else {
-      return (this.idealWidth - actualWidth) / lineShrink;
+      return Math.max(MIN_ADJUSTMENT_RATIO, (this.idealWidth - actualWidth) / lineShrink);
     }
   }
 

@@ -3,7 +3,6 @@ import DOMTextMeasurer from 'src/html/domTextMeasurer';
 import { DOMGlue, DOMItem, getItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getFloatingElements } from 'src/html/htmlHelpers';
 import { getRangeOfItem, unjustifyContent } from 'src/html/justifyContent';
-import { getElementLineWidth } from 'src/html/lineWidth';
 import { tagNode } from 'src/html/tagNode';
 import { ItemPosition, TexLinebreak } from 'src/index';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
@@ -17,7 +16,7 @@ import { SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
 export function justifyContent(
   elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
   _options:
-    | Partial<Omit<TexLinebreakOptions, 'lineWidth' | 'measureFn'>>
+    | Partial<Omit<TexLinebreakOptions, /*'lineWidth'*/ 'measureFn'>>
     /** For backwards compatibility, this parameter also accepts a `hyphenateFn`. */
     | ((word: string) => string[]) = {},
   debug = false,
@@ -49,7 +48,8 @@ export function justifyContent(
     /** Undo the changes made by any previous justification of this content. */
     unjustifyContent(element);
     try {
-      const lineWidth = getElementLineWidth(element, floatingElements);
+      // const lineWidth = getElementLineWidth(element, floatingElements);
+      const lineWidth = options.lineWidth;
       const items = getItemsFromDOM(element, { ...options, lineWidth }, domTextMeasureFn);
 
       /** Disable automatic line wrap. */

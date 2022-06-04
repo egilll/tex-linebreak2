@@ -12,6 +12,7 @@ declare module 'hypher' {
     constructor(p: Patterns);
 
     hyphenate(word: string): string[];
+    hyphenateText(text: string): string;
   }
 }
 

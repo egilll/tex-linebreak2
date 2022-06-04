@@ -39,10 +39,13 @@ export interface Glue {
    */
   stretch: number;
   /**
-   * Maximum amount by which this space can shrink (given a
-   * maxAdjustmentRatio of 1), expressed in the same units as `width`.
-   * A `width` of 5 and a `shrink` of 1 means that the glue can have a
-   * width of 4. A value of 0 means that it cannot shrink.
+   * Maximum amount by which this space can shrink, expressed in
+   * the same units as `width`.
+   * Unlike `stretch` which can expand as we increase the
+   * maxAdjustmentRatio, a glue is forbidden from shrinking more
+   * than this value (since {@link MIN_ADJUSTMENT_RATIO} is `-1`).
+   * A `width` of 5 and a `shrink` of 1 means that the glue can
+   * have a width of 4. A value of 0 means that it cannot shrink.
    */
   shrink: number;
 }
@@ -88,6 +91,10 @@ export const MAX_COST = 1000;
 
 export const INFINITE_STRETCH = Infinity;
 
+/**
+ * How much glue is allowed to shrink. A `MIN_ADJUSTMENT_RATIO` of -1
+ * means that a glue cannot shrink more than its specified shrink value.
+ */
 export const MIN_ADJUSTMENT_RATIO = -1;
 
 /** Error thrown by `breakLines` when `maxAdjustmentRatio` is exceeded. */
@@ -114,6 +121,7 @@ export class MaxAdjustmentExceededError extends Error {}
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param _options - The following options are used here:
  *       {@link TexLinebreakOptions#maxAdjustmentRatio}
+ *       {@link TexLinebreakOptions#minAdjustmentRatio}
  *       {@link TexLinebreakOptions#initialMaxAdjustmentRatio}
  *       {@link TexLinebreakOptions#doubleHyphenPenalty}
  *       {@link TexLinebreakOptions#adjacentLooseTightPenalty}
@@ -266,15 +274,7 @@ export function breakLines(
         actualLen += item.width;
       }
 
-      /** TODO: wip */
-      /**
-       * Restriction no. 1 on negative breaks. See page 1156.
-       * http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf#page=38
-       */
-      // const M_b = (sumWidth+actualLen)-sumShrink
-
       /** Adjustment ratio from `a` to `b`. */
-
       let adjustmentRatio;
       if (actualLen === idealLen) {
         adjustmentRatio = 0;
