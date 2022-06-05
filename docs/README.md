@@ -105,7 +105,7 @@ npm install tex-linebreak -s
 
 ### On webpages
 
-Use the `texLinebreakDOM` function to lay out the paragraphs of a website:
+Use the `texLinebreakDOM` function to lay out the paragraphs of a website:
 
 ```js
 import { texLinebreakDOM } from 'tex-linebreak';
@@ -116,7 +116,7 @@ The function accepts either a query selector or a list of elements:
 
 ```js
 import { texLinebreakDOM } from 'tex-linebreak';
-const paragraphs = document.querySelectorAll('p')
+const paragraphs = document.querySelectorAll('p');
 texLinebreakDOM(document.querySelectorAll('p'), { align: 'left' });
 ```
 
@@ -124,17 +124,17 @@ texLinebreakDOM(document.querySelectorAll('p'), { align: 'left' });
 
 ### For other types of text
 
-
-
 ```js
 import { texLinebreak } from 'tex-linebreak';
 const text =
   'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
 
-const output = texLinebreak(text, {
-  lineWidth: 45,
-  monospace: true,
-}).plainText;
+const output = 
+  texLinebreak(text, {
+    lineWidth: 45,
+    // (It is however better to use texLinebreakMonospace here)
+    measureFn: (word) => word.length,
+  }).plainText,
 
 // Output:
 // Chamæleon animal est quadrupes, macrum &
@@ -144,13 +144,7 @@ const output = texLinebreak(text, {
 // junctis ut piscibus.
 ```
 
-### 
-
-
-
-
-
-
+### For arbitrary items
 
 ### Low-level APIs
 
