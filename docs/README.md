@@ -64,6 +64,7 @@ hyphenation and this library:
         excessive spacing between words.</td>
   </tr>
 </table>
+
 ## Bookmarklet
 
 The easiest way to see what the library can do is to [install the bookmarklet](bookmarklet.js) and activate it on an existing web page, such as this
@@ -129,19 +130,40 @@ import { texLinebreak } from 'tex-linebreak';
 const text =
   'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
 
-const output = 
-  texLinebreak(text, {
-    lineWidth: 45,
-    // (It is however better to use texLinebreakMonospace here)
-    measureFn: (word) => word.length,
-  }).plainText,
+const t = texLinebreak(text, {
+  lineWidth: 45,
+  /*
+    A function that measures the width of a string of text.
+    (For monospace text, you should however use the function `texLinebreakMonospace`)
+  */
+  measureFn: (word) => word.length,
+  /* Spaces should not expand */
+  glueStretchFactor: 0,
+  /* Spaces should not contract */
+  glueShrinkFactor: 0,
+});
 
-// Output:
-// Chamæleon animal est quadrupes, macrum &
-// gibbosum, capite galeato, corpore & cauda
-// lacertæ majoris, cervice penè nulla, costis
-// plus minus sedecim, obliquo ductu ventri
-// junctis ut piscibus.
+/* Get output as plain text */
+console.log(t.plainText);
+/*
+  Output:
+ 
+  Chamæleon animal est quadrupes, macrum &
+  gibbosum, capite galeato, corpore & cauda
+  lacertæ majoris, cervice penè nulla, costis
+  plus minus sedecim, obliquo ductu ventri
+  junctis ut piscibus.
+*/
+
+/* Get output as positioned items */
+console.log(t.lines.map((line) => line.positionedItems));
+/*
+  Output:
+ 
+  [[{ type: 'box', text: 'Chamæleon', xOffset: 0, width: 9 },
+    { type: 'glue', text: ' ', xOffset: 9, width: 1 },
+    ...
+*/
 ```
 
 ### For arbitrary items
