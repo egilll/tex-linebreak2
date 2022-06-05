@@ -240,6 +240,9 @@ export class TexLinebreakOptions {
 
   leftIndentPerLine?: TexLinebreakOptions['lineWidth'];
 
+  /** This only applies to texLinebreakDOM. */
+  updateOnWindowResize: boolean = true;
+
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {

@@ -12,6 +12,16 @@ would find in a newspaper, book or technical paper. It implements the
 
 This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. It can be used to find the optimal size of an element to fit text.
 
+## Table of contents
+
+- [Features](#features)
+- [About the Knuth-Plass algorithm](#about_the_knuth_plass_algorithm)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Options](#options)
+- [API](#api)
+- [Hyphenation](#hyphenation)
+
 ## Features
 
 - Works well on most websites (as long as they don't contain complex floating elements inside the paragraph)
@@ -110,6 +120,7 @@ Use the `texLinebreakDOM` function to lay out the paragraphs of a website:
 
 ```js
 import { texLinebreakDOM } from 'tex-linebreak';
+
 texLinebreakDOM('p'); // 'p' selects all <p/> elements
 ```
 
@@ -117,20 +128,24 @@ The function accepts either a query selector or a list of elements:
 
 ```js
 import { texLinebreakDOM } from 'tex-linebreak';
+
 const paragraphs = document.querySelectorAll('p');
 texLinebreakDOM(document.querySelectorAll('p'), { align: 'left' });
 ```
 
 [Options](#options) are passed the second parameter of this function.
 
+By default, the library will listen for window resizing (can be turned off with the option `{ updateOnWindowResize: false }`, but it will not listen for dynamic DOM changes. If you alter the DOM in a way that may cause the available space for the paragraph to change, you must call `texLinebreakDOM` again.
+
 ### For other types of text
 
 ```js
-import { texLinebreak } from 'tex-linebreak';
+import { TexLinebreak } from 'tex-linebreak';
+
 const text =
   'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
 
-const t = texLinebreak(text, {
+const t = new TexLinebreak(text, {
   lineWidth: 45,
   /*
     A function that measures the width of a string of text.
@@ -168,68 +183,59 @@ console.log(t.lines.map((line) => line.positionedItems));
 
 ### For arbitrary items
 
-### Low-level APIs
-
-The low-level APIs `breakLines` and `positionItems` work with generic "box"
-(typeset material), "glue" (spaces with flexible sizing) and "penalty" items.
+You can also lay out arbitrary items (be it text or something else). The algorithm works with generic "box"
+(typeset material), "glue" (spaces that may have flexible sizing) and "penalty" items.
 Typically "boxes" are words, "glue" items are spaces and "penalty" items
-represent hyphenation points or the end of a paragraph. However you can use them
-to lay out arbitrary content.
+represent hyphenation points or other possible breaking points. These concepts are far more versatile than they may appear at first, as is discussed in the [original paper](#references).
+
+```js
+import { TexLinebreak, MIN_COST } from 'tex-linebreak';
+
+const items = [
+  { type: 'box', width: 10 },
+  { type: 'glue', width: 4, stretch: 2, shrink: 1 },
+  { type: 'box', width: 20 },
+  { type: 'penalty', cost: MIN_COST },
+];
+
+const positionedItems = new TexLinebreak(items, {
+  lineWidth: 45,
+}).positionedItems;
+```
 
 ## Options
 
-### Methods
+See [`TexLinebreakOptions`](../src/options.ts) for the list of available options.
 
-### High-level APIs
+## API
 
-The high-level APIs provide convenience methods for justifying content in
-existing HTML elements and laying out justified lines for rendering to HTML,
-canvas or other outputs. This includes support for hyphenation using the
+The object [`TexLinebreak`](../src/index.ts) is used to break text. It takes as input either text or items along with options ([`TexLinebreakOptions`](../src/options.ts)):
+
+```js
+new TexLinebreak(text, {});
+// or
+new TexLinebreak(items, {});
+```
+
+It has the following properties:
+
+- `breakpoints` are the indices of items that break a line.
+- `lines` is an array of [`Line`](../src/index.ts) items which describe each line of the output
+- `plainText` will output the text as plain text
+
+A [`Line`](../src/index.ts) object describes a single line of the output. Its relevant properties are:
+
+- `positionedItems` – An array of each item (box, glue, and penalty) that is relevant for rendering the line (i.e. without irrelevant glues and penalties), along with their positioning information given as `xOffset` and `adjustedWidth` (width including any stretching or shrinking).
+
+The following helper functions are available:
+
+- `texLinebreakDOM`, used for websites
+- `texLinebreakMonospace`, a wrapper that includes a string width measuring function for monospace text.
+
+## Hyphenation
+
+This includes support for hyphenation using the
 [hypher](https://github.com/bramstein/hypher) library, but you can also .
-
-#### Justifying existing HTML content
-
-The contents of an existing HTML element can be justified using the
-`justifyContent` function.
-
-```js
-import { justifyContent } from 'tex-linebreak';
-
-justifyContent('p');
-```
-
-After an element is justified, its layout will remain fixed until `justifyContent`
-is called again. In order to re-justify content in response to window size
-changes or other events, your code will need to listen for the appropriate
-events and re-invoke `justifyContent`.
-
-#### Rendering text
-
-For rendering justified text into a variety of targets (HTML, canvas, SVG,
-WebGL etc.), the `layoutText` helper can be used to lay out justifed text and
-obtain the positions which each word should be drawn at.
-
-```js
-import { texLinebreak } from 'text-linebreak';
-
-const positionedItems = texLinebreak(text, {
-  lineWidth: 300,
-  measureFn: (word) => word.length * 5,
-}).positionedItems;
-
-positionedItems.forEach((positionedItem) => {
-  // Draw text as in the above example for the low-level APIs
-});
-```
-
-## API reference
-
-The source files in [src/](src/) have documentation in the form of TypeScript
-annotations.
-
-## Authors
-
-- Robert Knight and other contributors
 
 ## Notes
 

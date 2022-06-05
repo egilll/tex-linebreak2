@@ -15,7 +15,7 @@ export class TexLinebreak<
   options: TexLinebreakOptions;
   constructor(
     input: string | InputItemType[],
-    options: RequireOnlyCertainKeys<TexLinebreakOptions, 'lineWidth' | 'measureFn'>,
+    options: RequireOnlyCertainKeys<TexLinebreakOptions, 'lineWidth' /*| 'measureFn'*/>,
   ) {
     this.options = getOptionsWithDefaults(options);
     if (typeof input === 'string') {
@@ -50,12 +50,13 @@ export class TexLinebreak<
 
 export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item> {
   items: InputItemType[];
+  positionedItems: (InputItemType & ItemPosition)[];
+  adjustmentRatio: number;
   /**
    * Items that matter for the purposes of rendering this
    * line (i.e. filters out certain glues and penalties)
    */
-  itemsFiltered: InputItemType[];
-  adjustmentRatio: number;
+  #itemsFiltered: InputItemType[];
   options: TexLinebreakOptions;
   constructor(
     public parentClass: TexLinebreak<any>,
@@ -68,8 +69,38 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
       this.startBreakpoint === 0 ? 0 : this.startBreakpoint + 1,
       this.endBreakpoint + 1,
     );
-    this.itemsFiltered = this.getItemsFiltered();
+    this.#itemsFiltered = this.getItemsFiltered();
     this.adjustmentRatio = this.getAdjustmentRatio();
+    this.positionedItems = this.getPositionedItems();
+  }
+
+  /**
+   * Returns items to be displayed with their position
+   * information ({@see ItemPosition}).
+   * Note that the output is normalized ({@link normalizeItems}).
+   */
+  getPositionedItems(): (InputItemType & ItemPosition)[] {
+    const output: (InputItemType & ItemPosition)[] = [];
+    let xOffset = this.leftIndentation;
+    this.#itemsFiltered.forEach((item) => {
+      let adjustedWidth: number;
+      if (this.adjustmentRatio >= 0) {
+        adjustedWidth =
+          item.width + (('stretch' in item && item.stretch) || 0) * this.adjustmentRatio;
+      } else {
+        adjustedWidth =
+          item.width + (('shrink' in item && item.shrink) || 0) * this.adjustmentRatio;
+      }
+
+      output.push({
+        ...item,
+        xOffset,
+        adjustedWidth,
+      });
+      xOffset += adjustedWidth;
+    });
+
+    return output;
   }
 
   get leftIndentation() {
@@ -84,7 +115,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
     let actualWidth = 0;
     let lineShrink = 0;
     let lineStretch = 0;
-    this.itemsFiltered.forEach((item) => {
+    this.#itemsFiltered.forEach((item) => {
       actualWidth += item.width;
       if (item.type === 'glue') {
         lineShrink += item.shrink;
@@ -165,38 +196,9 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
     return itemsFiltered;
   }
 
-  /**
-   * Returns items to be displayed with their position
-   * information ({@see ItemPosition}).
-   * Note that the output is normalized ({@link normalizeItems}).
-   */
-  get positionedItems(): (InputItemType & ItemPosition)[] {
-    const output: (InputItemType & ItemPosition)[] = [];
-    let xOffset = this.leftIndentation;
-    this.itemsFiltered.forEach((item) => {
-      let adjustedWidth: number;
-      if (this.adjustmentRatio >= 0) {
-        adjustedWidth =
-          item.width + (('stretch' in item && item.stretch) || 0) * this.adjustmentRatio;
-      } else {
-        adjustedWidth =
-          item.width + (('shrink' in item && item.shrink) || 0) * this.adjustmentRatio;
-      }
-
-      output.push({
-        ...item,
-        xOffset,
-        adjustedWidth,
-      });
-      xOffset += adjustedWidth;
-    });
-
-    return output;
-  }
-
   get plainText() {
     return (
-      this.itemsFiltered
+      this.#itemsFiltered
         .map((item) => ('text' in item ? item.text : ''))
         .join('')
         // Collapse whitespace?
@@ -208,7 +210,3 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
     return isSoftHyphen(this.items.at(-1));
   }
 }
-
-export const texLinebreak = (...args: ConstructorParameters<typeof TexLinebreak>): TexLinebreak => {
-  return new TexLinebreak(...args);
-};
