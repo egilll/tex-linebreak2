@@ -1,7 +1,7 @@
 import enUsPatterns from 'hyphenation.en-us';
 import Hypher from 'hypher';
 import { texts } from 'src/demo/texts/texts';
-import { justifyContent } from 'src/html/justifyContent';
+import { justifyContent } from 'src/deprecated/justifyContent';
 
 const text = new Hypher(enUsPatterns).hyphenateText(texts[0]);
 // const text = texts[0];

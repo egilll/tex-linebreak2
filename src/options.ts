@@ -35,6 +35,8 @@ export class TexLinebreakOptions {
 
   justify: boolean = true;
 
+  align: 'justify' | 'left' | 'right' | 'center' = 'justify';
+
   hangingPunctuation: boolean = true;
 
   /**

@@ -88,7 +88,7 @@ to restrict where scripts can be loaded from.
 <body>
   <p>Example text</p>
   <script>
-    texLinebreak_lib.justifyContent('p');
+    texLinebreak_lib.texLinebreakDOM('p');
   </script>
 </body>
 ```
@@ -103,22 +103,28 @@ npm install tex-linebreak -s
 
 ## Usage
 
-### For webpages
+### On webpages
+
+Use the `texLinebreakDOM` function to lay out the paragraphs of a website:
 
 ```js
-import { justifyContent } from 'tex-linebreak';
-justifyContent('p.paragraphs');
+import { texLinebreakDOM } from 'tex-linebreak';
+texLinebreakDOM('p'); // 'p' selects all <p/> elements
 ```
+
+The function accepts either a query selector or a list of elements:
+
+```js
+import { texLinebreakDOM } from 'tex-linebreak';
+const paragraphs = document.querySelectorAll('p')
+texLinebreakDOM(document.querySelectorAll('p'), { align: 'left' });
+```
+
+[Options](#options) are passed the second parameter of this function.
 
 ### For other types of text
 
-### Low-level APIs
 
-The low-level APIs `breakLines` and `positionItems` work with generic "box"
-(typeset material), "glue" (spaces with flexible sizing) and "penalty" items.
-Typically "boxes" are words, "glue" items are spaces and "penalty" items
-represent hyphenation points or the end of a paragraph. However you can use them
-to lay out arbitrary content.
 
 ```js
 import { texLinebreak } from 'tex-linebreak';
@@ -138,7 +144,23 @@ const output = texLinebreak(text, {
 // junctis ut piscibus.
 ```
 
-### Options
+### 
+
+
+
+
+
+
+
+### Low-level APIs
+
+The low-level APIs `breakLines` and `positionItems` work with generic "box"
+(typeset material), "glue" (spaces with flexible sizing) and "penalty" items.
+Typically "boxes" are words, "glue" items are spaces and "penalty" items
+represent hyphenation points or the end of a paragraph. However you can use them
+to lay out arbitrary content.
+
+## Options
 
 ### Methods
 

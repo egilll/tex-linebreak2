@@ -1,38 +1,28 @@
+import { getTaggedChildren } from 'src/html/tagNode';
 import { visualizeBoxesForDebugging } from 'src/html/debugging';
 import DOMTextMeasurer from 'src/html/domTextMeasurer';
 import { DOMItem, getItemsFromDOM } from 'src/html/getItemsFromDOM';
-import { getFloatingElements, stripSoftHyphensFromOutputText } from 'src/html/htmlUtils';
+import { getFloatingElements } from 'src/html/htmlUtils';
 import { getElementLineWidth } from 'src/html/lineWidth';
-import { getTaggedChildren, tagNode } from 'src/html/tagNode';
+import { tagNode } from 'src/html/tagNode';
 import { TexLinebreak } from 'src/index';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 import { SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
 
 /**
- * Justify HTML elements.
+ * Break the lines of HTML elements.
  *
  * @param elements - Can be a query selector string or a list of elements.
  */
-export function justifyContent(
+export function texLinebreakDOM(
   elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
-  _options:
-    | Partial<Omit<TexLinebreakOptions, /*'lineWidth'*/ 'measureFn'>>
-    /** For backwards compatibility, this parameter also accepts a `hyphenateFn`. */
-    | ((word: string) => string[]) = {},
+  _options: Partial<Omit<TexLinebreakOptions, 'measureFn'>>,
   debug = false,
 ) {
-  /**
-   * Done for backwards compatibility: Previous versions
-   * accepted a `hyphenateFn` as the second parameter.
-   */
-  if (typeof _options === 'function') {
-    _options = { hyphenateFn: _options };
-  }
-
   const options = getOptionsWithDefaults({ ..._options, collapseNewlines: true });
 
   if (!elements) {
-    return console.error("justifyContent didn't receive any items");
+    return console.error("texLinebreakDOM didn't receive any items");
   } else if (typeof elements === 'string') {
     elements = document.querySelectorAll(elements);
   } else if (elements instanceof NodeList) {
@@ -46,7 +36,7 @@ export function justifyContent(
 
   elements.forEach((element) => {
     /** Undo the changes made by any previous justification of this content. */
-    unjustifyContent(element);
+    resetDOMJustification(element);
     try {
       const lineWidth = options.lineWidth || getElementLineWidth(element, floatingElements);
       const items = getItemsFromDOM(element, { ...options, lineWidth }, domTextMeasureFn);
@@ -183,7 +173,7 @@ export function justifyContent(
        * (Todo: Test if this actually works)
        */
       console.error(e);
-      unjustifyContent(element);
+      resetDOMJustification(element);
     }
   });
 
@@ -204,8 +194,8 @@ export function justifyContent(
   }
 }
 
-/** Reverse the changes made to an element by {@link justifyContent}. */
-export function unjustifyContent(element: HTMLElement) {
+/** Reverse the changes made to an element by {@link texLinebreakDOM}. */
+export function resetDOMJustification(element: HTMLElement) {
   // Find and remove all elements inserted by `justifyContent`.
   const tagged = getTaggedChildren(element);
   for (let node of tagged) {
