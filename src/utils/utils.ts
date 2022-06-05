@@ -1,5 +1,4 @@
-import { Box, Glue, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines/breakLines';
-import { DOMGlue, DOMItem } from 'src/html/getItemsFromDOM';
+import { Box, Glue, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines';
 import { LineWidth } from 'src/html/lineWidth';
 import { TexLinebreakOptions } from 'src/options';
 
@@ -122,37 +121,6 @@ export const isPenaltyThatDoesNotForceBreak = (item: Item) => {
   return item.type === 'penalty' && item.cost > MIN_COST;
 };
 
-/**
- * Collapsing adjacent glue is easier on the algorithm, but is also necessary
- * in order to allow glue to stretch over multiple text nodes, for example,
- * the HTML "text <!-- comment node --> text" would otherwise become ["text",
- * " ", " ", "text"] and the glue wouldn't be of the correct size.
- */
-export const normalizeItems = <T extends TextItem | DOMItem | Item>(items: T[]): T[] => {
-  let output: T[] = [];
-  items.forEach((item) => {
-    /** Collapse adjacent glue */
-    if (item.type === 'glue' && output.at(-1)?.type === 'glue') {
-      const lastItem = output.at(-1)! as Glue;
-      lastItem.width = item.width + lastItem.width;
-      lastItem.stretch = item.stretch + lastItem.stretch;
-      lastItem.shrink = item.shrink + lastItem.shrink;
-      if ('text' in item || 'text' in output.at(-1)!) {
-        (output.at(-1) as TextGlue).text =
-          ((output.at(-1) as TextGlue).text || '') + ((item as TextGlue).text || '');
-      }
-      if ('endOffset' in item) {
-        (output.at(-1) as DOMGlue).endContainer = item.endContainer;
-        (output.at(-1) as DOMGlue).endOffset = item.endOffset;
-      }
-    } else {
-      // todo, finish
-      output.push(item);
-    }
-  });
-  return output;
-};
-
 /** TODO: Needs rework */
 export const forciblySplitLongWords = (
   items: TextItem[],
@@ -250,28 +218,3 @@ export const validateItems = (items: Item[]) => {
     throw new Error(`Width must be a number: ${JSON.stringify(items.find((item) => !item.type))}`);
   }
 };
-
-/** Get the nearest previous item that matches a predicate. */
-export function findPrevItem<T>(
-  arr: T[],
-  callbackFn: (item: T) => boolean,
-  options: { startIndex: number; minIndex?: number },
-): T | undefined {
-  for (let j = options.startIndex - 1; j >= (options.minIndex || 0); j--) {
-    const item = arr[j];
-    if (callbackFn(item)) return item;
-  }
-  return undefined;
-}
-/** Get the next item that matches a predicate. */
-export function findNextItem<T>(
-  arr: T[],
-  callbackFn: (item: T) => boolean,
-  options: { startIndex: number; maxIndex?: number },
-): T | undefined {
-  for (let j = options.startIndex + 1; j <= (options.maxIndex || arr.length); j++) {
-    const item = arr[j];
-    if (callbackFn(item)) return item;
-  }
-  return undefined;
-}

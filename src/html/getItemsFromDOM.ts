@@ -1,7 +1,8 @@
-import { Box, Glue, INFINITE_STRETCH, Penalty } from 'src/breakLines/breakLines';
+import { Box, Glue, INFINITE_STRETCH, Penalty } from 'src/breakLines';
 import { TexLinebreakOptions } from 'src/options';
 import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
-import { box, forcedBreak, glue, normalizeItems, TextBox, TextGlue, TextItem } from 'src/utils';
+import { normalizeItems } from 'src/utils/normalize';
+import { box, forcedBreak, glue, TextBox, TextGlue, TextItem } from 'src/utils/utils';
 
 /**
  * Information used to construct a `Range` later.
@@ -71,11 +72,14 @@ export function getItemsFromDOM(
 
     if (addParagraphEnd) {
       const endOffset = node.childNodes.length;
-      /**
-       * Add a synthetic glue that absorbs any
-       * left-over space at the end of the last line.
-       */
-      addItemWithOffset(glue(0, INFINITE_STRETCH, 0), node, endOffset, endOffset);
+
+      if (options.addInfiniteGlueToTheEndOfTheLine) {
+        /**
+         * Add a synthetic glue that absorbs any
+         * left-over space at the end of the last line.
+         */
+        addItemWithOffset(glue(0, INFINITE_STRETCH, 0), node, endOffset, endOffset);
+      }
 
       /** Add a forced break to end the paragraph. */
       addItemWithOffset(forcedBreak(), node, endOffset, endOffset);

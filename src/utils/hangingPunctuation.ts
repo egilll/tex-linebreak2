@@ -1,5 +1,5 @@
 import { TexLinebreakOptions } from 'src/options';
-import { isSoftHyphen, TextItem } from 'src/utils';
+import { isSoftHyphen, TextItem } from 'src/utils/utils';
 
 /**
  * Here we calculate the width of the hanging punctuation of this item,

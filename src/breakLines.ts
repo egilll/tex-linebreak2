@@ -1,13 +1,11 @@
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
 import {
-  findNextItem,
-  findPrevItem,
   getLineWidth,
   isBreakablePenalty,
   isForcedBreak,
   penalty,
   validateItems,
-} from 'src/utils';
+} from 'src/utils/utils';
 
 /** An object (eg. a word) to be typeset. */
 export interface Box {
@@ -18,6 +16,9 @@ export interface Box {
   /** Values for hanging punctuation. */
   rightHangingPunctuationWidth?: number;
   leftHangingPunctuationWidth?: number;
+
+  // /** If we have to take into account different widths depending on whether a word is broken apart or not (e.g. ligatures) */
+  // widthIfNoBreakAfter?: number;
 }
 
 /**
@@ -116,7 +117,7 @@ export class MaxAdjustmentExceededError extends Error {}
  *     http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf
  *
  * There is a small deviation from the original paper, see the comments at
- * {@link TexLinebreakOptions#allowSingleWordLines}.
+ * {@link TexLinebreakOptions#preventSingleWordLines}.
  *
  * @param items - Sequence of box, glue and penalty items to layout.
  * @param _options - The following options are used here:
@@ -124,7 +125,7 @@ export class MaxAdjustmentExceededError extends Error {}
  *       {@link TexLinebreakOptions#initialMaxAdjustmentRatio}
  *       {@link TexLinebreakOptions#doubleHyphenPenalty}
  *       {@link TexLinebreakOptions#adjacentLooseTightPenalty}
- *       {@link TexLinebreakOptions#allowSingleWordLines}
+ *       {@link TexLinebreakOptions#preventSingleWordLines}
  * @param currentRecursionDepth - Used internally to keep track of how often this function has called itself
  *       (done when increasing the allowed adjustmend ratio).
  */
@@ -239,20 +240,29 @@ export function breakLines(
 
     const feasible: LineBreakingNode[] = [];
     active.forEach((a: LineBreakingNode) => {
-      const lineShrink = sumShrink - a.totalShrink;
+      let lineShrink = sumShrink - a.totalShrink;
       let lineStretch = sumStretch - a.totalStretch;
+
       /**
        * NOTE: This deviates the original paper, but without it
        * the output is very counter-intuitive. See the comments
-       * at {@link TexLinebreakOptions#allowSingleWordLines}.
+       * at {@link TexLinebreakOptions#preventSingleWordLines}.
        */
-      if (options.allowSingleWordLines) {
+      if (
+        !options.preventSingleWordLines &&
+        /**
+         * Are there any boxes in this line?
+         * (We start counting from a+1 unless a is the
+         * first item, as then a is not a breakpoint)
+         */
+        items.slice(a.index === 0 ? 0 : a.index + 1, b - 1).some((item) => item.type === 'box')
+      ) {
         if (lineStretch === 0) {
           lineStretch = 0.1;
         }
-        // if (lineStretch === 0) {
-        //   lineStretch = 400;
-        // }
+        if (lineShrink === 0) {
+          lineShrink = 0.1;
+        }
       }
 
       const idealLen = getLineWidth(options.lineWidth, a.line);
@@ -260,15 +270,11 @@ export function breakLines(
 
       /** Hanging punctuation */
       if (options.hangingPunctuation) {
-        /** TODO!: Check if this is also correct for multiple glues/penalties */
-        const firstBoxInLine = findNextItem(items, (i) => i.type === 'box', {
-          startIndex: a.index,
-          maxIndex: b - 1,
-        }) as Box;
-        const lastBoxInLine = findPrevItem(items, (i) => i.type === 'box', {
-          startIndex: b,
-          minIndex: a.index + 1,
-        }) as Box;
+        const firstBoxInLine = items.slice(a.index, b).find((i) => i.type === 'box') as Box;
+        const lastBoxInLine = items
+          .slice(a.index, b)
+          .reverse()
+          .find((i) => i.type === 'box') as Box;
         actualLen -= firstBoxInLine?.leftHangingPunctuationWidth || 0;
         actualLen -= lastBoxInLine?.rightHangingPunctuationWidth || 0;
       }
@@ -346,11 +352,7 @@ export function breakLines(
         lastActive = a;
       }
 
-      if (
-        // true ||
-        adjustmentRatio >= MIN_ADJUSTMENT_RATIO &&
-        adjustmentRatio <= currentMaxAdjustmentRatio
-      ) {
+      if (adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio) {
         /**
          * We found a feasible breakpoint. Compute a
          * `demerits` score for it as per formula on p. 1128.
@@ -427,8 +429,6 @@ export function breakLines(
       }
     });
 
-    console.log({ feasible });
-
     /** Add feasible breakpoint with lowest score to active set. */
     if (feasible.length > 0) {
       let bestNode = feasible[0];
@@ -456,7 +456,6 @@ export function breakLines(
         options.initialMaxAdjustmentRatio = minAdjustmentRatioAboveThreshold * 2;
         return breakLines(items, options, currentRecursionDepth + 1);
       } else {
-        console.log('haha');
         /**
          * We cannot create a breakpoint sequence by increasing the
          * max adjustment ratio. This could happen if a box is too

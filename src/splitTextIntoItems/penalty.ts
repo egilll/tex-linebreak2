@@ -1,4 +1,4 @@
-import { MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
+import { MAX_COST, MIN_COST } from 'src/breakLines';
 import { TexLinebreakOptions } from 'src/options';
 import { BreakpointInformation, SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
 import { UnicodeLineBreakingClasses } from 'src/typings/unicodeLineBreakingClasses';

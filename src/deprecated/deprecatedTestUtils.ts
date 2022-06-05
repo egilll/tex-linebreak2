@@ -1,4 +1,4 @@
-import { TextItem } from 'src/utils';
+import { TextItem } from 'src/utils/utils';
 
 /**
  * Retrieves the text from an input item.

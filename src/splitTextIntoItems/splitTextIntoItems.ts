@@ -1,12 +1,12 @@
 import LineBreaker, { Break } from 'linebreak';
-import { INFINITE_STRETCH, MAX_COST, MIN_COST } from 'src/breakLines/breakLines';
-import { addHangingPunctuation } from 'src/hangingPunctuation';
+import { INFINITE_STRETCH, MAX_COST, MIN_COST } from 'src/breakLines';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 import { getBreakpointPenalty, PenaltyClasses } from 'src/splitTextIntoItems/penalty';
 import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
   UnicodeLineBreakingClasses,
 } from 'src/typings/unicodeLineBreakingClasses';
+import { addHangingPunctuation } from 'src/utils/hangingPunctuation';
 import {
   forciblySplitLongWords,
   glue,
@@ -15,7 +15,7 @@ import {
   textBox,
   textGlue,
   TextItem,
-} from 'src/utils';
+} from 'src/utils/utils';
 
 export const NON_BREAKING_SPACE = '\u00A0';
 export const SOFT_HYPHEN = '\u00AD';

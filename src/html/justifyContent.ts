@@ -2,6 +2,7 @@ import { visualizeBoxesForDebugging } from 'src/html/debugging';
 import DOMTextMeasurer from 'src/html/domTextMeasurer';
 import { DOMGlue, DOMItem, getItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getFloatingElements } from 'src/html/htmlHelpers';
+import { getElementLineWidth } from 'src/html/lineWidth';
 import { getTaggedChildren, tagNode } from 'src/html/tagNode';
 import { ItemPosition, TexLinebreak } from 'src/index';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
@@ -47,8 +48,7 @@ export function justifyContent(
     /** Undo the changes made by any previous justification of this content. */
     unjustifyContent(element);
     try {
-      // const lineWidth = getElementLineWidth(element, floatingElements);
-      const lineWidth = options.lineWidth;
+      const lineWidth = options.lineWidth || getElementLineWidth(element, floatingElements);
       const items = getItemsFromDOM(element, { ...options, lineWidth }, domTextMeasureFn);
 
       /** Disable automatic line wrap. */
@@ -61,6 +61,7 @@ export function justifyContent(
       }).lines;
 
       // console.log(items);
+      console.log(lines);
 
       /**
        * Since `Range`s are fragile and will easily go out of sync when we make
@@ -74,16 +75,18 @@ export function justifyContent(
           const glues = line.positionedItems.filter((item) => item.type === 'glue') as (DOMGlue &
             ItemPosition)[];
           const glueRanges = glues.map(getRangeOfItem);
-          /** TODO: Check whether line-initial glue ever comes up */
-          const firstBoxRange = getRangeOfItem(
-            line.itemsFiltered.find((item) => item.type === 'box')!,
-          );
-          const lastBoxRange = getRangeOfItem(
-            line.itemsFiltered
-              .slice()
-              .reverse()
-              .find((item) => item.type === 'box')!,
-          );
+          const firstBoxInLine = line.itemsFiltered.find((item) => item.type === 'box');
+          const lastBoxInLine = line.itemsFiltered
+            .slice()
+            .reverse()
+            .find((item) => item.type === 'box');
+          if (!firstBoxInLine || !lastBoxInLine) {
+            console.log({ items_in_line: line.items });
+            console.warn('Line has no box');
+            return;
+          }
+          const firstBoxRange = getRangeOfItem(firstBoxInLine);
+          const lastBoxRange = getRangeOfItem(lastBoxInLine);
 
           glueRanges.forEach((glueRange, index) => {
             const glue = glues[index];
@@ -96,21 +99,20 @@ export function justifyContent(
             glueRange.surroundContents(span);
           });
 
-          /** Insert <br/> elements to separate the lines */
-          if (line.lineIndex > 0) {
-            firstBoxRange.insertNode(tagNode(document.createElement('br')));
-          }
-
           /**
            * Hanging punctuation is added by inserting
            * an empty span with a negative margin
            */
-          if (line.leftHangingPunctuationWidth) {
+          if (line.leftHangingPunctuationWidth || line.leftIndentation) {
             const span = tagNode(document.createElement('span'));
-            span.style.marginLeft = `-${line.leftHangingPunctuationWidth}px`;
+            span.style.marginLeft = `${line.leftIndentation - line.leftHangingPunctuationWidth}px`;
             firstBoxRange.insertNode(span);
           }
 
+          /** Insert <br/> elements to separate the lines */
+          if (line.lineIndex > 0) {
+            firstBoxRange.insertNode(tagNode(document.createElement('br')));
+          }
           /** Add soft hyphens */
           if (line.endsWithSoftHyphen && lastBoxRange) {
             const wrapperAroundFinalBox = tagNode(document.createElement('span'));
@@ -196,6 +198,9 @@ export function unjustifyContent(element: HTMLElement) {
 
 export const getRangeOfItem = (item: DOMItem): Range => {
   const range = document.createRange();
+  if (!item) {
+    console.log({ item });
+  }
   // if (item.startContainer) {
   range.setStart(item.startContainer, item.startOffset);
   range.setEnd(item.endContainer, item.endOffset);

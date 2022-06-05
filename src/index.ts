@@ -1,9 +1,10 @@
-import { breakLines, Item, MIN_ADJUSTMENT_RATIO } from 'src/breakLines/breakLines';
-import { breakLinesGreedy } from 'src/breakLines/greedy';
+import { breakLines, Item, MIN_ADJUSTMENT_RATIO } from 'src/breakLines';
+import { breakLinesGreedy } from 'src/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
 import { SOFT_HYPHEN, splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
-import { getLineWidth, isSoftHyphen, normalizeItems, TextBox, TextItem } from 'src/utils';
+import { normalizeItems } from 'src/utils/normalize';
+import { getLineWidth, isSoftHyphen, TextBox, TextItem } from 'src/utils/utils';
 
 export type ItemPosition = { xOffset: number; adjustedWidth: number };
 
@@ -26,7 +27,7 @@ export class TexLinebreak<
   get breakpoints(): number[] {
     if (!this.options.lineWidth) throw new Error('The option `lineWidth` is required');
     if (this.options.lineBreakingType === 'greedy') {
-      return breakLinesGreedy(this.items, this.options.lineWidth);
+      return breakLinesGreedy(this.items, this.options);
     } else {
       return breakLines(this.items, this.options);
     }
@@ -57,20 +58,29 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
   idealWidth: number;
   actualWidth: number;
   adjustmentRatio: number;
+  options: TexLinebreakOptions;
   constructor(
     public parentClass: TexLinebreak<any>,
     public startBreakpoint: number,
     public endBreakpoint: number,
     public lineIndex: number,
   ) {
+    this.options = parentClass.options;
     this.items = parentClass.items.slice(
       this.startBreakpoint === 0 ? 0 : this.startBreakpoint + 1,
       this.endBreakpoint + 1,
     );
     this.itemsFiltered = this.getItemsFiltered();
-    this.idealWidth = getLineWidth(this.parentClass.options.lineWidth, this.lineIndex);
+    this.idealWidth = getLineWidth(this.options.lineWidth, this.lineIndex);
     this.actualWidth = this.getActualWidth();
     this.adjustmentRatio = this.getAdjustmentRatio();
+  }
+
+  get leftIndentation() {
+    if (this.options.leftIndentPerLine) {
+      return getLineWidth(this.options.leftIndentPerLine, this.lineIndex);
+    }
+    return 0;
   }
 
   getActualWidth(): number {
@@ -84,33 +94,43 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
   }
 
   getAdjustmentRatio(): number {
-    let actualWidth = 0;
     let lineShrink = 0;
     let lineStretch = 0;
     this.itemsFiltered.forEach((item) => {
-      actualWidth += item.width;
       if (item.type === 'glue') {
         lineShrink += item.shrink;
         lineStretch += item.stretch;
       }
     });
-    if (actualWidth < this.idealWidth) {
-      return (this.idealWidth - actualWidth) / lineStretch;
+    if (this.actualWidth < this.idealWidth) {
+      if (lineStretch > 0) {
+        const j = (this.idealWidth - this.actualWidth) / lineStretch;
+        return Math.min(
+          this.options.renderLineAsLeftAlignedIfAdjustmentRatioExceeds ?? Infinity,
+          j,
+        );
+      } else {
+        return 0;
+      }
     } else {
-      return Math.max(MIN_ADJUSTMENT_RATIO, (this.idealWidth - actualWidth) / lineShrink);
+      if (lineShrink > 0) {
+        const j = (this.idealWidth - this.actualWidth) / lineShrink;
+        return Math.max(MIN_ADJUSTMENT_RATIO, j);
+      } else {
+        return 0;
+      }
     }
   }
 
   getItemsFiltered(): InputItemType[] {
-    /**
-     * This goes through three steps for a reason, otherwise we
-     * haven't filtered out [Penalty, Glue, Box] into [Box].
-     *
-     * TODO!!! Is glue visible in left-aligned??
-     */
     let itemsFiltered = this.items.filter((item, curIndex, items) => {
       // Ignore penalty that's not at the end of the line
-      return !(item.type === 'penalty' && curIndex !== items.length - 1);
+      if (item.type === 'penalty' && curIndex !== items.length - 1) return false;
+
+      // Ignore glue that is a breakpoint or which starts a line
+      if (item.type === 'glue' && (curIndex === items.length - 1 || curIndex === 0)) return false;
+
+      return true;
     });
 
     /**
@@ -126,27 +146,10 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
       );
     }
 
-    // // Ignore adjacent glues TODO: should be covered by normalization
-    // .filter((item, curIndex, items) => {
-    //   return !(item.type === 'glue' && items[curIndex - 1]?.type === 'glue');
-    // })
-    itemsFiltered = itemsFiltered.filter((item, curIndex, items) => {
-      return !(
-        (
-          item.type === 'glue' &&
-          // Ignore line-beginning glue
-          curIndex === 0
-        )
-        //   ||
-        // // Ignore line-ending glue
-        // curIndex === items.length - 1
-      );
-    });
-
     /** Cleanup .TODO : Immutable */
     itemsFiltered.forEach((item) => {
       /** StripSoftHyphensFromOutputText */
-      if (this.parentClass.options.stripSoftHyphensFromOutputText && 'text' in item && item.text) {
+      if (this.options.stripSoftHyphensFromOutputText && 'text' in item && item.text) {
         item.text = item.text!.replaceAll(SOFT_HYPHEN, '');
       }
     });
@@ -174,7 +177,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
    */
   get positionedItems(): (InputItemType & ItemPosition)[] {
     const output: (InputItemType & ItemPosition)[] = [];
-    let xOffset = -this.leftHangingPunctuationWidth;
+    let xOffset = -this.leftHangingPunctuationWidth + this.leftIndentation;
     this.itemsFiltered.forEach((item) => {
       let adjustedWidth: number;
       if (this.adjustmentRatio >= 0) {
@@ -212,11 +215,21 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
 
   /** TODO!! Should be first box!!! */
   get leftHangingPunctuationWidth() {
-    return (this.itemsFiltered[0] as TextBox)?.leftHangingPunctuationWidth || 0;
+    return (
+      (this.itemsFiltered.find((i) => i.type === 'box') as TextBox)?.leftHangingPunctuationWidth ||
+      0
+    );
   }
 
   get rightHangingPunctuationWidth() {
-    return (this.itemsFiltered.at(-1) as TextBox)?.rightHangingPunctuationWidth || 0;
+    return (
+      (
+        this.itemsFiltered
+          .slice()
+          .reverse()
+          .find((i) => i.type === 'box') as TextBox
+      )?.rightHangingPunctuationWidth || 0
+    );
   }
 
   // get glueCount(): number {
@@ -248,7 +261,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
   //   //   return unstretchedGlueWidth;
   //   // } else {
   //   //   const width = (this.idealWidth - this.getActualWidth({ ignoreGlue: true })) / this.glueCount;
-  //   //   if (this.parentClass.options.justify && this.extraSpacePerGlue >= 0) {
+  //   //   if (this.options.justify && this.extraSpacePerGlue >= 0) {
   //   //     return width - this.extraSpacePerGlue + this.extraSpacePerGlue / 1.5;
   //   //   } else {
   //   //     return width;

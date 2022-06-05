@@ -35,9 +35,6 @@ export class TexLinebreakOptions {
 
   justify: boolean = true;
 
-  /** Ratio compared to a normal space */
-  renderLineAsLeftAlignedIfSpaceIsLargerThanFactor?: number;
-
   hangingPunctuation: boolean = true;
 
   /**
@@ -77,9 +74,10 @@ export class TexLinebreakOptions {
   addInfiniteGlueToTheEndOfTheLine: boolean = true;
 
   /**
-   * Adds a MIN_COST penalty to the end of the paragraph. Without it,
-   * the paragraph cannot be broken. Turn this option off if you're
-   * adding text from inline elements to the overall paragraph.
+   * Adds a MIN_COST penalty to the end of the paragraph. Without
+   * it, the paragraph cannot be broken. Only turn this option off if
+   * you're adding text from inline elements to the overall paragraph;
+   * the paragraph itself must always end with this penalty.
    */
   addParagraphEnd: boolean = true;
 
@@ -139,12 +137,11 @@ export class TexLinebreakOptions {
    * side. This setting does not apply to the last line of a paragraph.
    *
    * Note: This goes against Knuth & Plass's original paper, however without it
-   * the output is extremely counter-intuitive. Two things can occur when this
-   * option is turned off:
+   * the output is extremely counter-intuitive. Several things may occur when
+   * this option is turned off:
    *
-   * 1. The word can overflow into the margin (note: in our current layout
-   *    implementation this actually causes the words to _overlap_!). The only
-   *    possible solution would be to allow a forced break inside a word.
+   * 1. The word can overflow into the margin. The only possible solution would be
+   *    to force breaks inside a word.
    * 2. The line may be split in an extremely silly manner, such as:
    *
    *        bla         bla          bla
@@ -156,23 +153,13 @@ export class TexLinebreakOptions {
    *        bla     bla     bla      bla
    *        https://example.com/bla/bla
    *
+   * 3. The line will fail to break completely if lineWidth is some value
+   * smaller than any word.
+   *
    * To get the same output as Knuth & Plass's original paper, set this option
-   * to `false`.
+   * to `true`.
    */
-  allowSingleWordLines: boolean = true;
-
-  /**
-   * How much can a glue shrink (at an adjustment ratio of 1)?
-   *
-   * Must be between 0 <= n <= 1.
-   * A value of 0 means that the glue cannot shrink.
-   * A value of 1 means that the glue can shrink to nothing.
-   *
-   * @default - For justified: 0.2 - A glue can shrink by 20%.
-   *   - For unjustified: 0. See comments on p. 1131, otherwise this would result in many lines having a justified
-   *     appearance.
-   */
-  glueShrinkFactor: number = 0.2;
+  preventSingleWordLines: boolean = false;
 
   /**
    * How much can a glue stretch (at an adjustment ratio of 1)?
@@ -184,6 +171,31 @@ export class TexLinebreakOptions {
    *   - For unjustified: 0.3 - A glue can stretch by 30%
    */
   glueStretchFactor: number = 1.2;
+
+  /**
+   * How much can a glue shrink (at an adjustment ratio of 1)?
+   *
+   * Must be between 0 <= n <= 1.
+   * A value of 0 means that the glue cannot shrink.
+   * A value of 1 means that the glue can shrink to nothing.
+   *
+   * @default - 0.2 - A glue can shrink by 20%.
+   *
+   * The default value is also 0.2 for unjustified text,
+   * however you may wish to set it to 0 if you wish to prevent
+   * the paragraph from occasionally having a justified
+   * appearance (see comments on p. 1131).
+   */
+  glueShrinkFactor: number = 0.2;
+
+  /**
+   * If you wish to prevent displaying excessively wide spaces between
+   * words even when the paragraph cannot be broken otherwise, you
+   * can set this option as a hard limit for how wide spaces can
+   * actually be when displayed. This will cause lines that exceed
+   * this adjustment ratio to be displayed as left aligned.
+   */
+  renderLineAsLeftAlignedIfAdjustmentRatioExceeds?: number;
 
   /**
    * Whether soft hyphens in the input text should be removed from the output
@@ -222,14 +234,16 @@ export class TexLinebreakOptions {
    */
   lineFinalSpacesInNonJustified: number = 3;
 
+  leftIndentPerLine?: TexLinebreakOptions['lineWidth'];
+
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {
     if (options.justify === false) {
       this.softHyphenPenalty = 500;
-      this.glueShrinkFactor = 0;
-      this.glueStretchFactor = 0;
-      this.glueStretchFactor = 0.1;
+      this.glueShrinkFactor = 0.2;
+      this.glueStretchFactor = 0.3;
+      this.renderLineAsLeftAlignedIfAdjustmentRatioExceeds = 1;
     }
     Object.assign(this, options);
   }

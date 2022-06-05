@@ -4,7 +4,7 @@ import { lineStrings } from 'src/deprecated/deprecatedTestUtils';
 import { layoutItemsFromString } from 'src/deprecated/layoutItemsFromString';
 import { layoutText } from 'src/deprecated/positionItems';
 
-import { box, forcedBreak, glue, penalty } from 'src/utils';
+import { box, forcedBreak, glue, penalty } from 'src/utils/utils';
 
 const hyphenator = new Hypher(enUsPatterns);
 

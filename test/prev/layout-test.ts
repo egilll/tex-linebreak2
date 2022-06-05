@@ -1,11 +1,11 @@
 // @ts-nocheck
-import { breakLines } from 'src/breakLines/breakLines';
+import { breakLines } from 'src/breakLines';
 import { chunk, lineStrings } from 'src/deprecated/deprecatedTestUtils';
 import { layoutItemsFromString } from 'src/deprecated/layoutItemsFromString';
 import { adjustmentRatios, positionItems } from 'src/deprecated/positionItems';
 import { Item, Penalty } from 'src/items';
 
-import { box, forcedBreak, glue, penalty, TextBox, TextGlue, TextItem } from 'src/utils';
+import { box, forcedBreak, glue, penalty, TextBox, TextGlue, TextItem } from 'src/utils/utils';
 
 import fixture from 'test/prev/fixtures/layout';
 import { XorShift } from 'xorshift';
