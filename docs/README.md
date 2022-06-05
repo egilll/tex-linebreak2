@@ -2,26 +2,25 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![npm version](https://img.shields.io/npm/v/tex-linebreak.svg)
 
+**_(This repository is a temporary fork of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight.)_**
+
 _tex-linebreak_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
 [Knuth-Plass line-breaking algorithm](#references), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
-**[Click here](#)** to see the a demonstration of this library.
+**[Click here](#)** for a demonstration.
 
-Features:
+This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. It can be used to find the optimal size of an element to fit text.
 
-- Can be applied to webpages (but see [caveats](#caveats)).
-- Can be used for custom purposes (rendering to a canvas, getting plain text) in both browsers and Node.js environments.
-- Hanging punctuation.
-- Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
+## Features
 
-## WIP
+- Works well on most websites (as long as they don't contain complex floating elements inside the paragraph)
+- [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
+- Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1] Custom breaking rules also supported.
+- Can find the optimal width required for laying out text. This is especially useful when it comes to headlines (whose last line should not be mainly empty) but will also result in prettier output for general types of text.
+- Can be used in a browser or a Node.js environment[^2] or render target (`<canvas>`, HTML elements, PDF).
 
-Monospace
-
-`Nulla ultricies, dolor in sagittis rutrum, nibh purus bibendum dui, nec aliquet ligula mi eget lectus. Nulla eget metus scelerisque, venenatis sapien ut, congue eros. Morbi convallis venenatis mauris, laoreet faucibus magna malesuada sed. Nulla consequat dignissim arcu non vestibulum. In commodo tristique scelerisque.`
-
-## Introduction
+## About the Knuth-Plass algorithm
 
 Most text on the web is presented with "ragged-right" margins, as opposed to
 the justified text you would find in e.g. a scientific paper or newspaper.
@@ -65,10 +64,6 @@ hyphenation and this library:
         excessive spacing between words.</td>
   </tr>
 </table>
-
-_tex-linebreak_ has no dependencies on a particular JS environment (browser,
-Node) or render target (`<canvas>`, HTML elements, PDF).
-
 ## Bookmarklet
 
 The easiest way to see what the library can do is to [install the bookmarklet](bookmarklet.js) and activate it on an existing web page, such as this
@@ -82,13 +77,40 @@ Note that the bookmarklet does not work on sites that use
 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
 to restrict where scripts can be loaded from.
 
-## Usage
+## Installation
 
-First, add the _tex-linebreak_ package to your dependencies:
+### As a third-party script
+
+```html
+<head>
+  <script src="https://unpkg.com/tex-linebreak"></script>
+</head>
+<body>
+  <p>Example text</p>
+  <script>
+    texLinebreak_lib.justifyContent('p');
+  </script>
+</body>
+```
+
+### As a package
+
+Add the _tex-linebreak_ package to your dependencies:
 
 ```sh
-npm install tex-linebreak
+npm install tex-linebreak -s
 ```
+
+## Usage
+
+### For webpages
+
+```js
+import { justifyContent } from 'tex-linebreak';
+justifyContent('p.paragraphs');
+```
+
+### For other types of text
 
 ### Low-level APIs
 
@@ -99,10 +121,11 @@ represent hyphenation points or the end of a paragraph. However you can use them
 to lay out arbitrary content.
 
 ```js
-import { TexLinebreak } from 'tex-linebreak';
+import { texLinebreak } from 'tex-linebreak';
 const text =
   'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
-const output = new TexLinebreak(text, {
+
+const output = texLinebreak(text, {
   lineWidth: 45,
   monospace: true,
 }).plainText;
@@ -149,10 +172,12 @@ WebGL etc.), the `layoutText` helper can be used to lay out justifed text and
 obtain the positions which each word should be drawn at.
 
 ```js
-const { positionedItems } = new TexLinebreak(text, {
+import { texLinebreak } from 'text-linebreak';
+
+const positionedItems = texLinebreak(text, {
   lineWidth: 300,
   measureFn: (word) => word.length * 5,
-});
+}).positionedItems;
 
 positionedItems.forEach((positionedItem) => {
   // Draw text as in the above example for the low-level APIs
@@ -164,13 +189,15 @@ positionedItems.forEach((positionedItem) => {
 The source files in [src/](src/) have documentation in the form of TypeScript
 annotations.
 
-#
+## Authors
+
+- Robert Knight and other contributors
+
+## Notes
+
+[^1]: However there may exist a handful of exceptions regarding some non-Latin scripts.
+[^2]: For Node.js, you do however have to supply your own function to measure the width of text.
 
 ## References
 
 - D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), _Software: Practice and Experience_, vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
-
-**Notes**
-
-[^1]: But see the comments regarding the option `preventSingleWordLines`.
-[^2]: However there may exist a handful of exceptions regarding certain non-Latin scripts.

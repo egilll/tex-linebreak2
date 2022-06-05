@@ -33,7 +33,7 @@ module.exports = {
     // Build a UMD bundle that can be used from a `<script>` tag, or imported
     // into a CommonJS / ESM environment.
     libraryTarget: 'umd',
-    library: 'texLineBreak_[name]',
+    library: 'texLinebreak_[name]',
 
     // Make the UMD bundle usable in Node.
     // See https://github.com/webpack/webpack/issues/6522
