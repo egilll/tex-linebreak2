@@ -120,16 +120,7 @@ export const splitTextIntoItems = (
   }
 
   segments.forEach((segment, index) => {
-    if (segment.type === 'glue') {
-      items.push(...textGlue(segment.text, options));
-      /**
-       * Non-breaking spaces and normal spaces that
-       * cannot be broken, e.g. spaces before slashes.
-       */
-      if (!segment.breakpoint) {
-        items.push(penalty(0, MAX_COST));
-      }
-    } else if (segment.type === 'box') {
+    if (segment.type === 'box') {
       items.push(...textBox(segment.text, options));
     }
 
@@ -146,19 +137,35 @@ export const splitTextIntoItems = (
 
       /** Paragraph-final infinite glue */
       if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
+        if (segment.type === 'glue') {
+          items.push(...textGlue(segment.text, options));
+        }
         items.push(glue(0, INFINITE_STRETCH, 0, ''));
-      }
-
-      /**
-       * Ignore zero-cost penalty after glue, since
-       * glues already have a zero-cost penalty
-       */
-      if (items.at(-1)!.type === 'glue' && cost === 0 && cost != null) {
+        items.push(penalty(0, MIN_COST));
         return;
       }
 
-      /** Add the penalty for this break. */
-      items.push(penalty(0, cost));
+      /**
+       * Add the penalty for this break.
+       *
+       * Ignore zero-cost penalty before glue, since
+       * glues already have a zero-cost penalty
+       */
+      if (!(items.at(-1)!.type === 'glue' && cost === 0 && cost != null)) {
+        items.push(penalty(0, cost));
+      }
+    }
+
+    if (segment.type === 'glue') {
+      /**
+       * Non-breaking spaces and normal spaces that
+       * cannot be broken, e.g. spaces before slashes.
+       */
+      if (!segment.breakpoint) {
+        items.push(penalty(0, MAX_COST));
+      }
+
+      items.push(...textGlue(segment.text, options));
     }
   });
 

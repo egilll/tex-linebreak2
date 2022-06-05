@@ -243,6 +243,7 @@ export class TexLinebreakOptions {
 
   leftIndentPerLine?: TexLinebreakOptions['lineWidth'];
 
+  /** Whether to cache the output of the `hyphenateFn` globally. */
   cacheHyphenation: boolean = true;
 
   /** This only applies to texLinebreakDOM. */
@@ -267,11 +268,12 @@ export const getOptionsWithDefaults = (
   if (options instanceof TexLinebreakOptions) {
     return options;
   } else {
-    Object.keys(options).forEach((key) => {
-      if (!(key in TexLinebreakOptions)) {
-        console.error(`Unknown option: ${key}`);
-      }
-    });
+    // would have to be in the constructor
+    // Object.keys(options).forEach((key) => {
+    //   if (!(key in TexLinebreakOptions)) {
+    //     console.error(`Unknown option: ${key}`);
+    //   }
+    // });
     if (options.hyphenateFn && options.cacheHyphenation) {
       options.hyphenateFn = getHyphenateFnCached(options.hyphenateFn);
     }

@@ -90,7 +90,7 @@ export const MIN_COST = -1000;
  */
 export const MAX_COST = 1000;
 
-export const INFINITE_STRETCH = Infinity;
+export const INFINITE_STRETCH = 10000;
 
 /**
  * How much glue is allowed to shrink. A `MIN_ADJUSTMENT_RATIO` of -1

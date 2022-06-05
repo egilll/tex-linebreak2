@@ -26,6 +26,7 @@ export interface PositionOptions {
  * Compute the positions at which to draw boxes
  * forming a paragraph given a set of breakpoints.
  *
+ * @deprecated
  * @param items - The sequence of items that form the paragraph.
  * @param lineWidths - Length or lengths of each line.
  * @param breakpoints - Indexes within `items` of the start of each line.

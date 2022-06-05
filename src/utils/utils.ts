@@ -37,7 +37,7 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
 }
 
 export function textBox(text: string, options: TexLinebreakOptions): TextItem[] {
-  if (options.hyphenateFn) {
+  if (options.hyphenateFn && !options.onlyBreakOnWhitespace) {
     let out: TextItem[] = [];
     const chunks = options.hyphenateFn(text);
     chunks.forEach((c, i) => {
@@ -126,7 +126,11 @@ export function isForcedBreak(item: Item) {
 }
 
 export const isBreakablePenalty = (item: Item) => {
-  return item.type === 'penalty' && item.cost < MAX_COST;
+  return item && item.type === 'penalty' && item.cost < MAX_COST;
+};
+
+export const isNonBreakablePenalty = (item: Item) => {
+  return item && item.type === 'penalty' && item.cost >= MAX_COST;
 };
 
 export const isPenaltyThatDoesNotForceBreak = (item: Item) => {
@@ -206,21 +210,25 @@ export const validateItems = (items: Item[]) => {
     );
   }
 
-  // /** A glue cannot be followed by a non-MIN_COST penalty */
-  // const glueFollowedByNonMinCostPenalty = items.find(
-  //   (item, index) =>
-  //     item.type === 'glue' &&
-  //     items[index + 1].type === 'penalty' &&
-  //     (items[index + 1] as Penalty).cost! > MIN_COST,
-  // );
-  // if (glueFollowedByNonMinCostPenalty) {
-  //   console.log({ items });
-  //   throw new Error(
-  //     `A glue cannot be followed by a penalty with a cost greater than MIN_COST. If you're trying to penalize a glue, make the penalty come before it. Found at index ${items.findIndex(
-  //       (i) => i === glueFollowedByNonMinCostPenalty,
-  //     )}`,
-  //   );
-  // }
+  /**
+   * Catch a misunderstanding of someone trying to penalize a
+   * glue (accidentally placing the penalty after the glue)
+   */
+  const gluePenaltyBox = items.find(
+    (item, index) =>
+      item.type === 'glue' &&
+      items[index + 1].type === 'penalty' &&
+      (items[index + 1] as Penalty).cost! > MIN_COST &&
+      items[index + 2].type === 'box',
+  );
+  if (gluePenaltyBox) {
+    console.log({ items });
+    throw new Error(
+      `It appears you're trying to penalize a glue at index ${items.findIndex(
+        (i) => i === gluePenaltyBox,
+      )}, but remember that penalty comes before the glue.`,
+    );
+  }
 
   /** Validate values */
   if (items.some((item) => !item.type)) {
@@ -228,5 +236,8 @@ export const validateItems = (items: Item[]) => {
   }
   if (items.some((item) => typeof item.width !== 'number')) {
     throw new Error(`Width must be a number: ${JSON.stringify(items.find((item) => !item.type))}`);
+  }
+  if (items.some((item) => item.type === 'glue' && !isFinite(item.stretch))) {
+    throw new Error(`Glue cannot have infinite stretch`);
   }
 };

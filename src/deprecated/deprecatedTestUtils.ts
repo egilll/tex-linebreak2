@@ -31,11 +31,3 @@ export function lineStrings(items: TextItem[], breakpoints: number[]): string[] 
       .trim(),
   );
 }
-
-export function chunk<T>(breakpoints: T[], width: number) {
-  let chunks: T[][] = [];
-  for (let i = 0; i <= breakpoints.length - width; i++) {
-    chunks.push(breakpoints.slice(i, i + width));
-  }
-  return chunks;
-}

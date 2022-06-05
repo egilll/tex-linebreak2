@@ -1,8 +1,8 @@
 import { breakLines, Item, MIN_ADJUSTMENT_RATIO } from 'src/breakLines';
-import { breakLinesGreedy } from 'src/greedy';
 import { DOMItem } from 'src/html/getItemsFromDOM';
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
 import { SOFT_HYPHEN, splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
+import { breakLinesGreedy } from 'src/utils/greedy';
 import { normalizeItems } from 'src/utils/normalize';
 import { getLineWidth, isSoftHyphen, TextItem } from 'src/utils/utils';
 

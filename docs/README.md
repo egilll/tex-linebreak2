@@ -1,16 +1,16 @@
-# tex-linebreak (_temporary fork_)
+# tex-linebreak2
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![npm version](https://img.shields.io/npm/v/tex-linebreak.svg)
 
-**_(This repository is a temporary fork of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight.)_**
-
-_tex-linebreak_ is a JavaScript library for laying out justified text as you
+_tex-linebreak2_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
 [Knuth-Plass line-breaking algorithm](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf) (PDF), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
 **[Click here](#)** to see a demo.
 
 This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. It can be used to find the optimal size of an element to fit text.
+
+This repository is an extention of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight.
 
 ## Table of contents
 
@@ -234,9 +234,10 @@ new TexLinebreak(items, {});
 
 It has the following properties:
 
-- `breakpoints` are the indices of items that break a line.
 - `lines` is an array of [`Line`](../src/index.ts) items which describe each line of the output
 - `plainText` will output the text as plain text
+- `items`, the boxes, glues, and penalties that make up a paragraph
+- `breakpoints` are the indices of items that break a line
 
 A [`Line`](../src/index.ts) object describes a single line of the output. Its relevant properties are:
 
@@ -262,6 +263,10 @@ new TexLinebreak(items, {
 ```
 
 However, for websites it is recommended that you preprocess your text (using a library such as [Hypher](https://github.com/bramstein/hypher) or [Hyphenopoly](https://github.com/mnater/Hyphenopoly)) and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text, since hyphenation step can sometimes take some time (hundreds of milliseconds for large documents).
+
+## Authors
+
+Written by [Robert Knight](https://github.com/robertknight/tex-linebreak) with some modifications by Egill.
 
 ## References
 

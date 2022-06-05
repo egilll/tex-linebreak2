@@ -1,5 +1,13 @@
+import { MAX_COST } from 'src/breakLines';
 import { TexLinebreakOptions } from 'src/options';
-import { box, glue, isSoftHyphen, TextItem } from 'src/utils/utils';
+import {
+  box,
+  glue,
+  isBreakablePenalty,
+  isNonBreakablePenalty,
+  isSoftHyphen,
+  TextItem,
+} from 'src/utils/utils';
 
 /**
  * Here we calculate the width of the hanging punctuation of this item,
@@ -12,6 +20,8 @@ export const addHangingPunctuation = (
   let output: TextItem[] = [];
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
+    const prevItem = items[i - 1];
+    const nextItem = items[i + 1];
     if (
       item.type !== 'box' ||
       !('text' in item) ||
@@ -25,6 +35,10 @@ export const addHangingPunctuation = (
     /** Left hanging punctuation */
     if (
       item.text &&
+      // Check that this doesn't come directly after non-breakable penalty
+      (isBreakablePenalty(prevItem) ||
+        !prevItem ||
+        (prevItem.type === 'glue' && !isNonBreakablePenalty(items[i - 2]))) &&
       hangingPunctuationRegex.test(item.text.slice(0, 1)) &&
       // If the character is repeated ("...", "??"), we don't hang
       item.text.slice(0, 1) !== item.text.slice(1, 2)
@@ -35,14 +49,13 @@ export const addHangingPunctuation = (
       output.push(box(-leftHangingPunctuationWidth));
     }
 
-    /* TEMP test */
-    // output.push(box(-30));
-
     output.push(item);
 
     /** Right hanging punctuation */
     if (
       item.text &&
+      // Must not be followed by another box
+      (isBreakablePenalty(nextItem) || nextItem.type === 'glue') &&
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
       item.text.slice(-1) !== item.text.slice(-2, -1)
     ) {
