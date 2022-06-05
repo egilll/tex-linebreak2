@@ -24,6 +24,8 @@ export class TexLinebreak<
       this.items = input;
     }
   }
+
+  /** Returns the indices of items which are breakpoints */
   get breakpoints(): number[] {
     if (!this.options.lineWidth) throw new Error('The option `lineWidth` is required');
     if (this.options.lineBreakingType === 'greedy') {
@@ -32,6 +34,7 @@ export class TexLinebreak<
       return breakLines(this.items, this.options);
     }
   }
+
   get lines(): Line<InputItemType>[] {
     let lines: Line<InputItemType>[] = [];
     const breakpoints = this.breakpoints;
@@ -40,9 +43,11 @@ export class TexLinebreak<
     }
     return lines;
   }
+
   get plainTextLines(): string[] {
     return this.lines.map((line) => line.plainText);
   }
+
   get plainText(): string {
     return this.plainTextLines.join('\n');
   }

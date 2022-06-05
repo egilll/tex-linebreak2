@@ -8,7 +8,7 @@ _tex-linebreak_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
 [Knuth-Plass line-breaking algorithm](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf) (PDF), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
-**[Click here](#)** for a demonstration.
+**[Click here](#)** to see a demo.
 
 This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. It can be used to find the optimal size of an element to fit text.
 
@@ -25,7 +25,7 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 
 ## Features
 
-- Works well on most websites (as long as they don't contain complex floating elements inside the paragraph)
+- Works well on the majority of websites ([*](#issues))
 - [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
 - Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1] Custom breaking rules also supported.
 - Can find the optimal width required for laying out text. This is especially useful when it comes to headlines (whose last line should not be mainly empty) but will also result in prettier output for general types of text.
@@ -78,7 +78,7 @@ hyphenation and this library:
 
 ## Bookmarklet
 
-The easiest way to see what the library can do is to [install the bookmarklet](bookmarklet.js) and activate it on an existing web page, such as this
+One way to see what the library can do is to [install the bookmarklet](bookmarklet.js) and activate it on an existing web page, such as this
 [Medium article](https://medium.com/@parismarx/ubers-unrealistic-plan-for-flying-cars-6c9569d6fa8b).
 
 It will justify and apply hyphenation to the content of any paragraph (`<p>`)
@@ -115,7 +115,7 @@ npm install tex-linebreak -s
 
 ## Usage
 
-### On webpages
+### Webpages
 
 Use the `texLinebreakDOM` function to lay out the paragraphs of a website:
 
@@ -136,9 +136,16 @@ texLinebreakDOM(document.querySelectorAll('p'), { align: 'left' });
 
 [Options](#options) are passed the second parameter of this function.
 
-By default, the library will listen for window resizing (can be turned off with the option `{ updateOnWindowResize: false }`, but it will not listen for dynamic DOM changes. If you alter the DOM in a way that may cause the available space for the paragraph to change, you must call `texLinebreakDOM` again.
+The library will listen for window resizing (can be turned off with the option `{ updateOnWindowResize: false }`, but it will not listen for dynamic DOM changes. If you alter the DOM in a way that may cause the available space for the paragraph to change, you must call `texLinebreakDOM` again.
 
-### For other types of text
+#### Issues
+
+The library does not support:
+
+* Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement> text</p>`)
+* Columns
+
+### Other types of text
 
 ```js
 import { TexLinebreak } from 'tex-linebreak';
@@ -182,7 +189,7 @@ console.log(t.lines.map((line) => line.positionedItems));
 */
 ```
 
-### For arbitrary items
+### Arbitrary items
 
 You can also lay out arbitrary items (be it text or something else). The algorithm works with generic "box"
 (typeset material), "glue" (spaces that may have flexible sizing) and "penalty" items.
@@ -206,7 +213,14 @@ const positionedItems = new TexLinebreak(items, {
 
 ## Options
 
-See [`TexLinebreakOptions`](../src/options.ts) for the list of available options.
+See [`TexLinebreakOptions`](../src/options.ts) for a list of available options. Of these, the most relevant ones to a user are:
+
+* `align` – Can be "justify", "left", "center", or "right". Default "justify".
+* `hangingPunctuation` (boolean)
+* `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is *not* a hard limit; see `renderLineAsLeftAlignedIfAdjustmentRatioExceeds` for hard limits.
+* `glueShrinkFactor` (default 0.2, i.e. becoming 80% of the space's original width) – How much a glue (space) is allowed to shrink. This is a hard limit.
+* `softHyphenPenalty` – Set to 1000 to prohibit breaking on soft hyphens.
+* `lineBreakingType`
 
 ## API
 
@@ -235,8 +249,19 @@ The following helper functions are available:
 
 ## Hyphenation
 
-This includes support for hyphenation using the
-[hypher](https://github.com/bramstein/hypher) library, but you can also .
+To hyphenate text, you can [Hypher](https://github.com/bramstein/hypher) library and pass it in as the `hyphenateFn` option like so:
+
+```js
+import { TexLinebreak } from 'tex-linebreak';
+import Hypher from 'hypher';
+import enUsPatterns from 'hyphenation.en-us';
+
+new TexLinebreak(items, {
+  hyphenateFn: new Hypher(enUsPatterns).hyphenate
+});
+```
+
+However, for websites it is recommended that you preprocess your text (using a library such as [Hypher](https://github.com/bramstein/hypher) or [Hyphenopoly](https://github.com/mnater/Hyphenopoly)) and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text, since hyphenation step can sometimes take some time (hundreds of milliseconds for large documents).
 
 ## References
 

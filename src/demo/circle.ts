@@ -1,7 +1,7 @@
 import enUsPatterns from 'hyphenation.en-us';
 import Hypher from 'hypher';
 import { texts } from 'src/demo/texts/texts';
-import { justifyContent } from 'src/deprecated/justifyContent';
+import { texLinebreakDOM } from 'src/html';
 
 const text = new Hypher(enUsPatterns).hyphenateText(texts[0]);
 // const text = texts[0];
@@ -30,8 +30,8 @@ for (let yOffset = lineHeight / 2; yOffset < height; yOffset += lineHeight) {
   leftIndentPerLine.push((height - x) / 2);
 }
 
-justifyContent(outputElement, { lineWidth, leftIndentPerLine });
-// justifyContent(
+texLinebreakDOM(outputElement, { lineWidth, leftIndentPerLine });
+// texLinebreakDOM(
 //   outputElement,
 //   {
 //     lineWidth: 200,

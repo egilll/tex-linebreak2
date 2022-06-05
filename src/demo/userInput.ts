@@ -1,7 +1,7 @@
 import enUsPatterns from 'hyphenation.en-us';
 import Hypher from 'hypher';
 import { renderToCanvas } from 'src/demo/canvas';
-import { justifyContent } from 'src/deprecated/justifyContent';
+import { texLinebreakDOM } from 'src/html';
 
 export const hyphenateFn = (word: string) => new Hypher(enUsPatterns).hyphenate(word);
 
@@ -23,7 +23,7 @@ export function renderUserInput() {
   htmlParagraph.innerHTML = textarea.value;
   const textContent = htmlParagraph.textContent!;
 
-  justifyContent(htmlParagraph, {
+  texLinebreakDOM(htmlParagraph, {
     softHyphenPenalty: 30,
   });
 

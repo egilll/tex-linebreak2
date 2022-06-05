@@ -36,8 +36,20 @@ export function penalty(width: number, cost: number, flagged: boolean = false): 
   return { type: 'penalty', width, cost, flagged };
 }
 
-export function textBox(text: string, options: TexLinebreakOptions): TextBox {
-  return box(options.measureFn(text), text);
+export function textBox(text: string, options: TexLinebreakOptions): TextItem[] {
+  if (options.hyphenateFn) {
+    let out: TextItem[] = [];
+    const chunks = options.hyphenateFn(text);
+    chunks.forEach((c, i) => {
+      out.push(box(options.measureFn(c), c));
+      if (i < chunks.length - 1) {
+        out.push(...softHyphen(options));
+      }
+    });
+    return out;
+  } else {
+    return [box(options.measureFn(text), text)];
+  }
 }
 
 export function textGlue(text: string, options: TexLinebreakOptions): TextItem[] {

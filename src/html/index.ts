@@ -1,10 +1,10 @@
-import { getTaggedChildren } from 'src/html/tagNode';
 import { visualizeBoxesForDebugging } from 'src/html/debugging';
 import DOMTextMeasurer from 'src/html/domTextMeasurer';
 import { DOMItem, getItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getFloatingElements } from 'src/html/htmlUtils';
 import { getElementLineWidth } from 'src/html/lineWidth';
-import { tagNode } from 'src/html/tagNode';
+import { listenForWindowResize } from 'src/html/listener';
+import { getTaggedChildren, tagNode } from 'src/html/tagNode';
 import { TexLinebreak } from 'src/index';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 import { SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
@@ -12,23 +12,24 @@ import { SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
 /**
  * Break the lines of HTML elements.
  *
- * @param elements - Can be a query selector string or a list of elements.
+ * @param _elements - Can be a query selector string or a list of elements.
  */
 export function texLinebreakDOM(
-  elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
-  _options: Partial<Omit<TexLinebreakOptions, 'measureFn'>>,
+  _elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
+  _options: Partial<TexLinebreakOptions>,
   debug = false,
 ) {
   const options = getOptionsWithDefaults({ ..._options, collapseNewlines: true });
 
-  if (!elements) {
+  let elements: HTMLElement[];
+  if (typeof _elements === 'string') {
+    elements = Array.from(document.querySelectorAll(_elements));
+  } else if (_elements instanceof NodeList) {
+    elements = Array.from(_elements);
+  } else if (!Array.isArray(_elements)) {
+    elements = [_elements];
+  } else {
     return console.error("texLinebreakDOM didn't receive any items");
-  } else if (typeof elements === 'string') {
-    elements = document.querySelectorAll(elements);
-  } else if (elements instanceof NodeList) {
-    elements = Array.from(elements);
-  } else if (!Array.isArray(elements)) {
-    elements = [elements];
   }
 
   const domTextMeasureFn = new DOMTextMeasurer().measure;
@@ -176,6 +177,8 @@ export function texLinebreakDOM(
       resetDOMJustification(element);
     }
   });
+
+  listenForWindowResize(elements);
 
   /** Add CSS to handle uncopiable hyphens */
   if (

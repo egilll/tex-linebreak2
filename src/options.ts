@@ -1,4 +1,5 @@
 import { LineWidth } from 'src/html/lineWidth';
+import { getHyphenateFnCached } from 'src/utils/hyphenationCache';
 
 export class TexLinebreakOptions {
   /**
@@ -164,7 +165,8 @@ export class TexLinebreakOptions {
   preventSingleWordLines: boolean = false;
 
   /**
-   * How much can a glue stretch (at an adjustment ratio of 1)?
+   * How much can a glue (space) stretch (at an adjustment ratio of 1)?
+   * This only applies to spaces processed by this library, not to custom glue.
    *
    * A value of 0 means that the glue cannot shrink.
    * A value of 1 means that the glue can double in size
@@ -175,7 +177,8 @@ export class TexLinebreakOptions {
   glueStretchFactor: number = 1.2;
 
   /**
-   * How much can a glue shrink (at an adjustment ratio of 1)?
+   * How much can a glue (space) shrink (at an adjustment ratio of -1)?
+   * This only applies to spaces processed by this library, not to custom glue.
    *
    * Must be between 0 <= n <= 1.
    * A value of 0 means that the glue cannot shrink.
@@ -240,6 +243,8 @@ export class TexLinebreakOptions {
 
   leftIndentPerLine?: TexLinebreakOptions['lineWidth'];
 
+  cacheHyphenation: boolean = true;
+
   /** This only applies to texLinebreakDOM. */
   updateOnWindowResize: boolean = true;
 
@@ -262,6 +267,14 @@ export const getOptionsWithDefaults = (
   if (options instanceof TexLinebreakOptions) {
     return options;
   } else {
+    Object.keys(options).forEach((key) => {
+      if (!(key in TexLinebreakOptions)) {
+        console.error(`Unknown option: ${key}`);
+      }
+    });
+    if (options.hyphenateFn && options.cacheHyphenation) {
+      options.hyphenateFn = getHyphenateFnCached(options.hyphenateFn);
+    }
     return new TexLinebreakOptions(options);
   }
 };

@@ -130,7 +130,7 @@ export const splitTextIntoItems = (
         items.push(penalty(0, MAX_COST));
       }
     } else if (segment.type === 'box') {
-      items.push(textBox(segment.text, options));
+      items.push(...textBox(segment.text, options));
     }
 
     if (segment.breakpoint) {
