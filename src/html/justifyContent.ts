@@ -1,7 +1,7 @@
 import { visualizeBoxesForDebugging } from 'src/html/debugging';
 import DOMTextMeasurer from 'src/html/domTextMeasurer';
 import { DOMItem, getItemsFromDOM } from 'src/html/getItemsFromDOM';
-import { getFloatingElements } from 'src/html/htmlHelpers';
+import { getFloatingElements, stripSoftHyphensFromOutputText } from 'src/html/htmlUtils';
 import { getElementLineWidth } from 'src/html/lineWidth';
 import { getTaggedChildren, tagNode } from 'src/html/tagNode';
 import { TexLinebreak } from 'src/index';
@@ -89,9 +89,20 @@ export function justifyContent(
           const lastBoxRange = getRangeOfItem(lastBoxInLine);
 
           let curXOffset = 0;
+
+          /**
+           * Loops over items and adjusts the spacing of glues and position
+           * of boxes.
+           *
+           * The position of boxes currently only makes adjustments in the
+           * case of boxes of a negative width (which represent a backspace,
+           * used for left hanging punctuation), however those boxes are not
+           * displayed, but they affect the boxes that come after them.
+           */
           items.forEach((item, index) => {
             const itemRange = itemRanges[index];
 
+            /** Add spacing to glue */
             if (item.type === 'glue') {
               const span = tagNode(document.createElement('span'));
               /**
@@ -101,29 +112,28 @@ export function justifyContent(
               span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
               itemRange.surroundContents(span);
             } else if (item.type === 'box') {
+              /**
+               * If xOffset is not curXOffset, that means that a
+               * previous box has had a negative width. Here we wrap the
+               * text in a span with a (likely negative) left margin
+               */
               if (item.xOffset !== curXOffset) {
                 const span = tagNode(document.createElement('span'));
                 span.style.marginLeft = `${item.xOffset - curXOffset}px`;
                 itemRange.insertNode(span);
-
-                console.log('span inserted');
+                curXOffset = item.xOffset;
               }
+
+              // if (options.stripSoftHyphensFromOutputText) {
+              //   stripSoftHyphensFromOutputText(itemRange);
+              // }
             }
 
+            /** Todo: negative glue? */
             if (item.adjustedWidth > 0) {
               curXOffset += item.adjustedWidth;
             }
           });
-
-          // /**
-          //  * Hanging punctuation is added by inserting
-          //  * an empty span with a negative margin
-          //  */
-          // if (line.leftHangingPunctuationWidth || line.leftIndentation) {
-          //   const span = tagNode(document.createElement('span'));
-          //   span.style.marginLeft = `${line.leftIndentation - line.leftHangingPunctuationWidth}px`;
-          //   firstBoxRange.insertNode(span);
-          // }
 
           /** Insert <br/> elements to separate the lines */
           if (line.lineIndex > 0) {
@@ -215,13 +225,7 @@ export function unjustifyContent(element: HTMLElement) {
 
 export const getRangeOfItem = (item: DOMItem): Range => {
   const range = document.createRange();
-  if (!item) {
-    console.log({ item });
-  }
-  // if (item.startContainer) {
   range.setStart(item.startContainer, item.startOffset);
   range.setEnd(item.endContainer, item.endOffset);
   return range;
-  // }
-  // return null;
 };

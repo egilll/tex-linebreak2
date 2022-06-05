@@ -201,6 +201,8 @@ export class TexLinebreakOptions {
    * Whether soft hyphens in the input text should be removed from the output
    * text. This is recommended for websites, as users can then copy the text
    * without being annoyed by the invisible soft hyphen characters.
+   *
+   * WORK IN PROGRESS (TODO): Does not currently work for websites!
    */
   stripSoftHyphensFromOutputText: boolean = true;
 
