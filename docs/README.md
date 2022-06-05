@@ -1,4 +1,4 @@
-# tex-linebreak
+# tex-linebreak (_temporary fork_)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![npm version](https://img.shields.io/npm/v/tex-linebreak.svg)
 
@@ -6,7 +6,7 @@
 
 _tex-linebreak_ is a JavaScript library for laying out justified text as you
 would find in a newspaper, book or technical paper. It implements the
-[Knuth-Plass line-breaking algorithm](#references), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
+[Knuth-Plass line-breaking algorithm](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf) (PDF), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
 **[Click here](#)** for a demonstration.
 
@@ -15,7 +15,8 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 ## Table of contents
 
 - [Features](#features)
-- [About the Knuth-Plass algorithm](#about_the_knuth_plass_algorithm)
+- [About the Knuth-Plass algorithm](#about-the-knuth-plass-algorithm)
+- [Bookmarklet](#bookmarklet)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Options](#options)
@@ -237,11 +238,11 @@ The following helper functions are available:
 This includes support for hyphenation using the
 [hypher](https://github.com/bramstein/hypher) library, but you can also .
 
+## References
+
+- D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), _Software: Practice and Experience_, vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
+
 ## Notes
 
 [^1]: However there may exist a handful of exceptions regarding some non-Latin scripts.
 [^2]: For Node.js, you do however have to supply your own function to measure the width of text.
-
-## References
-
-- D. E. Knuth and M. F. Plass, “[Breaking paragraphs into lines](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)” (PDF), _Software: Practice and Experience_, vol. 11, no. 11, pp. 1119–1184, Nov. 1981.
