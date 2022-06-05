@@ -1,10 +1,10 @@
 import { visualizeBoxesForDebugging } from 'src/html/debugging';
 import DOMTextMeasurer from 'src/html/domTextMeasurer';
-import { DOMGlue, DOMItem, getItemsFromDOM } from 'src/html/getItemsFromDOM';
+import { DOMItem, getItemsFromDOM } from 'src/html/getItemsFromDOM';
 import { getFloatingElements } from 'src/html/htmlHelpers';
 import { getElementLineWidth } from 'src/html/lineWidth';
 import { getTaggedChildren, tagNode } from 'src/html/tagNode';
-import { ItemPosition, TexLinebreak } from 'src/index';
+import { TexLinebreak } from 'src/index';
 import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
 import { SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
 
@@ -72,11 +72,11 @@ export function justifyContent(
         .slice()
         .reverse()
         .forEach((line) => {
-          const glues = line.positionedItems.filter((item) => item.type === 'glue') as (DOMGlue &
-            ItemPosition)[];
-          const glueRanges = glues.map(getRangeOfItem);
-          const firstBoxInLine = line.itemsFiltered.find((item) => item.type === 'box');
-          const lastBoxInLine = line.itemsFiltered
+          const items = line.positionedItems;
+          const itemRanges = items.map(getRangeOfItem);
+
+          const firstBoxInLine = items.find((item) => item.type === 'box');
+          const lastBoxInLine = items
             .slice()
             .reverse()
             .find((item) => item.type === 'box');
@@ -88,31 +88,48 @@ export function justifyContent(
           const firstBoxRange = getRangeOfItem(firstBoxInLine);
           const lastBoxRange = getRangeOfItem(lastBoxInLine);
 
-          glueRanges.forEach((glueRange, index) => {
-            const glue = glues[index];
-            const span = tagNode(document.createElement('span'));
-            /**
-             * A glue cannot be `inline-block` since that messes with the
-             * formatting of links (each word gets its own underline)
-             */
-            span.style.wordSpacing = `${glue.adjustedWidth - glue.width}px`;
-            glueRange.surroundContents(span);
+          let curXOffset = 0;
+          items.forEach((item, index) => {
+            const itemRange = itemRanges[index];
+
+            if (item.type === 'glue') {
+              const span = tagNode(document.createElement('span'));
+              /**
+               * A glue cannot be `inline-block` since that messes with the
+               * formatting of links (each word gets its own underline)
+               */
+              span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
+              itemRange.surroundContents(span);
+            } else if (item.type === 'box') {
+              if (item.xOffset !== curXOffset) {
+                const span = tagNode(document.createElement('span'));
+                span.style.marginLeft = `${item.xOffset - curXOffset}px`;
+                itemRange.insertNode(span);
+
+                console.log('span inserted');
+              }
+            }
+
+            if (item.adjustedWidth > 0) {
+              curXOffset += item.adjustedWidth;
+            }
           });
 
-          /**
-           * Hanging punctuation is added by inserting
-           * an empty span with a negative margin
-           */
-          if (line.leftHangingPunctuationWidth || line.leftIndentation) {
-            const span = tagNode(document.createElement('span'));
-            span.style.marginLeft = `${line.leftIndentation - line.leftHangingPunctuationWidth}px`;
-            firstBoxRange.insertNode(span);
-          }
+          // /**
+          //  * Hanging punctuation is added by inserting
+          //  * an empty span with a negative margin
+          //  */
+          // if (line.leftHangingPunctuationWidth || line.leftIndentation) {
+          //   const span = tagNode(document.createElement('span'));
+          //   span.style.marginLeft = `${line.leftIndentation - line.leftHangingPunctuationWidth}px`;
+          //   firstBoxRange.insertNode(span);
+          // }
 
           /** Insert <br/> elements to separate the lines */
           if (line.lineIndex > 0) {
             firstBoxRange.insertNode(tagNode(document.createElement('br')));
           }
+
           /** Add soft hyphens */
           if (line.endsWithSoftHyphen && lastBoxRange) {
             const wrapperAroundFinalBox = tagNode(document.createElement('span'));

@@ -1,47 +1,58 @@
 import { TexLinebreakOptions } from 'src/options';
-import { isSoftHyphen, TextItem } from 'src/utils/utils';
+import { box, glue, isSoftHyphen, TextItem } from 'src/utils/utils';
 
 /**
  * Here we calculate the width of the hanging punctuation of this item,
  * which will be used if the item is at the beginning or end of a line.
- *
- * Note: This value is not used in the {@link breakLines} calculation
- * currently, but it could be.
- *
- * The original Knuth paper recommended moving hanging punctuations to the
- * adjacent glues, but that does not work with left hanging punctuation.
- *
- * (Todo: Actually edits the input items directly, should either be
- * immutable or not return anything)
  */
 export const addHangingPunctuation = (
   items: TextItem[],
   options: TexLinebreakOptions,
 ): TextItem[] => {
+  let output: TextItem[] = [];
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    if (item.type !== 'box' || !('text' in item) || item.width === 0 || isSoftHyphen(items[i + 1]))
+    if (
+      item.type !== 'box' ||
+      !('text' in item) ||
+      item.width === 0 ||
+      isSoftHyphen(items[i + 1])
+    ) {
+      output.push(item);
       continue;
+    }
 
     /** Left hanging punctuation */
     if (
+      item.text &&
       hangingPunctuationRegex.test(item.text.slice(0, 1)) &&
       // If the character is repeated ("...", "??"), we don't hang
       item.text.slice(0, 1) !== item.text.slice(1, 2)
     ) {
-      item.leftHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(1));
+      const leftHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(1));
+
+      output.push(glue(leftHangingPunctuationWidth, 0, 0));
+      output.push(box(-leftHangingPunctuationWidth));
     }
+
+    /* TEMP test */
+    // output.push(box(-30));
+
+    output.push(item);
 
     /** Right hanging punctuation */
     if (
+      item.text &&
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
       item.text.slice(-1) !== item.text.slice(-2, -1)
     ) {
-      item.rightHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(0, -1));
+      const rightHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(0, -1));
+      item.width -= rightHangingPunctuationWidth;
+      output.push(glue(rightHangingPunctuationWidth, 0, 0));
     }
   }
 
-  return items;
+  return output;
 };
 
 /**

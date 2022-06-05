@@ -31,10 +31,14 @@ for (let yOffset = lineHeight / 2; yOffset < height; yOffset += lineHeight) {
 }
 
 // justifyContent(outputElement, { lineWidth:300, softHyphenPenalty: 999, leftIndentPerLine });
-justifyContent(outputElement, {
-  lineWidth: 200,
-  // justify: false,
-  softHyphenPenalty: 40,
-  addInfiniteGlueToTheEndOfTheLine: false,
-  // renderLineAsLeftAlignedIfAdjustmentRatioExceeds: 1,
-});
+justifyContent(
+  outputElement,
+  {
+    lineWidth: 200,
+    // justify: false,
+    softHyphenPenalty: 40,
+    addInfiniteGlueToTheEndOfTheLine: false,
+    // renderLineAsLeftAlignedIfAdjustmentRatioExceeds: 1,
+  },
+  true,
+);

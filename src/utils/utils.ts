@@ -3,7 +3,7 @@ import { LineWidth } from 'src/html/lineWidth';
 import { TexLinebreakOptions } from 'src/options';
 
 export interface TextBox extends Box {
-  text: string;
+  text?: string;
 }
 
 export interface TextGlue extends Glue {

@@ -55,8 +55,6 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
    * line (i.e. filters out certain glues and penalties)
    */
   itemsFiltered: InputItemType[];
-  idealWidth: number;
-  actualWidth: number;
   adjustmentRatio: number;
   options: TexLinebreakOptions;
   constructor(
@@ -71,8 +69,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
       this.endBreakpoint + 1,
     );
     this.itemsFiltered = this.getItemsFiltered();
-    this.idealWidth = getLineWidth(this.options.lineWidth, this.lineIndex);
-    this.actualWidth = this.getActualWidth();
+
     this.adjustmentRatio = this.getAdjustmentRatio();
   }
 
@@ -83,28 +80,21 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
     return 0;
   }
 
-  getActualWidth(): number {
-    return (
-      this.itemsFiltered.reduce((sum, item) => {
-        return sum + item.width;
-      }, 0) -
-      this.leftHangingPunctuationWidth -
-      this.rightHangingPunctuationWidth
-    );
-  }
-
   getAdjustmentRatio(): number {
+    const idealWidth = getLineWidth(this.options.lineWidth, this.lineIndex);
+    let actualWidth = 0;
     let lineShrink = 0;
     let lineStretch = 0;
     this.itemsFiltered.forEach((item) => {
+      actualWidth += item.width;
       if (item.type === 'glue') {
         lineShrink += item.shrink;
         lineStretch += item.stretch;
       }
     });
-    if (this.actualWidth < this.idealWidth) {
+    if (actualWidth < idealWidth) {
       if (lineStretch > 0) {
-        const j = (this.idealWidth - this.actualWidth) / lineStretch;
+        const j = (idealWidth - actualWidth) / lineStretch;
         return Math.min(
           this.options.renderLineAsLeftAlignedIfAdjustmentRatioExceeds ?? Infinity,
           j,
@@ -114,7 +104,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
       }
     } else {
       if (lineShrink > 0) {
-        const j = (this.idealWidth - this.actualWidth) / lineShrink;
+        const j = (idealWidth - actualWidth) / lineShrink;
         return Math.max(MIN_ADJUSTMENT_RATIO, j);
       } else {
         return 0;
@@ -238,7 +228,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
 
   // /** Todo: check whether gluewidth is negative before returning! */
   // get extraSpacePerGlue(): number {
-  //   return (this.idealWidth - this.getActualWidth()) / this.glueCount;
+  //   return (idealWidth - this.getActualWidth()) / this.glueCount;
   // }
 
   // get endsWithInfiniteGlue(): boolean {
@@ -247,7 +237,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
   // }
 
   // get glueWidth(): number {
-  //   // if (this.idealWidth < this.getActualWidth({ ignoreGlue: true })) {
+  //   // if (idealWidth < this.getActualWidth({ ignoreGlue: true })) {
   //   //   console.error(`Glue in line ${this.lineIndex + 1} is negative! That's impossible`);
   //   // }
   //   // if (this.endsWithInfiniteGlue && this.extraSpacePerGlue >= 0) {
@@ -260,7 +250,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
   //   //     }, 0) / this.glueCount;
   //   //   return unstretchedGlueWidth;
   //   // } else {
-  //   //   const width = (this.idealWidth - this.getActualWidth({ ignoreGlue: true })) / this.glueCount;
+  //   //   const width = (idealWidth - this.getActualWidth({ ignoreGlue: true })) / this.glueCount;
   //   //   if (this.options.justify && this.extraSpacePerGlue >= 0) {
   //   //     return width - this.extraSpacePerGlue + this.extraSpacePerGlue / 1.5;
   //   //   } else {

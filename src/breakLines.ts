@@ -13,9 +13,9 @@ export interface Box {
   /** Amount of space required by this content. Must be >= 0. */
   width: number;
 
-  /** Values for hanging punctuation. */
-  rightHangingPunctuationWidth?: number;
-  leftHangingPunctuationWidth?: number;
+  // /** Values for hanging punctuation. */
+  // rightHangingPunctuationWidth?: number;
+  // leftHangingPunctuationWidth?: number;
 
   // /** If we have to take into account different widths depending on whether a word is broken apart or not (e.g. ligatures) */
   // widthIfNoBreakAfter?: number;
@@ -268,16 +268,16 @@ export function breakLines(
       const idealLen = getLineWidth(options.lineWidth, a.line);
       let actualLen = sumWidth - a.totalWidth;
 
-      /** Hanging punctuation */
-      if (options.hangingPunctuation) {
-        const firstBoxInLine = items.slice(a.index, b).find((i) => i.type === 'box') as Box;
-        const lastBoxInLine = items
-          .slice(a.index, b)
-          .reverse()
-          .find((i) => i.type === 'box') as Box;
-        actualLen -= firstBoxInLine?.leftHangingPunctuationWidth || 0;
-        actualLen -= lastBoxInLine?.rightHangingPunctuationWidth || 0;
-      }
+      // /** Hanging punctuation */
+      // if (options.hangingPunctuation) {
+      //   const firstBoxInLine = items.slice(a.index, b).find((i) => i.type === 'box') as Box;
+      //   const lastBoxInLine = items
+      //     .slice(a.index, b)
+      //     .reverse()
+      //     .find((i) => i.type === 'box') as Box;
+      //   actualLen -= firstBoxInLine?.leftHangingPunctuationWidth || 0;
+      //   actualLen -= lastBoxInLine?.rightHangingPunctuationWidth || 0;
+      // }
 
       /** Include width of penalty in line length if chosen as a breakpoint. */
       if (item.type === 'penalty') {
