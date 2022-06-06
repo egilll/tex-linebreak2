@@ -1,5 +1,6 @@
 import { LineWidth } from "src/html/lineWidth";
 import { getHyphenateFnCached } from "src/utils/hyphenationCache";
+import { validateItems } from "src/utils/utils";
 
 export class TexLinebreakOptions {
   /**
@@ -100,7 +101,7 @@ export class TexLinebreakOptions {
    * Note: Is the ratio of the longest width, not the ratio
    * of the current line (which is usually not an issue)
    */
-  infiniteGlueStretchAsRatioOfWidth: number = 0.5;
+  infiniteGlueStretchAsRatioOfWidth: number = 0.8;
 
   /**
    * Adds a MIN_COST penalty to the end of the paragraph. Without
@@ -158,10 +159,10 @@ export class TexLinebreakOptions {
   softHyphenPenalty: number = 50;
 
   /** Penalty for significant differences in the tightness of adjacent lines. */
-  adjacentLooseTightPenalty: number = 0;
+  adjacentLooseTightPenalty: number = 30;
 
   /**
-   * Whether to allow a single long word that does not fill 100% of the allowed
+   * Whether to prevent single long word that does not fill 100% of the allowed
    * width to occupy a line by itself, thus leaving behind space on its right
    * side. This setting does not apply to the last line of a paragraph.
    *
@@ -274,6 +275,12 @@ export class TexLinebreakOptions {
 
   /** This only applies to texLinebreakDOM. */
   updateOnWindowResize: boolean = true;
+
+  /**
+   * Whether to check the validity of the items
+   * given as an input to {@link breakLines}.
+   */
+  validateItems: boolean = true;
 
   /** ====================== End of options ====================== */
 

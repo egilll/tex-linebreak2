@@ -29,8 +29,8 @@ describe("layout", () => {
         "tidal stretch of the River Thames in",
         "south-west London. For the second time",
         "in the history of the event, the men's,",
-        "women's and both reserves' races were",
-        "all held on the Tideway on the same day.",
+        "women's and both reserves' races were all",
+        "held on the Tideway on the same day.",
       ]);
 
       // Check that adjustment ratios for each line are in range.

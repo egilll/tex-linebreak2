@@ -169,19 +169,25 @@ export class Line<
 
   getItemsFiltered(): InputItemType[] {
     let itemsFiltered = this.items.filter((item, curIndex, items) => {
-      // Ignore penalty that's not at the end of the line
+      // Ignore penalty that's not the breakpoint
       if (item.type === "penalty" && curIndex !== items.length - 1)
         return false;
 
-      // Ignore glue that is a breakpoint or which starts a line
-      if (
-        item.type === "glue" &&
-        (curIndex === items.length - 1 || curIndex === 0)
-      )
-        return false;
+      // Ignore glue that is a breakpoint
+      if (item.type === "glue" && curIndex === items.length - 1) return false;
 
       return true;
     });
+
+    /** Ignore glue at the beginning of a line (can be multiple adjacent glues) */
+    for (let i = 0; i < itemsFiltered.length; i++) {
+      if (itemsFiltered[i].type === "glue") {
+        itemsFiltered.splice(i, 1);
+        i--;
+      } else {
+        break;
+      }
+    }
 
     /**
      * Handle soft hyphens in non-justified text, see

@@ -95,7 +95,7 @@ export const MIN_COST = -1000;
  */
 export const MAX_COST = 1000;
 
-export const INFINITE_STRETCH = 10000;
+export const INFINITE_STRETCH = 100000;
 
 /**
  * How much glue is allowed to shrink. A `MIN_ADJUSTMENT_RATIO` of -1
@@ -141,10 +141,11 @@ export function breakLines(
 ): number[] {
   if (items.length === 0) return [];
 
-  /** Validate input (if this is the first time the function is called) */
-  if (currentRecursionDepth === 0) validateItems(items);
-
   const options = getOptionsWithDefaults(_options);
+
+  /** Validate input (if this is the first time the function is called) */
+  if (options.validateItems && currentRecursionDepth === 0)
+    validateItems(items);
 
   const currentMaxAdjustmentRatio = Math.min(
     options.initialMaxAdjustmentRatio,
@@ -255,14 +256,8 @@ export function breakLines(
        */
       if (
         !options.preventSingleWordLines &&
-        /**
-         * Are there any boxes in this line?
-         * (We start counting from a+1 unless a is the
-         * first item, as then a is not a breakpoint)
-         */
-        items
-          .slice(a.index === 0 ? 0 : a.index + 1, b - 1)
-          .some((item) => item.type === "box")
+        /** Are there any boxes in this line? */
+        items.slice(a.index, b).some((item) => item.type === "box")
       ) {
         if (lineStretch === 0) {
           lineStretch = 0.1;

@@ -165,6 +165,8 @@ export const getStretch = (
   input: Glue,
   options: TexLinebreakOptions
 ): number => {
+  return input.stretch;
+
   if (input.stretch === INFINITE_STRETCH) {
     return (
       options.infiniteGlueStretchAsRatioOfWidth *
@@ -190,40 +192,24 @@ export const removeGlueFromEndOfParagraphs = <T extends Item>(
     );
 };
 
-/** TODO: Needs rework */
-export const forciblySplitLongWords = (
-  items: TextItem[],
-  options: TexLinebreakOptions
-): TextItem[] => {
-  return items;
-  // if (options.lineWidth == null) {
-  //   throw new Error('lineWidth must be set');
-  // }
-  // let output: TextItem[] = [];
-  // const minLineWidth = getMinLineWidth(options.lineWidth);
-  // items.forEach((item) => {
-  //   if (item.type === 'box' && item.width > minLineWidth) {
-  //     for (let i = 0; i < item.text.length; i++) {
-  //       const char = item.text[i];
-  //       /** Add penalty */
-  //       // Separators
-  //       if (/\p{General_Category=Z}/u.test(char)) {
-  //         output.push(penalty(0, 0));
-  //       }
-  //       // Punctuation
-  //       else if (/\p{General_Category=P}/u.test(char)) {
-  //         output.push(penalty(0, 0));
-  //       } else {
-  //         output.push(penalty(0, 999));
-  //       }
-  //       /** Add glue */
-  //       output.push(textBox(char, options));
-  //     }
-  //   } else {
-  //     output.push(item);
-  //   }
-  // });
-  // return output;
+/**
+ * todo: this adds line-final glue for justified but it should
+ * be marked as just extending whatever stretch there already is
+ */
+export const addSlackIfBreakpoint = (
+  stretch: number,
+  cost: number = 0
+): (Glue | Penalty)[] => {
+  return [
+    penalty(0, MAX_COST),
+    glue(0, stretch, 0),
+    penalty(0, cost),
+    glue(0, -stretch, 0),
+  ];
+};
+
+export const infiniteGlue = (): Glue => {
+  return glue(0, INFINITE_STRETCH, 0);
 };
 
 export const getMinLineWidth = (lineWidths: LineWidth): number => {

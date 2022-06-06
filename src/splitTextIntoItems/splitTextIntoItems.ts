@@ -9,11 +9,14 @@ import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
   UnicodeLineBreakingClasses,
 } from "src/typings/unicodeLineBreakingClasses";
+import { forciblySplitLongWords } from "src/utils/forciblySplitLongWords";
 import { addHangingPunctuation } from "src/utils/hangingPunctuation";
+import { normalizeItems } from "src/utils/normalize";
 import {
   forcedBreak,
-  forciblySplitLongWords,
+  getSpaceWidth,
   glue,
+  infiniteGlue,
   penalty,
   softHyphen,
   textBox,
@@ -129,6 +132,14 @@ export const splitTextIntoItems = (
   }
 
   segments.forEach((segment, index) => {
+    const isLastSegment = index === segments.length - 1;
+    let cost =
+      segment.breakpoint && getBreakpointPenalty(segment.breakpoint, options);
+    if (options.addParagraphEnd && isLastSegment) cost = MIN_COST;
+    const isParagraphEnd =
+      cost === PenaltyClasses.MandatoryBreak ||
+      (options.addParagraphEnd && isLastSegment);
+
     /** First we add the box. */
     if (segment.type === "box") {
       items.push(...textBox(segment.text, options));
@@ -148,37 +159,34 @@ export const splitTextIntoItems = (
       if (!segment.breakpoint) {
         remainingItems.push(penalty(0, MAX_COST));
       }
-      remainingItems.push(...textGlue(segment.text, options));
+      if (!isParagraphEnd) {
+        /** Add a space */
+        remainingItems.push(...textGlue(segment.text, options));
+      } else {
+        /**
+         * If this is the paragraph end, then the text of this glue
+         * is not important. We do however record it in a zero-width
+         * glue just so that we have a record of the text.
+         */
+        remainingItems.push(glue(0, 0, 0, segment.text));
+      }
     }
 
     if (segment.breakpoint) {
-      const isLastSegment = index === segments.length - 1;
-      let cost = getBreakpointPenalty(segment.breakpoint, options);
-      if (options.addParagraphEnd && isLastSegment) cost = MIN_COST;
-
-      /** Paragraph-final infinite glue */
-      if (
-        cost === PenaltyClasses.MandatoryBreak ||
-        (options.addParagraphEnd && isLastSegment)
-      ) {
+      /** Paragraph end */
+      if (isParagraphEnd) {
         if (options.addInfiniteGlueToFinalLine) {
-          remainingItems.push(glue(0, INFINITE_STRETCH, 0, ""));
+          remainingItems.push(infiniteGlue());
         }
         remainingItems.push(forcedBreak());
       } else {
         /** Add the penalty for this break. */
-        if (
-          // Ignore zero-cost penalty before glue, since
-          // glues already have a zero-cost penalty
-          !(items.at(-1)!.type === "glue" && cost === 0 && cost != null) &&
-          segment.breakpoint?.lastLetter !== SOFT_HYPHEN
-        ) {
-          /** Soft hyphens. */
-          if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
-            remainingItems.push(...softHyphen(options));
-          } else {
-            remainingItems.unshift(penalty(0, cost));
-          }
+        /** Soft hyphens. */
+        if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
+          // todo: delete soft hyphen character from word
+          remainingItems.push(...softHyphen(options));
+        } else {
+          remainingItems.unshift(penalty(0, cost!));
         }
       }
     }
@@ -192,6 +200,8 @@ export const splitTextIntoItems = (
   if (options.forceOverflowToBreak) {
     items = forciblySplitLongWords(items, options);
   }
+
+  items = normalizeItems(items);
 
   return items;
 };

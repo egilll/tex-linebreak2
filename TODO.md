@@ -37,3 +37,5 @@
 - glue ætti að vera annaðhvort merkt sem „visible” eða „invisible”
 - prefer already-existing soft hyphens
 - þarf að passa að keyra ekki hyphenation aftur á orðum sem eru nú þegar með soft hyphen?
+
+- p. 1159 The other nonobvious problem we have to deal with is caused by the fact that several nodes might correspond to a single breakpoint.

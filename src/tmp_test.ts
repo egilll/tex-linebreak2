@@ -1,11 +1,12 @@
+import enUsPatterns from "hyphenation.en-us";
+import Hypher from "hypher";
 import { texLinebreakMonospace } from "src/utils/monospace";
 
-console.log(
-  texLinebreakMonospace(
-    "April 2017. Held annually, the Boat Race is a side-by-side rowing race between crews from the universities of Oxford and Cambridge along a 4.2-mile (6.8 km) tidal stretch of the River Thames in south-west London. For the second time in the h",
-    {
-      lineWidth: 20,
-      addInfiniteGlueToFinalLine: false,
-    }
-  ).plainText
-);
+const text = `A very_very_very_very_very_long_string here.`;
+const t = texLinebreakMonospace(text, {
+  lineWidth: 20,
+  forceOverflowToBreak: false,
+});
+
+// console.log(t.items.slice(-4));
+console.log(t.plainTextLines);
