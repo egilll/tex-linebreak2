@@ -36,3 +36,5 @@
 -If the paragraph is to be indented, the first item x,will be an empty box whose width is the amount of indentation.
 
 - fyrir framan langt orð ætti að vera auka bil
+
+- ability to prefer certain soft hyphens over others

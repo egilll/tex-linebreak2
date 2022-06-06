@@ -10,7 +10,7 @@ would find in a newspaper, book or technical paper. It implements the
 
 This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. It can be used to find the optimal size of an element to fit text.
 
-This repository is an extention of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight.
+<sub>(This repository is an extention of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight.)</sub>
 
 ## Table of contents
 
@@ -25,7 +25,7 @@ This repository is an extention of [tex-linebreak](https://github.com/robertknig
 
 ## Features
 
-- Works well on the majority of websites ([*](#issues))
+- Usually works well on websites ([\*](#limitations))
 - [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
 - Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1] Custom breaking rules also supported.
 - Can find the optimal width required for laying out text. This is especially useful when it comes to headlines (whose last line should not be mainly empty) but will also result in prettier output for general types of text.
@@ -56,21 +56,19 @@ hyphenation and this library:
 
 <table>
   <tr>
-    <td>Safari: text-align: justify</td>
-    <td>Chrome: text-align: justify; hyphens: auto</td>
-    <td>_tex-linebreak_</td>
+    <td align="center">Browser default<br/><sub>(text-align: justify)</sub></td>
+    <td align="center">Browser default with hyphens<br/><sub>(text-align: justify; hyphens: auto)</sub></td>
+    <td align="center"><i>tex-linebreak</i></td>
   </tr>
   <tr>
-    <td><img width="200" src="../images/bigint-safari-justify.png"></td>
-    <td><img width="200" src="../images/bigint-chrome-justify-hyphens.png"></td>
-    <td><img width="200" src="../images/bigint-tex-linebreak.png"></td>
+    <td align="center"><img width="200" src="images/bigint-safari-justify.png"></td>
+    <td align="center"><img width="200" src="images/bigint-chrome-justify-hyphens.png"></td>
+    <td align="center"><img width="200" src="images/bigint-tex-linebreak.png"></td>
   </tr>
   <tr>
     <td>CSS justification produces large spaces on the second and penultimate
         lines.</td>
-    <td>Enabling hyphenation using `hyphens: auto` in browsers that support it
-        (as of 2018-04-07 this appears to be only Chrome) produces better
-        output but still produces wide lines.</td>
+    <td>Enabling hyphenation produces better output but still produces wide lines.</td>
     <td>The TeX algorithm in contrast hyphenates fewer lines and avoids
         excessive spacing between words.</td>
   </tr>
@@ -96,11 +94,14 @@ to restrict where scripts can be loaded from.
 ```html
 <head>
   <script src="https://unpkg.com/tex-linebreak"></script>
+  TODO...
 </head>
 <body>
   <p>Example text</p>
   <script>
-    texLinebreak_lib.texLinebreakDOM('p');
+    texLinebreak_lib.texLinebreakDOM('p', {  
+      hyphenateFn: new Hypher(enUsPatterns).hyphenate,
+    });
   </script>
 </body>
 ```
@@ -122,7 +123,7 @@ Use the `texLinebreakDOM` function to lay out the paragraphs of a website:
 ```js
 import { texLinebreakDOM } from 'tex-linebreak';
 
-texLinebreakDOM('p'); // 'p' selects all <p/> elements
+texLinebreakDOM('p'); // Selects all <p/> elements
 ```
 
 The function accepts either a query selector or a list of elements:
@@ -138,12 +139,13 @@ texLinebreakDOM(document.querySelectorAll('p'), { align: 'left' });
 
 The library will listen for window resizing (can be turned off with the option `{ updateOnWindowResize: false }`, but it will not listen for dynamic DOM changes. If you alter the DOM in a way that may cause the available space for the paragraph to change, you must call `texLinebreakDOM` again.
 
-#### Issues
+#### Limitations
 
 The library does not support:
 
-* Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement> text</p>`)
-* Columns
+- Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement> text</p>`)
+- Floating elements when the paragraph doesn't have `line-height` set
+- Columns
 
 ### Other types of text
 
@@ -215,12 +217,12 @@ const positionedItems = new TexLinebreak(items, {
 
 See [`TexLinebreakOptions`](../src/options.ts) for a list of available options. Of these, the most relevant ones to a user are:
 
-* `align` – Can be "justify", "left", "center", or "right". Default "justify".
-* `hangingPunctuation` (boolean)
-* `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is *not* a hard limit; see `renderLineAsLeftAlignedIfAdjustmentRatioExceeds` for hard limits.
-* `glueShrinkFactor` (default 0.2, i.e. becoming 80% of the space's original width) – How much a glue (space) is allowed to shrink. This is a hard limit.
-* `softHyphenPenalty` – Set to 1000 to prohibit breaking on soft hyphens.
-* `lineBreakingType`
+- `align` – Can be "justify", "left", "center", or "right". Default "justify".
+- `hangingPunctuation` (boolean)
+- `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is _not_ a hard limit; see `renderLineAsLeftAlignedIfAdjustmentRatioExceeds` for hard limits.
+- `glueShrinkFactor` (default 0.2, i.e. becoming 80% of the space's original width) – How much a glue (space) is allowed to shrink. This is a hard limit.
+- `softHyphenPenalty` (default 50) – Set to 1000 to prohibit breaking on soft hyphens.
+- `lineBreakingType`
 
 ## API
 
@@ -250,7 +252,7 @@ The following helper functions are available:
 
 ## Hyphenation
 
-To hyphenate text, you can [Hypher](https://github.com/bramstein/hypher) library and pass it in as the `hyphenateFn` option like so:
+To hyphenate text, you can [Hypher](https://github.com/bramstein/hypher) library and pass it in as the `hyphenateFn` option like so:
 
 ```js
 import { TexLinebreak } from 'tex-linebreak';
@@ -258,15 +260,15 @@ import Hypher from 'hypher';
 import enUsPatterns from 'hyphenation.en-us';
 
 new TexLinebreak(items, {
-  hyphenateFn: new Hypher(enUsPatterns).hyphenate
+  hyphenateFn: new Hypher(enUsPatterns).hyphenate,
 });
 ```
 
 However, for websites it is recommended that you preprocess your text (using a library such as [Hypher](https://github.com/bramstein/hypher) or [Hyphenopoly](https://github.com/mnater/Hyphenopoly)) and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text, since hyphenation step can sometimes take some time (hundreds of milliseconds for large documents).
 
-## Authors
+## Contributors
 
-Written by [Robert Knight](https://github.com/robertknight/tex-linebreak) with some modifications by Egill.
+Written by [Robert Knight](https://github.com/robertknight/tex-linebreak), with some modifications by Egill.
 
 ## References
 
@@ -275,4 +277,4 @@ Written by [Robert Knight](https://github.com/robertknight/tex-linebreak) with s
 ## Notes
 
 [^1]: However there may exist a handful of exceptions regarding some non-Latin scripts.
-[^2]: For Node.js, you do however have to supply your own function to measure the width of text.
+[^2]: For Node.js, you do however have to supply your own function to measure the width of text. Furthermore, server-side processing of HTML documents is not supported out of the box.

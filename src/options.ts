@@ -20,6 +20,19 @@ export class TexLinebreakOptions {
   /**
    * Function that calculates legal hyphenation points in a word and
    * returns an array of pieces that can be joined with hyphens.
+   *
+   * Note that when using with the Hypher library, it must be passed in as:
+   *
+   *     const hypher = new Hypher(enUsPatterns);
+   *     const options = {
+   *       hyphenateFn: (word) => hypher.hyphenate(word),
+   *     };
+   *
+   * as simply:
+   *
+   *     { hyphenateFn: new Hypher(enUsPatterns).hyphenate }
+   *
+   * does not work.
    */
   hyphenateFn?: (word: string) => string[];
 
@@ -34,6 +47,7 @@ export class TexLinebreakOptions {
    */
   lineBreakingType: 'normal' | 'findOptimalWidth' | 'compact' | 'greedy' = 'normal';
 
+  /** @deprecated */
   justify: boolean = true;
 
   align: 'justify' | 'left' | 'right' | 'center' = 'justify';
@@ -74,7 +88,18 @@ export class TexLinebreakOptions {
    * Allows the last line of a paragraph to be shorter than the rest.
    * If set to false, the other lines will not fill the entire allowed width.
    */
-  addInfiniteGlueToTheEndOfTheLine: boolean = true;
+  addInfiniteGlueToFinalLine: boolean = true;
+
+  /**
+   * How much stretch should there be to the "infinite"
+   * glue at the end of the paragraph?
+   * A value between 0 and 1.
+   * A lower value will make the last line fill out more.
+   *
+   * Note: Is the ratio of the longest width, not the ratio
+   * of the current line (which is usually not an issue)
+   */
+  infiniteGlueStretchAsRatioOfWidth: number = 0.5;
 
   /**
    * Adds a MIN_COST penalty to the end of the paragraph. Without

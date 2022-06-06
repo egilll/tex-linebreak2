@@ -15,7 +15,7 @@ describe('layout', () => {
 
       const t = texLinebreakMonospace(input, {
         lineWidth: 41,
-        addInfiniteGlueToTheEndOfTheLine: false,
+        addInfiniteGlueToFinalLine: false,
       });
 
       expect(t.plainTextLines).toEqual([

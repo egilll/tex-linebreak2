@@ -1,14 +1,15 @@
-import stringWidth from 'string-width';
 import { TexLinebreak } from 'src/index';
-import { OptionalCertainKeys } from 'src/options';
+import { TexLinebreakOptions } from 'src/options';
+import stringWidth from 'string-width';
 
 /** A preset that includes a measureFn for monospace text */
 export const texLinebreakMonospace = (
   input: ConstructorParameters<typeof TexLinebreak>[0],
-  options: OptionalCertainKeys<ConstructorParameters<typeof TexLinebreak>[1], 'measureFn'>,
+  options: Partial<TexLinebreakOptions>,
 ): TexLinebreak => {
   return new TexLinebreak(input, {
     measureFn: stringWidth,
+    softHyphenOutput: 'HYPHEN',
     ...options,
   });
 };

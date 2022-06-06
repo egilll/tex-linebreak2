@@ -73,7 +73,7 @@ export function getItemsFromDOM(
     if (addParagraphEnd) {
       const endOffset = node.childNodes.length;
 
-      if (options.addInfiniteGlueToTheEndOfTheLine) {
+      if (options.addInfiniteGlueToFinalLine) {
         /**
          * Add a synthetic glue that absorbs any
          * left-over space at the end of the last line.

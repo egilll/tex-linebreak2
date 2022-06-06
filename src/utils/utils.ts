@@ -1,4 +1,4 @@
-import { Box, Glue, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines';
+import { Box, Glue, INFINITE_STRETCH, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines';
 import { LineWidth } from 'src/html/lineWidth';
 import { TexLinebreakOptions } from 'src/options';
 
@@ -112,15 +112,6 @@ export function forcedBreak(): Penalty {
   return penalty(0, MIN_COST);
 }
 
-/**
- * Used to prevent the last line from having a hanging last line.
- * Note: This results in the paragraph not filling the entire
- * allowed width, but the output will have all lines balanced.
- */
-export const removeGlueFromEndOfParagraphs = <T extends Item>(items: T[]): T[] => {
-  return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
-};
-
 export function isForcedBreak(item: Item) {
   return item.type === 'penalty' && item.cost <= MIN_COST;
 }
@@ -135,6 +126,27 @@ export const isNonBreakablePenalty = (item: Item) => {
 
 export const isPenaltyThatDoesNotForceBreak = (item: Item) => {
   return item.type === 'penalty' && item.cost > MIN_COST;
+};
+
+/**
+ * Gets the stretch of a glue, taking into account the setting
+ * {@link TexLinebreakOptions#infiniteGlueStretchAsRatioOfWidth}
+ */
+export const getStretch = (input: Glue, options: TexLinebreakOptions): number => {
+  if (input.stretch === INFINITE_STRETCH) {
+    return options.infiniteGlueStretchAsRatioOfWidth * getMaxLineWidth(options.lineWidth);
+  } else {
+    return input.stretch;
+  }
+};
+
+/**
+ * Used to prevent the last line from having a hanging last line.
+ * Note: This results in the paragraph not filling the entire
+ * allowed width, but the output will have all lines balanced.
+ */
+export const removeGlueFromEndOfParagraphs = <T extends Item>(items: T[]): T[] => {
+  return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
 };
 
 /** TODO: Needs rework */
@@ -180,6 +192,16 @@ export const getMinLineWidth = (lineWidths: LineWidth): number => {
     return lineWidths;
   } else {
     return Math.min(...[...Object.values(lineWidths), lineWidths.defaultLineWidth]);
+  }
+};
+
+export const getMaxLineWidth = (lineWidths: LineWidth): number => {
+  if (Array.isArray(lineWidths)) {
+    return Math.max(...lineWidths);
+  } else if (typeof lineWidths === 'number') {
+    return lineWidths;
+  } else {
+    return Math.max(...[...Object.values(lineWidths), lineWidths.defaultLineWidth]);
   }
 };
 

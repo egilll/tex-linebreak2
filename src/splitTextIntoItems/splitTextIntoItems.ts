@@ -8,6 +8,7 @@ import {
 } from 'src/typings/unicodeLineBreakingClasses';
 import { addHangingPunctuation } from 'src/utils/hangingPunctuation';
 import {
+  forcedBreak,
   forciblySplitLongWords,
   glue,
   penalty,
@@ -120,41 +121,16 @@ export const splitTextIntoItems = (
   }
 
   segments.forEach((segment, index) => {
+    /** First we add the box. */
     if (segment.type === 'box') {
       items.push(...textBox(segment.text, options));
     }
 
-    if (segment.breakpoint) {
-      /** Soft hyphens */
-      if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
-        items.push(...softHyphen(options));
-        return;
-      }
-
-      const isLastSegment = index === segments.length - 1;
-      let cost = getBreakpointPenalty(segment.breakpoint, options);
-      if (options.addParagraphEnd && isLastSegment) cost = MIN_COST;
-
-      /** Paragraph-final infinite glue */
-      if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
-        if (segment.type === 'glue') {
-          items.push(...textGlue(segment.text, options));
-        }
-        items.push(glue(0, INFINITE_STRETCH, 0, ''));
-        items.push(penalty(0, MIN_COST));
-        return;
-      }
-
-      /**
-       * Add the penalty for this break.
-       *
-       * Ignore zero-cost penalty before glue, since
-       * glues already have a zero-cost penalty
-       */
-      if (!(items.at(-1)!.type === 'glue' && cost === 0 && cost != null)) {
-        items.push(penalty(0, cost));
-      }
-    }
+    /**
+     * This array will hold the glue. We do this in order to be able to choose
+     * whether to then add more items before the glue or after the glue.
+     */
+    let remainingItems: TextItem[] = [];
 
     if (segment.type === 'glue') {
       /**
@@ -162,11 +138,40 @@ export const splitTextIntoItems = (
        * cannot be broken, e.g. spaces before slashes.
        */
       if (!segment.breakpoint) {
-        items.push(penalty(0, MAX_COST));
+        remainingItems.push(penalty(0, MAX_COST));
       }
-
-      items.push(...textGlue(segment.text, options));
+      remainingItems.push(...textGlue(segment.text, options));
     }
+
+    if (segment.breakpoint) {
+      const isLastSegment = index === segments.length - 1;
+      let cost = getBreakpointPenalty(segment.breakpoint, options);
+      if (options.addParagraphEnd && isLastSegment) cost = MIN_COST;
+
+      /** Paragraph-final infinite glue */
+      if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
+        if (options.addInfiniteGlueToFinalLine) {
+          remainingItems.push(glue(0, INFINITE_STRETCH, 0, ''));
+        }
+        remainingItems.push(forcedBreak());
+      } else {
+        /** Add the penalty for this break. */
+        if (
+          // Ignore zero-cost penalty before glue, since
+          // glues already have a zero-cost penalty
+          !(items.at(-1)!.type === 'glue' && cost === 0 && cost != null) &&
+          segment.breakpoint?.lastLetter !== SOFT_HYPHEN
+        ) {
+          /** Soft hyphens. */
+          if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
+            remainingItems.push(...softHyphen(options));
+          } else {
+            remainingItems.unshift(penalty(0, cost));
+          }
+        }
+      }
+    }
+    items.push(...remainingItems);
   });
 
   if (options.hangingPunctuation) {

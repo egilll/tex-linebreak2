@@ -37,7 +37,7 @@ texLinebreakDOM(outputElement, { lineWidth, leftIndentPerLine });
 //     lineWidth: 200,
 //     // justify: false,
 //     softHyphenPenalty: 40,
-//     addInfiniteGlueToTheEndOfTheLine: false,
+//     addInfiniteGlueToFinalLine: false,
 //     // renderLineAsLeftAlignedIfAdjustmentRatioExceeds: 1,
 //   },
 //   true,

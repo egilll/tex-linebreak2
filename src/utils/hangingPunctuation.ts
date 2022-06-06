@@ -1,4 +1,3 @@
-import { MAX_COST } from 'src/breakLines';
 import { TexLinebreakOptions } from 'src/options';
 import {
   box,
@@ -55,7 +54,7 @@ export const addHangingPunctuation = (
     if (
       item.text &&
       // Must not be followed by another box
-      (isBreakablePenalty(nextItem) || nextItem.type === 'glue') &&
+      (isBreakablePenalty(nextItem) || nextItem?.type === 'glue') &&
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
       item.text.slice(-1) !== item.text.slice(-2, -1)
     ) {

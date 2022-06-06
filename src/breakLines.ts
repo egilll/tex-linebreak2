@@ -1,6 +1,7 @@
 import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
 import {
   getLineWidth,
+  getStretch,
   isBreakablePenalty,
   isForcedBreak,
   penalty,
@@ -223,7 +224,7 @@ export function breakLines(
       if (!canBreak) {
         sumWidth += item.width;
         sumShrink += item.shrink;
-        sumStretch += item.stretch;
+        sumStretch += getStretch(item, options);
       }
     } else if (item.type === 'penalty') {
       canBreak = item.cost < MAX_COST;
@@ -413,7 +414,7 @@ export function breakLines(
           widthToNextBox += item.width;
           if (item.type === 'glue') {
             shrinkToNextBox += item.shrink;
-            stretchToNextBox += item.stretch;
+            stretchToNextBox += getStretch(item, options);
           }
         }
 
@@ -480,7 +481,7 @@ export function breakLines(
     /** The widths of boxes and non-breakable glues were already added above */
     if (item.type === 'glue') {
       sumWidth += item.width;
-      sumStretch += item.stretch;
+      sumStretch += getStretch(item, options);
       sumShrink += item.shrink;
     }
   }
