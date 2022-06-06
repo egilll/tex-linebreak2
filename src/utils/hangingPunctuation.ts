@@ -3,6 +3,7 @@ import {
   box,
   glue,
   isBreakablePenalty,
+  isForcedBreak,
   isNonBreakablePenalty,
   isSoftHyphen,
   TextItem,
@@ -17,17 +18,22 @@ export const addHangingPunctuation = (
   options: TexLinebreakOptions,
 ): TextItem[] => {
   let output: TextItem[] = [];
+  /** If we have to skip over an item */
+  let ignoredItems: Set<TextItem> = new Set();
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     const prevItem = items[i - 1];
     const nextItem = items[i + 1];
+
     if (
       item.type !== 'box' ||
       !('text' in item) ||
       item.width === 0 ||
       isSoftHyphen(items[i + 1])
     ) {
-      output.push(item);
+      if (!ignoredItems.has(item)) {
+        output.push(item);
+      }
       continue;
     }
 
@@ -55,11 +61,21 @@ export const addHangingPunctuation = (
       item.text &&
       // Must not be followed by another box
       (isBreakablePenalty(nextItem) || nextItem?.type === 'glue') &&
+      !isForcedBreak(nextItem) &&
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
       item.text.slice(-1) !== item.text.slice(-2, -1)
     ) {
       const rightHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(0, -1));
       item.width -= rightHangingPunctuationWidth;
+      /**
+       * Special handling of penalties that come directly after boxes.
+       * In that case, we have to add this hanging punctuation glue
+       * AFTER the penalty.
+       */
+      if (nextItem.type === 'penalty') {
+        output.push(nextItem);
+        ignoredItems.add(nextItem);
+      }
       output.push(glue(rightHangingPunctuationWidth, 0, 0));
     }
   }

@@ -21,8 +21,8 @@ it('lays out lines applying hyphenation', () => {
     'set by a Monotype Corporation',
     'typecaster. This method, dating',
     'back to the 19th century, pro-',
-    'duced a "good classic style"',
-    'appreciated by Knuth.',
+    'duced a "good classic style" ap-',
+    'preciated by Knuth.',
   ];
   expect(lines).toEqual(expectedLines);
 });

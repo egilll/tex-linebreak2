@@ -227,6 +227,7 @@ export const validateItems = (items: Item[]) => {
   /** Input has to end in a MIN_COST penalty */
   const lastItem = items[items.length - 1];
   if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
+    console.log(items.slice(-3));
     throw new Error(
       "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off.",
     );
@@ -236,19 +237,17 @@ export const validateItems = (items: Item[]) => {
    * Catch a misunderstanding of someone trying to penalize a
    * glue (accidentally placing the penalty after the glue)
    */
-  const gluePenaltyBox = items.find(
+  const gluePenaltyBoxIndex = items.findIndex(
     (item, index) =>
       item.type === 'glue' &&
       items[index + 1].type === 'penalty' &&
       (items[index + 1] as Penalty).cost! > MIN_COST &&
       items[index + 2].type === 'box',
   );
-  if (gluePenaltyBox) {
-    console.log({ items });
+  if (gluePenaltyBoxIndex >= 0) {
+    console.log(items.slice(gluePenaltyBoxIndex - 2, gluePenaltyBoxIndex + 5));
     throw new Error(
-      `It appears you're trying to penalize a glue at index ${items.findIndex(
-        (i) => i === gluePenaltyBox,
-      )}, but remember that penalty comes before the glue.`,
+      `It appears you're trying to penalize a glue at index ${gluePenaltyBoxIndex}, but remember that penalty comes before the glue.`,
     );
   }
 
