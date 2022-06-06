@@ -159,7 +159,7 @@ export function getItemsFromDOM(
         ...options,
         measureFn: (word) => domTextMeasureFn(word, element),
         addParagraphEnd,
-        collapseNewlines: true,
+        collapseAllNewlines: true,
       },
       precedingText,
       followingText

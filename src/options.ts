@@ -1,6 +1,10 @@
 import { LineWidth } from "src/html/lineWidth";
 import { getHyphenateFnCached } from "src/utils/hyphenationCache";
 
+/**
+ * (Most of these options control how text is converted into
+ * items and do not apply when you supply custom items.)
+ */
 export class TexLinebreakOptions {
   /**
    * Can be a number (when the line width is the same for
@@ -9,87 +13,19 @@ export class TexLinebreakOptions {
    */
   lineWidth!: LineWidth;
 
-  /**
-   * Function that calculates the width of a given string.
-   * For DOM elements, this can be done with {@link DOMTextMeasurer}
-   * which draws the text to a canvas. This function called for
-   * every item, so you may wish to cache your output.
-   */
-  measureFn!: (word: string) => number;
+  align: "justify" | "left" /*| "right" | "center"*/ = "justify";
 
-  /**
-   * Function that calculates legal hyphenation points in a word and
-   * returns an array of pieces that can be joined with hyphens.
-   *
-   * Note that when using with the Hypher library, it must be passed in as:
-   *
-   *     const hypher = new Hypher(enUsPatterns);
-   *     const options = {
-   *       hyphenateFn: (word) => hypher.hyphenate(word),
-   *     };
-   *
-   * as simply:
-   *
-   *     { hyphenateFn: new Hypher(enUsPatterns).hyphenate }
-   *
-   * does not work.
-   */
-  hyphenateFn?: (word: string) => string[];
-
-  /**
-   * - `normal` fills the entire allowed width, with the the last line of each
-   *   paragraph being allowed to end with a significant amount of space.
-   * - `findOptimalWidth` will shrink the paragraph's width until ... TODO
-   * - `compact` will shrink each paragraph independently so all lines
-   *   (including the last line) are aligned.
-   * - `greedy` will break greedily instead of using TeX's line breaking
-   *   algorithm.
-   */
-  lineBreakingType: "normal" | "findOptimalWidth" | "compact" | "greedy" =
-    "normal";
-
-  /** @deprecated */
-  justify: boolean = true;
-
-  align: "justify" | "left" | "right" | "center" = "justify";
+  preset: "html" | "plainText" = "html";
 
   hangingPunctuation: boolean = true;
 
   /**
-   * If the lineBreakingType option is set to `findOptimalWidth` or
-   * `compact`, this value may be used to set a lower limit for the width.
+   * Whether to force words that are longer than the allowed width to
+   * break, with the breakpoint being chosen at random (equivalent to
+   * CSS's "word-wrap: break-word").
+   * Should be off if working with plaintext that a user will be copying.
    */
-  minWidth?: number;
-
-  /** HTML content collapses all whitespace and displays it as a single space. */
-  collapseNewlines: boolean = true;
-
-  keepNewlinesAfter?: (string | RegExp) | (string | RegExp)[];
-
-  /**
-   * A pattern that should never be broken.
-   * Example: /{.+?}/ will never break inside curly braces.
-   */
-  neverBreakInside?: (string | RegExp) | (string | RegExp)[];
-
-  /**
-   * Never break a line after a certain string or pattern.
-   * Example: ['-', 'e.g.'] will never break after a hyphen or the text 'e.g.'.
-   */
-  neverBreakAfter?: (string | RegExp) | (string | RegExp)[];
-
-  /**
-   * If you're breaking the lines of plaintext that a user may have to
-   * copy later, you can use this option to only break on whitespace, and
-   * never inside words that include hyphens or slashes (such as URLs).
-   */
-  onlyBreakOnWhitespace: boolean = false;
-
-  /**
-   * Allows the last line of a paragraph to be shorter than the rest.
-   * If set to false, the other lines will not fill the entire allowed width.
-   */
-  addInfiniteGlueToFinalLine: boolean = true;
+  forceOverflowToBreak: boolean = false;
 
   /**
    * How much stretch should there be to the "infinite"
@@ -101,22 +37,6 @@ export class TexLinebreakOptions {
    * of the current line (which is usually not an issue)
    */
   infiniteGlueStretchAsRatioOfWidth: number = 0.8;
-
-  /**
-   * Adds a MIN_COST penalty to the end of the paragraph. Without
-   * it, the paragraph cannot be broken. Only turn this option off if
-   * you're adding text from inline elements to the overall paragraph;
-   * the paragraph itself must always end with this penalty.
-   */
-  addParagraphEnd: boolean = true;
-
-  /**
-   * Whether to force words that are longer than the allowed width to
-   * break, with the breakpoint being chosen at random (equivalent to
-   * CSS's "word-wrap: break-word").
-   * Turn this off if working with plaintext that a user will be copying.
-   */
-  forceOverflowToBreak: boolean = true;
 
   /**
    * The adjustment ratio of a line is the amount by which a line's glue
@@ -158,37 +78,7 @@ export class TexLinebreakOptions {
   softHyphenPenalty: number = 50;
 
   /** Penalty for significant differences in the tightness of adjacent lines. */
-  adjacentLooseTightPenalty: number = 30;
-
-  /**
-   * Whether to prevent single long word that does not fill 100% of the allowed
-   * width to occupy a line by itself, thus leaving behind space on its right
-   * side. This setting does not apply to the last line of a paragraph.
-   *
-   * Note: This goes against Knuth & Plass's original paper, however without it
-   * the output is extremely counter-intuitive. Several things may occur when
-   * this option is turned off:
-   *
-   * 1. The word can overflow into the margin. The only possible solution would be
-   *    to force breaks inside a word.
-   * 2. The line may be split in an extremely silly manner, such as:
-   *
-   *        bla         bla          bla
-   *        bla https://example.com/bla/
-   *        bla
-   *
-   * Instead of:
-   *
-   *        bla     bla     bla      bla
-   *        https://example.com/bla/bla
-   *
-   * 3. The line will fail to break completely if lineWidth is some value
-   * smaller than any word.
-   *
-   * To get the same output as Knuth & Plass's original paper, set this option
-   * to `true`.
-   */
-  preventSingleWordLines: boolean = false;
+  adjacentLooseTightPenalty: number = 10;
 
   /**
    * How much can a glue (space) stretch (at an adjustment ratio of 1)?
@@ -229,11 +119,11 @@ export class TexLinebreakOptions {
   renderLineAsLeftAlignedIfAdjustmentRatioExceeds?: number;
 
   /**
+   * WORK IN PROGRESS (TODO): Does not currently work for websites!
+   *
    * Whether soft hyphens in the input text should be removed from the output
    * text. This is recommended for websites, as users can then copy the text
    * without being annoyed by the invisible soft hyphen characters.
-   *
-   * WORK IN PROGRESS (TODO): Does not currently work for websites!
    */
   stripSoftHyphensFromOutputText: boolean = true;
 
@@ -267,6 +157,131 @@ export class TexLinebreakOptions {
    */
   lineFinalSpacesInNonJustified: number = 3;
 
+  /**
+   * Function that calculates the width of a given string.
+   * For DOM elements, this can be done with {@link DOMTextMeasurer}
+   * which draws the text to a canvas. This function called for
+   * every item, so you may wish to cache your output.
+   */
+  measureFn!: (word: string) => number;
+
+  /**
+   * Function that calculates legal hyphenation points in a word and
+   * returns an array of pieces that can be joined with hyphens.
+   *
+   * Note that when using with the Hypher library, it must be passed in as:
+   *
+   *     const hypher = new Hypher(enUsPatterns);
+   *     const options = {
+   *       hyphenateFn: (word) => hypher.hyphenate(word),
+   *     };
+   *
+   * as simply:
+   *
+   *     { hyphenateFn: new Hypher(enUsPatterns).hyphenate }
+   *
+   * does not work.
+   *
+   * Will be cached unless {@link TexLinebreakOptions#cacheHyphenation} is
+   * turned off.
+   */
+  hyphenateFn?: (word: string) => string[];
+
+  /**
+   * - `normal` fills the entire allowed width, with the the last line of each
+   *   paragraph being allowed to end with a significant amount of space.
+   * - `findOptimalWidth` will shrink the paragraph's width until ... TODO
+   * - `compact` will shrink each paragraph independently so all lines
+   *   (including the last line) are aligned.
+   * - `greedy` will break greedily instead of using TeX's line breaking
+   *   algorithm.
+   */
+  lineBreakingType: "normal" | "findOptimalWidth" | "compact" | "greedy" =
+    "normal";
+
+  /**
+   * A pattern that should never be broken.
+   * Example: /{.+?}/ will never break inside curly braces.
+   */
+  neverBreakInside?: (string | RegExp) | (string | RegExp)[];
+
+  /**
+   * Never break a line after a certain string or pattern.
+   * Example: ['-', 'e.g.'] will never break after a hyphen or the text 'e.g.'.
+   */
+  neverBreakAfter?: (string | RegExp) | (string | RegExp)[];
+
+  keepNewlinesAfter?: (string | RegExp) | (string | RegExp)[];
+
+  /**
+   * HTML content collapses all whitespace and displays it as a single space.
+   * This overrides {@link TexLinebreakOptions#keepNewlinesAfter}.
+   *
+   * todo: skip for monospace
+   */
+  collapseAllNewlines: boolean = true;
+
+  /**
+   * If you're breaking the lines of plaintext that a user may have to
+   * copy later, you can use this option to only break on whitespace, and
+   * never inside words that include hyphens or slashes (such as URLs).
+   */
+  onlyBreakOnWhitespace: boolean = false;
+
+  /**
+   * Allows the last line of a paragraph to be shorter than the rest.
+   * If set to false, the other lines will not fill the entire allowed width.
+   */
+  addInfiniteGlueToFinalLine: boolean = true;
+
+  /**
+   * (For internal use)
+   *
+   * Adds a MIN_COST penalty to the end of the paragraph. Without
+   * it, the paragraph cannot be broken. Only turn this option off if
+   * you're adding text from inline elements to the overall paragraph;
+   * the paragraph itself must always end with this penalty.
+   *
+   * @internal
+   */
+  addParagraphEnd: boolean = true;
+
+  /**
+   * If the lineBreakingType option is set to `findOptimalWidth` or
+   * `compact`, this value may be used to set a lower limit for the width.
+   */
+  minWidth?: number;
+
+  /**
+   * Whether to prevent single long word that does not fill 100% of the allowed
+   * width to occupy a line by itself, thus leaving behind space on its right
+   * side. This setting does not apply to the last line of a paragraph.
+   *
+   * Note: This goes against Knuth & Plass's original paper, however without it
+   * the output is extremely counter-intuitive. Several things may occur when
+   * this option is turned off:
+   *
+   * 1. The word can overflow into the margin. The only possible solution would be
+   *    to force breaks inside a word.
+   * 2. The line may be split in an extremely silly manner, such as:
+   *
+   *        bla         bla          bla
+   *        bla https://example.com/bla/
+   *        bla
+   *
+   * Instead of:
+   *
+   *        bla     bla     bla      bla
+   *        https://example.com/bla/bla
+   *
+   * 3. The line will fail to break completely if lineWidth is some value
+   * smaller than any word.
+   *
+   * To get the same output as Knuth & Plass's original paper, set this option
+   * to `true`.
+   */
+  preventSingleWordLines: boolean = false;
+
   leftIndentPerLine?: TexLinebreakOptions["lineWidth"];
 
   /** Whether to cache the output of the `hyphenateFn` globally. */
@@ -284,7 +299,7 @@ export class TexLinebreakOptions {
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {
-    if (options.justify === false) {
+    if (options.align !== "justify") {
       this.softHyphenPenalty = 500;
       this.glueShrinkFactor = 0.2;
       this.glueStretchFactor = 0.3;
@@ -300,12 +315,6 @@ export const getOptionsWithDefaults = (
   if (options instanceof TexLinebreakOptions) {
     return options;
   } else {
-    // would have to be in the constructor
-    // Object.keys(options).forEach((key) => {
-    //   if (!(key in TexLinebreakOptions)) {
-    //     console.error(`Unknown option: ${key}`);
-    //   }
-    // });
     if (options.hyphenateFn && options.cacheHyphenation) {
       options.hyphenateFn = getHyphenateFnCached(options.hyphenateFn);
     }

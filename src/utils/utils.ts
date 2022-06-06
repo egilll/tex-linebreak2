@@ -73,7 +73,7 @@ export function textGlue(
 ): TextItem[] {
   const spaceShrink = getSpaceWidth(options) * options.glueShrinkFactor;
   const spaceStretch = getSpaceWidth(options) * options.glueStretchFactor;
-  if (options.justify) {
+  if (options.align === "justify") {
     /** Spaces in justified lines */
     return [glue(getSpaceWidth(options), spaceStretch, spaceShrink, text)];
   } else {
@@ -103,7 +103,7 @@ export function textGlue(
 
 export const softHyphen = (options: TexLinebreakOptions): TextItem[] => {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn("-");
-  if (options.justify) {
+  if (options.align === "justify") {
     return [penalty(hyphenWidth, options.softHyphenPenalty, true)];
   } else {
     /**

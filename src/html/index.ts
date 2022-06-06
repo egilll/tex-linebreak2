@@ -21,7 +21,7 @@ export function texLinebreakDOM(
 ) {
   const options = getOptionsWithDefaults({
     ..._options,
-    collapseNewlines: true,
+    collapseAllNewlines: true,
   });
 
   let elements: HTMLElement[];
@@ -56,7 +56,7 @@ export function texLinebreakDOM(
       const lines = new TexLinebreak<DOMItem>(items, {
         ...options,
         lineWidth,
-        collapseNewlines: true,
+        collapseAllNewlines: true,
       }).lines;
 
       // console.log(items);

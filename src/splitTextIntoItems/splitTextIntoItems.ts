@@ -18,6 +18,7 @@ import {
   infiniteGlue,
   penalty,
   softHyphen,
+  TextBox,
   textBox,
   textGlue,
   TextItem,
@@ -89,7 +90,7 @@ export const splitTextIntoItems = (
     /** Newline characters are just glue in HTML */
     const isGlue =
       glueCharacterRegex.test(char) ||
-      (options.collapseNewlines && breakpoint?.required);
+      (options.collapseAllNewlines && breakpoint?.required);
     let type: Segment["type"] = isGlue ? "glue" : "box";
 
     if (
@@ -121,7 +122,7 @@ export const splitTextIntoItems = (
        * Treat newline as just a space character in HTML.
        * Todo: Should perhaps be done elsewhere
        */
-      if (options.collapseNewlines && breakpoint.required) {
+      if (options.collapseAllNewlines && breakpoint.required) {
         breakpoint.required = false;
         breakpoint.lastLetterClass = UnicodeLineBreakingClasses.Space;
       }
@@ -179,12 +180,15 @@ export const splitTextIntoItems = (
         }
         remainingItems.push(forcedBreak());
       } else {
-        /** Add the penalty for this break. */
         /** Soft hyphens. */
         if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
-          // todo: delete soft hyphen character from word
           remainingItems.push(...softHyphen(options));
-        } else {
+        } else if (
+          // Ignore zero-cost penalty before glue, since
+          // glues already have a zero-cost penalty
+          !(remainingItems.at(-1)?.type === "glue" && cost === 0)
+        ) {
+          /** The penalty for this break. */
           remainingItems.unshift(penalty(0, cost!));
         }
       }

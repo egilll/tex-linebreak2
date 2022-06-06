@@ -222,6 +222,7 @@ See [`TexLinebreakOptions`](../src/options.ts) for a list of available options. 
 - `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is _not_ a hard limit; see `renderLineAsLeftAlignedIfAdjustmentRatioExceeds` for hard limits.
 - `glueShrinkFactor` (default 0.2, i.e. becoming 80% of the space's original width) – How much a glue (space) is allowed to shrink. This is a hard limit.
 - `softHyphenPenalty` (default 50) – Set to 1000 to prohibit breaking on soft hyphens.
+- `forceOverflowToBreak`
 - `lineBreakingType`
 
 ## API
