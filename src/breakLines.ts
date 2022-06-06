@@ -455,8 +455,14 @@ export function breakLines(
          * Too much stretching was required for an earlier ignored breakpoint.
          * Try again with a higher threshold.
          */
-        options.initialMaxAdjustmentRatio = minAdjustmentRatioAboveThreshold * 2;
-        return breakLines(items, options, currentRecursionDepth + 1);
+        return breakLines(
+          items,
+          new TexLinebreakOptions({
+            ...options,
+            initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
+          }),
+          currentRecursionDepth + 1,
+        );
       } else {
         /**
          * We cannot create a breakpoint sequence by increasing the
