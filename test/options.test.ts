@@ -1,13 +1,13 @@
-import { texLinebreakMonospace } from 'src/utils/monospace';
+import { texLinebreakMonospace } from "src/utils/monospace";
 
-it('onlyBreakOnWhitespace', () => {
+it("onlyBreakOnWhitespace", () => {
   expect(
-    texLinebreakMonospace('Ilex-grandis-arbor-est-patula-quanta Pyrus.', {
+    texLinebreakMonospace("Ilex-grandis-arbor-est-patula-quanta Pyrus.", {
       onlyBreakOnWhitespace: true,
       forceOverflowToBreak: false,
       lineWidth: 20,
-    }).plainTextLines,
-  ).toEqual(['Ilex-grandis-arbor-est-patula-quanta', 'Pyrus.']);
+    }).plainTextLines
+  ).toEqual(["Ilex-grandis-arbor-est-patula-quanta", "Pyrus."]);
 });
 
 // it('forceOverflowToBreak', () => {

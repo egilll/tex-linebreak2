@@ -1,4 +1,4 @@
-import { TexLinebreakOptions } from 'src/options';
+import { TexLinebreakOptions } from "src/options";
 import {
   box,
   glue,
@@ -7,7 +7,7 @@ import {
   isNonBreakablePenalty,
   isSoftHyphen,
   TextItem,
-} from 'src/utils/utils';
+} from "src/utils/utils";
 
 /**
  * Here we calculate the width of the hanging punctuation of this item,
@@ -15,7 +15,7 @@ import {
  */
 export const addHangingPunctuation = (
   items: TextItem[],
-  options: TexLinebreakOptions,
+  options: TexLinebreakOptions
 ): TextItem[] => {
   let output: TextItem[] = [];
   /** If we have to skip over an item */
@@ -26,8 +26,8 @@ export const addHangingPunctuation = (
     const nextItem = items[i + 1];
 
     if (
-      item.type !== 'box' ||
-      !('text' in item) ||
+      item.type !== "box" ||
+      !("text" in item) ||
       item.width === 0 ||
       isSoftHyphen(items[i + 1])
     ) {
@@ -43,12 +43,13 @@ export const addHangingPunctuation = (
       // Check that this doesn't come directly after non-breakable penalty
       (isBreakablePenalty(prevItem) ||
         !prevItem ||
-        (prevItem.type === 'glue' && !isNonBreakablePenalty(items[i - 2]))) &&
+        (prevItem.type === "glue" && !isNonBreakablePenalty(items[i - 2]))) &&
       hangingPunctuationRegex.test(item.text.slice(0, 1)) &&
       // If the character is repeated ("...", "??"), we don't hang
       item.text.slice(0, 1) !== item.text.slice(1, 2)
     ) {
-      const leftHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(1));
+      const leftHangingPunctuationWidth =
+        item.width - options.measureFn(item.text.slice(1));
 
       output.push(glue(leftHangingPunctuationWidth, 0, 0));
       output.push(box(-leftHangingPunctuationWidth));
@@ -60,19 +61,20 @@ export const addHangingPunctuation = (
     if (
       item.text &&
       // Must not be followed by another box
-      (isBreakablePenalty(nextItem) || nextItem?.type === 'glue') &&
+      (isBreakablePenalty(nextItem) || nextItem?.type === "glue") &&
       !isForcedBreak(nextItem) &&
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
       item.text.slice(-1) !== item.text.slice(-2, -1)
     ) {
-      const rightHangingPunctuationWidth = item.width - options.measureFn(item.text.slice(0, -1));
+      const rightHangingPunctuationWidth =
+        item.width - options.measureFn(item.text.slice(0, -1));
       item.width -= rightHangingPunctuationWidth;
       /**
        * Special handling of penalties that come directly after boxes.
        * In that case, we have to add this hanging punctuation glue
        * AFTER the penalty.
        */
-      if (nextItem.type === 'penalty') {
+      if (nextItem.type === "penalty") {
         output.push(nextItem);
         ignoredItems.add(nextItem);
       }

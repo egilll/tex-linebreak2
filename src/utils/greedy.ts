@@ -1,6 +1,6 @@
-import { Item, MAX_COST } from 'src/breakLines';
-import { RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
-import { getLineWidth, isForcedBreak } from 'src/utils/utils';
+import { Item, MAX_COST } from "src/breakLines";
+import { RequireOnlyCertainKeys, TexLinebreakOptions } from "src/options";
+import { getLineWidth, isForcedBreak } from "src/utils/utils";
 
 /**
  * This utility function does not use TeX's line breaking algorithm,
@@ -9,7 +9,7 @@ import { getLineWidth, isForcedBreak } from 'src/utils/utils';
  */
 export function breakLinesGreedy(
   items: Item[],
-  options: RequireOnlyCertainKeys<TexLinebreakOptions, 'lineWidth'>,
+  options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">
 ): number[] {
   let breakpoints: number[] = [0];
   let curLineWidth = 0;
@@ -26,16 +26,16 @@ export function breakLinesGreedy(
 
     if (isForcedBreak(item)) {
       return addBreak(index);
-    } else if (item.type === 'box') {
+    } else if (item.type === "box") {
       curLineWidth += item.width;
       if (curLineWidth > idealLen && bestBreakForLine) {
         addBreak(bestBreakForLine);
         curLineWidth += item.width;
       }
-    } else if (item.type === 'glue' && items[index - 1].type === 'box') {
+    } else if (item.type === "glue" && items[index - 1].type === "box") {
       bestBreakForLine = index;
       curLineWidth += item.width;
-    } else if (item.type === 'penalty' && item.cost < MAX_COST) {
+    } else if (item.type === "penalty" && item.cost < MAX_COST) {
       bestBreakForLine = index;
       // Note: Currently does not take into consideration hyphen width...
     }

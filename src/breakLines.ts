@@ -1,4 +1,8 @@
-import { getOptionsWithDefaults, RequireOnlyCertainKeys, TexLinebreakOptions } from 'src/options';
+import {
+  getOptionsWithDefaults,
+  RequireOnlyCertainKeys,
+  TexLinebreakOptions,
+} from "src/options";
 import {
   getLineWidth,
   getStretch,
@@ -6,11 +10,11 @@ import {
   isForcedBreak,
   penalty,
   validateItems,
-} from 'src/utils/utils';
+} from "src/utils/utils";
 
 /** An object (eg. a word) to be typeset. */
 export interface Box {
-  type: 'box';
+  type: "box";
   /** Amount of space required by this content. Must be >= 0. */
   width: number;
 
@@ -30,7 +34,7 @@ export interface Box {
  * if they immediately follow a `Box`. // TODO: Check
  */
 export interface Glue {
-  type: 'glue';
+  type: "glue";
   /** Preferred width of this space. */
   width: number;
   /**
@@ -54,7 +58,7 @@ export interface Glue {
 
 /** An explicit candidate position for breaking a line. */
 export interface Penalty {
-  type: 'penalty';
+  type: "penalty";
 
   /**
    * Amount of space required for typeset content to be added
@@ -132,8 +136,8 @@ export class MaxAdjustmentExceededError extends Error {}
  */
 export function breakLines(
   items: Item[],
-  _options: RequireOnlyCertainKeys<TexLinebreakOptions, 'lineWidth'>,
-  currentRecursionDepth = 0,
+  _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
+  currentRecursionDepth = 0
 ): number[] {
   if (items.length === 0) return [];
 
@@ -144,7 +148,7 @@ export function breakLines(
 
   const currentMaxAdjustmentRatio = Math.min(
     options.initialMaxAdjustmentRatio,
-    options.maxAdjustmentRatio !== null ? options.maxAdjustmentRatio : Infinity,
+    options.maxAdjustmentRatio !== null ? options.maxAdjustmentRatio : Infinity
   );
 
   /** A line-breaking node either represents a glue or a penalty. */
@@ -207,14 +211,14 @@ export function breakLines(
      * update `sumWidth`, `sumStretch` and `sumShrink`.
      */
     let canBreak = false;
-    if (item.type === 'box') {
+    if (item.type === "box") {
       sumWidth += item.width;
-    } else if (item.type === 'glue') {
+    } else if (item.type === "glue") {
       /**
        * Only glue that comes immediately after a
        * box is a possible breakpoint (p. 1158).
        */
-      canBreak = b > 0 && items[b - 1].type === 'box';
+      canBreak = b > 0 && items[b - 1].type === "box";
       /**
        * If the glue cannot break, we add its width
        * here since the main loop will not run.
@@ -226,7 +230,7 @@ export function breakLines(
         sumShrink += item.shrink;
         sumStretch += getStretch(item, options);
       }
-    } else if (item.type === 'penalty') {
+    } else if (item.type === "penalty") {
       canBreak = item.cost < MAX_COST;
     }
     if (!canBreak) {
@@ -256,7 +260,9 @@ export function breakLines(
          * (We start counting from a+1 unless a is the
          * first item, as then a is not a breakpoint)
          */
-        items.slice(a.index === 0 ? 0 : a.index + 1, b - 1).some((item) => item.type === 'box')
+        items
+          .slice(a.index === 0 ? 0 : a.index + 1, b - 1)
+          .some((item) => item.type === "box")
       ) {
         if (lineStretch === 0) {
           lineStretch = 0.1;
@@ -281,7 +287,7 @@ export function breakLines(
       // }
 
       /** Include width of penalty in line length if chosen as a breakpoint. */
-      if (item.type === 'penalty') {
+      if (item.type === "penalty") {
         actualLen += item.width;
       }
 
@@ -310,7 +316,7 @@ export function breakLines(
          */
         minAdjustmentRatioAboveThreshold = Math.min(
           adjustmentRatio,
-          minAdjustmentRatioAboveThreshold,
+          minAdjustmentRatioAboveThreshold
         );
       }
 
@@ -341,10 +347,12 @@ export function breakLines(
          * - Be followed by a box or breakable penalty.
          */
         // No item between `a` and `b` is a box or forced break
-        (!items.slice(a.index, b).some((i) => i.type === 'box' || isForcedBreak(i)) &&
+        (!items
+          .slice(a.index, b)
+          .some((i) => i.type === "box" || isForcedBreak(i)) &&
           !(
             b === items.length - 1 || // Is the last item
-            items[b + 1].type === 'box' || // Is followed by a box
+            items[b + 1].type === "box" || // Is followed by a box
             // Is followed by a breakable penalty
             isBreakablePenalty(items[b + 1])
           ))
@@ -353,14 +361,17 @@ export function breakLines(
         lastActive = a;
       }
 
-      if (adjustmentRatio >= MIN_ADJUSTMENT_RATIO && adjustmentRatio <= currentMaxAdjustmentRatio) {
+      if (
+        adjustmentRatio >= MIN_ADJUSTMENT_RATIO &&
+        adjustmentRatio <= currentMaxAdjustmentRatio
+      ) {
         /**
          * We found a feasible breakpoint. Compute a
          * `demerits` score for it as per formula on p. 1128.
          */
         let demerits;
         const badness = 100 * Math.abs(adjustmentRatio) ** 3;
-        const penalty = item.type === 'penalty' ? item.cost : 0;
+        const penalty = item.type === "penalty" ? item.cost : 0;
 
         if (penalty >= 0) {
           demerits = (1 + badness + penalty) ** 2;
@@ -372,7 +383,7 @@ export function breakLines(
 
         /** Double hyphen penalty */
         const prevItem = items[a.index];
-        if (item.type === 'penalty' && prevItem.type === 'penalty') {
+        if (item.type === "penalty" && prevItem.type === "penalty") {
           if (item.flagged && prevItem.flagged) {
             demerits += options.doubleHyphenPenalty;
           }
@@ -405,14 +416,14 @@ export function breakLines(
         // Todo: Verify, per https://github.com/robertknight/tex-linebreak/pull/4
         for (let bp = b === 0 ? b : b + 1; bp < items.length; bp++) {
           const item = items[bp];
-          if (item.type === 'box') {
+          if (item.type === "box") {
             break;
           }
-          if (item.type === 'penalty' && item.cost >= MAX_COST) {
+          if (item.type === "penalty" && item.cost >= MAX_COST) {
             break;
           }
           widthToNextBox += item.width;
-          if (item.type === 'glue') {
+          if (item.type === "glue") {
             shrinkToNextBox += item.shrink;
             stretchToNextBox += getStretch(item, options);
           }
@@ -461,7 +472,7 @@ export function breakLines(
             ...options,
             initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
           }),
-          currentRecursionDepth + 1,
+          currentRecursionDepth + 1
         );
       } else {
         /**
@@ -485,7 +496,7 @@ export function breakLines(
     }
 
     /** The widths of boxes and non-breakable glues were already added above */
-    if (item.type === 'glue') {
+    if (item.type === "glue") {
       sumWidth += item.width;
       sumStretch += getStretch(item, options);
       sumShrink += item.shrink;

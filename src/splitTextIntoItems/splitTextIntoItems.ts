@@ -1,12 +1,15 @@
-import LineBreaker, { Break } from 'linebreak';
-import { INFINITE_STRETCH, MAX_COST, MIN_COST } from 'src/breakLines';
-import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
-import { getBreakpointPenalty, PenaltyClasses } from 'src/splitTextIntoItems/penalty';
+import LineBreaker, { Break } from "linebreak";
+import { INFINITE_STRETCH, MAX_COST, MIN_COST } from "src/breakLines";
+import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
+import {
+  getBreakpointPenalty,
+  PenaltyClasses,
+} from "src/splitTextIntoItems/penalty";
 import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
   UnicodeLineBreakingClasses,
-} from 'src/typings/unicodeLineBreakingClasses';
-import { addHangingPunctuation } from 'src/utils/hangingPunctuation';
+} from "src/typings/unicodeLineBreakingClasses";
+import { addHangingPunctuation } from "src/utils/hangingPunctuation";
 import {
   forcedBreak,
   forciblySplitLongWords,
@@ -16,21 +19,24 @@ import {
   textBox,
   textGlue,
   TextItem,
-} from 'src/utils/utils';
+} from "src/utils/utils";
 
-export const NON_BREAKING_SPACE = '\u00A0';
-export const SOFT_HYPHEN = '\u00AD';
+export const NON_BREAKING_SPACE = "\u00A0";
+export const SOFT_HYPHEN = "\u00AD";
 
 /**
  * Characters that can stretch as glue, no matter
  * whether they are actually breakpoints or not.
  * `General_Category=Zs` are space separators
  */
-const glueCharacterRegex = new RegExp(`[ \\t\\p{General_Category=Zs}${NON_BREAKING_SPACE}]`, 'u');
+const glueCharacterRegex = new RegExp(
+  `[ \\t\\p{General_Category=Zs}${NON_BREAKING_SPACE}]`,
+  "u"
+);
 
 export type Segment = {
   text: string;
-  type: 'box' | 'glue';
+  type: "box" | "glue";
   breakpoint?: BreakpointInformation;
 };
 export type BreakpointInformation = {
@@ -48,15 +54,15 @@ export const splitTextIntoItems = (
    * When splitting text inside HTML elements,
    * the text that surrounds it matters
    */
-  precedingText: string = '',
-  followingText: string = '',
+  precedingText: string = "",
+  followingText: string = ""
 ): TextItem[] => {
   options = getOptionsWithDefaults(options);
 
   let items: TextItem[] = [];
 
-  precedingText = ''; //precedingText.slice(-3);
-  followingText = ''; //followingText.slice(0, 3);
+  precedingText = ""; //precedingText.slice(-3);
+  followingText = ""; //followingText.slice(0, 3);
   const inputWithSurroundingText = precedingText + input + followingText;
   const breakpoints: Record<number, BreakpointInformation> =
     getAllowableUnicodeBreakpoints(inputWithSurroundingText);
@@ -80,16 +86,18 @@ export const splitTextIntoItems = (
       breakpoints[indexInInputWithSurroundingText + 1];
     /** Newline characters are just glue in HTML */
     const isGlue =
-      glueCharacterRegex.test(char) || (options.collapseNewlines && breakpoint?.required);
-    let type: Segment['type'] = isGlue ? 'glue' : 'box';
+      glueCharacterRegex.test(char) ||
+      (options.collapseNewlines && breakpoint?.required);
+    let type: Segment["type"] = isGlue ? "glue" : "box";
 
     if (
       segments.length === 0 ||
       segments.at(-1)!.type !== type ||
-      (segments.at(-1)!.type === 'box' && segments.at(-1)!.breakpoint) ||
-      (segments.at(-1)!.type === 'glue' && segments.at(-1)!.breakpoint?.required)
+      (segments.at(-1)!.type === "box" && segments.at(-1)!.breakpoint) ||
+      (segments.at(-1)!.type === "glue" &&
+        segments.at(-1)!.breakpoint?.required)
     ) {
-      segments.push({ text: '', type });
+      segments.push({ text: "", type });
     }
     segments.at(-1)!.text += char;
 
@@ -122,7 +130,7 @@ export const splitTextIntoItems = (
 
   segments.forEach((segment, index) => {
     /** First we add the box. */
-    if (segment.type === 'box') {
+    if (segment.type === "box") {
       items.push(...textBox(segment.text, options));
     }
 
@@ -132,7 +140,7 @@ export const splitTextIntoItems = (
      */
     let remainingItems: TextItem[] = [];
 
-    if (segment.type === 'glue') {
+    if (segment.type === "glue") {
       /**
        * Non-breaking spaces and normal spaces that
        * cannot be broken, e.g. spaces before slashes.
@@ -149,9 +157,12 @@ export const splitTextIntoItems = (
       if (options.addParagraphEnd && isLastSegment) cost = MIN_COST;
 
       /** Paragraph-final infinite glue */
-      if (cost === PenaltyClasses.MandatoryBreak || (options.addParagraphEnd && isLastSegment)) {
+      if (
+        cost === PenaltyClasses.MandatoryBreak ||
+        (options.addParagraphEnd && isLastSegment)
+      ) {
         if (options.addInfiniteGlueToFinalLine) {
-          remainingItems.push(glue(0, INFINITE_STRETCH, 0, ''));
+          remainingItems.push(glue(0, INFINITE_STRETCH, 0, ""));
         }
         remainingItems.push(forcedBreak());
       } else {
@@ -159,7 +170,7 @@ export const splitTextIntoItems = (
         if (
           // Ignore zero-cost penalty before glue, since
           // glues already have a zero-cost penalty
-          !(items.at(-1)!.type === 'glue' && cost === 0 && cost != null) &&
+          !(items.at(-1)!.type === "glue" && cost === 0 && cost != null) &&
           segment.breakpoint?.lastLetter !== SOFT_HYPHEN
         ) {
           /** Soft hyphens. */
@@ -190,14 +201,21 @@ export const splitTextIntoItems = (
  * Returns breakpoints and their Unicode breakpoint letter classification.
  */
 export const getAllowableUnicodeBreakpoints = (
-  input: string,
+  input: string
 ): Record<number, BreakpointInformation> => {
   const lineBreaker = new LineBreaker(input);
   let currentBreak: Break;
-  let positionToBreakpointInformation: Record<number, BreakpointInformation> = {};
+  let positionToBreakpointInformation: Record<number, BreakpointInformation> =
+    {};
   while ((currentBreak = lineBreaker.nextBreak())) {
-    const lastLetterClass = getUnicodeLineBreakingClassOfLetterAt(input, currentBreak.position - 1);
-    const nextLetterClass = getUnicodeLineBreakingClassOfLetterAt(input, currentBreak.position);
+    const lastLetterClass = getUnicodeLineBreakingClassOfLetterAt(
+      input,
+      currentBreak.position - 1
+    );
+    const nextLetterClass = getUnicodeLineBreakingClassOfLetterAt(
+      input,
+      currentBreak.position
+    );
     positionToBreakpointInformation[currentBreak.position] = {
       position: currentBreak.position,
       required: currentBreak.required,
@@ -215,7 +233,7 @@ export const getAllowableUnicodeBreakpoints = (
  */
 export const getUnicodeLineBreakingClassOfLetterAt = (
   input: string,
-  position: number,
+  position: number
 ): UnicodeLineBreakingClasses => {
   const j = new LineBreaker(input);
   j.pos = position;

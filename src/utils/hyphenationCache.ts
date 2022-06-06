@@ -1,11 +1,11 @@
-import { TexLinebreakOptions } from 'src/options';
+import { TexLinebreakOptions } from "src/options";
 
 const cache: Map<string, string[]> = new Map();
 
 /** (Todo: Make case-insensitive) */
 export const getHyphenateFnCached = (
-  hyphenateFn: TexLinebreakOptions['hyphenateFn'],
-): TexLinebreakOptions['hyphenateFn'] => {
+  hyphenateFn: TexLinebreakOptions["hyphenateFn"]
+): TexLinebreakOptions["hyphenateFn"] => {
   return function (input: string): string[] {
     if (input.length <= 1) return [input];
     const cached = cache.get(input);

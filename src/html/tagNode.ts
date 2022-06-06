@@ -1,23 +1,17 @@
-export const NODE_TAG = 'insertedByTexLinebreak';
+export const NODE_TAG = "insertedByTexLinebreak";
 
-/**
- * Mark a node as having been created by `justifyContent`.
- */
+/** Mark a node as having been created by `justifyContent`. */
 export function tagNode<T extends Node>(node: T): T {
   (node as any)[NODE_TAG] = true;
   return node;
 }
 
-/**
- * Return `true` if `node` was created by `justifyContent`.
- */
+/** Return `true` if `node` was created by `justifyContent`. */
 export function isTaggedNode(node: Node) {
   return node.hasOwnProperty(NODE_TAG);
 }
 
-/**
- * Return all descendants of `node` created by `justifyContent`.
- */
+/** Return all descendants of `node` created by `justifyContent`. */
 export function getTaggedChildren(node: Node): Node[] {
   const children = [];
   for (let i = 0; i < node.childNodes.length; i++) {

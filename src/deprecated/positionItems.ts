@@ -1,6 +1,11 @@
-import { breakLines, Item, MaxAdjustmentExceededError, MIN_ADJUSTMENT_RATIO } from 'src/breakLines';
-import { layoutItemsFromString } from 'src/deprecated/layoutItemsFromString';
-import { TextItem } from 'src/utils/utils';
+import {
+  breakLines,
+  Item,
+  MaxAdjustmentExceededError,
+  MIN_ADJUSTMENT_RATIO,
+} from "src/breakLines";
+import { layoutItemsFromString } from "src/deprecated/layoutItemsFromString";
+import { TextItem } from "src/utils/utils";
 
 export interface PositionedItem {
   /** Index of the item. */
@@ -35,7 +40,7 @@ export function positionItems(
   items: Item[],
   lineWidths: number | number[],
   breakpoints: number[],
-  options: PositionOptions = {},
+  options: PositionOptions = {}
 ): PositionedItem[] {
   const adjRatios = adjustmentRatios(items, lineWidths, breakpoints);
   const result: PositionedItem[] = [];
@@ -49,7 +54,7 @@ export function positionItems(
 
     for (let p = start; p <= breakpoints[b + 1]; p++) {
       const item = items[p];
-      if (item.type === 'box') {
+      if (item.type === "box") {
         result.push({
           item: p,
           line: b,
@@ -57,7 +62,11 @@ export function positionItems(
           width: item.width,
         });
         xOffset += item.width;
-      } else if (item.type === 'glue' && p !== start && p !== breakpoints[b + 1]) {
+      } else if (
+        item.type === "glue" &&
+        p !== start &&
+        p !== breakpoints[b + 1]
+      ) {
         let gap;
         if (adjustmentRatio < 0) {
           gap = item.width + adjustmentRatio * item.shrink;
@@ -73,7 +82,11 @@ export function positionItems(
           });
         }
         xOffset += gap;
-      } else if (item.type === 'penalty' && p === breakpoints[b + 1] && item.width > 0) {
+      } else if (
+        item.type === "penalty" &&
+        p === breakpoints[b + 1] &&
+        item.width > 0
+      ) {
         result.push({
           item: p,
           line: b,
@@ -102,7 +115,7 @@ export function positionText(
   text: string,
   lineWidth: number | number[],
   measure: (word: string) => number,
-  hyphenate: (word: string) => string[],
+  hyphenate: (word: string) => string[]
 ) {
   let items: TextItem[];
   let breakpoints;
@@ -145,9 +158,10 @@ export const layoutText = positionText;
 export function adjustmentRatios(
   items: Item[],
   lineWidths: number | number[],
-  breakpoints: number[],
+  breakpoints: number[]
 ) {
-  const lineLen = (i: number) => (Array.isArray(lineWidths) ? lineWidths[i] : lineWidths);
+  const lineLen = (i: number) =>
+    Array.isArray(lineWidths) ? lineWidths[i] : lineWidths;
   const ratios = [];
 
   for (let b = 0; b < breakpoints.length - 1; b++) {
@@ -159,13 +173,17 @@ export function adjustmentRatios(
     const start = b === 0 ? breakpoints[b] : breakpoints[b] + 1;
     for (let p = start; p <= breakpoints[b + 1]; p++) {
       const item = items[p];
-      if (item.type === 'box') {
+      if (item.type === "box") {
         actualWidth += item.width;
-      } else if (item.type === 'glue' && p !== start && p !== breakpoints[b + 1]) {
+      } else if (
+        item.type === "glue" &&
+        p !== start &&
+        p !== breakpoints[b + 1]
+      ) {
         actualWidth += item.width;
         lineShrink += item.shrink;
         lineStretch += item.stretch;
-      } else if (item.type === 'penalty' && p === breakpoints[b + 1]) {
+      } else if (item.type === "penalty" && p === breakpoints[b + 1]) {
         actualWidth += item.width;
       }
     }

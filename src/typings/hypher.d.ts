@@ -1,4 +1,4 @@
-declare module 'hypher' {
+declare module "hypher" {
   export interface Patterns {
     id: string;
     leftmin: number;
@@ -16,8 +16,8 @@ declare module 'hypher' {
   }
 }
 
-declare module 'hyphenation.en-us' {
-  import { Patterns } from 'hypher';
+declare module "hyphenation.en-us" {
+  import { Patterns } from "hypher";
   let p: Patterns;
   export default p;
 }

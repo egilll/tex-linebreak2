@@ -7,7 +7,10 @@
  *
  * @deprecated As this function is not currently in use
  */
-export function textNodesInRange(range: Range, filter?: (n: Node) => boolean): Text[] {
+export function textNodesInRange(
+  range: Range,
+  filter?: (n: Node) => boolean
+): Text[] {
   const root = range.commonAncestorContainer;
   const nodeIter = root.ownerDocument!.createTreeWalker(
     root,
@@ -23,7 +26,7 @@ export function textNodesInRange(range: Range, filter?: (n: Node) => boolean): T
     },
 
     // @ts-expect-error - Extra argument for IE 11 / Legacy Edge
-    false /* expandEntityReferences */,
+    false /* expandEntityReferences */
   );
 
   let currentNode: Node | null = nodeIter.currentNode;

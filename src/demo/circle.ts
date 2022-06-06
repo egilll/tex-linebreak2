@@ -1,12 +1,12 @@
-import enUsPatterns from 'hyphenation.en-us';
-import Hypher from 'hypher';
-import { texts } from 'src/demo/texts/texts';
-import { texLinebreakDOM } from 'src/html';
+import enUsPatterns from "hyphenation.en-us";
+import Hypher from "hypher";
+import { texts } from "src/demo/texts/texts";
+import { texLinebreakDOM } from "src/html";
 
 const text = new Hypher(enUsPatterns).hyphenateText(texts[0]);
 // const text = texts[0];
 
-const outputElement = document.getElementById('demo-output')! as HTMLElement;
+const outputElement = document.getElementById("demo-output")! as HTMLElement;
 outputElement.innerHTML = text;
 // outputElement.style.textAlign = 'center';
 // outputElement.style.fontStyle = 'italic';

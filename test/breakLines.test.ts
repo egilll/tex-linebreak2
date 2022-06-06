@@ -1,16 +1,16 @@
-import { breakLines, Item } from 'src/breakLines';
-import { texLinebreakMonospace } from 'src/utils/monospace';
-import { box, forcedBreak, glue } from 'src/utils/utils';
-import { XorShift } from 'xorshift';
+import { breakLines, Item } from "src/breakLines";
+import { texLinebreakMonospace } from "src/utils/monospace";
+import { box, forcedBreak, glue } from "src/utils/utils";
+import { XorShift } from "xorshift";
 
-describe('layout', () => {
-  describe('breakLines', () => {
-    it('returns an empty list if the input is empty', () => {
+describe("layout", () => {
+  describe("breakLines", () => {
+    it("returns an empty list if the input is empty", () => {
       const breakpoints = breakLines([], { lineWidth: 100 });
       expect(breakpoints).toEqual([]);
     });
 
-    it('generates expected layout', () => {
+    it("generates expected layout", () => {
       const input = `The Boat Races 2017 (also known as The Cancer Research UK Boat Races for the purposes of sponsorship) took place on 2 April 2017. Held annually, the Boat Race is a side-by-side rowing race between crews from the universities of Oxford and Cambridge along a 4.2-mile (6.8 km) tidal stretch of the River Thames in south-west London. For the second time in the history of the event, the men's, women's and both reserves' races were all held on the Tideway on the same day.`;
 
       const t = texLinebreakMonospace(input, {
@@ -19,18 +19,18 @@ describe('layout', () => {
       });
 
       expect(t.plainTextLines).toEqual([
-        'The Boat Races 2017 (also known as The',
-        'Cancer Research UK Boat Races for the',
-        'purposes of sponsorship) took place on 2',
-        'April 2017. Held annually, the Boat Race',
-        'is a side-by-side rowing race between',
-        'crews from the universities of Oxford',
-        'and Cambridge along a 4.2-mile (6.8 km)',
-        'tidal stretch of the River Thames in',
-        'south-west London. For the second time',
+        "The Boat Races 2017 (also known as The",
+        "Cancer Research UK Boat Races for the",
+        "purposes of sponsorship) took place on 2",
+        "April 2017. Held annually, the Boat Race",
+        "is a side-by-side rowing race between",
+        "crews from the universities of Oxford",
+        "and Cambridge along a 4.2-mile (6.8 km)",
+        "tidal stretch of the River Thames in",
+        "south-west London. For the second time",
         "in the history of the event, the men's,",
         "women's and both reserves' races were",
-        'all held on the Tideway on the same day.',
+        "all held on the Tideway on the same day.",
       ]);
 
       // Check that adjustment ratios for each line are in range.
@@ -47,7 +47,7 @@ describe('layout', () => {
     //   expect(breakpoints).toEqual([0, 9, 18]);
     // });
 
-    it('succeeds when min adjustment ratio is exceeded', () => {
+    it("succeeds when min adjustment ratio is exceeded", () => {
       // Lay out input into a line with a width (5) of less than the box width
       // (10).
       // We'll give up and make lines which exceed the specified length.
@@ -63,20 +63,26 @@ describe('layout', () => {
       expect(breakpoints).toEqual([0, /*1,*/ 3, 5, 7, 9, 10]);
     });
 
-    it('handles glue with zero stretch', () => {
+    it("handles glue with zero stretch", () => {
       const items = [box(10), glue(5, 0, 0), box(10), forcedBreak()];
       const breakpoints = breakLines(items, { lineWidth: 50 });
       expect(breakpoints).toEqual([0, 3]);
     });
 
-    it('handles glue with zero shrink', () => {
+    it("handles glue with zero shrink", () => {
       const items = [box(10), glue(5, 0, 0), box(10), forcedBreak()];
       const breakpoints = breakLines(items, { lineWidth: 21 });
       expect(breakpoints).toEqual([0, 3]);
     });
 
-    it('handles boxes that are wider than the line width', () => {
-      const items = [box(5), glue(5, 10, 10), box(100), glue(5, 10, 10), forcedBreak()];
+    it("handles boxes that are wider than the line width", () => {
+      const items = [
+        box(5),
+        glue(5, 10, 10),
+        box(100),
+        glue(5, 10, 10),
+        forcedBreak(),
+      ];
       const breakpoints = breakLines(items, { lineWidth: 50 });
       expect(breakpoints).toEqual([0, 3, 4]);
     });
@@ -93,7 +99,9 @@ describe('layout', () => {
         expectedBreakpoints: [0, 3],
       },
     ].forEach(({ items, lineWidth, expectedBreakpoints }, i) => {
-      it(`succeeds when initial max adjustment ratio is exceeded (${i + 1})`, () => {
+      it(`succeeds when initial max adjustment ratio is exceeded (${
+        i + 1
+      })`, () => {
         // Lay out input into a line which would need to stretch more than
         // `glue.width + maxAdjustmentRatio * glue.stretch` in order to fit.
         //
@@ -101,7 +109,10 @@ describe('layout', () => {
         // we followed TeX's solution (see Knuth-Plass p.1162) then we would first
         // retry with the same threshold after applying hyphenation to break
         // existing boxes and then only after that retry with a higher threshold.
-        const breakpoints = breakLines(items, { lineWidth, initialMaxAdjustmentRatio: 1 });
+        const breakpoints = breakLines(items, {
+          lineWidth,
+          initialMaxAdjustmentRatio: 1,
+        });
         expect(breakpoints).toEqual(expectedBreakpoints);
       });
     });
@@ -130,7 +141,7 @@ describe('layout', () => {
     //   ).toEqual(['one two', 'longword one', 'longword']);
     // });
 
-    it('applies a penalty when adjacent lines have different tightness', () => {
+    it("applies a penalty when adjacent lines have different tightness", () => {
       // Getting this test case to produce different output with and without the
       // penalty applied required ~~lots of fiddling~~ highly scientific
       // adjustments.
@@ -142,8 +153,8 @@ describe('layout', () => {
       const wordSoup = (length: number) => {
         let result: Item[] = [];
         while (result.length < length) {
-          result.push({ type: 'box', width: prng.random() * 20 });
-          result.push({ type: 'glue', width: 6, shrink: 3, stretch: 5 });
+          result.push({ type: "box", width: prng.random() * 20 });
+          result.push({ type: "glue", width: 6, shrink: 3, stretch: 5 });
         }
         return result;
       };
@@ -151,22 +162,28 @@ describe('layout', () => {
       const lineWidth = 50;
 
       // Break lines without contrasting tightness penalty.
-      let breakpointsA = breakLines(items, { lineWidth, adjacentLooseTightPenalty: 0 });
+      let breakpointsA = breakLines(items, {
+        lineWidth,
+        adjacentLooseTightPenalty: 0,
+      });
 
       // Break lines with contrasting tightness penalty.
-      let breakpointsB = breakLines(items, { lineWidth, adjacentLooseTightPenalty: 10000 });
+      let breakpointsB = breakLines(items, {
+        lineWidth,
+        adjacentLooseTightPenalty: 10000,
+      });
 
       expect(breakpointsA).not.toEqual(breakpointsB);
     });
 
-    it('throws `MaxAdjustmentExceededError` if max adjustment ratio is exceeded', () => {
+    it("throws `MaxAdjustmentExceededError` if max adjustment ratio is exceeded", () => {
       const items = [box(10), glue(5, 10, 10), box(10), forcedBreak()];
       const opts = { maxAdjustmentRatio: 1 };
       expect(() => breakLines(items, { lineWidth: 100, ...opts })).toThrow();
     });
   });
 
-  describe('positionItems', () => {
+  describe("positionItems", () => {
     // it('lays out items with justified margins', () => {
     //   const items = [
     //     box(10),

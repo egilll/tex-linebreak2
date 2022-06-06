@@ -1,7 +1,10 @@
-import { MAX_COST, MIN_COST } from 'src/breakLines';
-import { TexLinebreakOptions } from 'src/options';
-import { BreakpointInformation, SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
-import { UnicodeLineBreakingClasses } from 'src/typings/unicodeLineBreakingClasses';
+import { MAX_COST, MIN_COST } from "src/breakLines";
+import { TexLinebreakOptions } from "src/options";
+import {
+  BreakpointInformation,
+  SOFT_HYPHEN,
+} from "src/splitTextIntoItems/splitTextIntoItems";
+import { UnicodeLineBreakingClasses } from "src/typings/unicodeLineBreakingClasses";
 
 export enum PenaltyClasses {
   MandatoryBreak = MIN_COST,
@@ -16,7 +19,7 @@ export enum PenaltyClasses {
 
 export const getBreakpointPenalty = (
   breakpoint: BreakpointInformation,
-  options: TexLinebreakOptions,
+  options: TexLinebreakOptions
 ): number => {
   const { lastLetter, lastLetterClass, nextLetterClass } = breakpoint;
 
@@ -29,9 +32,10 @@ export const getBreakpointPenalty = (
     // Space
     lastLetterClass === UnicodeLineBreakingClasses.Space ||
     // Tab
-    lastLetter === '\t' ||
+    lastLetter === "\t" ||
     // Other breaking spaces
-    (UnicodeLineBreakingClasses.BreakAfter && lastLetter.match(/\p{General_Category=Zs}/gu)) ||
+    (UnicodeLineBreakingClasses.BreakAfter &&
+      lastLetter.match(/\p{General_Category=Zs}/gu)) ||
     // Zero width space
     lastLetterClass === UnicodeLineBreakingClasses.ZeroWidthSpace
   ) {
@@ -79,7 +83,9 @@ export const getBreakpointPenalty = (
   }
 
   // Slashes
-  else if (lastLetterClass === UnicodeLineBreakingClasses.SymbolAllowingBreakAfter) {
+  else if (
+    lastLetterClass === UnicodeLineBreakingClasses.SymbolAllowingBreakAfter
+  ) {
     /**
      * Todo:
      * "The recommendation in this case is for the layout system
@@ -97,5 +103,5 @@ export const getBreakpointPenalty = (
 };
 
 export const penaltyLowerIfFarAwayFromBreakingPoint = () => {
-  throw new Error('Not implemented');
+  throw new Error("Not implemented");
 };

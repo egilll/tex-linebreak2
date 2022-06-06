@@ -1,5 +1,5 @@
-import { LineWidth } from 'src/html/lineWidth';
-import { getHyphenateFnCached } from 'src/utils/hyphenationCache';
+import { LineWidth } from "src/html/lineWidth";
+import { getHyphenateFnCached } from "src/utils/hyphenationCache";
 
 export class TexLinebreakOptions {
   /**
@@ -45,12 +45,13 @@ export class TexLinebreakOptions {
    * - `greedy` will break greedily instead of using TeX's line breaking
    *   algorithm.
    */
-  lineBreakingType: 'normal' | 'findOptimalWidth' | 'compact' | 'greedy' = 'normal';
+  lineBreakingType: "normal" | "findOptimalWidth" | "compact" | "greedy" =
+    "normal";
 
   /** @deprecated */
   justify: boolean = true;
 
-  align: 'justify' | 'left' | 'right' | 'center' = 'justify';
+  align: "justify" | "left" | "right" | "center" = "justify";
 
   hangingPunctuation: boolean = true;
 
@@ -255,10 +256,10 @@ export class TexLinebreakOptions {
    * @default 'HTML_UNCOPYABLE_HYPHEN' for websites, 'HYPHEN' for plain text.
    */
   softHyphenOutput:
-    | 'HTML_UNCOPYABLE_HYPHEN'
-    | 'HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN'
-    | 'HYPHEN'
-    | 'SOFT_HYPHEN' = 'HTML_UNCOPYABLE_HYPHEN';
+    | "HTML_UNCOPYABLE_HYPHEN"
+    | "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN"
+    | "HYPHEN"
+    | "SOFT_HYPHEN" = "HTML_UNCOPYABLE_HYPHEN";
 
   /**
    * How many spaces should be allowed at the end of a
@@ -266,7 +267,7 @@ export class TexLinebreakOptions {
    */
   lineFinalSpacesInNonJustified: number = 3;
 
-  leftIndentPerLine?: TexLinebreakOptions['lineWidth'];
+  leftIndentPerLine?: TexLinebreakOptions["lineWidth"];
 
   /** Whether to cache the output of the `hyphenateFn` globally. */
   cacheHyphenation: boolean = true;
@@ -288,7 +289,7 @@ export class TexLinebreakOptions {
 }
 
 export const getOptionsWithDefaults = (
-  options: Partial<TexLinebreakOptions>,
+  options: Partial<TexLinebreakOptions>
 ): TexLinebreakOptions => {
   if (options instanceof TexLinebreakOptions) {
     return options;
@@ -307,5 +308,7 @@ export const getOptionsWithDefaults = (
 };
 
 export type RequireCertainKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
-export type RequireOnlyCertainKeys<T, K extends keyof T> = Partial<T> & Required<Pick<T, K>>;
-export type OptionalCertainKeys<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+export type RequireOnlyCertainKeys<T, K extends keyof T> = Partial<T> &
+  Required<Pick<T, K>>;
+export type OptionalCertainKeys<T, K extends keyof T> = Omit<T, K> &
+  Partial<Pick<T, K>>;

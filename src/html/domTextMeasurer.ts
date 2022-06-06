@@ -58,16 +58,17 @@ let measureCtx: CanvasRenderingContext2D;
  */
 function measureText(cssFont: string, text: string) {
   if (!measureCtx) {
-    const canvas = document.createElement('canvas');
-    measureCtx = canvas.getContext('2d')!;
+    const canvas = document.createElement("canvas");
+    measureCtx = canvas.getContext("2d")!;
   }
 
   /**
-   * Capture as much of the style as possible. Note that some properties such as `font-stretch`,
-   * `font-size-adjust` and `font-kerning` are not settable through the CSS `font` property.
+   * Capture as much of the style as possible. Note that some
+   * properties such as `font-stretch`, `font-size-adjust` and
+   * `font-kerning` are not settable through the CSS `font` property.
    *
-   * Apparently in some browsers the canvas context's text style inherits style properties from
-   * the `<canvas>` element.
+   * Apparently in some browsers the canvas context's text style
+   * inherits style properties from the `<canvas>` element.
    * See https://stackoverflow.com/a/8955835/434243
    */
   measureCtx.font = cssFont;

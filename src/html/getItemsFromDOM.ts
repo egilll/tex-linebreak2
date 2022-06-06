@@ -1,8 +1,15 @@
-import { Box, Glue, INFINITE_STRETCH, Penalty } from 'src/breakLines';
-import { TexLinebreakOptions } from 'src/options';
-import { splitTextIntoItems } from 'src/splitTextIntoItems/splitTextIntoItems';
-import { normalizeItems } from 'src/utils/normalize';
-import { box, forcedBreak, glue, TextBox, TextGlue, TextItem } from 'src/utils/utils';
+import { Box, Glue, INFINITE_STRETCH, Penalty } from "src/breakLines";
+import { TexLinebreakOptions } from "src/options";
+import { splitTextIntoItems } from "src/splitTextIntoItems/splitTextIntoItems";
+import { normalizeItems } from "src/utils/normalize";
+import {
+  box,
+  forcedBreak,
+  glue,
+  TextBox,
+  TextGlue,
+  TextItem,
+} from "src/utils/utils";
 
 /**
  * Information used to construct a `Range` later.
@@ -27,10 +34,10 @@ export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 export function getItemsFromDOM(
   paragraphElement: HTMLElement,
   options: TexLinebreakOptions,
-  domTextMeasureFn: (text: string, context: Element) => number,
+  domTextMeasureFn: (text: string, context: Element) => number
 ): DOMItem[] {
   let items: DOMItem[] = [];
-  let paragraphText = paragraphElement.textContent || '';
+  let paragraphText = paragraphElement.textContent || "";
   /**
    * This is done since we need to be aware of the
    * surrounding text in order to find correct break points.
@@ -45,7 +52,7 @@ export function getItemsFromDOM(
     item: Box | Glue | Penalty,
     startContainer: Node,
     startOffset: number,
-    endOffset: number,
+    endOffset: number
   ) {
     items.push({
       ...item,
@@ -78,7 +85,12 @@ export function getItemsFromDOM(
          * Add a synthetic glue that absorbs any
          * left-over space at the end of the last line.
          */
-        addItemWithOffset(glue(0, INFINITE_STRETCH, 0), node, endOffset, endOffset);
+        addItemWithOffset(
+          glue(0, INFINITE_STRETCH, 0),
+          node,
+          endOffset,
+          endOffset
+        );
       }
 
       /** Add a forced break to end the paragraph. */
@@ -86,7 +98,11 @@ export function getItemsFromDOM(
     }
   }
 
-  function getItemsFromElement(element: Element, parentNode: Node, startOffset: number) {
+  function getItemsFromElement(
+    element: Element,
+    parentNode: Node,
+    startOffset: number
+  ) {
     const {
       display,
       width,
@@ -98,10 +114,12 @@ export function getItemsFromDOM(
       borderRightWidth,
     } = getComputedStyle(element);
 
-    if (display === 'inline') {
+    if (display === "inline") {
       // Add box for margin/border/padding at start of box.
       const leftMargin =
-        parseFloat(marginLeft!) + parseFloat(borderLeftWidth!) + parseFloat(paddingLeft!);
+        parseFloat(marginLeft!) +
+        parseFloat(borderLeftWidth!) +
+        parseFloat(paddingLeft!);
       if (leftMargin > 0) {
         addItemWithOffset(box(leftMargin), element, 0, 0);
       }
@@ -111,7 +129,9 @@ export function getItemsFromDOM(
 
       // Add box for margin/border/padding at end of box.
       const rightMargin =
-        parseFloat(marginRight!) + parseFloat(borderRightWidth!) + parseFloat(paddingRight!);
+        parseFloat(marginRight!) +
+        parseFloat(borderRightWidth!) +
+        parseFloat(paddingRight!);
       if (rightMargin > 0) {
         const length = element.childNodes.length;
         addItemWithOffset(box(rightMargin), element, length, length);
@@ -128,7 +148,9 @@ export function getItemsFromDOM(
     const element = textNode.parentNode! as Element;
 
     const precedingText = paragraphText.slice(0, textOffsetInParagraph);
-    const followingText = paragraphText.slice(textOffsetInParagraph + text.length);
+    const followingText = paragraphText.slice(
+      textOffsetInParagraph + text.length
+    );
 
     let textOffsetInThisNode = 0;
     const textItems = splitTextIntoItems(
@@ -140,12 +162,12 @@ export function getItemsFromDOM(
         collapseNewlines: true,
       },
       precedingText,
-      followingText,
+      followingText
     );
 
     textItems.forEach((item: TextItem) => {
       const startOffset = textOffsetInThisNode;
-      textOffsetInThisNode += (('text' in item && item.text) || '').length;
+      textOffsetInThisNode += (("text" in item && item.text) || "").length;
       addItemWithOffset(item, textNode, startOffset, textOffsetInThisNode);
     });
 

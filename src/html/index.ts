@@ -1,13 +1,13 @@
-import { visualizeBoxesForDebugging } from 'src/html/debugging';
-import DOMTextMeasurer from 'src/html/domTextMeasurer';
-import { DOMItem, getItemsFromDOM } from 'src/html/getItemsFromDOM';
-import { getFloatingElements } from 'src/html/htmlUtils';
-import { getElementLineWidth } from 'src/html/lineWidth';
-import { listenForWindowResize } from 'src/html/listener';
-import { getTaggedChildren, tagNode } from 'src/html/tagNode';
-import { TexLinebreak } from 'src/index';
-import { getOptionsWithDefaults, TexLinebreakOptions } from 'src/options';
-import { SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
+import { visualizeBoxesForDebugging } from "src/html/debugging";
+import DOMTextMeasurer from "src/html/domTextMeasurer";
+import { DOMItem, getItemsFromDOM } from "src/html/getItemsFromDOM";
+import { getFloatingElements } from "src/html/htmlUtils";
+import { getElementLineWidth } from "src/html/lineWidth";
+import { listenForWindowResize } from "src/html/listener";
+import { getTaggedChildren, tagNode } from "src/html/tagNode";
+import { TexLinebreak } from "src/index";
+import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
+import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
 
 /**
  * Break the lines of HTML elements.
@@ -17,12 +17,15 @@ import { SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
 export function texLinebreakDOM(
   _elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
   _options: Partial<TexLinebreakOptions>,
-  debug = false,
+  debug = false
 ) {
-  const options = getOptionsWithDefaults({ ..._options, collapseNewlines: true });
+  const options = getOptionsWithDefaults({
+    ..._options,
+    collapseNewlines: true,
+  });
 
   let elements: HTMLElement[];
-  if (typeof _elements === 'string') {
+  if (typeof _elements === "string") {
     elements = Array.from(document.querySelectorAll(_elements));
   } else if (_elements instanceof NodeList) {
     elements = Array.from(_elements);
@@ -39,11 +42,16 @@ export function texLinebreakDOM(
     /** Undo the changes made by any previous justification of this content. */
     resetDOMJustification(element);
     try {
-      const lineWidth = options.lineWidth || getElementLineWidth(element, floatingElements);
-      const items = getItemsFromDOM(element, { ...options, lineWidth }, domTextMeasureFn);
+      const lineWidth =
+        options.lineWidth || getElementLineWidth(element, floatingElements);
+      const items = getItemsFromDOM(
+        element,
+        { ...options, lineWidth },
+        domTextMeasureFn
+      );
 
       /** Disable automatic line wrap. */
-      element.style.whiteSpace = 'nowrap';
+      element.style.whiteSpace = "nowrap";
 
       const lines = new TexLinebreak<DOMItem>(items, {
         ...options,
@@ -66,14 +74,14 @@ export function texLinebreakDOM(
           const items = line.positionedItems;
           const itemRanges = items.map(getRangeOfItem);
 
-          const firstBoxInLine = items.find((item) => item.type === 'box');
+          const firstBoxInLine = items.find((item) => item.type === "box");
           const lastBoxInLine = items
             .slice()
             .reverse()
-            .find((item) => item.type === 'box');
+            .find((item) => item.type === "box");
           if (!firstBoxInLine || !lastBoxInLine) {
             console.log({ items_in_line: line.items });
-            console.warn('Line has no box');
+            console.warn("Line has no box");
             return;
           }
           const firstBoxRange = getRangeOfItem(firstBoxInLine);
@@ -94,22 +102,22 @@ export function texLinebreakDOM(
             const itemRange = itemRanges[index];
 
             /** Add spacing to glue */
-            if (item.type === 'glue') {
-              const span = tagNode(document.createElement('span'));
+            if (item.type === "glue") {
+              const span = tagNode(document.createElement("span"));
               /**
                * A glue cannot be `inline-block` since that messes with the
                * formatting of links (each word gets its own underline)
                */
               span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
               itemRange.surroundContents(span);
-            } else if (item.type === 'box') {
+            } else if (item.type === "box") {
               /**
                * If xOffset is not curXOffset, that means that a
                * previous box has had a negative width. Here we wrap the
                * text in a span with a (likely negative) left margin
                */
               if (item.xOffset !== curXOffset) {
-                const span = tagNode(document.createElement('span'));
+                const span = tagNode(document.createElement("span"));
                 span.style.marginLeft = `${item.xOffset - curXOffset}px`;
                 itemRange.insertNode(span);
                 curXOffset = item.xOffset;
@@ -128,36 +136,40 @@ export function texLinebreakDOM(
 
           /** Insert <br/> elements to separate the lines */
           if (line.lineIndex > 0) {
-            firstBoxRange.insertNode(tagNode(document.createElement('br')));
+            firstBoxRange.insertNode(tagNode(document.createElement("br")));
           }
 
           /** Add soft hyphens */
           if (line.endsWithSoftHyphen && lastBoxRange) {
-            const wrapperAroundFinalBox = tagNode(document.createElement('span'));
+            const wrapperAroundFinalBox = tagNode(
+              document.createElement("span")
+            );
             lastBoxRange.surroundContents(wrapperAroundFinalBox);
 
             let hyphen: HTMLElement | Text;
-            let hyphenText = '-';
-            if (options.softHyphenOutput === 'HTML_UNCOPYABLE_HYPHEN') {
-              hyphenText = '';
+            let hyphenText = "-";
+            if (options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN") {
+              hyphenText = "";
             } else if (
-              options.softHyphenOutput === 'HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN' ||
-              options.softHyphenOutput === 'SOFT_HYPHEN'
+              options.softHyphenOutput ===
+                "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN" ||
+              options.softHyphenOutput === "SOFT_HYPHEN"
             ) {
               hyphenText = SOFT_HYPHEN;
             }
 
             if (
-              options.softHyphenOutput === 'HTML_UNCOPYABLE_HYPHEN' ||
-              options.softHyphenOutput === 'HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN'
+              options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN" ||
+              options.softHyphenOutput ===
+                "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN"
             ) {
               /**
                * Create a wrapper element that displays the
                * hyphen as an uncopiable CSS pseudo-element
                */
-              hyphen = tagNode(document.createElement('span'));
+              hyphen = tagNode(document.createElement("span"));
               hyphen.appendChild(tagNode(document.createTextNode(hyphenText)));
-              hyphen.dataset.uncopiableText = '-';
+              hyphen.dataset.uncopiableText = "-";
             } else {
               hyphen = tagNode(document.createTextNode(hyphenText));
             }
@@ -182,16 +194,17 @@ export function texLinebreakDOM(
 
   /** Add CSS to handle uncopiable hyphens */
   if (
-    options.softHyphenOutput === 'HTML_UNCOPYABLE_HYPHEN' ||
-    options.softHyphenOutput === 'HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN'
+    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN" ||
+    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN"
   ) {
     if (
-      document.querySelector('[data-uncopiable-text]') &&
-      !document.querySelector('style#tex-linebreak-uncopiable-text')
+      document.querySelector("[data-uncopiable-text]") &&
+      !document.querySelector("style#tex-linebreak-uncopiable-text")
     ) {
-      const style = document.createElement('style');
-      style.id = 'tex-linebreak-uncopiable-text';
-      style.innerHTML = '[data-uncopiable-text]::after{content: attr(data-uncopiable-text);}';
+      const style = document.createElement("style");
+      style.id = "tex-linebreak-uncopiable-text";
+      style.innerHTML =
+        "[data-uncopiable-text]::after{content: attr(data-uncopiable-text);}";
       document.head.appendChild(style);
     }
   }
@@ -213,7 +226,7 @@ export function resetDOMJustification(element: HTMLElement) {
   // Re-join text nodes that were split by `justifyContent`.
   element.normalize();
 
-  element.style.whiteSpace = 'initial';
+  element.style.whiteSpace = "initial";
 }
 
 export const getRangeOfItem = (item: DOMItem): Range => {

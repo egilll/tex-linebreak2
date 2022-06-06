@@ -1,4 +1,4 @@
-import { getLineWidth } from 'src/utils/utils';
+import { getLineWidth } from "src/utils/utils";
 
 export type LineWidth = number | number[] | LineWidthObject;
 export type LineWidthObject = {
@@ -8,12 +8,12 @@ export type LineWidthObject = {
 
 export function getElementLineWidth(
   paragraphElement: HTMLElement,
-  floatingElements?: HTMLElement[],
+  floatingElements?: HTMLElement[]
 ): LineWidth {
   let { width, boxSizing, paddingLeft, paddingRight, textIndent } =
     getComputedStyle(paragraphElement);
   let defaultLineWidth: number | number[] = parseFloat(width!);
-  if (boxSizing === 'border-box') {
+  if (boxSizing === "border-box") {
     defaultLineWidth -= parseFloat(paddingLeft!);
     defaultLineWidth -= parseFloat(paddingRight!);
   }
@@ -26,22 +26,26 @@ export function getElementLineWidth(
   }
 
   if (floatingElements && floatingElements.length > 0) {
-    const lineHeight = parseFloat(window.getComputedStyle(paragraphElement).lineHeight);
+    const lineHeight = parseFloat(
+      window.getComputedStyle(paragraphElement).lineHeight
+    );
     if (!lineHeight) {
-      console.warn('Floating elements are not supported without CSS line-height being set');
+      console.warn(
+        "Floating elements are not supported without CSS line-height being set"
+      );
     } else {
       const paragraphRect = paragraphElement.getBoundingClientRect();
       floatingElements.forEach((floatingElement) => {
         const floatingElementRect = floatingElement.getBoundingClientRect();
         const floatingElementStyle = window.getComputedStyle(floatingElement);
         let xAxisOverlap = 0;
-        if (floatingElementStyle.float === 'right') {
+        if (floatingElementStyle.float === "right") {
           xAxisOverlap =
             paragraphRect.width -
             (floatingElementRect.left -
               parseFloat(floatingElementStyle.marginLeft) -
               paragraphRect.left);
-        } else if (floatingElementStyle.float === 'left') {
+        } else if (floatingElementStyle.float === "left") {
           xAxisOverlap =
             paragraphRect.width -
             (floatingElementRect.right +
@@ -53,13 +57,13 @@ export function getElementLineWidth(
           (floatingElementRect.top -
             parseFloat(floatingElementStyle.marginTop) -
             paragraphRect.top) /
-            lineHeight,
+            lineHeight
         );
         const lastLineThatOverlaps = Math.floor(
           (floatingElementRect.bottom +
             parseFloat(floatingElementStyle.marginBottom) -
             paragraphRect.top) /
-            lineHeight,
+            lineHeight
         );
         if (lastLineThatOverlaps < 0) return;
         for (
@@ -68,7 +72,8 @@ export function getElementLineWidth(
           lineIndex++
         ) {
           if (lineIndex < 0) continue;
-          lineWidths[lineIndex] = getLineWidth(lineWidths, lineIndex) - xAxisOverlap;
+          lineWidths[lineIndex] =
+            getLineWidth(lineWidths, lineIndex) - xAxisOverlap;
         }
       });
     }

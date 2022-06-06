@@ -1,7 +1,7 @@
-import { texts } from 'src/demo/texts/texts';
-import { textNodesInRange } from 'src/deprecated/textNodesInRange';
-import { tagNode } from 'src/html/tagNode';
-import { SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
+import { texts } from "src/demo/texts/texts";
+import { textNodesInRange } from "src/deprecated/textNodesInRange";
+import { tagNode } from "src/html/tagNode";
+import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
 
 /**
  * Todo: limit to possible overlaps (i.e.
@@ -9,14 +9,14 @@ import { SOFT_HYPHEN } from 'src/splitTextIntoItems/splitTextIntoItems';
  */
 export const getFloatingElements = (): HTMLElement[] => {
   let floating: HTMLElement[] = [];
-  Array.from(document.querySelectorAll<HTMLElement>('body *:not(span,script,b,i,br)')).forEach(
-    (element) => {
-      const { float } = window.getComputedStyle(element);
-      if (float === 'left' || float === 'right') {
-        floating.push(element);
-      }
-    },
-  );
+  Array.from(
+    document.querySelectorAll<HTMLElement>("body *:not(span,script,b,i,br)")
+  ).forEach((element) => {
+    const { float } = window.getComputedStyle(element);
+    if (float === "left" || float === "right") {
+      floating.push(element);
+    }
+  });
   return floating;
 };
 

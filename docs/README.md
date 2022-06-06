@@ -99,7 +99,7 @@ to restrict where scripts can be loaded from.
 <body>
   <p>Example text</p>
   <script>
-    texLinebreak_lib.texLinebreakDOM('p', {  
+    texLinebreak_lib.texLinebreakDOM("p", {
       hyphenateFn: new Hypher(enUsPatterns).hyphenate,
     });
   </script>
@@ -121,18 +121,18 @@ npm install tex-linebreak -s
 Use the `texLinebreakDOM` function to lay out the paragraphs of a website:
 
 ```js
-import { texLinebreakDOM } from 'tex-linebreak';
+import { texLinebreakDOM } from "tex-linebreak";
 
-texLinebreakDOM('p'); // Selects all <p/> elements
+texLinebreakDOM("p"); // Selects all <p/> elements
 ```
 
 The function accepts either a query selector or a list of elements:
 
 ```js
-import { texLinebreakDOM } from 'tex-linebreak';
+import { texLinebreakDOM } from "tex-linebreak";
 
-const paragraphs = document.querySelectorAll('p');
-texLinebreakDOM(document.querySelectorAll('p'), { align: 'left' });
+const paragraphs = document.querySelectorAll("p");
+texLinebreakDOM(document.querySelectorAll("p"), { align: "left" });
 ```
 
 [Options](#options) are passed the second parameter of this function.
@@ -150,10 +150,10 @@ The library does not support:
 ### Other types of text
 
 ```js
-import { TexLinebreak } from 'tex-linebreak';
+import { TexLinebreak } from "tex-linebreak";
 
 const text =
-  'Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.';
+  "Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.";
 
 const t = new TexLinebreak(text, {
   lineWidth: 45,
@@ -199,13 +199,13 @@ Typically "boxes" are words, "glue" items are spaces and "penalty" items
 represent hyphenation points or other possible breaking points. These concepts are far more versatile than they may appear at first, as is discussed in the [original paper](#references).
 
 ```js
-import { TexLinebreak, MIN_COST } from 'tex-linebreak';
+import { TexLinebreak, MIN_COST } from "tex-linebreak";
 
 const items = [
-  { type: 'box', width: 10 },
-  { type: 'glue', width: 4, stretch: 2, shrink: 1 },
-  { type: 'box', width: 20 },
-  { type: 'penalty', cost: MIN_COST },
+  { type: "box", width: 10 },
+  { type: "glue", width: 4, stretch: 2, shrink: 1 },
+  { type: "box", width: 20 },
+  { type: "penalty", cost: MIN_COST },
 ];
 
 const positionedItems = new TexLinebreak(items, {
@@ -255,9 +255,9 @@ The following helper functions are available:
 To hyphenate text, you can [Hypher](https://github.com/bramstein/hypher) library and pass it in as the `hyphenateFn` option like so:
 
 ```js
-import { TexLinebreak } from 'tex-linebreak';
-import Hypher from 'hypher';
-import enUsPatterns from 'hyphenation.en-us';
+import { TexLinebreak } from "tex-linebreak";
+import Hypher from "hypher";
+import enUsPatterns from "hyphenation.en-us";
 
 new TexLinebreak(items, {
   hyphenateFn: new Hypher(enUsPatterns).hyphenate,

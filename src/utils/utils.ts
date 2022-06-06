@@ -1,6 +1,14 @@
-import { Box, Glue, INFINITE_STRETCH, Item, MAX_COST, MIN_COST, Penalty } from 'src/breakLines';
-import { LineWidth } from 'src/html/lineWidth';
-import { TexLinebreakOptions } from 'src/options';
+import {
+  Box,
+  Glue,
+  INFINITE_STRETCH,
+  Item,
+  MAX_COST,
+  MIN_COST,
+  Penalty,
+} from "src/breakLines";
+import { LineWidth } from "src/html/lineWidth";
+import { TexLinebreakOptions } from "src/options";
 
 export interface TextBox extends Box {
   text?: string;
@@ -15,7 +23,7 @@ export type TextItem = TextBox | TextGlue | Penalty;
 export function box(width: number): Box;
 export function box(width: number, text: string): TextBox;
 export function box(width: number, text?: string): Box | TextBox {
-  return { type: 'box', width, text };
+  return { type: "box", width, text };
 }
 
 /** (Stretch comes before shrink as in the original paper) */
@@ -23,20 +31,27 @@ export function glue(
   width: number,
   stretch: number,
   shrink: number,
-  text?: string,
+  text?: string
 ): Glue | TextGlue {
   if (text) {
-    return { type: 'glue', width, shrink, stretch, text };
+    return { type: "glue", width, shrink, stretch, text };
   } else {
-    return { type: 'glue', width, shrink, stretch };
+    return { type: "glue", width, shrink, stretch };
   }
 }
 
-export function penalty(width: number, cost: number, flagged: boolean = false): Penalty {
-  return { type: 'penalty', width, cost, flagged };
+export function penalty(
+  width: number,
+  cost: number,
+  flagged: boolean = false
+): Penalty {
+  return { type: "penalty", width, cost, flagged };
 }
 
-export function textBox(text: string, options: TexLinebreakOptions): TextItem[] {
+export function textBox(
+  text: string,
+  options: TexLinebreakOptions
+): TextItem[] {
   if (options.hyphenateFn && !options.onlyBreakOnWhitespace) {
     let out: TextItem[] = [];
     const chunks = options.hyphenateFn(text);
@@ -52,7 +67,10 @@ export function textBox(text: string, options: TexLinebreakOptions): TextItem[] 
   }
 }
 
-export function textGlue(text: string, options: TexLinebreakOptions): TextItem[] {
+export function textGlue(
+  text: string,
+  options: TexLinebreakOptions
+): TextItem[] {
   const spaceShrink = getSpaceWidth(options) * options.glueShrinkFactor;
   const spaceStretch = getSpaceWidth(options) * options.glueStretchFactor;
   if (options.justify) {
@@ -67,15 +85,24 @@ export function textGlue(text: string, options: TexLinebreakOptions): TextItem[]
      * otherwise a line with many spaces is more likely to be a good fit.)
      */
     return [
-      glue(0, getLineFinalStretchInNonJustified(options) + spaceStretch, spaceShrink, text),
+      glue(
+        0,
+        getLineFinalStretchInNonJustified(options) + spaceStretch,
+        spaceShrink,
+        text
+      ),
       penalty(0, 0),
-      glue(getSpaceWidth(options), -getLineFinalStretchInNonJustified(options), 0),
+      glue(
+        getSpaceWidth(options),
+        -getLineFinalStretchInNonJustified(options),
+        0
+      ),
     ];
   }
 }
 
 export const softHyphen = (options: TexLinebreakOptions): TextItem[] => {
-  const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn('-');
+  const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn("-");
   if (options.justify) {
     return [penalty(hyphenWidth, options.softHyphenPenalty, true)];
   } else {
@@ -96,16 +123,18 @@ export const softHyphen = (options: TexLinebreakOptions): TextItem[] => {
 };
 
 export const getSpaceWidth = (options: TexLinebreakOptions): number => {
-  return options.measureFn(' ');
+  return options.measureFn(" ");
 };
-export const getLineFinalStretchInNonJustified = (options: TexLinebreakOptions): number => {
+export const getLineFinalStretchInNonJustified = (
+  options: TexLinebreakOptions
+): number => {
   return getSpaceWidth(options) * options.lineFinalSpacesInNonJustified;
 };
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
 export const isSoftHyphen = (item: Item | undefined): boolean => {
   // Note: Do not take width into account here as it will be zero for hanging punctuation
-  return Boolean(item && item.type === 'penalty' && item.flagged);
+  return Boolean(item && item.type === "penalty" && item.flagged);
 };
 
 export function forcedBreak(): Penalty {
@@ -113,28 +142,34 @@ export function forcedBreak(): Penalty {
 }
 
 export function isForcedBreak(item: Item) {
-  return item.type === 'penalty' && item.cost <= MIN_COST;
+  return item.type === "penalty" && item.cost <= MIN_COST;
 }
 
 export const isBreakablePenalty = (item: Item) => {
-  return item && item.type === 'penalty' && item.cost < MAX_COST;
+  return item && item.type === "penalty" && item.cost < MAX_COST;
 };
 
 export const isNonBreakablePenalty = (item: Item) => {
-  return item && item.type === 'penalty' && item.cost >= MAX_COST;
+  return item && item.type === "penalty" && item.cost >= MAX_COST;
 };
 
 export const isPenaltyThatDoesNotForceBreak = (item: Item) => {
-  return item.type === 'penalty' && item.cost > MIN_COST;
+  return item.type === "penalty" && item.cost > MIN_COST;
 };
 
 /**
  * Gets the stretch of a glue, taking into account the setting
  * {@link TexLinebreakOptions#infiniteGlueStretchAsRatioOfWidth}
  */
-export const getStretch = (input: Glue, options: TexLinebreakOptions): number => {
+export const getStretch = (
+  input: Glue,
+  options: TexLinebreakOptions
+): number => {
   if (input.stretch === INFINITE_STRETCH) {
-    return options.infiniteGlueStretchAsRatioOfWidth * getMaxLineWidth(options.lineWidth);
+    return (
+      options.infiniteGlueStretchAsRatioOfWidth *
+      getMaxLineWidth(options.lineWidth)
+    );
   } else {
     return input.stretch;
   }
@@ -145,16 +180,20 @@ export const getStretch = (input: Glue, options: TexLinebreakOptions): number =>
  * Note: This results in the paragraph not filling the entire
  * allowed width, but the output will have all lines balanced.
  */
-export const removeGlueFromEndOfParagraphs = <T extends Item>(items: T[]): T[] => {
+export const removeGlueFromEndOfParagraphs = <T extends Item>(
+  items: T[]
+): T[] => {
   return items
     .slice()
-    .filter((item) => !(item.type === 'glue' && item.stretch === INFINITE_STRETCH));
+    .filter(
+      (item) => !(item.type === "glue" && item.stretch === INFINITE_STRETCH)
+    );
 };
 
 /** TODO: Needs rework */
 export const forciblySplitLongWords = (
   items: TextItem[],
-  options: TexLinebreakOptions,
+  options: TexLinebreakOptions
 ): TextItem[] => {
   return items;
   // if (options.lineWidth == null) {
@@ -190,24 +229,31 @@ export const forciblySplitLongWords = (
 export const getMinLineWidth = (lineWidths: LineWidth): number => {
   if (Array.isArray(lineWidths)) {
     return Math.min(...lineWidths);
-  } else if (typeof lineWidths === 'number') {
+  } else if (typeof lineWidths === "number") {
     return lineWidths;
   } else {
-    return Math.min(...[...Object.values(lineWidths), lineWidths.defaultLineWidth]);
+    return Math.min(
+      ...[...Object.values(lineWidths), lineWidths.defaultLineWidth]
+    );
   }
 };
 
 export const getMaxLineWidth = (lineWidths: LineWidth): number => {
   if (Array.isArray(lineWidths)) {
     return Math.max(...lineWidths);
-  } else if (typeof lineWidths === 'number') {
+  } else if (typeof lineWidths === "number") {
     return lineWidths;
   } else {
-    return Math.max(...[...Object.values(lineWidths), lineWidths.defaultLineWidth]);
+    return Math.max(
+      ...[...Object.values(lineWidths), lineWidths.defaultLineWidth]
+    );
   }
 };
 
-export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number => {
+export const getLineWidth = (
+  lineWidths: LineWidth,
+  lineIndex: number
+): number => {
   if (Array.isArray(lineWidths)) {
     if (lineIndex < lineWidths.length) {
       return lineWidths[lineIndex];
@@ -218,7 +264,7 @@ export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number =
        */
       return lineWidths.at(-1)!;
     }
-  } else if (typeof lineWidths === 'number') {
+  } else if (typeof lineWidths === "number") {
     return lineWidths;
   } else {
     return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
@@ -228,10 +274,10 @@ export const getLineWidth = (lineWidths: LineWidth, lineIndex: number): number =
 export const validateItems = (items: Item[]) => {
   /** Input has to end in a MIN_COST penalty */
   const lastItem = items[items.length - 1];
-  if (!(lastItem.type === 'penalty' && lastItem.cost <= MIN_COST)) {
+  if (!(lastItem.type === "penalty" && lastItem.cost <= MIN_COST)) {
     console.log(items.slice(-3));
     throw new Error(
-      "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off.",
+      "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off."
     );
   }
 
@@ -241,26 +287,34 @@ export const validateItems = (items: Item[]) => {
    */
   const gluePenaltyBoxIndex = items.findIndex(
     (item, index) =>
-      item.type === 'glue' &&
-      items[index + 1].type === 'penalty' &&
+      item.type === "glue" &&
+      items[index + 1].type === "penalty" &&
       (items[index + 1] as Penalty).cost! > MIN_COST &&
-      items[index + 2].type === 'box',
+      items[index + 2].type === "box"
   );
   if (gluePenaltyBoxIndex >= 0) {
     console.log(items.slice(gluePenaltyBoxIndex - 2, gluePenaltyBoxIndex + 5));
     throw new Error(
-      `It appears you're trying to penalize a glue at index ${gluePenaltyBoxIndex}, but remember that penalty comes before the glue.`,
+      `It appears you're trying to penalize a glue at index ${gluePenaltyBoxIndex}, but remember that penalty comes before the glue.`
     );
   }
 
   /** Validate values */
   if (items.some((item) => !item.type)) {
-    throw new Error(`Missing type for item: ${JSON.stringify(items.find((item) => !item.type))}`);
+    throw new Error(
+      `Missing type for item: ${JSON.stringify(
+        items.find((item) => !item.type)
+      )}`
+    );
   }
-  if (items.some((item) => typeof item.width !== 'number')) {
-    throw new Error(`Width must be a number: ${JSON.stringify(items.find((item) => !item.type))}`);
+  if (items.some((item) => typeof item.width !== "number")) {
+    throw new Error(
+      `Width must be a number: ${JSON.stringify(
+        items.find((item) => !item.type)
+      )}`
+    );
   }
-  if (items.some((item) => item.type === 'glue' && !isFinite(item.stretch))) {
+  if (items.some((item) => item.type === "glue" && !isFinite(item.stretch))) {
     throw new Error(`Glue cannot have infinite stretch`);
   }
 };
