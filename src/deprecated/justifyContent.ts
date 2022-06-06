@@ -1,17 +1,4 @@
-import { visualizeBoxesForDebugging } from "src/html/debugging";
-import DOMTextMeasurer from "src/html/domTextMeasurer";
-import { DOMItem, getItemsFromDOM } from "src/html/getItemsFromDOM";
-import { getFloatingElements } from "src/html/htmlUtils";
-import {
-  getRangeOfItem,
-  texLinebreakDOM,
-  resetDOMJustification,
-} from "src/html";
-import { getElementLineWidth } from "src/html/lineWidth";
-import { tagNode } from "src/html/tagNode";
-import { TexLinebreak } from "src/index";
-import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
-import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
+import { texLinebreakDOM } from "src/html";
 
 /**
  * Justify HTML elements.

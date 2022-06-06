@@ -1,7 +1,4 @@
-import { texts } from "src/demo/texts/texts";
 import { textNodesInRange } from "src/deprecated/textNodesInRange";
-import { tagNode } from "src/html/tagNode";
-import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
 
 /**
  * Todo: limit to possible overlaps (i.e.

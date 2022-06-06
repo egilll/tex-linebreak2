@@ -1,5 +1,3 @@
-import enUsPatterns from "hyphenation.en-us";
-import Hypher from "hypher";
 import { texLinebreakMonospace } from "src/utils/monospace";
 
 const text = `A very_very_very_very_very_long_string here.`;

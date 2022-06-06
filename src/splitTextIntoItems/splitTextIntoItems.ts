@@ -1,5 +1,5 @@
 import LineBreaker, { Break } from "linebreak";
-import { INFINITE_STRETCH, MAX_COST, MIN_COST } from "src/breakLines";
+import { MAX_COST, MIN_COST } from "src/breakLines";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import {
   getBreakpointPenalty,
@@ -14,7 +14,6 @@ import { addHangingPunctuation } from "src/utils/hangingPunctuation";
 import { normalizeItems } from "src/utils/normalize";
 import {
   forcedBreak,
-  getSpaceWidth,
   glue,
   infiniteGlue,
   penalty,

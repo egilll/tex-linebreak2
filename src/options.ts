@@ -1,6 +1,5 @@
 import { LineWidth } from "src/html/lineWidth";
 import { getHyphenateFnCached } from "src/utils/hyphenationCache";
-import { validateItems } from "src/utils/utils";
 
 export class TexLinebreakOptions {
   /**
