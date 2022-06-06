@@ -1,4 +1,4 @@
-import { Glue, Item } from 'src/breakLines';
+import { Glue, INFINITE_STRETCH, Item } from 'src/breakLines';
 import { DOMGlue, DOMItem } from 'src/html/getItemsFromDOM';
 import { TextGlue, TextItem } from 'src/utils/utils';
 
@@ -16,7 +16,10 @@ export const normalizeItems = <T extends TextItem | DOMItem | Item>(items: T[]):
       const lastItem = output.at(-1)! as Glue;
       // todo: check whether glue should be collapsed
       lastItem.width = item.width + lastItem.width;
-      lastItem.stretch = item.stretch + lastItem.stretch;
+      lastItem.stretch =
+        item.stretch === INFINITE_STRETCH || lastItem.stretch === INFINITE_STRETCH
+          ? INFINITE_STRETCH
+          : item.stretch + lastItem.stretch;
       lastItem.shrink = item.shrink + lastItem.shrink;
       /* Join text */
       if ('text' in item || 'text' in output.at(-1)!) {

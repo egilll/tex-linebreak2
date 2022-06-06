@@ -146,7 +146,9 @@ export const getStretch = (input: Glue, options: TexLinebreakOptions): number =>
  * allowed width, but the output will have all lines balanced.
  */
 export const removeGlueFromEndOfParagraphs = <T extends Item>(items: T[]): T[] => {
-  return items.slice().filter((item) => !(item.type === 'glue' && item.stretch === MAX_COST));
+  return items
+    .slice()
+    .filter((item) => !(item.type === 'glue' && item.stretch === INFINITE_STRETCH));
 };
 
 /** TODO: Needs rework */

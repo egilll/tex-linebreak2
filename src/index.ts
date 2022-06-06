@@ -92,7 +92,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
       let adjustedWidth: number;
       if (this.adjustmentRatio >= 0) {
         adjustedWidth =
-          item.width + (('stretch' in item && item.stretch) || 0) * this.adjustmentRatio;
+          item.width + (('stretch' in item && getStretch(item)) || 0) * this.adjustmentRatio;
       } else {
         adjustedWidth =
           item.width + (('shrink' in item && item.shrink) || 0) * this.adjustmentRatio;
@@ -125,7 +125,7 @@ export class Line<InputItemType extends TextItem | DOMItem | Item = TextItem | D
       actualWidth += item.width;
       if (item.type === 'glue') {
         lineShrink += item.shrink;
-        lineStretch += item.stretch;
+        lineStretch += getStretch(item);
       }
     });
     if (actualWidth < idealWidth) {
