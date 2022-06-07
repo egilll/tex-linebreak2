@@ -1,4 +1,4 @@
-import { texLinebreakDOM } from "src/html";
+import { texLinebreakDOM } from "src/html/texLinebreakDOM";
 
 /**
  * Justify HTML elements.

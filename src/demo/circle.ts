@@ -1,7 +1,7 @@
 import enUsPatterns from "hyphenation.en-us";
 import Hypher from "hypher";
 import { texts } from "src/demo/texts/texts";
-import { texLinebreakDOM } from "src/html";
+import { texLinebreakDOM } from "src/html/texLinebreakDOM";
 
 const text = new Hypher(enUsPatterns).hyphenateText(texts[0]);
 // const text = texts[0];

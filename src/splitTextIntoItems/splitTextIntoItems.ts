@@ -9,6 +9,7 @@ import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
   UnicodeLineBreakingClasses,
 } from "src/typings/unicodeLineBreakingClasses";
+import { collapseAdjacentTextGlueWidths } from "src/utils/collapseGlue";
 import { forciblySplitLongWords } from "src/utils/forciblySplitLongWords";
 import { addHangingPunctuation } from "src/utils/hangingPunctuation";
 import {
@@ -20,7 +21,6 @@ import {
   textGlue,
   TextItem,
 } from "src/utils/items";
-import { collapseAdjacentGlueWidths } from "src/utils/normalize";
 import { infiniteGlue } from "src/utils/utils";
 
 export const NON_BREAKING_SPACE = "\u00A0";
@@ -132,6 +132,7 @@ export const splitTextIntoItems = (
     let cost =
       segment.breakpoint && getBreakpointPenalty(segment.breakpoint, options);
     if (options.addParagraphEnd && isLastSegment) cost = MIN_COST;
+
     const isParagraphEnd =
       cost === PenaltyClasses.MandatoryBreak ||
       (options.addParagraphEnd && isLastSegment);
@@ -202,7 +203,7 @@ export const splitTextIntoItems = (
     items = forciblySplitLongWords(items, options);
   }
 
-  collapseAdjacentGlueWidths(items);
+  collapseAdjacentTextGlueWidths(items);
 
   return items;
 };

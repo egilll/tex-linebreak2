@@ -2,6 +2,11 @@ import { Box, Glue, INFINITE_STRETCH, Penalty } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
 import { splitTextIntoItems } from "src/splitTextIntoItems/splitTextIntoItems";
 import {
+  collapseAdjacentTextGlueWidths,
+  makeGlueAtEndsZeroWidth,
+  makeGlueAtEndZeroWidth,
+} from "src/utils/collapseGlue";
+import {
   box,
   forcedBreak,
   glue,
@@ -9,11 +14,6 @@ import {
   TextGlue,
   TextItem,
 } from "src/utils/items";
-import {
-  collapseAdjacentGlueWidths,
-  makeGlueAtEndsZeroWidth,
-  makeGlueAtEndZeroWidth,
-} from "src/utils/normalize";
 
 /**
  * Information used to construct a `Range` later.
@@ -184,7 +184,7 @@ export function getItemsFromDOM(
   getItemsFromNode(paragraphElement);
 
   makeGlueAtEndsZeroWidth(items);
-  collapseAdjacentGlueWidths(items);
+  collapseAdjacentTextGlueWidths(items);
   return items;
 }
 

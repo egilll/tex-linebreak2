@@ -72,7 +72,12 @@ export function texLinebreakDOM(
         .slice()
         .reverse()
         .forEach((line) => {
-          let funcs: Function[] = [];
+          /**
+           * For some reason, the ranges do not work correctly if one
+           * goes backwards in the line, only if onw goes forward.
+           * Going backwards causes the box wraps to go out of sync
+           * (breaking hanging punctuation).
+           */
 
           const items = line.positionedItems;
           const itemRanges = items.map(getRangeOfItem);
@@ -123,7 +128,7 @@ export function texLinebreakDOM(
               } else {
                 curXOffset += item.adjustedWidth;
               }
-              funcs.push(() => itemRange.surroundContents(span));
+              itemRange.surroundContents(span);
             } else if (item.type === "box") {
               /**
                * If xOffset is not curXOffset, that means that a
@@ -133,7 +138,7 @@ export function texLinebreakDOM(
               if (item.xOffset !== curXOffset) {
                 const span = tagNode(document.createElement("span"));
                 span.style.marginLeft = `${item.xOffset - curXOffset}px`;
-                funcs.push(() => itemRange.insertNode(span));
+                itemRange.insertNode(span);
                 curXOffset = item.xOffset;
               }
 
@@ -149,9 +154,7 @@ export function texLinebreakDOM(
 
           /** Insert <br/> elements to separate the lines */
           if (line.lineIndex > 0) {
-            funcs.push(() =>
-              firstBoxRange.insertNode(tagNode(document.createElement("br")))
-            );
+            firstBoxRange.insertNode(tagNode(document.createElement("br")));
           }
 
           /** Add soft hyphens */
@@ -159,9 +162,7 @@ export function texLinebreakDOM(
             const wrapperAroundFinalBox = tagNode(
               document.createElement("span")
             );
-            funcs.push(() =>
-              lastBoxRange.surroundContents(wrapperAroundFinalBox)
-            );
+            lastBoxRange.surroundContents(wrapperAroundFinalBox);
 
             let hyphen: HTMLElement | Text;
             let hyphenText = "-";
@@ -191,9 +192,8 @@ export function texLinebreakDOM(
               hyphen = tagNode(document.createTextNode(hyphenText));
             }
 
-            funcs.push(() => wrapperAroundFinalBox.appendChild(hyphen));
+            wrapperAroundFinalBox.appendChild(hyphen);
           }
-          funcs.reverse().forEach((func) => func());
         });
 
       if (debug) visualizeBoxesForDebugging(lines, element);

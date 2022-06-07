@@ -14,7 +14,7 @@ export enum PenaltyClasses {
   /** @deprecated */
   SoftHyphen = PenaltyClasses.OKBreak,
   BadBreak = 50,
-  VeryBadBreak = 0,
+  VeryBadBreak = 900,
 }
 
 export const getBreakpointPenalty = (
@@ -34,7 +34,7 @@ export const getBreakpointPenalty = (
     // Tab
     lastLetter === "\t" ||
     // Other breaking spaces
-    (UnicodeLineBreakingClasses.BreakAfter &&
+    (lastLetterClass === UnicodeLineBreakingClasses.BreakAfter &&
       lastLetter.match(/\p{General_Category=Zs}/gu)) ||
     // Zero width space
     lastLetterClass === UnicodeLineBreakingClasses.ZeroWidthSpace

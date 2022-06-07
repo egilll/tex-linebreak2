@@ -16,17 +16,12 @@ export const addHangingPunctuation = (
   options: TexLinebreakOptions
 ): TextItem[] => {
   let output: TextItem[] = [];
-  /** If we have to skip over an item */
-  let ignoredItems: Set<TextItem> = new Set();
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     const prevItem = items[i - 1];
     const nextItem = items[i + 1];
 
     if (item.type !== "box" || !("text" in item) || item.width === 0) {
-      if (!ignoredItems.has(item)) {
-        output.push(item);
-      }
       continue;
     }
 
@@ -69,6 +64,7 @@ export const addHangingPunctuation = (
     ) {
       const rightHangingPunctuationWidth =
         item.width - options.measureFn(item.text.slice(0, -1));
+      output.push(box(-rightHangingPunctuationWidth));
 
       /**
        * Special handling of penalties that come directly after boxes.
@@ -76,9 +72,8 @@ export const addHangingPunctuation = (
        */
       if (nextItem.type === "penalty") {
         output.push(nextItem);
-        ignoredItems.add(nextItem);
+        i++;
       }
-      output.push(box(-rightHangingPunctuationWidth));
       output.push(glue(rightHangingPunctuationWidth, 0, 0));
     }
   }
@@ -87,13 +82,15 @@ export const addHangingPunctuation = (
 };
 
 /**
- * The following punctuation items are not included, as it would not look good:
+ * The following punctuation items are not
+ * included, as I find it to look fairly odd:
  *
  * - Slashes (/)
+ * - [] and {}
  * - Em and en dashes
  *
- * (`General_Category=Pi` are initial quotes, and `General_Category=Pf` are
- * final quotes)
+ * (`General_Category=Pi` are initial quotes,
+ * and `General_Category=Pf` are final quotes)
  */
 const hangingPunctuationRegex =
-  /[.,;:!?\-()\[\]{}'"\p{General_Category=Pi}\p{General_Category=Pf}]/u;
+  /[.,;:!?\-()'"\p{General_Category=Pi}\p{General_Category=Pf}]/u;

@@ -1,7 +1,7 @@
 import enUsPatterns from "hyphenation.en-us";
 import Hypher from "hypher";
 import { renderToCanvas } from "src/demo/canvas";
-import { texLinebreakDOM } from "src/html";
+import { texLinebreakDOM } from "src/html/texLinebreakDOM";
 import { TexLinebreakOptions } from "src/options";
 
 export const hyphenateFn = (word: string) =>
@@ -44,4 +44,4 @@ export function renderUserInput() {
 // Re-render on changes.
 textarea.addEventListener("input", renderUserInput);
 lineWidthSlider.addEventListener("input", renderUserInput);
-// renderUserInput();
+renderUserInput();
