@@ -160,7 +160,7 @@ export class TexLinebreakOptions {
   /**
    * Function that calculates the width of a given string.
    * For DOM elements, this can be done with {@link DOMTextMeasurer}
-   * which draws the text to a canvas. This function called for
+   * which draws the text to a canvas. This function is called for
    * every item, so you may wish to cache your output.
    */
   measureFn!: (word: string) => number;
