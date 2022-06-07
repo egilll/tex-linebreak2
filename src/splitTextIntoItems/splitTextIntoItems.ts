@@ -204,7 +204,6 @@ export const splitTextIntoItems = (
   }
 
   collapseAdjacentTextGlueWidths(items);
-
   return items;
 };
 

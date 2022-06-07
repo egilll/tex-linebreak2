@@ -50,7 +50,10 @@ export const getStretch = (
   input: Glue,
   options: TexLinebreakOptions
 ): number => {
-  if (input.stretch === INFINITE_STRETCH) {
+  if (
+    input.stretch === INFINITE_STRETCH &&
+    options.infiniteGlueStretchAsRatioOfWidth != null
+  ) {
     return (
       options.infiniteGlueStretchAsRatioOfWidth *
       getMaxLineWidth(options.lineWidth)
@@ -144,6 +147,7 @@ export const validateItems = (items: Item[]) => {
   /** Input has to end in a MIN_COST penalty */
   const lastItem = items[items.length - 1];
   if (!(lastItem.type === "penalty" && lastItem.cost <= MIN_COST)) {
+    console.log(items);
     console.log(items.slice(-3));
     throw new Error(
       "The last item in breakLines must be a penalty of MIN_COST, otherwise the last line will not be broken. `splitTextIntoItems` will automatically as long as the `addParagraphEnd` option hasn't been turned off."

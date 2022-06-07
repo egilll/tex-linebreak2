@@ -28,15 +28,17 @@ export class TexLinebreakOptions {
   forceOverflowToBreak: boolean = false;
 
   /**
-   * How much stretch should there be to the "infinite"
-   * glue at the end of the paragraph?
-   * A value between 0 and 1.
-   * A lower value will make the last line fill out more.
+   * How much stretch should there be to the "infinite" glue at the end of the
+   * paragraph?
+   * A value of 0 <= n.
+   * If set to null, it the glue will have INFINITE_STRETCH, thus not
+   * penalizing short last lines.
+   * Set this to a low value (such as 0.2) to make the last line fill out more.
    *
-   * Note: Is the ratio of the longest width, not the ratio
-   * of the current line (which is usually not an issue)
+   * Note: Is the ratio of the longest width, not the ratio of the current line
+   * (which is usually not an issue)
    */
-  infiniteGlueStretchAsRatioOfWidth: number = 0.8;
+  infiniteGlueStretchAsRatioOfWidth?: number | null = 0.8;
 
   /**
    * The adjustment ratio of a line is the amount by which a line's glue

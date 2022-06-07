@@ -1,9 +1,10 @@
 import { TexLinebreakOptions } from "src/options";
-import { box, glue, penalty, TextItem } from "src/utils/items";
+import { box, glue, TextItem } from "src/utils/items";
 import {
   isBreakablePenalty,
   isForcedBreak,
   isNonBreakablePenalty,
+  isPenaltyThatDoesNotForceBreak,
   isSoftHyphen,
 } from "src/utils/utils";
 
@@ -22,6 +23,7 @@ export const addHangingPunctuation = (
     const nextItem = items[i + 1];
 
     if (item.type !== "box" || !("text" in item) || item.width === 0) {
+      output.push(item);
       continue;
     }
 
@@ -70,7 +72,7 @@ export const addHangingPunctuation = (
        * Special handling of penalties that come directly after boxes.
        * In that case, we have to add the glue to AFTER the penalty.
        */
-      if (nextItem.type === "penalty") {
+      if (isPenaltyThatDoesNotForceBreak(nextItem)) {
         output.push(nextItem);
         i++;
       }
