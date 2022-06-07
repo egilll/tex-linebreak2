@@ -99,6 +99,11 @@ export class Line<
     this.itemsFiltered = this.getItemsFiltered();
     this.adjustmentRatio = this.getAdjustmentRatio();
     this.positionedItems = this.getPositionedItems();
+
+    if (isNaN(this.adjustmentRatio)) {
+      console.log(this);
+      throw new Error("Adjustment ratio is NaN");
+    }
   }
 
   /**

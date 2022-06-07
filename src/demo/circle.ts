@@ -31,14 +31,3 @@ for (let yOffset = lineHeight / 2; yOffset < height; yOffset += lineHeight) {
 }
 
 texLinebreakDOM(outputElement, { lineWidth, leftIndentPerLine });
-// texLinebreakDOM(
-//   outputElement,
-//   {
-//     lineWidth: 200,
-//     // justify: false,
-//     softHyphenPenalty: 40,
-//     addInfiniteGlueToFinalLine: false,
-//     // renderLineAsLeftAlignedIfAdjustmentRatioExceeds: 1,
-//   },
-//   true,
-// );

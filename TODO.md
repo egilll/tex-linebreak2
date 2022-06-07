@@ -22,3 +22,4 @@
 - ability to prefer certain soft hyphens over others
 - prefer already-existing soft hyphens
 - þarf að passa að keyra ekki hyphenation aftur á orðum sem eru nú þegar með soft hyphen?
+- inline-block items with margins

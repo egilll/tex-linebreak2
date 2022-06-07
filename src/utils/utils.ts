@@ -176,12 +176,11 @@ export const validateItems = (items: Item[]) => {
       )}`
     );
   }
-  if (items.some((item) => typeof item.width !== "number")) {
-    throw new Error(
-      `Width must be a number: ${JSON.stringify(
-        items.find((item) => !item.type)
-      )}`
-    );
+  if (
+    items.some((item) => typeof item.width !== "number" || isNaN(item.width))
+  ) {
+    console.log(items);
+    throw new Error(`Width must be a number`);
   }
   if (items.some((item) => item.type === "glue" && !isFinite(item.stretch))) {
     throw new Error(`Glue cannot have infinite stretch`);

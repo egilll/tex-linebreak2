@@ -44,4 +44,4 @@ export function renderUserInput() {
 // Re-render on changes.
 textarea.addEventListener("input", renderUserInput);
 lineWidthSlider.addEventListener("input", renderUserInput);
-renderUserInput();
+// renderUserInput();

@@ -73,6 +73,7 @@ export function getItemsFromDOM(
         curOffset += 1;
       } else if (child instanceof Element) {
         getItemsFromElement(child, node, curOffset);
+        getItemsFromElement(child);
         curOffset += 1;
       }
     });
@@ -98,13 +99,10 @@ export function getItemsFromDOM(
     }
   }
 
-  function getItemsFromElement(
-    element: Element,
-    parentNode: Node,
-    startOffset: number
-  ) {
+  function getItemsFromElement(element: Element) {
     const {
       display,
+      position,
       width,
       paddingLeft,
       paddingRight,
@@ -113,6 +111,13 @@ export function getItemsFromDOM(
       borderLeftWidth,
       borderRightWidth,
     } = getComputedStyle(element);
+
+    // if (display === "none"||width==='auto') {
+    //   return;
+    // }
+    // if (position === "absolute") {
+    //   return;
+    // }
 
     if (display === "inline") {
       // Add box for margin/border/padding at start of box.
@@ -137,9 +142,17 @@ export function getItemsFromDOM(
         addItemWithOffset(box(rightMargin), element, length, length);
       }
     } else {
+      let _width = parseFloat(width);
+      if (isNaN(_width)) {
+        console.error(
+          "Received an element with an unparsable width. This should have been handled.",
+          element
+        );
+        _width = 0;
+      }
+
       // Treat this item as an opaque box.
-      addItemWithOffset(box(parseFloat(width!)), element, 0, 1);
-      // addItem(box(parseFloat(width!)), parentNode, startOffset, startOffset + 1);
+      addItemWithOffset(box(_width), element, 0, 1);
     }
   }
 
