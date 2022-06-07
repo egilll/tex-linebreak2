@@ -1,6 +1,8 @@
-import { outputElement } from "src/demo/userInput";
+import { hyphenateFn, outputElement } from "src/demo/userInput";
 import { TexLinebreak } from "src/index";
-import { isSoftHyphen, TextItem } from "src/utils/utils";
+import { TexLinebreakOptions } from "src/options";
+import { TextItem } from "src/utils/items";
+import { isSoftHyphen } from "src/utils/utils";
 
 export const canvas = document.querySelector("canvas")!;
 
@@ -8,7 +10,8 @@ export const canvas = document.querySelector("canvas")!;
 export function renderToCanvas(
   text: string,
   margins: { left: number; right: number },
-  lineWidth: number
+  lineWidth: number,
+  options: Partial<TexLinebreakOptions> = {}
 ) {
   const outputElementStyle = window.getComputedStyle(outputElement);
   const lineSpacing = parseInt(outputElementStyle.lineHeight);
@@ -23,8 +26,8 @@ export function renderToCanvas(
   canvasRenderingContext.font = "16px serif";
 
   const lines = new TexLinebreak<TextItem>(text, {
+    ...options,
     lineWidth,
-    // hyphenateFn,
     measureFn: (t: string) => canvasRenderingContext.measureText(t).width,
   }).lines;
 

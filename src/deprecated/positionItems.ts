@@ -5,7 +5,7 @@ import {
   MIN_ADJUSTMENT_RATIO,
 } from "src/breakLines";
 import { layoutItemsFromString } from "src/deprecated/layoutItemsFromString";
-import { TextItem } from "src/utils/utils";
+import { TextItem } from "src/utils/items";
 
 export interface PositionedItem {
   /** Index of the item. */

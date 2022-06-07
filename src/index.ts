@@ -2,18 +2,18 @@ import { breakLines, Item, MIN_ADJUSTMENT_RATIO } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import {
+  NON_BREAKING_SPACE,
   SOFT_HYPHEN,
   splitTextIntoItems,
 } from "src/splitTextIntoItems/splitTextIntoItems";
 import { breakLinesGreedy } from "src/utils/greedy";
+import { TextBox, TextGlue, TextItem } from "src/utils/items";
 import { normalizeItems } from "src/utils/normalize";
 import {
   getLineWidth,
   getStretch,
+  isForcedBreak,
   isSoftHyphen,
-  TextBox,
-  TextGlue,
-  TextItem,
 } from "src/utils/utils";
 
 export type ItemPosition = { xOffset: number; adjustedWidth: number };
@@ -51,9 +51,15 @@ export class TexLinebreak<
     let lines: Line<InputItemType>[] = [];
     const breakpoints = this.breakpoints;
     for (let b = 0; b < breakpoints.length - 1; b++) {
-      lines.push(
-        new Line<InputItemType>(this, breakpoints[b], breakpoints[b + 1], b)
+      const line = new Line<InputItemType>(
+        this,
+        breakpoints[b],
+        breakpoints[b + 1],
+        b
       );
+      if (!line.isExtranousLine) {
+        lines.push(line);
+      }
     }
     return lines;
   }
@@ -134,6 +140,19 @@ export class Line<
     return 0;
   }
 
+  /**
+   * In certain cases such as overflowing text, the last
+   * line will consist of nothing but infinite glue and the
+   * final penalty. Such lines do not need to be printed.
+   */
+  get isExtranousLine() {
+    return (
+      !this.itemsFiltered.some((item) => item.type === "box") &&
+      isForcedBreak(this.parentClass.items[this.endBreakpoint]) &&
+      !isForcedBreak(this.parentClass.items[this.startBreakpoint])
+    );
+  }
+
   getAdjustmentRatio(): number {
     const idealWidth = getLineWidth(this.options.lineWidth, this.lineIndex);
     let actualWidth = 0;
@@ -148,12 +167,17 @@ export class Line<
     });
     if (actualWidth < idealWidth) {
       if (lineStretch > 0) {
-        const j = (idealWidth - actualWidth) / lineStretch;
-        return Math.min(
-          this.options.renderLineAsLeftAlignedIfAdjustmentRatioExceeds ??
-            Infinity,
-          j
-        );
+        let adjustmentRatio = (idealWidth - actualWidth) / lineStretch;
+        if (
+          typeof this.options
+            .renderLineAsLeftAlignedIfAdjustmentRatioExceeds === "number"
+        ) {
+          adjustmentRatio = Math.min(
+            adjustmentRatio,
+            this.options.renderLineAsLeftAlignedIfAdjustmentRatioExceeds
+          );
+        }
+        return adjustmentRatio;
       } else {
         return 0;
       }
@@ -246,12 +270,16 @@ export class Line<
           }
           if (item.type === "glue" && "text" in item) {
             const text = (item as TextGlue).text || "";
-            /**
-             * If it contains any breakable spaces, collapse into a single
-             * space. We do not want to convert non-breaking spaces into spaces.
-             */
-            if (/[ \t\n\r\p{General_Category=Z}]/u.test(text)) {
+            if (text.length === 0) return "";
+            // TODO: OPTIONS.COLLAPSE_SPACES
+            /** Does it contain any characters that are not non-breaking-spaces? */
+            if (/[^\u00A0]/.test(text)) {
+              /** Return a normal space */
               return " ";
+            } else {
+              /** Consists only of a single or many non-breaking spaces. */
+              // TODO: MULTIPLE NBSP SHOULD HAVE THEIR WIDTH COUNTED DIFFERENTLY
+              return NON_BREAKING_SPACE;
             }
           }
           return "text" in item ? (item as TextBox).text : "";

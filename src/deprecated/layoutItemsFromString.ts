@@ -1,5 +1,5 @@
 import { TexLinebreak } from "src/index";
-import { TextItem } from "src/utils/utils";
+import { TextItem } from "src/utils/items";
 
 /**
  * @deprecated This function is deprecated due to the name being confusing,

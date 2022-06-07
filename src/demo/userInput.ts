@@ -2,6 +2,7 @@ import enUsPatterns from "hyphenation.en-us";
 import Hypher from "hypher";
 import { renderToCanvas } from "src/demo/canvas";
 import { texLinebreakDOM } from "src/html";
+import { TexLinebreakOptions } from "src/options";
 
 export const hyphenateFn = (word: string) =>
   new Hypher(enUsPatterns).hyphenate(word);
@@ -28,14 +29,13 @@ export function renderUserInput() {
   };
   const htmlParagraph = document.querySelector<HTMLElement>(".html-p")!;
   htmlParagraph.innerHTML = textarea.value;
-  const textContent = htmlParagraph.textContent!;
-
-  texLinebreakDOM(htmlParagraph, {
-    softHyphenPenalty: 30,
-  });
+  const options: Partial<TexLinebreakOptions> = {
+    hyphenateFn: hyphenateFn,
+  };
+  texLinebreakDOM(htmlParagraph, options);
 
   // Render to canvas.
-  renderToCanvas(textContent, padding, lineWidth);
+  renderToCanvas(textarea.value, padding, lineWidth);
 
   // Render using CSS `text-justify`
   plainBrowserOutputElement.innerHTML = textarea.value;
@@ -44,4 +44,4 @@ export function renderUserInput() {
 // Re-render on changes.
 textarea.addEventListener("input", renderUserInput);
 lineWidthSlider.addEventListener("input", renderUserInput);
-// rerender();
+renderUserInput();

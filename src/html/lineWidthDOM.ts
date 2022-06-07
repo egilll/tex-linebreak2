@@ -1,10 +1,5 @@
+import { LineWidth, LineWidthObject } from "src/breakLines";
 import { getLineWidth } from "src/utils/utils";
-
-export type LineWidth = number | number[] | LineWidthObject;
-export type LineWidthObject = {
-  defaultLineWidth: number;
-  [lineIndex: number]: number;
-};
 
 export function getElementLineWidth(
   paragraphElement: HTMLElement,

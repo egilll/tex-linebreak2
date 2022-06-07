@@ -1,4 +1,4 @@
-import { LineWidth } from "src/html/lineWidth";
+import { LineWidth } from "src/breakLines";
 import { getHyphenateFnCached } from "src/utils/hyphenationCache";
 
 /**
@@ -78,7 +78,7 @@ export class TexLinebreakOptions {
   softHyphenPenalty: number = 50;
 
   /** Penalty for significant differences in the tightness of adjacent lines. */
-  adjacentLooseTightPenalty: number = 10;
+  adjacentLooseTightPenalty: number = 0;
 
   /**
    * How much can a glue (space) stretch (at an adjustment ratio of 1)?
@@ -299,7 +299,7 @@ export class TexLinebreakOptions {
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {
-    if (options.align !== "justify") {
+    if (options.align && options.align !== "justify") {
       this.softHyphenPenalty = 500;
       this.glueShrinkFactor = 0.2;
       this.glueStretchFactor = 0.3;

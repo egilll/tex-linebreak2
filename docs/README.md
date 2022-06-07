@@ -265,7 +265,7 @@ new TexLinebreak(items, {
 });
 ```
 
-However, for websites it is recommended that you preprocess your text (using a library such as [Hypher](https://github.com/bramstein/hypher) or [Hyphenopoly](https://github.com/mnater/Hyphenopoly)) and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text, since hyphenation step can sometimes take some time (hundreds of milliseconds for large documents).
+However, for websites it is highly recommended that you preprocess your text server-side (using a library such as [Hypher](https://github.com/bramstein/hypher) or [Hyphenopoly](https://github.com/mnater/Hyphenopoly)) and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text, since the hyphenation step introduces a noticable amount of lag.
 
 ## Contributors
 

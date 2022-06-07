@@ -1,6 +1,6 @@
 import { Glue, INFINITE_STRETCH, Item } from "src/breakLines";
 import { DOMGlue, DOMItem } from "src/html/getItemsFromDOM";
-import { TextGlue, TextItem } from "src/utils/utils";
+import { TextGlue, TextItem } from "src/utils/items";
 
 /**
  * Collapsing adjacent glue is easier on the algorithm, but is also necessary

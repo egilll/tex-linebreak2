@@ -1,7 +1,6 @@
 import { Box, Glue, INFINITE_STRETCH, Penalty } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
 import { splitTextIntoItems } from "src/splitTextIntoItems/splitTextIntoItems";
-import { normalizeItems } from "src/utils/normalize";
 import {
   box,
   forcedBreak,
@@ -9,7 +8,8 @@ import {
   TextBox,
   TextGlue,
   TextItem,
-} from "src/utils/utils";
+} from "src/utils/items";
+import { normalizeItems } from "src/utils/normalize";
 
 /**
  * Information used to construct a `Range` later.
