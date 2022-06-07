@@ -8,6 +8,7 @@ import { visualizeBoxesForDebugging } from "src/html/visualizeBoxesForDebugging"
 import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
+import { TextGlue } from "src/utils/items";
 
 /**
  * Break the lines of HTML elements.
@@ -109,16 +110,16 @@ export function texLinebreakDOM(
                * We try to not use `inline-block` since that messes with
                * the formatting of links (each word gets its own underline)
                */
-              // if ((item as TextGlue).text) {
-              //   span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
-              // } else {
-              span.style.width = `${item.adjustedWidth}px`;
-              span.style.display = "inline-block";
-              // }
-              if (item.adjustedWidth < 0) {
-                span.style.fontSize = "0";
-                span.style.width = `0`;
+              if ((item as TextGlue).text) {
+                span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
+              } else {
+                span.style.width = `${item.adjustedWidth}px`;
                 span.style.display = "inline-block";
+              }
+              if (item.adjustedWidth <= 0) {
+                span.style.fontSize = "0";
+                span.style.width = "0";
+                // span.style.display = "inline-block";
               } else {
                 curXOffset += item.adjustedWidth;
               }
@@ -249,7 +250,6 @@ export function resetDOMJustification(element: HTMLElement) {
 }
 
 export const getRangeOfItem = (item: DOMItem): Range => {
-  console.log({ item });
   const range = document.createRange();
   range.setStart(item.startContainer, item.startOffset);
   range.setEnd(item.endContainer, item.endOffset);

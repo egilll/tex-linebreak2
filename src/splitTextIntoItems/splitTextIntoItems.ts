@@ -20,10 +20,7 @@ import {
   textGlue,
   TextItem,
 } from "src/utils/items";
-import {
-  collapseAdjacentGlueWidths,
-  normalizeItems,
-} from "src/utils/normalize";
+import { collapseAdjacentGlueWidths } from "src/utils/normalize";
 import { infiniteGlue } from "src/utils/utils";
 
 export const NON_BREAKING_SPACE = "\u00A0";
@@ -205,7 +202,7 @@ export const splitTextIntoItems = (
     items = forciblySplitLongWords(items, options);
   }
 
-  items = collapseAdjacentGlueWidths(items);
+  collapseAdjacentGlueWidths(items);
 
   return items;
 };

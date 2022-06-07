@@ -11,7 +11,7 @@ import {
 } from "src/utils/items";
 import {
   collapseAdjacentGlueWidths,
-  makeGlueAtBeginningZeroWidth,
+  makeGlueAtEndsZeroWidth,
   makeGlueAtEndZeroWidth,
 } from "src/utils/normalize";
 
@@ -48,25 +48,6 @@ export function getItemsFromDOM(
    */
   let textOffsetInParagraph: number = 0;
 
-  /**
-   * Helper function that limits boilerplate below.
-   * Adds an item and makes a record of its DOM range
-   */
-  function addItemWithOffset(
-    item: Box | Glue | Penalty,
-    startContainer: Node,
-    startOffset: number,
-    endOffset: number
-  ) {
-    items.push({
-      ...item,
-      startContainer: startContainer,
-      startOffset,
-      endContainer: startContainer,
-      endOffset,
-    });
-  }
-
   function getItemsFromNode(node: Node, addParagraphEnd = true) {
     const children = Array.from(node.childNodes);
 
@@ -91,16 +72,18 @@ export function getItemsFromDOM(
          * Add a synthetic glue that absorbs any
          * left-over space at the end of the last line.
          */
-        addItemWithOffset(
-          glue(0, INFINITE_STRETCH, 0),
-          node,
-          endOffset,
-          endOffset
+        items.push(
+          itemWithOffset(
+            glue(0, INFINITE_STRETCH, 0),
+            node,
+            endOffset,
+            endOffset
+          )
         );
       }
 
       /** Add a forced break to end the paragraph. */
-      addItemWithOffset(forcedBreak(), node, endOffset, endOffset);
+      items.push(itemWithOffset(forcedBreak(), node, endOffset, endOffset));
     }
   }
 
@@ -121,22 +104,20 @@ export function getItemsFromDOM(
       borderRightWidth,
     } = getComputedStyle(element);
 
-    if (display === "none") {
-      return;
-    }
-    if (position === "absolute") {
-      // console.log({ element });
+    if (display === "none" || position === "absolute") {
+      // items.push(itemWithOffset(box(0), element, 0, 1);
       return;
     }
 
     if (display === "inline") {
       // Add box for margin/border/padding at start of box.
+      // TODO: Verify
       const leftMargin =
         parseFloat(marginLeft!) +
         parseFloat(borderLeftWidth!) +
         parseFloat(paddingLeft!);
       if (leftMargin > 0) {
-        addItemWithOffset(box(leftMargin), element, 0, 0);
+        items.push(itemWithOffset(box(leftMargin), element, 0, 0));
       }
 
       // Add items for child nodes.
@@ -149,7 +130,7 @@ export function getItemsFromDOM(
         parseFloat(paddingRight!);
       if (rightMargin > 0) {
         const length = element.childNodes.length;
-        addItemWithOffset(box(rightMargin), element, length, length);
+        items.push(itemWithOffset(box(rightMargin), element, length, length));
       }
     } else {
       let _width = parseFloat(width);
@@ -162,8 +143,8 @@ export function getItemsFromDOM(
       }
 
       // Treat this item as an opaque box.
-      // addItemWithOffset(box(_width), parentNode, startOffset, startOffset + 1);
-      // addItemWithOffset(box(_width), element, 0, 1);
+      // items.push(itemWithOffset(box(_width), parentNode, startOffset, startOffset + 1);
+      items.push(itemWithOffset(box(_width), element, 0, 1));
     }
   }
 
@@ -192,7 +173,9 @@ export function getItemsFromDOM(
     textItems.forEach((item: TextItem) => {
       const startOffset = textOffsetInThisNode;
       textOffsetInThisNode += (("text" in item && item.text) || "").length;
-      addItemWithOffset(item, textNode, startOffset, textOffsetInThisNode);
+      items.push(
+        itemWithOffset(item, textNode, startOffset, textOffsetInThisNode)
+      );
     });
 
     textOffsetInParagraph += textOffsetInThisNode;
@@ -200,9 +183,26 @@ export function getItemsFromDOM(
 
   getItemsFromNode(paragraphElement);
 
-  makeGlueAtBeginningZeroWidth(items);
-  makeGlueAtEndZeroWidth(items);
+  makeGlueAtEndsZeroWidth(items);
   collapseAdjacentGlueWidths(items);
-  // TODO: Trim whitespace by making glue at ends zero width
   return items;
+}
+
+/**
+ * Helper function that limits boilerplate above.
+ * Adds an item and makes a record of its DOM range
+ */
+function itemWithOffset(
+  item: Box | Glue | Penalty,
+  startContainer: Node,
+  startOffset: number,
+  endOffset: number
+) {
+  return {
+    ...item,
+    startContainer: startContainer,
+    startOffset,
+    endContainer: startContainer,
+    endOffset,
+  };
 }

@@ -8,7 +8,6 @@ import {
 } from "src/splitTextIntoItems/splitTextIntoItems";
 import { breakLinesGreedy } from "src/utils/greedy";
 import { TextBox, TextGlue, TextItem } from "src/utils/items";
-import { normalizeItems } from "src/utils/normalize";
 import {
   getLineWidth,
   getStretch,
@@ -107,9 +106,8 @@ export class Line<
   }
 
   /**
-   * Returns items to be displayed with their position
-   * information ({@see ItemPosition}).
-   * Note that the output is normalized ({@link normalizeItems}).
+   * Returns items to be displayed with their
+   * position information ({@see ItemPosition}).
    */
   getPositionedItems(): (InputItemType & ItemPosition)[] {
     const output: (InputItemType & ItemPosition)[] = [];
@@ -244,8 +242,6 @@ export class Line<
       }
     }
 
-    // itemsFiltered = normalizeItems(itemsFiltered);
-
     /** Filter glues that have canceled out (see discussion on negative glue) */
     itemsFiltered = itemsFiltered.filter(
       (i) =>
@@ -274,6 +270,7 @@ export class Line<
             }
           }
           if (item.type === "glue" && "text" in item) {
+            // TODO:  COLLAPSE ADJACENT GLUE
             const text = (item as TextGlue).text || "";
             if (text.length === 0) return "";
             // TODO: OPTIONS.COLLAPSE_SPACES
