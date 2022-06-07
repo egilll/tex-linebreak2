@@ -6,16 +6,24 @@ export const texts2: Record<
 > = {
   tmp: {
     html: `
-      <span>
-        Text
-        <div style="display:none">not displayed</div>
-      </span>
-      <!--<span>
-        that
-        <div style="position:absolute;right:0;border:1px solid red;">absolute</div>
-      </span>
-      shou<div style="display:none">not displayed</div>ld handle display:none elements.-->
+    
+    <span>
+      Text
+      <div style="display:none">not displayed</div>
+    </span>
+      hehehe d dsd 
       `,
+    // html: `
+    //   <span>
+    //     Text
+    //     <div style="display:none">not displayed</div>
+    //   </span>
+    //   <span>
+    //     that
+    //     <div style="position:absolute;right:0;border:1px solid red;">absolute</div>
+    //   </span>
+    //   shou<div style="display:none">not displayed</div>ld handle display:none elements.
+    //   `,
     options: {
       addInfiniteGlueToFinalLine: false,
     },

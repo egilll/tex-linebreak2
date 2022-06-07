@@ -244,7 +244,7 @@ export class Line<
       }
     }
 
-    itemsFiltered = normalizeItems(itemsFiltered);
+    // itemsFiltered = normalizeItems(itemsFiltered);
 
     /** Filter glues that have canceled out (see discussion on negative glue) */
     itemsFiltered = itemsFiltered.filter(

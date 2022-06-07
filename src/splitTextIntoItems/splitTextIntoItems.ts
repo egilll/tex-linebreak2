@@ -20,7 +20,10 @@ import {
   textGlue,
   TextItem,
 } from "src/utils/items";
-import { normalizeItems } from "src/utils/normalize";
+import {
+  collapseAdjacentGlueWidths,
+  normalizeItems,
+} from "src/utils/normalize";
 import { infiniteGlue } from "src/utils/utils";
 
 export const NON_BREAKING_SPACE = "\u00A0";
@@ -180,8 +183,10 @@ export const splitTextIntoItems = (
         if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
           remainingItems.push(...softHyphen(options));
         } else if (
-          // Ignore zero-cost penalty before glue, since
-          // glues already have a zero-cost penalty
+          /**
+           * Ignore zero-cost penalty before glue, since
+           * glues already have a zero-cost penalty
+           */
           !(remainingItems.at(-1)?.type === "glue" && cost === 0)
         ) {
           /** The penalty for this break. */
@@ -200,7 +205,7 @@ export const splitTextIntoItems = (
     items = forciblySplitLongWords(items, options);
   }
 
-  items = normalizeItems(items);
+  items = collapseAdjacentGlueWidths(items);
 
   return items;
 };

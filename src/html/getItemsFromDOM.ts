@@ -9,7 +9,11 @@ import {
   TextGlue,
   TextItem,
 } from "src/utils/items";
-import { normalizeItems } from "src/utils/normalize";
+import {
+  collapseAdjacentGlueWidths,
+  makeGlueAtBeginningZeroWidth,
+  makeGlueAtEndZeroWidth,
+} from "src/utils/normalize";
 
 /**
  * Information used to construct a `Range` later.
@@ -73,12 +77,13 @@ export function getItemsFromDOM(
         curOffset += 1;
       } else if (child instanceof Element) {
         getItemsFromElement(child, node, curOffset);
-        getItemsFromElement(child);
         curOffset += 1;
       }
     });
 
     if (addParagraphEnd) {
+      makeGlueAtEndZeroWidth(items);
+
       const endOffset = node.childNodes.length;
 
       if (options.addInfiniteGlueToFinalLine) {
@@ -99,7 +104,11 @@ export function getItemsFromDOM(
     }
   }
 
-  function getItemsFromElement(element: Element) {
+  function getItemsFromElement(
+    element: Element,
+    parentNode: Node,
+    startOffset: number
+  ) {
     const {
       display,
       position,
@@ -112,12 +121,13 @@ export function getItemsFromDOM(
       borderRightWidth,
     } = getComputedStyle(element);
 
-    // if (display === "none"||width==='auto') {
-    //   return;
-    // }
-    // if (position === "absolute") {
-    //   return;
-    // }
+    if (display === "none") {
+      return;
+    }
+    if (position === "absolute") {
+      // console.log({ element });
+      return;
+    }
 
     if (display === "inline") {
       // Add box for margin/border/padding at start of box.
@@ -152,7 +162,8 @@ export function getItemsFromDOM(
       }
 
       // Treat this item as an opaque box.
-      addItemWithOffset(box(_width), element, 0, 1);
+      // addItemWithOffset(box(_width), parentNode, startOffset, startOffset + 1);
+      // addItemWithOffset(box(_width), element, 0, 1);
     }
   }
 
@@ -188,5 +199,10 @@ export function getItemsFromDOM(
   }
 
   getItemsFromNode(paragraphElement);
-  return normalizeItems(items);
+
+  makeGlueAtBeginningZeroWidth(items);
+  makeGlueAtEndZeroWidth(items);
+  collapseAdjacentGlueWidths(items);
+  // TODO: Trim whitespace by making glue at ends zero width
+  return items;
 }

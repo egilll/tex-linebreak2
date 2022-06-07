@@ -1,14 +1,13 @@
-import { visualizeBoxesForDebugging } from "src/html/visualizeBoxesForDebugging";
 import DOMTextMeasurer from "src/html/domTextMeasurer";
 import { DOMItem, getItemsFromDOM } from "src/html/getItemsFromDOM";
 import { getFloatingElements } from "src/html/htmlUtils";
 import { getElementLineWidth } from "src/html/lineWidthDOM";
 import { listenForWindowResize } from "src/html/listener";
 import { getTaggedChildren, tagNode } from "src/html/tagNode";
+import { visualizeBoxesForDebugging } from "src/html/visualizeBoxesForDebugging";
 import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
-import { TextGlue, textGlue } from "src/utils/items";
 
 /**
  * Break the lines of HTML elements.
@@ -60,7 +59,7 @@ export function texLinebreakDOM(
         collapseAllNewlines: true,
       }).lines;
 
-      // console.log(items);
+      console.log(items);
       console.log(lines);
 
       /**
@@ -72,6 +71,8 @@ export function texLinebreakDOM(
         .slice()
         .reverse()
         .forEach((line) => {
+          let funcs: Function[] = [];
+
           const items = line.positionedItems;
           const itemRanges = items.map(getRangeOfItem);
 
@@ -121,7 +122,7 @@ export function texLinebreakDOM(
               } else {
                 curXOffset += item.adjustedWidth;
               }
-              itemRange.surroundContents(span);
+              funcs.push(() => itemRange.surroundContents(span));
             } else if (item.type === "box") {
               /**
                * If xOffset is not curXOffset, that means that a
@@ -131,7 +132,7 @@ export function texLinebreakDOM(
               if (item.xOffset !== curXOffset) {
                 const span = tagNode(document.createElement("span"));
                 span.style.marginLeft = `${item.xOffset - curXOffset}px`;
-                itemRange.insertNode(span);
+                funcs.push(() => itemRange.insertNode(span));
                 curXOffset = item.xOffset;
               }
 
@@ -147,7 +148,9 @@ export function texLinebreakDOM(
 
           /** Insert <br/> elements to separate the lines */
           if (line.lineIndex > 0) {
-            firstBoxRange.insertNode(tagNode(document.createElement("br")));
+            funcs.push(() =>
+              firstBoxRange.insertNode(tagNode(document.createElement("br")))
+            );
           }
 
           /** Add soft hyphens */
@@ -155,7 +158,9 @@ export function texLinebreakDOM(
             const wrapperAroundFinalBox = tagNode(
               document.createElement("span")
             );
-            lastBoxRange.surroundContents(wrapperAroundFinalBox);
+            funcs.push(() =>
+              lastBoxRange.surroundContents(wrapperAroundFinalBox)
+            );
 
             let hyphen: HTMLElement | Text;
             let hyphenText = "-";
@@ -185,8 +190,9 @@ export function texLinebreakDOM(
               hyphen = tagNode(document.createTextNode(hyphenText));
             }
 
-            wrapperAroundFinalBox.appendChild(hyphen);
+            funcs.push(() => wrapperAroundFinalBox.appendChild(hyphen));
           }
+          funcs.reverse().forEach((func) => func());
         });
 
       if (debug) visualizeBoxesForDebugging(lines, element);
@@ -197,7 +203,9 @@ export function texLinebreakDOM(
        * (Todo: Test if this actually works)
        */
       console.error(e);
-      resetDOMJustification(element);
+      if (process.env.NODE_ENV !== "development") {
+        resetDOMJustification(element);
+      }
     }
   });
 
@@ -241,6 +249,7 @@ export function resetDOMJustification(element: HTMLElement) {
 }
 
 export const getRangeOfItem = (item: DOMItem): Range => {
+  console.log({ item });
   const range = document.createRange();
   range.setStart(item.startContainer, item.startOffset);
   range.setEnd(item.endContainer, item.endOffset);

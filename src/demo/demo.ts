@@ -1,9 +1,7 @@
 // import "src/demo/circle";
 // import "src/demo/userInput";
 
-import enUsPatterns from "hyphenation.en-us";
-import Hypher from "hypher";
-import { texts, texts2 } from "src/demo/texts/texts";
+import { texts2 } from "src/demo/texts/texts";
 import { hyphenateFn } from "src/demo/userInput";
 import { texLinebreakDOM } from "src/html";
 

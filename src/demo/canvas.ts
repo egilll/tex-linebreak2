@@ -1,4 +1,4 @@
-import { hyphenateFn, outputElement } from "src/demo/userInput";
+import { outputElement } from "src/demo/userInput";
 import { TexLinebreak } from "src/index";
 import { TexLinebreakOptions } from "src/options";
 import { TextItem } from "src/utils/items";

@@ -1,4 +1,3 @@
-import { MAX_COST } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
 import { box, glue, penalty, TextItem } from "src/utils/items";
 import {
