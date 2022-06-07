@@ -3,12 +3,12 @@ import {
   RequireOnlyCertainKeys,
   TexLinebreakOptions,
 } from "src/options";
+import { penalty } from "src/utils/items";
 import {
   getLineWidth,
   getStretch,
   isBreakablePenalty,
   isForcedBreak,
-  penalty,
   validateItems,
 } from "src/utils/utils";
 
@@ -80,6 +80,12 @@ export interface Penalty {
 }
 
 export type Item = Box | Penalty | Glue;
+
+export type LineWidth = number | number[] | LineWidthObject;
+export type LineWidthObject = {
+  defaultLineWidth: number;
+  [lineIndex: number]: number;
+};
 
 /**
  * Minimum cost for a breakpoint.

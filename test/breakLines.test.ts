@@ -1,6 +1,6 @@
 import { breakLines, Item } from "src/breakLines";
+import { box, forcedBreak, glue } from "src/utils/items";
 import { texLinebreakMonospace } from "src/utils/monospace";
-import { box, forcedBreak, glue } from "src/utils/utils";
 import { XorShift } from "xorshift";
 
 describe("layout", () => {
@@ -15,7 +15,6 @@ describe("layout", () => {
 
       const t = texLinebreakMonospace(input, {
         lineWidth: 41,
-        addInfiniteGlueToFinalLine: false,
       });
 
       expect(t.plainTextLines).toEqual([
@@ -29,8 +28,8 @@ describe("layout", () => {
         "tidal stretch of the River Thames in",
         "south-west London. For the second time",
         "in the history of the event, the men's,",
-        "women's and both reserves' races were all",
-        "held on the Tideway on the same day.",
+        "women's and both reserves' races were",
+        "all held on the Tideway on the same day.",
       ]);
 
       // Check that adjustment ratios for each line are in range.
@@ -39,13 +38,6 @@ describe("layout", () => {
         // expect(line.adjustmentRatio).toBeLessThanOrEqual(layoutOptions.maxAdjustmentRatio);
       });
     });
-
-    // it('uses defaults if options are omitted', () => {
-    //   const measure = (text: string) => text.length * 5;
-    //   const items = layoutItemsFromString('one fine day in the middle of the night', measure);
-    //   const breakpoints = breakLines(items, { lineWidth: 100 });
-    //   expect(breakpoints).toEqual([0, 9, 18]);
-    // });
 
     it("succeeds when min adjustment ratio is exceeded", () => {
       // Lay out input into a line with a width (5) of less than the box width
@@ -60,7 +52,7 @@ describe("layout", () => {
         lineWidth: 5,
         maxAdjustmentRatio: 1,
       });
-      expect(breakpoints).toEqual([0, /*1,*/ 3, 5, 7, 9, 10]);
+      expect(breakpoints).toEqual([0, 1, 3, 5, 7, 9, 10]);
     });
 
     it("handles glue with zero stretch", () => {
@@ -72,7 +64,7 @@ describe("layout", () => {
     it("handles glue with zero shrink", () => {
       const items = [box(10), glue(5, 0, 0), box(10), forcedBreak()];
       const breakpoints = breakLines(items, { lineWidth: 21 });
-      expect(breakpoints).toEqual([0, 3]);
+      expect(breakpoints).toEqual([0, 1, 3]);
     });
 
     it("handles boxes that are wider than the line width", () => {
@@ -84,7 +76,7 @@ describe("layout", () => {
         forcedBreak(),
       ];
       const breakpoints = breakLines(items, { lineWidth: 50 });
-      expect(breakpoints).toEqual([0, 3, 4]);
+      expect(breakpoints).toEqual([0, 1, 3, 4]);
     });
 
     [
@@ -96,7 +88,7 @@ describe("layout", () => {
       {
         items: [box(10), glue(10, 5, 5), box(100), forcedBreak()],
         lineWidth: 50,
-        expectedBreakpoints: [0, 3],
+        expectedBreakpoints: [0, 1, 3],
       },
     ].forEach(({ items, lineWidth, expectedBreakpoints }, i) => {
       it(`succeeds when initial max adjustment ratio is exceeded (${

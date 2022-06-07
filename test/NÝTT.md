@@ -4,3 +4,4 @@
 - should actually break on good penalties, if every letter has a 999 penalty after it it should never break on [ 'Test long s', 'tring.' ]
 - test that penalty before a glue is respected
 - should break even when lineWidth is 0
+- hanging punctuation should not overlap with next item!

@@ -1,13 +1,14 @@
-import { visualizeBoxesForDebugging } from "src/html/debugging";
+import { visualizeBoxesForDebugging } from "src/html/visualizeBoxesForDebugging";
 import DOMTextMeasurer from "src/html/domTextMeasurer";
 import { DOMItem, getItemsFromDOM } from "src/html/getItemsFromDOM";
 import { getFloatingElements } from "src/html/htmlUtils";
-import { getElementLineWidth } from "src/html/lineWidth";
+import { getElementLineWidth } from "src/html/lineWidthDOM";
 import { listenForWindowResize } from "src/html/listener";
 import { getTaggedChildren, tagNode } from "src/html/tagNode";
 import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
+import { TextGlue, textGlue } from "src/utils/items";
 
 /**
  * Break the lines of HTML elements.
@@ -90,8 +91,7 @@ export function texLinebreakDOM(
           let curXOffset = 0;
 
           /**
-           * Loops over items and adjusts the spacing of glues and position
-           * of boxes.
+           * Adjust the spacing of glues and position of boxes.
            *
            * The position of boxes currently only makes adjustments in the
            * case of boxes of a negative width (which represent a backspace,
@@ -105,10 +105,22 @@ export function texLinebreakDOM(
             if (item.type === "glue") {
               const span = tagNode(document.createElement("span"));
               /**
-               * A glue cannot be `inline-block` since that messes with the
-               * formatting of links (each word gets its own underline)
+               * We try to not use `inline-block` since that messes with
+               * the formatting of links (each word gets its own underline)
                */
-              span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
+              // if ((item as TextGlue).text) {
+              //   span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
+              // } else {
+              span.style.width = `${item.adjustedWidth}px`;
+              span.style.display = "inline-block";
+              // }
+              if (item.adjustedWidth < 0) {
+                span.style.fontSize = "0";
+                span.style.width = `0`;
+                span.style.display = "inline-block";
+              } else {
+                curXOffset += item.adjustedWidth;
+              }
               itemRange.surroundContents(span);
             } else if (item.type === "box") {
               /**
@@ -126,11 +138,10 @@ export function texLinebreakDOM(
               // if (options.stripSoftHyphensFromOutputText) {
               //   stripSoftHyphensFromOutputText(itemRange);
               // }
-            }
 
-            /** Todo: negative glue? */
-            if (item.adjustedWidth > 0) {
-              curXOffset += item.adjustedWidth;
+              if (item.adjustedWidth > 0) {
+                curXOffset += item.adjustedWidth;
+              }
             }
           });
 

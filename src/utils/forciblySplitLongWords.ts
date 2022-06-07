@@ -1,12 +1,9 @@
 import { TexLinebreakOptions } from "src/options";
+import { glue, penalty, textBox, TextItem } from "src/utils/items";
 import {
   addSlackIfBreakpoint,
   getMinLineWidth,
-  glue,
   infiniteGlue,
-  penalty,
-  textBox,
-  TextItem,
 } from "src/utils/utils";
 
 /** TODO: Needs rework */

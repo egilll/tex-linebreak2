@@ -11,31 +11,27 @@ import {
 } from "src/typings/unicodeLineBreakingClasses";
 import { forciblySplitLongWords } from "src/utils/forciblySplitLongWords";
 import { addHangingPunctuation } from "src/utils/hangingPunctuation";
-import { normalizeItems } from "src/utils/normalize";
 import {
   forcedBreak,
   glue,
-  infiniteGlue,
   penalty,
   softHyphen,
-  TextBox,
   textBox,
   textGlue,
   TextItem,
-} from "src/utils/utils";
+} from "src/utils/items";
+import { normalizeItems } from "src/utils/normalize";
+import { infiniteGlue } from "src/utils/utils";
 
 export const NON_BREAKING_SPACE = "\u00A0";
 export const SOFT_HYPHEN = "\u00AD";
 
 /**
- * Characters that can stretch as glue, no matter
- * whether they are actually breakpoints or not.
- * `General_Category=Zs` are space separators
+ * Characters that can stretch as glue, no matter whether
+ * they are actually breakpoints or not.
+ * `General_Category=Zs` are space separators, including NBSP
  */
-const glueCharacterRegex = new RegExp(
-  `[ \\t\\p{General_Category=Zs}${NON_BREAKING_SPACE}]`,
-  "u"
-);
+const glueCharacterRegex = /[ \t\p{General_Category=Zs}]/u;
 
 export type Segment = {
   text: string;

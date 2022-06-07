@@ -9,15 +9,15 @@ export const visualizeBoxesForDebugging = (
   lines: Line[],
   appendToElement: HTMLElement
 ) => {
-  /* Remove previous debugging boxes */
-  appendToElement.querySelectorAll(".debug-line").forEach((el) => el.remove());
+  // /* Remove previous debugging boxes */
+  // appendToElement.querySelectorAll(".debug-line").forEach((el) => el.remove());
   const box1 = tagNode(document.createElement("div"));
   box1.classList.add("debug-line");
   box1.style.position = "relative";
   box1.style.height = lines.length * 15 + "px";
   box1.style.marginLeft = window.getComputedStyle(appendToElement).paddingLeft;
   box1.style.height = window.getComputedStyle(appendToElement).height;
-  console.log({ lines });
+  console.log(lines);
 
   lines.forEach((line) => {
     let yOffset = (line.lineIndex + 1) * 15;

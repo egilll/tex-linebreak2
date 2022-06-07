@@ -1,12 +1,11 @@
+import { MAX_COST } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
+import { box, glue, penalty, TextItem } from "src/utils/items";
 import {
-  box,
-  glue,
   isBreakablePenalty,
   isForcedBreak,
   isNonBreakablePenalty,
   isSoftHyphen,
-  TextItem,
 } from "src/utils/utils";
 
 /**
@@ -25,12 +24,7 @@ export const addHangingPunctuation = (
     const prevItem = items[i - 1];
     const nextItem = items[i + 1];
 
-    if (
-      item.type !== "box" ||
-      !("text" in item) ||
-      item.width === 0 ||
-      isSoftHyphen(items[i + 1])
-    ) {
+    if (item.type !== "box" || !("text" in item) || item.width === 0) {
       if (!ignoredItems.has(item)) {
         output.push(item);
       }
@@ -40,7 +34,7 @@ export const addHangingPunctuation = (
     /** Left hanging punctuation */
     if (
       item.text &&
-      // Check that this doesn't come directly after non-breakable penalty
+      // Check that this doesn't come directly after a non-breakable item
       (isBreakablePenalty(prevItem) ||
         !prevItem ||
         (prevItem.type === "glue" && !isNonBreakablePenalty(items[i - 2]))) &&
@@ -57,27 +51,35 @@ export const addHangingPunctuation = (
 
     output.push(item);
 
-    /** Right hanging punctuation */
+    /**
+     * Right hanging punctuation.
+     *
+     * The paper recommends using another method (making the box's width
+     * smaller and moving that width to the adjacent glue), however that
+     * does not work with HTML, as there we have to rely on the boxes
+     * actually being their given width, unless we use absolute positioning.
+     */
     if (
       item.text &&
       // Must not be followed by another box
       (isBreakablePenalty(nextItem) || nextItem?.type === "glue") &&
+      !isSoftHyphen(nextItem) &&
       !isForcedBreak(nextItem) &&
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
       item.text.slice(-1) !== item.text.slice(-2, -1)
     ) {
       const rightHangingPunctuationWidth =
         item.width - options.measureFn(item.text.slice(0, -1));
-      item.width -= rightHangingPunctuationWidth;
+
       /**
        * Special handling of penalties that come directly after boxes.
-       * In that case, we have to add this hanging punctuation glue
-       * AFTER the penalty.
+       * In that case, we have to add the glue to AFTER the penalty.
        */
       if (nextItem.type === "penalty") {
         output.push(nextItem);
         ignoredItems.add(nextItem);
       }
+      output.push(box(-rightHangingPunctuationWidth));
       output.push(glue(rightHangingPunctuationWidth, 0, 0));
     }
   }
