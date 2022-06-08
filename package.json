@@ -22,7 +22,8 @@
     "prepublish": "yarn build-prod",
     "test": "webpack --mode development --config webpack-test.config.js && karma start --single-run",
     "test_watch": "jest --watch --maxWorkers=1",
-    "watch": "webpack --watch --mode development"
+    "watch": "webpack --watch --mode development",
+    "start": "npx webpack serve"
   },
   "dependencies": {
     "debounce": "^1.2.1",
@@ -35,6 +36,7 @@
     "@types/debounce": "^1.2.1",
     "@types/jest": "^27.5.1",
     "@types/node": "^17.0.5",
+    "html-webpack-plugin": "^5.5.0",
     "hyphenation.en-us": "^0.2.1",
     "hypher": "^0.2.5",
     "jest": "28",
@@ -45,6 +47,7 @@
     "typescript": "^4.7.3",
     "webpack": "^5.73.0",
     "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.9.2",
     "xorshift": "^1.2.0"
   }
 }

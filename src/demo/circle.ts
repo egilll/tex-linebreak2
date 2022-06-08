@@ -38,4 +38,5 @@ texLinebreakDOM(outputElement, {
   // lineWidth,
   // leftIndentPerLine,
   optimizeByFn,
+  lineHeight,
 });

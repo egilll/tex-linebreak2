@@ -300,6 +300,9 @@ export class TexLinebreakOptions {
    */
   validateItems: boolean = true;
 
+  // required for some optimizations
+  lineHeight?: number;
+
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {
