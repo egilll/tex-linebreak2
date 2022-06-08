@@ -2,8 +2,8 @@ import DOMTextMeasurer from "src/html/domTextMeasurer";
 import { DOMItem, getItemsFromDOM } from "src/html/getItemsFromDOM";
 import { getFloatingElements } from "src/html/htmlUtils";
 import { getElementLineWidth } from "src/html/lineWidthDOM";
-import { listenForWindowResize } from "src/html/listener";
 import { getTaggedChildren, tagNode } from "src/html/tagNode";
+import { updateOnWindowResize } from "src/html/updateOnWindowResize";
 import { visualizeBoxesForDebugging } from "src/html/visualizeBoxesForDebugging";
 import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
@@ -11,18 +11,20 @@ import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
 import { TextGlue } from "src/utils/items";
 
 /**
- * Break the lines of HTML elements.
+ * Breaks the lines of HTML elements and applies justification.
  *
  * @param _elements - Can be a query selector string or a list of elements.
+ * @param _options
+ * @param debug - Will run {@link visualizeBoxesForDebugging}.
  */
 export function texLinebreakDOM(
   _elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
   _options: Partial<TexLinebreakOptions>,
-  debug = false
+  debug?: boolean
 ) {
   const options = getOptionsWithDefaults({
+    preset: "html",
     ..._options,
-    collapseAllNewlines: true,
   });
 
   let elements: HTMLElement[];
@@ -60,7 +62,6 @@ export function texLinebreakDOM(
         collapseAllNewlines: true,
       }).lines;
 
-      console.log(items);
       console.log(lines);
 
       /**
@@ -158,41 +159,12 @@ export function texLinebreakDOM(
           }
 
           /** Add soft hyphens */
-          if (line.endsWithSoftHyphen && lastBoxRange) {
+          if (line.endsWithSoftHyphen) {
             const wrapperAroundFinalBox = tagNode(
               document.createElement("span")
             );
             lastBoxRange.surroundContents(wrapperAroundFinalBox);
-
-            let hyphen: HTMLElement | Text;
-            let hyphenText = "-";
-            if (options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN") {
-              hyphenText = "";
-            } else if (
-              options.softHyphenOutput ===
-                "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN" ||
-              options.softHyphenOutput === "SOFT_HYPHEN"
-            ) {
-              hyphenText = SOFT_HYPHEN;
-            }
-
-            if (
-              options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN" ||
-              options.softHyphenOutput ===
-                "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN"
-            ) {
-              /**
-               * Create a wrapper element that displays the
-               * hyphen as an uncopiable CSS pseudo-element
-               */
-              hyphen = tagNode(document.createElement("span"));
-              hyphen.appendChild(tagNode(document.createTextNode(hyphenText)));
-              hyphen.dataset.uncopiableText = "-";
-            } else {
-              hyphen = tagNode(document.createTextNode(hyphenText));
-            }
-
-            wrapperAroundFinalBox.appendChild(hyphen);
+            wrapperAroundFinalBox.appendChild(getHyphenElement(options));
           }
         });
 
@@ -210,7 +182,9 @@ export function texLinebreakDOM(
     }
   });
 
-  listenForWindowResize(elements);
+  if (options.updateOnWindowResize) {
+    updateOnWindowResize(elements, options);
+  }
 
   /** Add CSS to handle uncopiable hyphens */
   if (
@@ -254,4 +228,33 @@ export const getRangeOfItem = (item: DOMItem): Range => {
   range.setStart(item.startContainer, item.startOffset);
   range.setEnd(item.endContainer, item.endOffset);
   return range;
+};
+
+export const getHyphenElement = (options: TexLinebreakOptions) => {
+  let hyphen: HTMLElement | Text;
+  let hyphenText = "-";
+  if (options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN") {
+    hyphenText = "";
+  } else if (
+    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN" ||
+    options.softHyphenOutput === "SOFT_HYPHEN"
+  ) {
+    hyphenText = SOFT_HYPHEN;
+  }
+
+  if (
+    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN" ||
+    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN"
+  ) {
+    /**
+     * Create a wrapper element that displays the
+     * hyphen as an uncopiable CSS pseudo-element
+     */
+    hyphen = tagNode(document.createElement("span"));
+    hyphen.appendChild(tagNode(document.createTextNode(hyphenText)));
+    hyphen.dataset.uncopiableText = "-";
+  } else {
+    hyphen = tagNode(document.createTextNode(hyphenText));
+  }
+  return hyphen;
 };

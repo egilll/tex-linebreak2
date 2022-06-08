@@ -30,4 +30,12 @@ for (let yOffset = lineHeight / 2; yOffset < height; yOffset += lineHeight) {
   leftIndentPerLine.push((height - x) / 2);
 }
 
-texLinebreakDOM(outputElement, { lineWidth, leftIndentPerLine });
+const optimizeByFn = () => {
+  // circleOfHeightOne()
+};
+
+texLinebreakDOM(outputElement, {
+  // lineWidth,
+  // leftIndentPerLine,
+  optimizeByFn,
+});

@@ -113,6 +113,27 @@ export const MIN_ADJUSTMENT_RATIO = -1;
 export class MaxAdjustmentExceededError extends Error {}
 
 /**
+ * Used internally by {@link breakLines}.
+ * A line-breaking node either represents a glue or a penalty.
+ */
+export type LineBreakingNode = {
+  /** Index in `items`. */
+  index: number;
+  /** Line number. */
+  line: number;
+  fitness: number;
+  /** Sum of `width` up to first box or forced break after this break. */
+  totalWidth: number;
+  /** Sum of `stretch` up to first box or forced break after this break. */
+  totalStretch: number;
+  /** Sum of `shrink` up to first box or forced break after this break. */
+  totalShrink: number;
+  /** Minimum sum of demerits up to this break. */
+  totalDemerits: number;
+  prev: null | LineBreakingNode;
+};
+
+/**
  * Break a paragraph of text into justified lines.
  *
  * Returns the indexes from `items` which have been chosen as breakpoints.
@@ -143,38 +164,22 @@ export class MaxAdjustmentExceededError extends Error {}
 export function breakLines(
   items: Item[],
   _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
+  returnMetadata = false,
   currentRecursionDepth = 0
-): number[] {
+): any /* TEMP */ {
   if (items.length === 0) return [];
 
   const options = getOptionsWithDefaults(_options);
 
   /** Validate input (if this is the first time the function is called) */
-  if (options.validateItems && currentRecursionDepth === 0)
+  if (options.validateItems && currentRecursionDepth === 0) {
     validateItems(items);
+  }
 
   const currentMaxAdjustmentRatio = Math.min(
     options.initialMaxAdjustmentRatio,
     options.maxAdjustmentRatio !== null ? options.maxAdjustmentRatio : Infinity
   );
-
-  /** A line-breaking node either represents a glue or a penalty. */
-  type LineBreakingNode = {
-    /** Index in `items`. */
-    index: number;
-    /** Line number. */
-    line: number;
-    fitness: number;
-    /** Sum of `width` up to first box or forced break after this break. */
-    totalWidth: number;
-    /** Sum of `stretch` up to first box or forced break after this break. */
-    totalStretch: number;
-    /** Sum of `shrink` up to first box or forced break after this break. */
-    totalShrink: number;
-    /** Minimum sum of demerits up to this break. */
-    totalDemerits: number;
-    prev: null | LineBreakingNode;
-  };
 
   /**
    * The list of "active" breakpoints represents all feasible breakpoints
@@ -473,6 +478,7 @@ export function breakLines(
             ...options,
             initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
           }),
+          returnMetadata,
           currentRecursionDepth + 1
         );
       } else {
@@ -526,12 +532,16 @@ export function breakLines(
    * to get the sequence of chosen breakpoints.
    */
   const output = [];
+  const outputMetadata: LineBreakingNode[] = [];
   let next: LineBreakingNode | null = bestNode!;
   while (next) {
-    output.push(next.index);
+    output.unshift(next.index);
+    outputMetadata.unshift(next);
     next = next.prev;
   }
-  output.reverse();
+  if (returnMetadata) {
+    return outputMetadata;
+  }
 
   return output;
 }

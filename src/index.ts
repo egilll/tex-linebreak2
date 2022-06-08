@@ -1,5 +1,6 @@
 import { breakLines, Item, MIN_ADJUSTMENT_RATIO } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
+import { optimizeByFn } from "src/optimize/optimizeByFn";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import {
   NON_BREAKING_SPACE,
@@ -37,11 +38,15 @@ export class TexLinebreak<
 
   /** Returns the indices of items which are breakpoints */
   get breakpoints(): number[] {
-    if (!this.options.lineWidth)
+    if (!this.options.lineWidth) {
       throw new Error("The option `lineWidth` is required");
+    }
     if (this.options.lineBreakingType === "greedy") {
       return breakLinesGreedy(this.items, this.options);
     } else {
+      if (this.options.optimizeByFn) {
+        return optimizeByFn(this);
+      }
       return breakLines(this.items, this.options);
     }
   }

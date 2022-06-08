@@ -189,6 +189,8 @@ export class TexLinebreakOptions {
    */
   hyphenateFn?: (word: string) => string[];
 
+  optimizeByFn?: Function;
+
   /**
    * - `normal` fills the entire allowed width, with the the last line of each
    *   paragraph being allowed to end with a significant amount of space.
@@ -301,6 +303,9 @@ export class TexLinebreakOptions {
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {
+    if (options.preset === "html") {
+      this.collapseAllNewlines = true;
+    }
     if (options.align && options.align !== "justify") {
       this.softHyphenPenalty = 500;
       this.glueShrinkFactor = 0.2;

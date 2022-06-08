@@ -1,9 +1,4 @@
-import enUsPatterns from "hyphenation.en-us";
-import Hypher from "hypher";
-import {
-  NON_BREAKING_SPACE,
-  SOFT_HYPHEN,
-} from "src/splitTextIntoItems/splitTextIntoItems";
+import { NON_BREAKING_SPACE } from "src/splitTextIntoItems/splitTextIntoItems";
 import { texLinebreakMonospace } from "src/utils/monospace";
 
 it("nbsp", () => {

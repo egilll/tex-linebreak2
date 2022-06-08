@@ -41,7 +41,8 @@ body > p {
   margin: 10px auto;
   padding: 15px 30px;
   line-height: 1.6;
-  width: calc(var(--line-width) + 40px);
+  max-width: calc(var(--line-width) + 40px);
+  width: 100%;
 }
 
 .canvas {

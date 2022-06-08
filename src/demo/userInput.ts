@@ -1,11 +1,7 @@
-import enUsPatterns from "hyphenation.en-us";
-import Hypher from "hypher";
 import { renderToCanvas } from "src/demo/canvas";
 import { texLinebreakDOM } from "src/html/texLinebreakDOM";
 import { TexLinebreakOptions } from "src/options";
-
-export const hyphenateFn = (word: string) =>
-  new Hypher(enUsPatterns).hyphenate(word);
+import { hyphenateFn } from "test/utils/enHyphenateFn";
 
 export const textarea = document.querySelector("textarea")!;
 export const lineWidthSlider = document.querySelector(
