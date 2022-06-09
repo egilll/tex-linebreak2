@@ -11,13 +11,14 @@ body {
   max-width: 500px;
   margin: auto;
   background-color: #fdfbf7;
-  font-family: sans-serif;
+  font-family: "Crimson", serif;
   font-size: 14px;
 }
 
 h1 {
   text-align: center;
   padding-top: 20px;
+  font-weight: normal;
 }
 
 textarea {
@@ -27,8 +28,8 @@ textarea {
 }
 
 body > p {
-  font-family: "Palatino", "Crimson", serif;
-  font-size: 14px;
+  font-family: "Crimson", serif;
+  font-size: 16px;
   line-height: 1.1;
   /*font-style: italic;*/
 }

@@ -1,3 +1,5 @@
+import { TexLinebreakOptions } from "src/options";
+
 class TextMetricsCache {
   private _fonts: Map<Element, string>;
   private _textWidths: Map<string, Map<string, number>>;
@@ -55,38 +57,32 @@ let measureCtx: CanvasRenderingContext2D;
 /**
  * Measure the width of `text` as it would appear if rendered
  * within an `Element` with a given computed `font` style.
+ *
+ * Div-based measurements (placing the text into an invisible div
+ * and seeing its width) does not work since we it is rounded to
+ * the next pixel, resulting in the text being jagged.
  */
-function measureText(cssFont: string, text: string) {
-  if (true) {
-    if (!measureCtx) {
-      const canvas = document.createElement("canvas");
-      measureCtx = canvas.getContext("2d")!;
-    }
-
-    /**
-     * Capture as much of the style as possible. Note that some
-     * properties such as `font-stretch`, `font-size-adjust` and
-     * `font-kerning` are not settable through the CSS `font` property.
-     *
-     * Apparently in some browsers the canvas context's text style
-     * inherits style properties from the `<canvas>` element.
-     * See https://stackoverflow.com/a/8955835/434243
-     */
-    measureCtx.font = cssFont;
-    return measureCtx.measureText(text).width;
-  } else {
-    var test = document.createElement("div");
-    test.style.font = cssFont;
-    test.style.position = "absolute";
-    test.style.visibility = "hidden";
-    test.style.height = "auto";
-    test.textContent = text;
-    test.style.top = "0";
-    test.style.width = "auto";
-    test.style.whiteSpace = "nowrap";
-    document.body.appendChild(test);
-    return test.clientWidth + 1;
+function measureText(
+  cssFont: string,
+  text: string,
+  options: TexLinebreakOptions
+) {
+  if (!measureCtx) {
+    const canvas = document.createElement("canvas");
+    measureCtx = canvas.getContext("2d")!;
   }
+
+  /**
+   * Capture as much of the style as possible. Note that some
+   * properties such as `font-stretch`, `font-size-adjust` and
+   * `font-kerning` are not settable through the CSS `font` property.
+   *
+   * Apparently in some browsers the canvas context's text style
+   * inherits style properties from the `<canvas>` element.
+   * See https://stackoverflow.com/a/8955835/434243
+   */
+  measureCtx.font = cssFont;
+  return measureCtx.measureText(text).width;
 }
 
 /** Measure the width of pieces of text in the DOM, with caching. */
@@ -98,7 +94,7 @@ export default class DOMTextMeasurer {
   }
 
   /** Return the width of `text` rendered by a `Text` node child of `context`. */
-  measure = (text: string, context: Element) => {
+  measure = (text: string, context: Element, options: TexLinebreakOptions) => {
     let cssFont = this._cache.cssFontForElement(context);
     if (!cssFont) {
       cssFont = cssFontForElement(context);
@@ -106,7 +102,7 @@ export default class DOMTextMeasurer {
     }
     let width = this._cache.getWidth(cssFont, text);
     if (!width) {
-      width = measureText(cssFont, text);
+      width = measureText(cssFont, text, options);
       this._cache.putWidth(cssFont, text, width);
     }
     return width;

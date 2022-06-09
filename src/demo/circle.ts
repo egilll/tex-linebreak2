@@ -7,20 +7,23 @@ const text = texts[0];
 
 const outputElement = document.getElementById("demo-output")! as HTMLElement;
 outputElement.innerHTML = text;
-// outputElement.style.textAlign = "center";
-// outputElement.style.fontStyle = "italic";
+outputElement.style.textAlign = "center";
+outputElement.style.fontStyle = "italic";
 
 const lineHeight = parseInt(window.getComputedStyle(outputElement).lineHeight);
 
 const run = () => {
-  texLinebreakDOM(outputElement, {
-    optimizeByFn,
-    lineHeight,
-    hyphenateFn,
-    addInfiniteGlueToFinalLine: false,
-  });
+  texLinebreakDOM(
+    outputElement,
+    {
+      optimizeByFn,
+      lineHeight,
+      hyphenateFn,
+      addInfiniteGlueToFinalLine: false,
+    }
+    // true
+  );
 };
-setTimeout(run, 100);
-// run();
+run();
 
 // outputElement.addEventListener("input", debounce(run, 40));

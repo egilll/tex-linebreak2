@@ -1,4 +1,5 @@
 import { Box, Glue, INFINITE_STRETCH, Penalty } from "src/breakLines";
+import DOMTextMeasurer from "src/html/domTextMeasurer";
 import { TexLinebreakOptions } from "src/options";
 import { splitTextIntoItems } from "src/splitTextIntoItems/splitTextIntoItems";
 import {
@@ -38,7 +39,7 @@ export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 export function getItemsFromDOM(
   paragraphElement: HTMLElement,
   options: TexLinebreakOptions,
-  domTextMeasureFn: (text: string, context: Element) => number
+  domTextMeasureFn: InstanceType<typeof DOMTextMeasurer>["measure"]
 ): DOMItem[] {
   let items: DOMItem[] = [];
   let paragraphText = paragraphElement.textContent || "";
@@ -162,7 +163,7 @@ export function getItemsFromDOM(
       text,
       {
         ...options,
-        measureFn: (word) => domTextMeasureFn(word, element),
+        measureFn: (word) => domTextMeasureFn(word, element, options),
         addParagraphEnd,
         collapseAllNewlines: true,
       },

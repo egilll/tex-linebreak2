@@ -38,7 +38,7 @@ export class TexLinebreakOptions {
    * Note: Is the ratio of the longest width, not the ratio of the current line
    * (which is usually not an issue)
    */
-  infiniteGlueStretchAsRatioOfWidth?: number | null = 0.8;
+  infiniteGlueStretchAsRatioOfWidth?: number | null = 1;
 
   /**
    * The adjustment ratio of a line is the amount by which a line's glue
@@ -309,11 +309,13 @@ export class TexLinebreakOptions {
     if (options.preset === "html") {
       this.collapseAllNewlines = true;
     }
+    /** Ragged text */
     if (options.align && options.align !== "justify") {
       this.softHyphenPenalty = 500;
       this.glueShrinkFactor = 0.2;
       this.glueStretchFactor = 0.3;
       this.renderLineAsLeftAlignedIfAdjustmentRatioExceeds = 1;
+      this.infiniteGlueStretchAsRatioOfWidth = 0.4;
     }
     Object.assign(this, options);
   }

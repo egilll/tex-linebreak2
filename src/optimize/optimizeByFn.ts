@@ -42,7 +42,7 @@ const getScore = ({
   const totalDemerits = lineBreakingNodes.at(-1)!.totalDemerits;
   const diff = idealLineNumber - actualLineNumber;
   if (diff < 0) return diff;
-  return diff + Math.cbrt(totalDemerits) /*/ lineBreakingNodes.length / 1000*/;
+  return diff + Math.cbrt(totalDemerits) / lineBreakingNodes.length / 10000;
 };
 
 export const optimizeByFn = (obj: TexLinebreak): number[] => {
@@ -77,7 +77,7 @@ export const optimizeByFn = (obj: TexLinebreak): number[] => {
 
   if (best) {
     obj.options.lineWidth = best.lineWidth;
-    obj.options.leftIndentPerLine = best.leftIndentPerLine;
+    // obj.options.leftIndentPerLine = best.leftIndentPerLine;
     return best.lineBreakingNodes.map((i) => i.index);
   } else {
     console.error("Failed to find a good width");
@@ -102,6 +102,11 @@ export function BisectionFindMinimumPositiveIntegerOutput<T>({
   min?: number;
   /** An integer 1 <= n */
   max?: number;
+  /**
+   * Must be a monotonic increasing function
+   *
+   * @param arg0
+   */
   func: (arg0: number) => T;
   scoreFunc: (arg0: T) => number;
   maxAttempts?: number;
@@ -110,6 +115,7 @@ export function BisectionFindMinimumPositiveIntegerOutput<T>({
   let xMin = min ?? 0;
   let xMax: number | null = max || null;
   let yBest: number | null = null;
+  let xBest: number | null = null;
   let outputBest: T | null = null;
   /** X to Y (i.e. score) */
   const guesses: Map<number, number> = new Map();
@@ -122,9 +128,8 @@ export function BisectionFindMinimumPositiveIntegerOutput<T>({
     if (y > 0 && (yBest == null || y < yBest)) {
       outputBest = output;
       yBest = y;
+      xBest = x;
     }
-
-    console.log({ x, y });
 
     /** Found perfect score */
     if (y === 0) {
@@ -157,5 +162,6 @@ export function BisectionFindMinimumPositiveIntegerOutput<T>({
       break;
     }
   }
+  console.log({ yBest });
   return outputBest;
 }
