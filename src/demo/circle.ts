@@ -20,6 +20,7 @@ const circleOfHeightOne = (ratioOfTotalHeight: number) => {
   return 2 * Math.sqrt(radius ** 2 - distanceFromCenter ** 2);
 };
 
+// window.addEventListener("DOMContentLoaded", () => {
 const lineHeight = parseInt(window.getComputedStyle(outputElement).lineHeight);
 const height = 360;
 let lineWidth = [];
@@ -35,8 +36,10 @@ const optimizeByFn = () => {
 };
 
 texLinebreakDOM(outputElement, {
-  // lineWidth,
-  // leftIndentPerLine,
+  lineWidth,
+  leftIndentPerLine,
   optimizeByFn,
   lineHeight,
+  addInfiniteGlueToFinalLine: false,
 });
+// });

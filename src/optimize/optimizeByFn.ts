@@ -2,6 +2,12 @@ import { breakLines, LineBreakingNode } from "src/breakLines";
 import { TexLinebreak } from "src/index";
 
 const getLineWidths = (height: number, lineHeight: number) => {
+  if (!lineHeight) {
+    throw new Error(
+      `lineHeight must be defined, got ${lineHeight}. You may need to use a DOMContentLoaded listener to wait until lineHeight can be read, or load your script at the end of the file.`
+    );
+  }
+
   /** Horizontal chord length of a circle given a ratio of height in circle */
   const circleOfHeightOne = (ratioOfTotalHeight: number) => {
     const radius = 1 / 2;
@@ -26,25 +32,30 @@ const getScore = (nodes: LineBreakingNode[], lineWidths: number[]) => {
   const actualLineNumber = nodes.length - 1;
   const idealLineNumber = lineWidths.length;
   const totalDemerits = nodes.at(-1)!.totalDemerits;
-  return (idealLineNumber - actualLineNumber) ** 2;
+  const diff = idealLineNumber - actualLineNumber;
+  if (diff < 0) return diff;
+  return diff + Math.cbrt(totalDemerits) / nodes.length / 1000;
 };
 
 export const optimizeByFn = (obj: TexLinebreak): number[] => {
   obj.options.addInfiniteGlueToFinalLine = false;
 
   // const func = obj.options.optimizeByFn!;
-  let numberOfLines = 30;
-  let minNumberOfLines = 4;
-  let lastDiff: number | null = null;
-  const diffDeltaFactor = 0.6;
+  const guesses: Map<number, number> = new Map();
 
-  let bestScore: number | null = null;
+  let x = 500;
+  let x_min = 4 * obj.options.lineHeight!;
+  let x_max: number | null = null;
+
+  let y_best: number | null = null;
+  let x_best;
   let best;
-  let bestNumberOfLines;
+
+  console.log({ lineHeight: obj.options.lineHeight });
 
   for (let i = 0; i < 50; i++) {
     let { lineWidth, leftIndentPerLine } = getLineWidths(
-      numberOfLines * obj.options.lineHeight!,
+      x,
       obj.options.lineHeight!
     );
     const lineBreakingNodes: LineBreakingNode[] = breakLines(
@@ -55,39 +66,53 @@ export const optimizeByFn = (obj: TexLinebreak): number[] => {
       },
       true
     );
-    const score = getScore(lineBreakingNodes, lineWidth);
-    if (score > 0 && (bestScore == null || score < bestScore)) {
-      bestScore = score;
+
+    const y = getScore(lineBreakingNodes, lineWidth);
+    guesses.set(x, y);
+
+    if (y > 0 && (y_best == null || y < y_best)) {
+      y_best = y;
+      x_best = x;
       best = {
         lineWidth,
         leftIndentPerLine,
         lineBreakingNodes,
       };
-      bestNumberOfLines = numberOfLines;
     }
-    let diff: number = Math.abs(lastDiff || numberOfLines) * diffDeltaFactor;
-    if (bestNumberOfLines) {
-      diff *= numberOfLines - bestNumberOfLines >= 0 ? 1 : -1;
-    }
-    if (score < 0) {
-      diff = Math.abs(diff);
-    }
-
-    // if (numberOfLines + diff < minNumberOfLines) {
-    //   diff = minNumberOfLines - numberOfLines;
-    // }
-    diff = Math.abs(diff) < 1 ? Math.ceil(diff) : Math.round(diff);
-    console.log({ numberOfLines, score, diff });
-
-    if (diff === 0 || diff === lastDiff || (diff === 1 && lastDiff === 1)) {
+    console.log({ x, y });
+    if (y === 0) {
       break;
     }
+    if (y > 0 && (x_max == null || x < x_max)) {
+      x_max = x;
+    }
+    if (y < 0 && x > x_min) {
+      x_min = x;
+    }
+    if (x_max == null) {
+      x *= 2;
+    } else {
+      x = Math.round((x_min + x_max) / 2);
+    }
+    console.log({ nextGuess: x, x_low: x_min, x_high: x_max });
 
-    numberOfLines += diff;
-    lastDiff = diff;
+    if (x_min === x_max) break;
+
+    if (guesses.has(x)) {
+      for (let i = 0; i < 10; i++) {
+        if (!guesses.has(x + i)) {
+          x += i;
+          break;
+        } else if (!guesses.has(x - i)) {
+          x -= i;
+          break;
+        }
+      }
+      break;
+    }
   }
   if (best) {
-    console.log({ bestScore, bestNumberOfLines });
+    console.log({ x_best, y_best });
     // @ts-ignore
     obj.options.lineWidth = best.lineWidth;
     // @ts-ignore
@@ -99,3 +124,9 @@ export const optimizeByFn = (obj: TexLinebreak): number[] => {
     return breakLines(obj.items, obj.options);
   }
 };
+
+export const BisectionFindMinimumPositiveIntegerOutput = ({
+  initialGuess,
+}: {
+  initialGuess: number;
+}) => {};
