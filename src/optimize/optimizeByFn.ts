@@ -28,96 +28,55 @@ const getLineWidths = (height: number, lineHeight: number) => {
   return { lineWidth, leftIndentPerLine };
 };
 
-const getScore = (nodes: LineBreakingNode[], lineWidths: number[]) => {
-  const actualLineNumber = nodes.length - 1;
-  const idealLineNumber = lineWidths.length;
-  const totalDemerits = nodes.at(-1)!.totalDemerits;
+const getScore = ({
+  lineBreakingNodes,
+  lineWidth,
+  leftIndentPerLine,
+}: {
+  lineBreakingNodes: LineBreakingNode[];
+  lineWidth: number[];
+  leftIndentPerLine: number[];
+}) => {
+  const actualLineNumber = lineBreakingNodes.length - 1;
+  const idealLineNumber = lineWidth.length;
+  const totalDemerits = lineBreakingNodes.at(-1)!.totalDemerits;
   const diff = idealLineNumber - actualLineNumber;
   if (diff < 0) return diff;
-  return diff + Math.cbrt(totalDemerits) / nodes.length / 1000;
+  return diff + Math.cbrt(totalDemerits) / lineBreakingNodes.length / 1000;
 };
 
 export const optimizeByFn = (obj: TexLinebreak): number[] => {
   obj.options.addInfiniteGlueToFinalLine = false;
 
-  // const func = obj.options.optimizeByFn!;
-  const guesses: Map<number, number> = new Map();
-
-  let x = 500;
-  let x_min = 4 * obj.options.lineHeight!;
-  let x_max: number | null = null;
-
-  let y_best: number | null = null;
-  let x_best;
-  let best;
-
-  console.log({ lineHeight: obj.options.lineHeight });
-
-  for (let i = 0; i < 50; i++) {
-    let { lineWidth, leftIndentPerLine } = getLineWidths(
-      x,
-      obj.options.lineHeight!
-    );
-    const lineBreakingNodes: LineBreakingNode[] = breakLines(
-      obj.items,
-      {
-        ...obj.options,
-        lineWidth,
-      },
-      true
-    );
-
-    const y = getScore(lineBreakingNodes, lineWidth);
-    guesses.set(x, y);
-
-    if (y > 0 && (y_best == null || y < y_best)) {
-      y_best = y;
-      x_best = x;
-      best = {
+  const best = BisectionFindMinimumPositiveIntegerOutput({
+    initialGuess: 500,
+    min: 4 * obj.options.lineHeight!,
+    maxAttempts: 30,
+    scoreFunc: getScore,
+    func: (x) => {
+      let { lineWidth, leftIndentPerLine } = getLineWidths(
+        x,
+        obj.options.lineHeight!
+      );
+      const lineBreakingNodes: LineBreakingNode[] = breakLines(
+        obj.items,
+        {
+          ...obj.options,
+          lineWidth,
+        },
+        true
+      );
+      return {
+        lineBreakingNodes,
         lineWidth,
         leftIndentPerLine,
-        lineBreakingNodes,
       };
-    }
-    console.log({ x, y });
-    if (y === 0) {
-      break;
-    }
-    if (y > 0 && (x_max == null || x < x_max)) {
-      x_max = x;
-    }
-    if (y < 0 && x > x_min) {
-      x_min = x;
-    }
-    if (x_max == null) {
-      x *= 2;
-    } else {
-      x = Math.round((x_min + x_max) / 2);
-    }
-    console.log({ nextGuess: x, x_low: x_min, x_high: x_max });
+    },
+  });
 
-    if (x_min === x_max) break;
-
-    if (guesses.has(x)) {
-      for (let i = 0; i < 10; i++) {
-        if (!guesses.has(x + i)) {
-          x += i;
-          break;
-        } else if (!guesses.has(x - i)) {
-          x -= i;
-          break;
-        }
-      }
-      break;
-    }
-  }
   if (best) {
-    console.log({ x_best, y_best });
-    // @ts-ignore
     obj.options.lineWidth = best.lineWidth;
-    // @ts-ignore
     obj.options.leftIndentPerLine = best.leftIndentPerLine;
-    // @ts-ignore
     return best.lineBreakingNodes.map((i) => i.index);
   } else {
     console.error("Failed to find a good width");
@@ -125,8 +84,75 @@ export const optimizeByFn = (obj: TexLinebreak): number[] => {
   }
 };
 
-export const BisectionFindMinimumPositiveIntegerOutput = ({
+export function BisectionFindMinimumPositiveIntegerOutput<T>({
   initialGuess,
+  min,
+  max,
+  func,
+  scoreFunc,
+  maxAttempts,
 }: {
   initialGuess: number;
-}) => {};
+  /**
+   * A positive integer.
+   *
+   * @default 0
+   */
+  min?: number;
+  /** An integer 1 <= n */
+  max?: number;
+  func: (arg0: number) => T;
+  scoreFunc: (arg0: T) => number;
+  maxAttempts?: number;
+}): T | null {
+  let x = initialGuess;
+  let xMin = min ?? 0;
+  let xMax: number | null = max || null;
+  let yBest: number | null = null;
+  let outputBest: T | null = null;
+  /** X to Y (i.e. score) */
+  const guesses: Map<number, number> = new Map();
+
+  outerLoop: for (let i = 0; i < (maxAttempts || 1000); i++) {
+    const output = func(x);
+    const y = scoreFunc(output);
+    guesses.set(x, y);
+
+    if (y > 0 && (yBest == null || y < yBest)) {
+      outputBest = output;
+      yBest = y;
+    }
+
+    /** Found perfect score */
+    if (y === 0) {
+      break;
+    }
+    if (y > 0 && (xMax == null || x < xMax)) {
+      xMax = x;
+    }
+    if (y < 0 && x > xMin) {
+      xMin = x;
+    }
+    if (xMax == null) {
+      x *= 2;
+    } else {
+      x = Math.round((xMin + xMax) / 2);
+    }
+
+    if (xMin === xMax) break;
+
+    if (guesses.has(x)) {
+      for (let i = 0; i < 10; i++) {
+        if ((xMax == null || x + i < xMax) && !guesses.has(x + i)) {
+          x += i;
+          continue outerLoop;
+        } else if (x - i >= xMin && !guesses.has(x - i)) {
+          x -= i;
+          continue outerLoop;
+        }
+      }
+      break;
+    }
+  }
+  return outputBest;
+}
