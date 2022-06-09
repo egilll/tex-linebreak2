@@ -57,22 +57,36 @@ let measureCtx: CanvasRenderingContext2D;
  * within an `Element` with a given computed `font` style.
  */
 function measureText(cssFont: string, text: string) {
-  if (!measureCtx) {
-    const canvas = document.createElement("canvas");
-    measureCtx = canvas.getContext("2d")!;
-  }
+  if (true) {
+    if (!measureCtx) {
+      const canvas = document.createElement("canvas");
+      measureCtx = canvas.getContext("2d")!;
+    }
 
-  /**
-   * Capture as much of the style as possible. Note that some
-   * properties such as `font-stretch`, `font-size-adjust` and
-   * `font-kerning` are not settable through the CSS `font` property.
-   *
-   * Apparently in some browsers the canvas context's text style
-   * inherits style properties from the `<canvas>` element.
-   * See https://stackoverflow.com/a/8955835/434243
-   */
-  measureCtx.font = cssFont;
-  return measureCtx.measureText(text).width;
+    /**
+     * Capture as much of the style as possible. Note that some
+     * properties such as `font-stretch`, `font-size-adjust` and
+     * `font-kerning` are not settable through the CSS `font` property.
+     *
+     * Apparently in some browsers the canvas context's text style
+     * inherits style properties from the `<canvas>` element.
+     * See https://stackoverflow.com/a/8955835/434243
+     */
+    measureCtx.font = cssFont;
+    return measureCtx.measureText(text).width;
+  } else {
+    var test = document.createElement("div");
+    test.style.font = cssFont;
+    test.style.position = "absolute";
+    test.style.visibility = "hidden";
+    test.style.height = "auto";
+    test.textContent = text;
+    test.style.top = "0";
+    test.style.width = "auto";
+    test.style.whiteSpace = "nowrap";
+    document.body.appendChild(test);
+    return test.clientWidth + 1;
+  }
 }
 
 /** Measure the width of pieces of text in the DOM, with caching. */

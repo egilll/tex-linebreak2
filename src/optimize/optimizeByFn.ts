@@ -42,7 +42,7 @@ const getScore = ({
   const totalDemerits = lineBreakingNodes.at(-1)!.totalDemerits;
   const diff = idealLineNumber - actualLineNumber;
   if (diff < 0) return diff;
-  return diff + Math.cbrt(totalDemerits) / lineBreakingNodes.length / 1000;
+  return diff + Math.cbrt(totalDemerits) /*/ lineBreakingNodes.length / 1000*/;
 };
 
 export const optimizeByFn = (obj: TexLinebreak): number[] => {
@@ -73,6 +73,7 @@ export const optimizeByFn = (obj: TexLinebreak): number[] => {
       };
     },
   });
+  console.log({ best });
 
   if (best) {
     obj.options.lineWidth = best.lineWidth;
@@ -122,6 +123,8 @@ export function BisectionFindMinimumPositiveIntegerOutput<T>({
       outputBest = output;
       yBest = y;
     }
+
+    console.log({ x, y });
 
     /** Found perfect score */
     if (y === 0) {

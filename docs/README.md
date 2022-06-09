@@ -25,7 +25,7 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 
 ## Features
 
-- Usually works well on websites ([\*](#limitations))
+- Works on the average website (but see [limitations](#limitations-on-webpages))
 - [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
 - Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1] Custom breaking rules also supported.
 - Can find the optimal width required for laying out text. This is especially useful when it comes to headlines (whose last line should not be mainly empty) but will also result in prettier output for general types of text.
@@ -139,13 +139,15 @@ texLinebreakDOM(document.querySelectorAll("p"), { align: "left" });
 
 The library will listen for window resizing (can be turned off with the option `{ updateOnWindowResize: false }`, but it will not listen for dynamic DOM changes. If you alter the DOM in a way that may cause the available space for the paragraph to change, you must call `texLinebreakDOM` again.
 
-#### Limitations
+#### Limitations on webpages
 
 The library does not support:
 
+- Third party web fonts, font-stretch, font-size-adjust, font-kerning
 - Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement> text</p>`)
 - Floating elements when the paragraph doesn't have `line-height` set
 - Columns
+- Contenteditable elements
 
 ### Other types of text
 

@@ -13,7 +13,7 @@ module.exports = {
     lib: "./src",
     ...hyphenLibs,
   },
-  devtool: "source-map",
+  devtool: "inline-source-map",
   mode: process.env.NODE_ENV || "development",
   module: {
     rules: [
@@ -23,6 +23,17 @@ module.exports = {
         exclude: /node_modules/,
       },
     ],
+  },
+  stats: {
+    assets: false,
+    children: false,
+    chunks: false,
+    hash: false,
+    modules: false,
+    publicPath: false,
+    timings: false,
+    version: false,
+    warnings: true,
   },
   /** Will serve from http://localhost:3000/index.html */
   devServer: {
@@ -58,7 +69,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      inject: true,
+      inject: false,
       template: "./src/demo/demo.html",
     }),
   ],

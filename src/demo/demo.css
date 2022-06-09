@@ -27,15 +27,14 @@ textarea {
 }
 
 body > p {
-  font-family: serif;
-  font-size: 16px;
+  font-family: "Palatino", "Crimson", serif;
+  font-size: 14px;
   line-height: 1.1;
   /*font-style: italic;*/
 }
 
 .demo-output {
   background-color: white;
-  font-family: serif;
   font-size: 16px;
   border: 1px solid #aaa;
   margin: 10px auto;
