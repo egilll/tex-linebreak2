@@ -115,10 +115,12 @@ export const getMaxLineWidth = (lineWidths: LineWidth): number => {
     return Math.max(...lineWidths);
   } else if (typeof lineWidths === "number") {
     return lineWidths;
-  } else {
+  } else if (typeof lineWidths === "object") {
     return Math.max(
       ...[...Object.values(lineWidths), lineWidths.defaultLineWidth]
     );
+  } else {
+    throw new Error("Invalid lineWidths, got " + typeof lineWidths);
   }
 };
 

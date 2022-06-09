@@ -143,7 +143,7 @@ The library will listen for window resizing (can be turned off with the option `
 
 The library does not support:
 
-- Third party web fonts, font-stretch, font-size-adjust, font-kerning
+- font-stretch, font-size-adjust, font-kerning
 - Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement> text</p>`)
 - Floating elements when the paragraph doesn't have `line-height` set
 - Columns
@@ -226,6 +226,7 @@ See [`TexLinebreakOptions`](../src/options.ts) for a list of available options. 
 - `softHyphenPenalty` (default 50) – Set to 1000 to prohibit breaking on soft hyphens.
 - `forceOverflowToBreak`
 - `lineBreakingType`
+- `setElementWidthToMaxLineWidth`
 
 ## API
 
@@ -239,12 +240,12 @@ new TexLinebreak(items, {});
 
 It has the following properties:
 
-- `lines` is an array of [`Line`](../src/index.ts) items which describe each line of the output
+- `lines` is an array of [`Line`](../src/index.ts) objects which describe each line of the output
 - `plainText` will output the text as plain text
 - `items`, the boxes, glues, and penalties that make up a paragraph
 - `breakpoints` are the indices of items that break a line
 
-A [`Line`](../src/index.ts) object describes a single line of the output. Its relevant properties are:
+A [`Line`](../src/index.ts) object describes a single line of the output. Its has the following properties:
 
 - `positionedItems` – An array of each item (box, glue, and penalty) that is relevant for rendering the line (i.e. without irrelevant glues and penalties), along with their positioning information given as `xOffset` and `adjustedWidth` (width including any stretching or shrinking).
 

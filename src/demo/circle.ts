@@ -7,7 +7,7 @@ const text = texts[0];
 
 const outputElement = document.getElementById("demo-output")! as HTMLElement;
 outputElement.innerHTML = text;
-outputElement.style.textAlign = "center";
+// outputElement.style.textAlign = "center";
 outputElement.style.fontStyle = "italic";
 
 const lineHeight = parseInt(window.getComputedStyle(outputElement).lineHeight);
@@ -20,6 +20,7 @@ const run = () => {
       lineHeight,
       hyphenateFn,
       addInfiniteGlueToFinalLine: false,
+      setElementWidthToMaxLineWidth: true,
     }
     // true
   );

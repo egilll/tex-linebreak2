@@ -9,6 +9,7 @@ import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
 import { TextGlue } from "src/utils/items";
+import { getMaxLineWidth } from "src/utils/utils";
 
 /**
  * Breaks the lines of HTML elements and applies justification.
@@ -56,11 +57,12 @@ export function texLinebreakDOM(
       /** Disable automatic line wrap. */
       element.style.whiteSpace = "nowrap";
 
-      const lines = new TexLinebreak<DOMItem>(items, {
+      const obj = new TexLinebreak<DOMItem>(items, {
         ...options,
         lineWidth,
         collapseAllNewlines: true,
-      }).lines;
+      });
+      const lines = obj.lines;
 
       console.log(lines);
 
@@ -168,6 +170,11 @@ export function texLinebreakDOM(
           }
         });
 
+      if (options.setElementWidthToMaxLineWidth) {
+        /** TODO: Include padding */
+        element.style.width = `${getMaxLineWidth(obj.options.lineWidth)}px`;
+      }
+
       if (debug) visualizeBoxesForDebugging(lines, element);
     } catch (e) {
       /**
@@ -176,9 +183,9 @@ export function texLinebreakDOM(
        * (Todo: Test if this actually works)
        */
       console.error(e);
-      if (process.env.NODE_ENV !== "development") {
-        resetDOMJustification(element);
-      }
+      // if (process.env.NODE_ENV !== "development") {
+      resetDOMJustification(element);
+      // }
     }
   });
 

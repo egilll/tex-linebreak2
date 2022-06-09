@@ -79,6 +79,8 @@ export class TexLinebreakOptions {
    */
   softHyphenPenalty: number = 50;
 
+  regularHyphenPenalty: number = 10;
+
   /** Penalty for significant differences in the tightness of adjacent lines. */
   adjacentLooseTightPenalty: number = 0;
 
@@ -291,8 +293,18 @@ export class TexLinebreakOptions {
   /** Whether to cache the output of the `hyphenateFn` globally. */
   cacheHyphenation: boolean = true;
 
-  /** This only applies to texLinebreakDOM. */
+  /** (This only applies to texLinebreakDOM.) */
   updateOnWindowResize: boolean = true;
+
+  /**
+   * (This only applies to texLinebreakDOM.)
+   *
+   * Whether the container element should be given a specific width after
+   * the text has been laid out. This is used for when the width of the text
+   * is being optimized, and you want the container to also become smaller,
+   * allowing you to do things such as centering it with `margin: auto`.
+   */
+  setElementWidthToMaxLineWidth?: boolean;
 
   /**
    * Whether to check the validity of the items

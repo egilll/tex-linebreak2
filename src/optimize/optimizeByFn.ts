@@ -77,7 +77,7 @@ export const optimizeByFn = (obj: TexLinebreak): number[] => {
 
   if (best) {
     obj.options.lineWidth = best.lineWidth;
-    // obj.options.leftIndentPerLine = best.leftIndentPerLine;
+    obj.options.leftIndentPerLine = best.leftIndentPerLine;
     return best.lineBreakingNodes.map((i) => i.index);
   } else {
     console.error("Failed to find a good width");

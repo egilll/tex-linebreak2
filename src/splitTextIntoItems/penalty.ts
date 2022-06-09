@@ -24,7 +24,7 @@ export const getBreakpointPenalty = (
   const { lastLetter, lastLetterClass, nextLetterClass } = breakpoint;
 
   if (breakpoint.required) {
-    return PenaltyClasses.MandatoryBreak;
+    return MIN_COST;
   }
 
   // Spaces
@@ -39,8 +39,12 @@ export const getBreakpointPenalty = (
     // Zero width space
     lastLetterClass === UnicodeLineBreakingClasses.ZeroWidthSpace
   ) {
-    return PenaltyClasses.Space;
-  } else if (options.onlyBreakOnWhitespace) {
+    return 0;
+  }
+
+  // If the option `onlyBreakOnWhitespace` is on,
+  // everything that is not a space has a MAX_COST penalty.
+  else if (options.onlyBreakOnWhitespace) {
     return MAX_COST;
   }
 
@@ -49,28 +53,23 @@ export const getBreakpointPenalty = (
     lastLetterClass === UnicodeLineBreakingClasses.BreakOnEitherSide ||
     nextLetterClass === UnicodeLineBreakingClasses.BreakOnEitherSide
   ) {
-    return PenaltyClasses.GoodBreak;
-  }
-
-  // Ideographic
-  else if (lastLetterClass === UnicodeLineBreakingClasses.Ideographic) {
-    return PenaltyClasses.GoodBreak;
+    return 10;
   }
 
   // Hyphens
   else if (lastLetterClass === UnicodeLineBreakingClasses.Hyphen) {
-    return PenaltyClasses.GoodBreak;
+    return options.regularHyphenPenalty;
   }
 
   // En-dashes and language-specific visible breaking characters
   else if (lastLetterClass === UnicodeLineBreakingClasses.BreakAfter) {
-    return PenaltyClasses.GoodBreak;
+    return 10;
   }
 
   // Soft hyphens
   else if (lastLetter === SOFT_HYPHEN) {
     /** (Note: Value actually not used, is overwritten in {@link softHyphen}) */
-    return PenaltyClasses.SoftHyphen;
+    return options.softHyphenPenalty;
   }
 
   // Break-before class (rare)
@@ -94,6 +93,11 @@ export const getBreakpointPenalty = (
      * exceeds an implementation-defined minimal distance."
      */
     return PenaltyClasses.VeryBadBreak;
+  }
+
+  // Ideographic
+  else if (lastLetterClass === UnicodeLineBreakingClasses.Ideographic) {
+    return 100;
   }
 
   // Other break-classes
