@@ -1,10 +1,7 @@
 import LineBreaker, { Break } from "linebreak";
 import { MAX_COST, MIN_COST } from "src/breakLines";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
-import {
-  getBreakpointPenalty,
-  PenaltyClasses,
-} from "src/splitTextIntoItems/penalty";
+import { getBreakpointPenalty } from "src/splitTextIntoItems/penalty";
 import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
   UnicodeLineBreakingClasses,
@@ -33,12 +30,12 @@ export const SOFT_HYPHEN = "\u00AD";
  */
 const glueCharacterRegex = /[ \t\p{General_Category=Zs}]/u;
 
-export type Segment = {
+type Segment = {
   text: string;
   type: "box" | "glue";
   breakpoint?: BreakpointInformation;
 };
-export type BreakpointInformation = {
+type BreakpointInformation = {
   required: boolean;
   lastLetter: string;
   lastLetterClass: UnicodeLineBreakingClasses;
@@ -60,11 +57,15 @@ export const splitTextIntoItems = (
 
   let items: TextItem[] = [];
 
-  precedingText = ""; //precedingText.slice(-3);
-  followingText = ""; //followingText.slice(0, 3);
+  precedingText = precedingText.slice(-50);
+  followingText = followingText.slice(0, 50);
   const inputWithSurroundingText = precedingText + input + followingText;
   const breakpoints: Record<number, BreakpointInformation> =
     getAllowableUnicodeBreakpoints(inputWithSurroundingText);
+
+  if (options.neverBreakInside) {
+    // todo
+  }
 
   /**
    * We start by splitting the input into segments of either boxes (text) or
@@ -134,8 +135,7 @@ export const splitTextIntoItems = (
     if (options.addParagraphEnd && isLastSegment) cost = MIN_COST;
 
     const isParagraphEnd =
-      cost === PenaltyClasses.MandatoryBreak ||
-      (options.addParagraphEnd && isLastSegment);
+      cost === MIN_COST || (options.addParagraphEnd && isLastSegment);
 
     /** First we add the box. */
     if (segment.type === "box") {

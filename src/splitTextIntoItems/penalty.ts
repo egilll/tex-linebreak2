@@ -6,17 +6,6 @@ import {
 } from "src/splitTextIntoItems/splitTextIntoItems";
 import { UnicodeLineBreakingClasses } from "src/typings/unicodeLineBreakingClasses";
 
-export enum PenaltyClasses {
-  MandatoryBreak = MIN_COST,
-  Space = 0,
-  GoodBreak = 10,
-  OKBreak = 20,
-  /** @deprecated */
-  SoftHyphen = PenaltyClasses.OKBreak,
-  BadBreak = 50,
-  VeryBadBreak = 900,
-}
-
 export const getBreakpointPenalty = (
   breakpoint: BreakpointInformation,
   options: TexLinebreakOptions
@@ -53,7 +42,7 @@ export const getBreakpointPenalty = (
     lastLetterClass === UnicodeLineBreakingClasses.BreakOnEitherSide ||
     nextLetterClass === UnicodeLineBreakingClasses.BreakOnEitherSide
   ) {
-    return 10;
+    return 5;
   }
 
   // Hyphens
@@ -75,10 +64,10 @@ export const getBreakpointPenalty = (
   // Break-before class (rare)
   else if (nextLetterClass === UnicodeLineBreakingClasses.BreakBefore) {
     /**
-     * TODO: Incomplete: Certain symbols in
+     * Todo: Incomplete: Certain symbols in
      * this class cause a preceding soft hyphen
      */
-    return PenaltyClasses.OKBreak;
+    return 10;
   }
 
   // Slashes
@@ -92,7 +81,7 @@ export const getBreakpointPenalty = (
      * the distance between it and the next line break opportunity
      * exceeds an implementation-defined minimal distance."
      */
-    return PenaltyClasses.VeryBadBreak;
+    return 900;
   }
 
   // Ideographic
@@ -102,7 +91,7 @@ export const getBreakpointPenalty = (
 
   // Other break-classes
   else {
-    return PenaltyClasses.VeryBadBreak;
+    return 900;
   }
 };
 
