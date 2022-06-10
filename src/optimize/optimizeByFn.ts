@@ -73,7 +73,6 @@ export const optimizeByFn = (obj: TexLinebreak): number[] => {
       };
     },
   });
-  console.log({ best });
 
   if (best) {
     obj.options.lineWidth = best.lineWidth;
@@ -162,6 +161,5 @@ export function BisectionFindMinimumPositiveIntegerOutput<T>({
       break;
     }
   }
-  console.log({ yBest });
   return outputBest;
 }

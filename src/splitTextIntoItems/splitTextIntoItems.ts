@@ -35,7 +35,7 @@ type Segment = {
   type: "box" | "glue";
   breakpoint?: BreakpointInformation;
 };
-type BreakpointInformation = {
+export type BreakpointInformation = {
   required: boolean;
   lastLetter: string;
   lastLetterClass: UnicodeLineBreakingClasses;
