@@ -53,6 +53,7 @@ export const getBreakpointPenalty = (
     lastLetterClass === UnicodeLineBreakingClasses.BreakOnEitherSide ||
     nextLetterClass === UnicodeLineBreakingClasses.BreakOnEitherSide
   ) {
+    /** Todo: Check how this behaves when space is followed by em-dash */
     return 10;
   }
 

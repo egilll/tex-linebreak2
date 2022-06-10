@@ -1,4 +1,5 @@
 import "src/demo/circle";
+import { TexLinebreakOptions } from "src/options";
 // import { texts2 } from "src/demo/texts/texts";
 // import "src/demo/userInput";
 // import { texLinebreakDOM } from "src/html/texLinebreakDOM";
@@ -15,3 +16,17 @@ import "src/demo/circle";
 //
 //   texLinebreakDOM(outputElement, { hyphenateFn, ...text.options });
 // }
+
+export type ListOfDemos = {
+  id: string;
+  html: string;
+  options?: Partial<TexLinebreakOptions>;
+  style?: Partial<CSSStyleDeclaration>;
+}[];
+const demos: ListOfDemos = [];
+
+if (window.location.hash) {
+  // demos.find((demo) => demo === window.location.hash.slice(1));
+} else {
+  // Fragment doesn't exist
+}

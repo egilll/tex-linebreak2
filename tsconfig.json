@@ -4,10 +4,9 @@
     "target": "es2017",
     "module": "commonjs",
     "lib": ["dom", "esnext", "dom.iterable"],
-    "declaration": true,
     "outDir": "./dist",
     "moduleResolution": "node",
-    "sourceMap": true,
+    "noEmit": true,
     "strict": true,
     "esModuleInterop": true
   }

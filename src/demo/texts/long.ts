@@ -1,1194 +1,768 @@
-export const longTexts = {
-  sherlock: `<div class="gutenberg">
-    <div class="chapter">
-      <h2><a name="chap01"></a>I.<br />A SCANDAL IN BOHEMIA</h2>
-      <div
-        style="
-          float: right;
-          width: 200px;
-          height: 202px;
-          margin: 0 0 10px 10px;
-          background: red;
-          border: 1px solid black;
-        "
-      >
-        Floated content :)
-      </div>
-      <p class="pfirst">
-        <span class="dropcap" style="font-size: 1.5em">T</span>o Sherlock Holmes she is always
-        <i>the</i> woman. I have seldom heard him mention her under any other name. In his eyes
-        she eclipses and predominates the whole of her sex. It was not that he felt any emotion
-        akin to love for Irene Adler. All emotions, and that one particularly, were abhorrent to
-        his cold, precise but admirably balanced mind. He was, I take it, the most perfect
-        reasoning and observing machine that the world has seen, but as a lover he would have
-        placed himself in a false position. He never spoke of the softer passions, save with a
-        gibe and a sneer. They were admirable things for the observer—excellent for drawing the
-        <!--<div
-                  style="
-                    float: left;
-                    width: 200px;
-                    height: 200px;
-                    background: red;
-                    border: 1px solid black;
-                  "
-                >
-                  Floated content :)
-                </div>-->
-        veil from men’s motives and actions. But for the trained reasoner to admit such intrusions
-        into his own delicate and finely adjusted temperament was to introduce a distracting
-        factor which might throw a doubt upon all his mental results. Grit in a sensitive
-        instrument, or a crack in one of his own high-power lenses, would not be more disturbing
-        than a strong emotion in a nature such as his. And yet there was but one woman to him, and
-        that woman was the late Irene Adler, of dubious and questionable memory.
-      </p>
-      <!--
-      <p>
-        I had seen little of Holmes lately. My marriage had drifted us away from each other. My
-        own complete happiness, and the home-centred interests which rise up around the man who
-        first finds himself master of his own establishment, were sufficient to absorb all my
-        attention, while Holmes, who loathed every form of society with his whole Bohemian soul,
-        remained in our lodgings in Baker Street, buried among his old books, and alternating from
-        week to week between cocaine and ambition, the drowsiness of the drug, and the fierce
-        energy of his own keen nature. He was still, as ever, deeply attracted by the study of
-        crime, and occupied his immense faculties and extraordinary powers of observation in
-        following out those clues, and clearing up those mysteries which had been abandoned as
-        hopeless by the official police. From time to time I heard some vague account of his
-        doings: of his summons to Odessa in the case of the Trepoff murder, of his clearing up of
-        the singular tragedy of the Atkinson brothers at Trincomalee, and finally of the mission
-        which he had accomplished so delicately and successfully for the reigning family of
-        Holland. Beyond these signs of his activity, however, which I merely shared with all the
-        readers of the daily press, I knew little of my former friend and companion.
-      </p>
-
-      <p>
-        One night—it was on the twentieth of March, 1888—I was returning from a journey to a
-        patient (for I had now returned to civil practice), when my way led me through Baker
-        Street. As I passed the well-remembered door, which must always be associated in my mind
-        with my wooing, and with the dark incidents of the Study in Scarlet, I was seized with a
-        keen desire to see Holmes again, and to know how he was employing his extraordinary
-        powers. His rooms were brilliantly lit, and, even as I looked up, I saw his tall, spare
-        figure pass twice in a dark silhouette against the blind. He was pacing the room swiftly,
-        eagerly, with his head sunk upon his chest and his hands clasped behind him. To me, who
-        knew his every mood and habit, his attitude and manner told their own story. He was at
-        work again. He had risen out of his drug-created dreams and was hot upon the scent of some
-        new problem. I rang the bell and was shown up to the chamber which had formerly been in
-        part my own.
-      </p>
-
-      <p>
-        His manner was not effusive. It seldom was; but he was glad, I think, to see me. With
-        hardly a word spoken, but with a kindly eye, he waved me to an armchair, threw across his
-        case of cigars, and indicated a spirit case and a gasogene in the corner. Then he stood
-        before the fire and looked me over in his singular introspective fashion.
-      </p>
-
-      <p>
-        “Wedlock suits you,” he remarked. “I think, Watson, that you have put on seven and a half
-        pounds since I saw you.”
-      </p>
-
-      <p>“Seven!” I answered.</p>
-
-      <p>
-        “Indeed, I should have thought a little more. Just a trifle more, I fancy, Watson. And in
-        practice again, I observe. You did not tell me that you intended to go into harness.”
-      </p>
-
-      <p>“Then, how do you know?”</p>
-
-      <p>
-        “I see it, I deduce it. How do I know that you have been getting yourself very wet lately,
-        and that you have a most clumsy and careless servant girl?”
-      </p>
-
-      <p>
-        “My dear Holmes,” said I, “this is too much. You would certainly have been burned, had you
-        lived a few centuries ago. It is true that I had a country walk on Thursday and came home
-        in a dreadful mess, but as I have changed my clothes I can’t imagine how you deduce it. As
-        to Mary Jane, she is incorrigible, and my wife has given her notice, but there, again, I
-        fail to see how you work it out.”
-      </p>
-
-      <p>He chuckled to himself and rubbed his long, nervous hands together.</p>
-
-      <p>
-        “It is simplicity itself,” said he; “my eyes tell me that on the inside of your left shoe,
-        just where the firelight strikes it, the leather is scored by six almost parallel cuts.
-        Obviously they have been caused by someone who has very carelessly scraped round the edges
-        of the sole in order to remove crusted mud from it. Hence, you see, my double deduction
-        that you had been out in vile weather, and that you had a particularly malignant
-        boot-slitting specimen of the London slavey. As to your practice, if a gentleman walks
-        into my rooms smelling of iodoform, with a black mark of nitrate of silver upon his right
-        forefinger, and a bulge on the right side of his top-hat to show where he has secreted his
-        stethoscope, I must be dull, indeed, if I do not pronounce him to be an active member of
-        the medical profession.”
-      </p>
-
-      <p>
-        I could not help laughing at the ease with which he explained his process of deduction.
-        “When I hear you give your reasons,” I remarked, “the thing always appears to me to be so
-        ridiculously simple that I could easily do it myself, though at each successive instance
-        of your reasoning I am baffled until you explain your process. And yet I believe that my
-        eyes are as good as yours.”
-      </p>
-
-      <p>
-        “Quite so,” he answered, lighting a cigarette, and throwing himself down into an armchair.
-        “You see, but you do not observe. The distinction is clear. For example, you have
-        frequently seen the steps which lead up from the hall to this room.”
-      </p>
-
-      <p>“Frequently.”</p>
-
-      <p>“How often?”</p>
-
-      <p>“Well, some hundreds of times.”</p>
-
-      <p>“Then how many are there?”</p>
-
-      <p>“How many? I don’t know.”</p>
-
-      <p>
-        “Quite so! You have not observed. And yet you have seen. That is just my point. Now, I
-        know that there are seventeen steps, because I have both seen and observed. By the way,
-        since you are interested in these little problems, and since you are good enough to
-        chronicle one or two of my trifling experiences, you may be interested in this.” He threw
-        over a sheet of thick, pink-tinted notepaper which had been lying open upon the table. “It
-        came by the last post,” said he. “Read it aloud.”
-      </p>
-
-      <p>The note was undated, and without either signature or address.</p>
-
-      <p>
-        “There will call upon you to-night, at a quarter to eight o’clock,” it said, “a gentleman
-        who desires to consult you upon a matter of the very deepest moment. Your recent services
-        to one of the royal houses of Europe have shown that you are one who may safely be trusted
-        with matters which are of an importance which can hardly be exaggerated. This account of
-        you we have from all quarters received. Be in your chamber then at that hour, and do not
-        take it amiss if your visitor wear a mask.”
-      </p>
-
-      <p>“This is indeed a mystery,” I remarked. “What do you imagine that it means?”</p>
-
-      <p>
-        “I have no data yet. It is a capital mistake to theorise before one has data. Insensibly
-        one begins to twist facts to suit theories, instead of theories to suit facts. But the
-        note itself. What do you deduce from it?”
-      </p>
-
-      <p>I carefully examined the writing, and the paper upon which it was written.</p>
-
-      <p>
-        “The man who wrote it was presumably well to do,” I remarked, endeavouring to imitate my
-        companion’s processes. “Such paper could not be bought under half a crown a packet. It is
-        peculiarly strong and stiff.”
-      </p>
-
-      <p>
-        “Peculiar—that is the very word,” said Holmes. “It is not an English paper at all. Hold it
-        up to the light.”
-      </p>
-
-      <p>
-        I did so, and saw a large “E” with a small “g,” a “P,” and a large “G” with a small “t”
-        woven into the texture of the paper.
-      </p>
-
-      <p>“What do you make of that?” asked Holmes.</p>
-
-      <p>“The name of the maker, no doubt; or his monogram, rather.”</p>
-
-      <p>
-        “Not at all. The ‘G’ with the small ‘t’ stands for ‘Gesellschaft,’ which is the German for
-        ‘Company.’ It is a customary contraction like our ‘Co.’ ‘P,’ of course, stands for
-        ‘Papier.’ Now for the ‘Eg.’ Let us glance at our Continental Gazetteer.” He took down a
-        heavy brown volume from his shelves. “Eglow, Eglonitz—here we are, Egria. It is in a
-        German-speaking country—in Bohemia, not far from Carlsbad. ‘Remarkable as being the scene
-        of the death of Wallenstein, and for its numerous glass-factories and paper-mills.’ Ha,
-        ha, my boy, what do you make of that?” His eyes sparkled, and he sent up a great blue
-        triumphant cloud from his cigarette.
-      </p>
-
-      <p>“The paper was made in Bohemia,” I said.</p>
-
-      <p>
-        “Precisely. And the man who wrote the note is a German. Do you note the peculiar
-        construction of the sentence—‘This account of you we have from all quarters received.’ A
-        Frenchman or Russian could not have written that. It is the German who is so uncourteous
-        to his verbs. It only remains, therefore, to discover what is wanted by this German who
-        writes upon Bohemian paper and prefers wearing a mask to showing his face. And here he
-        comes, if I am not mistaken, to resolve all our doubts.”
-      </p>
-
-      <p>
-        As he spoke there was the sharp sound of horses’ hoofs and grating wheels against the
-        curb, followed by a sharp pull at the bell. Holmes whistled.
-      </p>
-
-      <p>
-        “A pair, by the sound,” said he. “Yes,” he continued, glancing out of the window. “A nice
-        little brougham and a pair of beauties. A hundred and fifty guineas apiece. There’s money
-        in this case, Watson, if there is nothing else.”
-      </p>
-
-      <p>“I think that I had better go, Holmes.”</p>
-
-      <p>
-        “Not a bit, Doctor. Stay where you are. I am lost without my Boswell. And this promises to
-        be interesting. It would be a pity to miss it.”
-      </p>
-
-      <p>“But your client—”</p>
-
-      <p>
-        “Never mind him. I may want your help, and so may he. Here he comes. Sit down in that
-        armchair, Doctor, and give us your best attention.”
-      </p>
-
-      <p>
-        A slow and heavy step, which had been heard upon the stairs and in the passage, paused
-        immediately outside the door. Then there was a loud and authoritative tap.
-      </p>
-
-      <p>“Come in!” said Holmes.</p>
-
-      <p>
-        A man entered who could hardly have been less than six feet six inches in height, with the
-        chest and limbs of a Hercules. His dress was rich with a richness which would, in England,
-        be looked upon as akin to bad taste. Heavy bands of astrakhan were slashed across the
-        sleeves and fronts of his double-breasted coat, while the deep blue cloak which was thrown
-        over his shoulders was lined with flame-coloured silk and secured at the neck with a
-        brooch which consisted of a single flaming beryl. Boots which extended halfway up his
-        calves, and which were trimmed at the tops with rich brown fur, completed the impression
-        of barbaric opulence which was suggested by his whole appearance. He carried a
-        broad-brimmed hat in his hand, while he wore across the upper part of his face, extending
-        down past the cheekbones, a black vizard mask, which he had apparently adjusted that very
-        moment, for his hand was still raised to it as he entered. From the lower part of the face
-        he appeared to be a man of strong character, with a thick, hanging lip, and a long,
-        straight chin suggestive of resolution pushed to the length of obstinacy.
-      </p>
-
-      <p>
-        “You had my note?” he asked with a deep harsh voice and a strongly marked German accent.
-        “I told you that I would call.” He looked from one to the other of us, as if uncertain
-        which to address.
-      </p>
-
-      <p>
-        “Pray take a seat,” said Holmes. “This is my friend and colleague, Dr. Watson, who is
-        occasionally good enough to help me in my cases. Whom have I the honour to address?”
-      </p>
-
-      <p>
-        “You may address me as the Count Von Kramm, a Bohemian nobleman. I understand that this
-        gentleman, your friend, is a man of honour and discretion, whom I may trust with a matter
-        of the most extreme importance. If not, I should much prefer to communicate with you
-        alone.”
-      </p>
-
-      <p>
-        I rose to go, but Holmes caught me by the wrist and pushed me back into my chair. “It is
-        both, or none,” said he. “You may say before this gentleman anything which you may say to
-        me.”
-      </p>
-
-      <p>
-        The Count shrugged his broad shoulders. “Then I must begin,” said he, “by binding you both
-        to absolute secrecy for two years; at the end of that time the matter will be of no
-        importance. At present it is not too much to say that it is of such weight it may have an
-        influence upon European history.”
-      </p>
-
-      <p>“I promise,” said Holmes.</p>
-
-      <p>“And I.”</p>
-
-      <p>
-        “You will excuse this mask,” continued our strange visitor. “The august person who employs
-        me wishes his agent to be unknown to you, and I may confess at once that the title by
-        which I have just called myself is not exactly my own.”
-      </p>
-
-      <p>“I was aware of it,” said Holmes dryly.</p>
-
-      <p>
-        “The circumstances are of great delicacy, and every precaution has to be taken to quench
-        what might grow to be an immense scandal and seriously compromise one of the reigning
-        families of Europe. To speak plainly, the matter implicates the great House of Ormstein,
-        hereditary kings of Bohemia.”
-      </p>
-
-      <p>
-        “I was also aware of that,” murmured Holmes, settling himself down in his armchair and
-        closing his eyes.
-      </p>
-
-      <p>
-        Our visitor glanced with some apparent surprise at the languid, lounging figure of the man
-        who had been no doubt depicted to him as the most incisive reasoner and most energetic
-        agent in Europe. Holmes slowly reopened his eyes and looked impatiently at his gigantic
-        client.
-      </p>
-
-      <p>
-        “If your Majesty would condescend to state your case,” he remarked, “I should be better
-        able to advise you.”
-      </p>
-
-      <p>
-        The man sprang from his chair and paced up and down the room in uncontrollable agitation.
-        Then, with a gesture of desperation, he tore the mask from his face and hurled it upon the
-        ground. “You are right,” he cried; “I am the King. Why should I attempt to conceal it?”
-      </p>
-
-      <p>
-        “Why, indeed?” murmured Holmes. “Your Majesty had not spoken before I was aware that I was
-        addressing Wilhelm Gottsreich Sigismond von Ormstein, Grand Duke of Cassel-Felstein, and
-        hereditary King of Bohemia.”
-      </p>
-
-      <p>
-        “But you can understand,” said our strange visitor, sitting down once more and passing his
-        hand over his high white forehead, “you can understand that I am not accustomed to doing
-        such business in my own person. Yet the matter was so delicate that I could not confide it
-        to an agent without putting myself in his power. I have come <i>incognito</i> from Prague
-        for the purpose of consulting you.”
-      </p>
-
-      <p>“Then, pray consult,” said Holmes, shutting his eyes once more.</p>
-
-      <p>
-        “The facts are briefly these: Some five years ago, during a lengthy visit to Warsaw, I
-        made the acquaintance of the well-known adventuress, Irene Adler. The name is no doubt
-        familiar to you.”
-      </p>
-
-      <p>
-        “Kindly look her up in my index, Doctor,” murmured Holmes without opening his eyes. For
-        many years he had adopted a system of docketing all paragraphs concerning men and things,
-        so that it was difficult to name a subject or a person on which he could not at once
-        furnish information. In this case I found her biography sandwiched in between that of a
-        Hebrew rabbi and that of a staff-commander who had written a monograph upon the deep-sea
-        fishes.
-      </p>
-
-      <p>
-        “Let me see!” said Holmes. “Hum! Born in New Jersey in the year 1858. Contralto—hum! La
-        Scala, hum! Prima donna Imperial Opera of Warsaw—yes! Retired from operatic stage—ha!
-        Living in London—quite so! Your Majesty, as I understand, became entangled with this young
-        person, wrote her some compromising letters, and is now desirous of getting those letters
-        back.”
-      </p>
-
-      <p>“Precisely so. But how—”</p>
-
-      <p>“Was there a secret marriage?”</p>
-
-      <p>“None.”</p>
-
-      <p>“No legal papers or certificates?”</p>
-
-      <p>“None.”</p>
-
-      <p>
-        “Then I fail to follow your Majesty. If this young person should produce her letters for
-        blackmailing or other purposes, how is she to prove their authenticity?”
-      </p>
-
-      <p>“There is the writing.”</p>
-
-      <p>“Pooh, pooh! Forgery.”</p>
-
-      <p>“My private note-paper.”</p>
-
-      <p>“Stolen.”</p>
-
-      <p>“My own seal.”</p>
-
-      <p>“Imitated.”</p>
-
-      <p>“My photograph.”</p>
-
-      <p>“Bought.”</p>
-
-      <p>“We were both in the photograph.”</p>
-
-      <p>“Oh, dear! That is very bad! Your Majesty has indeed committed an indiscretion.”</p>
-
-      <p>“I was mad—insane.”</p>
-
-      <p>“You have compromised yourself seriously.”</p>
-
-      <p>“I was only Crown Prince then. I was young. I am but thirty now.”</p>
-
-      <p>“It must be recovered.”</p>
-
-      <p>“We have tried and failed.”</p>
-
-      <p>“Your Majesty must pay. It must be bought.”</p>
-
-      <p>“She will not sell.”</p>
-
-      <p>“Stolen, then.”</p>
-
-      <p>
-        “Five attempts have been made. Twice burglars in my pay ransacked her house. Once we
-        diverted her luggage when she travelled. Twice she has been waylaid. There has been no
-        result.”
-      </p>
-
-      <p>“No sign of it?”</p>
-
-      <p>“Absolutely none.”</p>
-
-      <p>Holmes laughed. “It is quite a pretty little problem,” said he.</p>
-
-      <p>“But a very serious one to me,” returned the King reproachfully.</p>
-
-      <p>“Very, indeed. And what does she propose to do with the photograph?”</p>
-
-      <p>“To ruin me.”</p>
-
-      <p>“But how?”</p>
-
-      <p>“I am about to be married.”</p>
-
-      <p>“So I have heard.”</p>
-
-      <p>
-        “To Clotilde Lothman von Saxe-Meningen, second daughter of the King of Scandinavia. You
-        may know the strict principles of her family. She is herself the very soul of delicacy. A
-        shadow of a doubt as to my conduct would bring the matter to an end.”
-      </p>
-
-      <p>“And Irene Adler?”</p>
-
-      <p>
-        “Threatens to send them the photograph. And she will do it. I know that she will do it.
-        You do not know her, but she has a soul of steel. She has the face of the most beautiful
-        of women, and the mind of the most resolute of men. Rather than I should marry another
-        woman, there are no lengths to which she would not go—none.”
-      </p>
-
-      <p>“You are sure that she has not sent it yet?”</p>
-
-      <p>“I am sure.”</p>
-
-      <p>“And why?”</p>
-
-      <p>
-        “Because she has said that she would send it on the day when the betrothal was publicly
-        proclaimed. That will be next Monday.”
-      </p>
-
-      <p>
-        “Oh, then we have three days yet,” said Holmes with a yawn. “That is very fortunate, as I
-        have one or two matters of importance to look into just at present. Your Majesty will, of
-        course, stay in London for the present?”
-      </p>
-
-      <p>“Certainly. You will find me at the Langham under the name of the Count Von Kramm.”</p>
-
-      <p>“Then I shall drop you a line to let you know how we progress.”</p>
-
-      <p>“Pray do so. I shall be all anxiety.”</p>
-
-      <p>“Then, as to money?”</p>
-
-      <p>“You have <i>carte blanche</i>.”</p>
-
-      <p>“Absolutely?”</p>
-
-      <p>
-        “I tell you that I would give one of the provinces of my kingdom to have that photograph.”
-      </p>
-
-      <p>“And for present expenses?”</p>
-
-      <p>
-        The King took a heavy chamois leather bag from under his cloak and laid it on the table.
-      </p>
-
-      <p>“There are three hundred pounds in gold and seven hundred in notes,” he said.</p>
-
-      <p>Holmes scribbled a receipt upon a sheet of his note-book and handed it to him.</p>
-
-      <p>“And Mademoiselle’s address?” he asked.</p>
-
-      <p>“Is Briony Lodge, Serpentine Avenue, St. John’s Wood.”</p>
-
-      <p>
-        Holmes took a note of it. “One other question,” said he. “Was the photograph a cabinet?”
-      </p>
-
-      <p>“It was.”</p>
-
-      <p>
-        “Then, good-night, your Majesty, and I trust that we shall soon have some good news for
-        you. And good-night, Watson,” he added, as the wheels of the royal brougham rolled down
-        the street. “If you will be good enough to call to-morrow afternoon at three o’clock I
-        should like to chat this little matter over with you.”
-      </p>
-
-      <h3>II.</h3>
-
-      <p>
-        At three o’clock precisely I was at Baker Street, but Holmes had not yet returned. The
-        landlady informed me that he had left the house shortly after eight o’clock in the
-        morning. I sat down beside the fire, however, with the intention of awaiting him, however
-        long he might be. I was already deeply interested in his inquiry, for, though it was
-        surrounded by none of the grim and strange features which were associated with the two
-        crimes which I have already recorded, still, the nature of the case and the exalted
-        station of his client gave it a character of its own. Indeed, apart from the nature of the
-        investigation which my friend had on hand, there was something in his masterly grasp of a
-        situation, and his keen, incisive reasoning, which made it a pleasure to me to study his
-        system of work, and to follow the quick, subtle methods by which he disentangled the most
-        inextricable mysteries. So accustomed was I to his invariable success that the very
-        possibility of his failing had ceased to enter into my head.
-      </p>
-
-      <p>
-        It was close upon four before the door opened, and a drunken-looking groom, ill-kempt and
-        side-whiskered, with an inflamed face and disreputable clothes, walked into the room.
-        Accustomed as I was to my friend’s amazing powers in the use of disguises, I had to look
-        three times before I was certain that it was indeed he. With a nod he vanished into the
-        bedroom, whence he emerged in five minutes tweed-suited and respectable, as of old.
-        Putting his hands into his pockets, he stretched out his legs in front of the fire and
-        laughed heartily for some minutes.
-      </p>
-
-      <p>
-        “Well, really!” he cried, and then he choked and laughed again until he was obliged to lie
-        back, limp and helpless, in the chair.
-      </p>
-
-      <p>“What is it?”</p>
-
-      <p>
-        “It’s quite too funny. I am sure you could never guess how I employed my morning, or what
-        I ended by doing.”
-      </p>
-
-      <p>
-        “I can’t imagine. I suppose that you have been watching the habits, and perhaps the house,
-        of Miss Irene Adler.”
-      </p>
-
-      <p>
-        “Quite so; but the sequel was rather unusual. I will tell you, however. I left the house a
-        little after eight o’clock this morning in the character of a groom out of work. There is
-        a wonderful sympathy and freemasonry among horsey men. Be one of them, and you will know
-        all that there is to know. I soon found Briony Lodge. It is a <i>bijou</i> villa, with a
-        garden at the back, but built out in front right up to the road, two stories. Chubb lock
-        to the door. Large sitting-room on the right side, well furnished, with long windows
-        almost to the floor, and those preposterous English window fasteners which a child could
-        open. Behind there was nothing remarkable, save that the passage window could be reached
-        from the top of the coach-house. I walked round it and examined it closely from every
-        point of view, but without noting anything else of interest.
-      </p>
-
-      <p>
-        “I then lounged down the street and found, as I expected, that there was a mews in a lane
-        which runs down by one wall of the garden. I lent the ostlers a hand in rubbing down their
-        horses, and received in exchange twopence, a glass of half-and-half, two fills of shag
-        tobacco, and as much information as I could desire about Miss Adler, to say nothing of
-        half a dozen other people in the neighbourhood in whom I was not in the least interested,
-        but whose biographies I was compelled to listen to.”
-      </p>
-
-      <p>“And what of Irene Adler?” I asked.</p>
-
-      <p>
-        “Oh, she has turned all the men’s heads down in that part. She is the daintiest thing
-        under a bonnet on this planet. So say the Serpentine-mews, to a man. She lives quietly,
-        sings at concerts, drives out at five every day, and returns at seven sharp for dinner.
-        Seldom goes out at other times, except when she sings. Has only one male visitor, but a
-        good deal of him. He is dark, handsome, and dashing, never calls less than once a day, and
-        often twice. He is a Mr. Godfrey Norton, of the Inner Temple. See the advantages of a
-        cabman as a confidant. They had driven him home a dozen times from Serpentine-mews, and
-        knew all about him. When I had listened to all they had to tell, I began to walk up and
-        down near Briony Lodge once more, and to think over my plan of campaign.
-      </p>
-
-      <p>
-        “This Godfrey Norton was evidently an important factor in the matter. He was a lawyer.
-        That sounded ominous. What was the relation between them, and what the object of his
-        repeated visits? Was she his client, his friend, or his mistress? If the former, she had
-        probably transferred the photograph to his keeping. If the latter, it was less likely. On
-        the issue of this question depended whether I should continue my work at Briony Lodge, or
-        turn my attention to the gentleman’s chambers in the Temple. It was a delicate point, and
-        it widened the field of my inquiry. I fear that I bore you with these details, but I have
-        to let you see my little difficulties, if you are to understand the situation.”
-      </p>
-
-      <p>“I am following you closely,” I answered.</p>
-
-      <p>
-        “I was still balancing the matter in my mind when a hansom cab drove up to Briony Lodge,
-        and a gentleman sprang out. He was a remarkably handsome man, dark, aquiline, and
-        moustached—evidently the man of whom I had heard. He appeared to be in a great hurry,
-        shouted to the cabman to wait, and brushed past the maid who opened the door with the air
-        of a man who was thoroughly at home.
-      </p>
-
-      <p>
-        “He was in the house about half an hour, and I could catch glimpses of him in the windows
-        of the sitting-room, pacing up and down, talking excitedly, and waving his arms. Of her I
-        could see nothing. Presently he emerged, looking even more flurried than before. As he
-        stepped up to the cab, he pulled a gold watch from his pocket and looked at it earnestly,
-        ‘Drive like the devil,’ he shouted, ‘first to Gross &amp; Hankey’s in Regent Street, and
-        then to the Church of St. Monica in the Edgeware Road. Half a guinea if you do it in
-        twenty minutes!’
-      </p>
-
-      <p>
-        “Away they went, and I was just wondering whether I should not do well to follow them when
-        up the lane came a neat little landau, the coachman with his coat only half-buttoned, and
-        his tie under his ear, while all the tags of his harness were sticking out of the buckles.
-        It hadn’t pulled up before she shot out of the hall door and into it. I only caught a
-        glimpse of her at the moment, but she was a lovely woman, with a face that a man might die
-        for.
-      </p>
-
-      <p>
-        “‘The Church of St. Monica, John,’ she cried, ‘and half a sovereign if you reach it in
-        twenty minutes.’
-      </p>
-
-      <p>
-        “This was quite too good to lose, Watson. I was just balancing whether I should run for
-        it, or whether I should perch behind her landau when a cab came through the street. The
-        driver looked twice at such a shabby fare, but I jumped in before he could object. ‘The
-        Church of St. Monica,’ said I, ‘and half a sovereign if you reach it in twenty minutes.’
-        It was twenty-five minutes to twelve, and of course it was clear enough what was in the
-        wind.
-      </p>
-
-      <p>
-        “My cabby drove fast. I don’t think I ever drove faster, but the others were there before
-        us. The cab and the landau with their steaming horses were in front of the door when I
-        arrived. I paid the man and hurried into the church. There was not a soul there save the
-        two whom I had followed and a surpliced clergyman, who seemed to be expostulating with
-        them. They were all three standing in a knot in front of the altar. I lounged up the side
-        aisle like any other idler who has dropped into a church. Suddenly, to my surprise, the
-        three at the altar faced round to me, and Godfrey Norton came running as hard as he could
-        towards me.
-      </p>
-
-      <p>“‘Thank God,’ he cried. ‘You’ll do. Come! Come!’</p>
-
-      <p>“‘What then?’ I asked.</p>
-
-      <p>“‘Come, man, come, only three minutes, or it won’t be legal.’</p>
-
-      <p>
-        “I was half-dragged up to the altar, and before I knew where I was I found myself mumbling
-        responses which were whispered in my ear, and vouching for things of which I knew nothing,
-        and generally assisting in the secure tying up of Irene Adler, spinster, to Godfrey
-        Norton, bachelor. It was all done in an instant, and there was the gentleman thanking me
-        on the one side and the lady on the other, while the clergyman beamed on me in front. It
-        was the most preposterous position in which I ever found myself in my life, and it was the
-        thought of it that started me laughing just now. It seems that there had been some
-        informality about their license, that the clergyman absolutely refused to marry them
-        without a witness of some sort, and that my lucky appearance saved the bridegroom from
-        having to sally out into the streets in search of a best man. The bride gave me a
-        sovereign, and I mean to wear it on my watch chain in memory of the occasion.”
-      </p>
-
-      <p>“This is a very unexpected turn of affairs,” said I; “and what then?”</p>
-
-      <p>
-        “Well, I found my plans very seriously menaced. It looked as if the pair might take an
-        immediate departure, and so necessitate very prompt and energetic measures on my part. At
-        the church door, however, they separated, he driving back to the Temple, and she to her
-        own house. ‘I shall drive out in the park at five as usual,’ she said as she left him. I
-        heard no more. They drove away in different directions, and I went off to make my own
-        arrangements.”
-      </p>
-
-      <p>“Which are?”</p>
-
-      <p>
-        “Some cold beef and a glass of beer,” he answered, ringing the bell. “I have been too busy
-        to think of food, and I am likely to be busier still this evening. By the way, Doctor, I
-        shall want your co-operation.”
-      </p>
-
-      <p>“I shall be delighted.”</p>
-
-      <p>“You don’t mind breaking the law?”</p>
-
-      <p>“Not in the least.”</p>
-
-      <p>“Nor running a chance of arrest?”</p>
-
-      <p>“Not in a good cause.”</p>
-
-      <p>“Oh, the cause is excellent!”</p>
-
-      <p>“Then I am your man.”</p>
-
-      <p>“I was sure that I might rely on you.”</p>
-
-      <p>“But what is it you wish?”</p>
-
-      <p>
-        “When Mrs. Turner has brought in the tray I will make it clear to you. Now,” he said as he
-        turned hungrily on the simple fare that our landlady had provided, “I must discuss it
-        while I eat, for I have not much time. It is nearly five now. In two hours we must be on
-        the scene of action. Miss Irene, or Madame, rather, returns from her drive at seven. We
-        must be at Briony Lodge to meet her.”
-      </p>
-
-      <p>“And what then?”</p>
-
-      <p>
-        “You must leave that to me. I have already arranged what is to occur. There is only one
-        point on which I must insist. You must not interfere, come what may. You understand?”
-      </p>
-
-      <p>“I am to be neutral?”</p>
-
-      <p>
-        “To do nothing whatever. There will probably be some small unpleasantness. Do not join in
-        it. It will end in my being conveyed into the house. Four or five minutes afterwards the
-        sitting-room window will open. You are to station yourself close to that open window.”
-      </p>
-
-      <p>“Yes.”</p>
-
-      <p>“You are to watch me, for I will be visible to you.”</p>
-
-      <p>“Yes.”</p>
-
-      <p>
-        “And when I raise my hand—so—you will throw into the room what I give you to throw, and
-        will, at the same time, raise the cry of fire. You quite follow me?”
-      </p>
-
-      <p>“Entirely.”</p>
-
-      <p>
-        “It is nothing very formidable,” he said, taking a long cigar-shaped roll from his pocket.
-        “It is an ordinary plumber’s smoke-rocket, fitted with a cap at either end to make it
-        self-lighting. Your task is confined to that. When you raise your cry of fire, it will be
-        taken up by quite a number of people. You may then walk to the end of the street, and I
-        will rejoin you in ten minutes. I hope that I have made myself clear?”
-      </p>
-
-      <p>
-        “I am to remain neutral, to get near the window, to watch you, and at the signal to throw
-        in this object, then to raise the cry of fire, and to wait you at the corner of the
-        street.”
-      </p>
-
-      <p>“Precisely.”</p>
-
-      <p>“Then you may entirely rely on me.”</p>
-
-      <p>
-        “That is excellent. I think, perhaps, it is almost time that I prepare for the new role I
-        have to play.”
-      </p>
-
-      <p>
-        He disappeared into his bedroom and returned in a few minutes in the character of an
-        amiable and simple-minded Nonconformist clergyman. His broad black hat, his baggy
-        trousers, his white tie, his sympathetic smile, and general look of peering and benevolent
-        curiosity were such as Mr. John Hare alone could have equalled. It was not merely that
-        Holmes changed his costume. His expression, his manner, his very soul seemed to vary with
-        every fresh part that he assumed. The stage lost a fine actor, even as science lost an
-        acute reasoner, when he became a specialist in crime.
-      </p>
-
-      <p>
-        It was a quarter past six when we left Baker Street, and it still wanted ten minutes to
-        the hour when we found ourselves in Serpentine Avenue. It was already dusk, and the lamps
-        were just being lighted as we paced up and down in front of Briony Lodge, waiting for the
-        coming of its occupant. The house was just such as I had pictured it from Sherlock Holmes’
-        succinct description, but the locality appeared to be less private than I expected. On the
-        contrary, for a small street in a quiet neighbourhood, it was remarkably animated. There
-        was a group of shabbily dressed men smoking and laughing in a corner, a scissors-grinder
-        with his wheel, two guardsmen who were flirting with a nurse-girl, and several
-        well-dressed young men who were lounging up and down with cigars in their mouths.
-      </p>
-
-      <p>
-        “You see,” remarked Holmes, as we paced to and fro in front of the house, “this marriage
-        rather simplifies matters. The photograph becomes a double-edged weapon now. The chances
-        are that she would be as averse to its being seen by Mr. Godfrey Norton, as our client is
-        to its coming to the eyes of his princess. Now the question is, Where are we to find the
-        photograph?”
-      </p>
-
-      <p>“Where, indeed?”</p>
-
-      <p>
-        “It is most unlikely that she carries it about with her. It is cabinet size. Too large for
-        easy concealment about a woman’s dress. She knows that the King is capable of having her
-        waylaid and searched. Two attempts of the sort have already been made. We may take it,
-        then, that she does not carry it about with her.”
-      </p>
-
-      <p>“Where, then?”</p>
-
-      <p>
-        “Her banker or her lawyer. There is that double possibility. But I am inclined to think
-        neither. Women are naturally secretive, and they like to do their own secreting. Why
-        should she hand it over to anyone else? She could trust her own guardianship, but she
-        could not tell what indirect or political influence might be brought to bear upon a
-        business man. Besides, remember that she had resolved to use it within a few days. It must
-        be where she can lay her hands upon it. It must be in her own house.”
-      </p>
-
-      <p>“But it has twice been burgled.”</p>
-
-      <p>“Pshaw! They did not know how to look.”</p>
-
-      <p>“But how will you look?”</p>
-
-      <p>“I will not look.”</p>
-
-      <p>“What then?”</p>
-
-      <p>“I will get her to show me.”</p>
-
-      <p>“But she will refuse.”</p>
-
-      <p>
-        “She will not be able to. But I hear the rumble of wheels. It is her carriage. Now carry
-        out my orders to the letter.”
-      </p>
-
-      <p>
-        As he spoke the gleam of the sidelights of a carriage came round the curve of the avenue.
-        It was a smart little landau which rattled up to the door of Briony Lodge. As it pulled
-        up, one of the loafing men at the corner dashed forward to open the door in the hope of
-        earning a copper, but was elbowed away by another loafer, who had rushed up with the same
-        intention. A fierce quarrel broke out, which was increased by the two guardsmen, who took
-        sides with one of the loungers, and by the scissors-grinder, who was equally hot upon the
-        other side. A blow was struck, and in an instant the lady, who had stepped from her
-        carriage, was the centre of a little knot of flushed and struggling men, who struck
-        savagely at each other with their fists and sticks. Holmes dashed into the crowd to
-        protect the lady; but, just as he reached her, he gave a cry and dropped to the ground,
-        with the blood running freely down his face. At his fall the guardsmen took to their heels
-        in one direction and the loungers in the other, while a number of better dressed people,
-        who had watched the scuffle without taking part in it, crowded in to help the lady and to
-        attend to the injured man. Irene Adler, as I will still call her, had hurried up the
-        steps; but she stood at the top with her superb figure outlined against the lights of the
-        hall, looking back into the street.
-      </p>
-
-      <p>“Is the poor gentleman much hurt?” she asked.</p>
-
-      <p>“He is dead,” cried several voices.</p>
-
-      <p>
-        “No, no, there’s life in him!” shouted another. “But he’ll be gone before you can get him
-        to hospital.”
-      </p>
-
-      <p>
-        “He’s a brave fellow,” said a woman. “They would have had the lady’s purse and watch if it
-        hadn’t been for him. They were a gang, and a rough one, too. Ah, he’s breathing now.”
-      </p>
-
-      <p>“He can’t lie in the street. May we bring him in, marm?”</p>
-
-      <p>
-        “Surely. Bring him into the sitting-room. There is a comfortable sofa. This way, please!”
-      </p>
-
-      <p>
-        Slowly and solemnly he was borne into Briony Lodge and laid out in the principal room,
-        while I still observed the proceedings from my post by the window. The lamps had been lit,
-        but the blinds had not been drawn, so that I could see Holmes as he lay upon the couch. I
-        do not know whether he was seized with compunction at that moment for the part he was
-        playing, but I know that I never felt more heartily ashamed of myself in my life than when
-        I saw the beautiful creature against whom I was conspiring, or the grace and kindliness
-        with which she waited upon the injured man. And yet it would be the blackest treachery to
-        Holmes to draw back now from the part which he had intrusted to me. I hardened my heart,
-        and took the smoke-rocket from under my ulster. After all, I thought, we are not injuring
-        her. We are but preventing her from injuring another.
-      </p>
-
-      <p>
-        Holmes had sat up upon the couch, and I saw him motion like a man who is in need of air. A
-        maid rushed across and threw open the window. At the same instant I saw him raise his hand
-        and at the signal I tossed my rocket into the room with a cry of “Fire!” The word was no
-        sooner out of my mouth than the whole crowd of spectators, well dressed and ill—gentlemen,
-        ostlers, and servant maids—joined in a general shriek of “Fire!” Thick clouds of smoke
-        curled through the room and out at the open window. I caught a glimpse of rushing figures,
-        and a moment later the voice of Holmes from within assuring them that it was a false
-        alarm. Slipping through the shouting crowd I made my way to the corner of the street, and
-        in ten minutes was rejoiced to find my friend’s arm in mine, and to get away from the
-        scene of uproar. He walked swiftly and in silence for some few minutes until we had turned
-        down one of the quiet streets which lead towards the Edgeware Road.
-      </p>
-
-      <p>
-        “You did it very nicely, Doctor,” he remarked. “Nothing could have been better. It is all
-        right.”
-      </p>
-
-      <p>“You have the photograph?”</p>
-
-      <p>“I know where it is.”</p>
-
-      <p>“And how did you find out?”</p>
-
-      <p>“She showed me, as I told you she would.”</p>
-
-      <p>“I am still in the dark.”</p>
-
-      <p>
-        “I do not wish to make a mystery,” said he, laughing. “The matter was perfectly simple.
-        You, of course, saw that everyone in the street was an accomplice. They were all engaged
-        for the evening.”
-      </p>
-
-      <p>“I guessed as much.”</p>
-
-      <p>
-        “Then, when the row broke out, I had a little moist red paint in the palm of my hand. I
-        rushed forward, fell down, clapped my hand to my face, and became a piteous spectacle. It
-        is an old trick.”
-      </p>
-
-      <p>“That also I could fathom.”</p>
-
-      <p>
-        “Then they carried me in. She was bound to have me in. What else could she do? And into
-        her sitting-room, which was the very room which I suspected. It lay between that and her
-        bedroom, and I was determined to see which. They laid me on a couch, I motioned for air,
-        they were compelled to open the window, and you had your chance.”
-      </p>
-
-      <p>“How did that help you?”</p>
-
-      <p>
-        “It was all-important. When a woman thinks that her house is on fire, her instinct is at
-        once to rush to the thing which she values most. It is a perfectly overpowering impulse,
-        and I have more than once taken advantage of it. In the case of the Darlington
-        Substitution Scandal it was of use to me, and also in the Arnsworth Castle business. A
-        married woman grabs at her baby; an unmarried one reaches for her jewel-box. Now it was
-        clear to me that our lady of to-day had nothing in the house more precious to her than
-        what we are in quest of. She would rush to secure it. The alarm of fire was admirably
-        done. The smoke and shouting were enough to shake nerves of steel. She responded
-        beautifully. The photograph is in a recess behind a sliding panel just above the right
-        bell-pull. She was there in an instant, and I caught a glimpse of it as she half drew it
-        out. When I cried out that it was a false alarm, she replaced it, glanced at the rocket,
-        rushed from the room, and I have not seen her since. I rose, and, making my excuses,
-        escaped from the house. I hesitated whether to attempt to secure the photograph at once;
-        but the coachman had come in, and as he was watching me narrowly, it seemed safer to wait.
-        A little over-precipitance may ruin all.”
-      </p>
-
-      <p>“And now?” I asked.</p>
-
-      <p>
-        “Our quest is practically finished. I shall call with the King to-morrow, and with you, if
-        you care to come with us. We will be shown into the sitting-room to wait for the lady, but
-        it is probable that when she comes she may find neither us nor the photograph. It might be
-        a satisfaction to his Majesty to regain it with his own hands.”
-      </p>
-
-      <p>“And when will you call?”</p>
-
-      <p>
-        “At eight in the morning. She will not be up, so that we shall have a clear field.
-        Besides, we must be prompt, for this marriage may mean a complete change in her life and
-        habits. I must wire to the King without delay.”
-      </p>
-
-      <p>
-        We had reached Baker Street and had stopped at the door. He was searching his pockets for
-        the key when someone passing said:
-      </p>
-
-      <p>“Good-night, Mister Sherlock Holmes.”</p>
-
-      <p>
-        There were several people on the pavement at the time, but the greeting appeared to come
-        from a slim youth in an ulster who had hurried by.
-      </p>
-
-      <p>
-        “I’ve heard that voice before,” said Holmes, staring down the dimly lit street. “Now, I
-        wonder who the deuce that could have been.”
-      </p>
-
-      <h3>III.</h3>
-
-      <p>
-        I slept at Baker Street that night, and we were engaged upon our toast and coffee in the
-        morning when the King of Bohemia rushed into the room.
-      </p>
-
-      <p>
-        “You have really got it!” he cried, grasping Sherlock Holmes by either shoulder and
-        looking eagerly into his face.
-      </p>
-
-      <p>“Not yet.”</p>
-
-      <p>“But you have hopes?”</p>
-
-      <p>“I have hopes.”</p>
-
-      <p>“Then, come. I am all impatience to be gone.”</p>
-
-      <p>“We must have a cab.”</p>
-
-      <p>“No, my brougham is waiting.”</p>
-
-      <p>
-        “Then that will simplify matters.” We descended and started off once more for Briony
-        Lodge.
-      </p>
-
-      <p>“Irene Adler is married,” remarked Holmes.</p>
-
-      <p>“Married! When?”</p>
-
-      <p>“Yesterday.”</p>
-
-      <p>“But to whom?”</p>
-
-      <p>“To an English lawyer named Norton.”</p>
-
-      <p>“But she could not love him.”</p>
-
-      <p>“I am in hopes that she does.”</p>
-
-      <p>“And why in hopes?”</p>
-
-      <p>
-        “Because it would spare your Majesty all fear of future annoyance. If the lady loves her
-        husband, she does not love your Majesty. If she does not love your Majesty, there is no
-        reason why she should interfere with your Majesty’s plan.”
-      </p>
-
-      <p>
-        “It is true. And yet—! Well! I wish she had been of my own station! What a queen she would
-        have made!” He relapsed into a moody silence, which was not broken until we drew up in
-        Serpentine Avenue.
-      </p>
-
-      <p>
-        The door of Briony Lodge was open, and an elderly woman stood upon the steps. She watched
-        us with a sardonic eye as we stepped from the brougham.
-      </p>
-
-      <p>“Mr. Sherlock Holmes, I believe?” said she.</p>
-
-      <p>
-        “I am Mr. Holmes,” answered my companion, looking at her with a questioning and rather
-        startled gaze.
-      </p>
-
-      <p>
-        “Indeed! My mistress told me that you were likely to call. She left this morning with her
-        husband by the 5:15 train from Charing Cross for the Continent.”
-      </p>
-
-      <p>
-        “What!” Sherlock Holmes staggered back, white with chagrin and surprise. “Do you mean that
-        she has left England?”
-      </p>
-
-      <p>“Never to return.”</p>
-
-      <p>“And the papers?” asked the King hoarsely. “All is lost.”</p>
-
-      <p>
-        “We shall see.” He pushed past the servant and rushed into the drawing-room, followed by
-        the King and myself. The furniture was scattered about in every direction, with dismantled
-        shelves and open drawers, as if the lady had hurriedly ransacked them before her flight.
-        Holmes rushed at the bell-pull, tore back a small sliding shutter, and, plunging in his
-        hand, pulled out a photograph and a letter. The photograph was of Irene Adler herself in
-        evening dress, the letter was superscribed to “Sherlock Holmes, Esq. To be left till
-        called for.” My friend tore it open, and we all three read it together. It was dated at
-        midnight of the preceding night and ran in this way:
-      </p>
-
-      <p class="letter">
-        “MY DEAR MR. SHERLOCK HOLMES,—You really did it very well. You took me in completely.
-        Until after the alarm of fire, I had not a suspicion. But then, when I found how I had
-        betrayed myself, I began to think. I had been warned against you months ago. I had been
-        told that, if the King employed an agent, it would certainly be you. And your address had
-        been given me. Yet, with all this, you made me reveal what you wanted to know. Even after
-        I became suspicious, I found it hard to think evil of such a dear, kind old clergyman.
-        But, you know, I have been trained as an actress myself. Male costume is nothing new to
-        me. I often take advantage of the freedom which it gives. I sent John, the coachman, to
-        watch you, ran upstairs, got into my walking clothes, as I call them, and came down just
-        as you departed.<br />
-        &nbsp;&nbsp;&nbsp;&nbsp;“Well, I followed you to your door, and so made sure that I was
-        really an object of interest to the celebrated Mr. Sherlock Holmes. Then I, rather
-        imprudently, wished you good-night, and started for the Temple to see my husband.<br />
-        &nbsp;&nbsp;&nbsp;&nbsp;“We both thought the best resource was flight, when pursued by so
-        formidable an antagonist; so you will find the nest empty when you call to-morrow. As to
-        the photograph, your client may rest in peace. I love and am loved by a better man than
-        he. The King may do what he will without hindrance from one whom he has cruelly wronged. I
-        keep it only to safeguard myself, and to preserve a weapon which will always secure me
-        from any steps which he might take in the future. I leave a photograph which he might care
-        to possess; and I remain, dear Mr. Sherlock Holmes,
-      </p>
-
-      <p class="right">
-        “Very truly yours,<br />
-        “IRENE NORTON, <i>née</i> ADLER.”
-      </p>
-
-      <p class="p2">
-        “What a woman—oh, what a woman!” cried the King of Bohemia, when we had all three read
-        this epistle. “Did I not tell you how quick and resolute she was? Would she not have made
-        an admirable queen? Is it not a pity that she was not on my level?”
-      </p>
-
-      <p>
-        “From what I have seen of the lady, she seems, indeed, to be on a very different level to
-        your Majesty,” said Holmes coldly. “I am sorry that I have not been able to bring your
-        Majesty’s business to a more successful conclusion.”
-      </p>
-
-      <p>
-        “On the contrary, my dear sir,” cried the King; “nothing could be more successful. I know
-        that her word is inviolate. The photograph is now as safe as if it were in the fire.”
-      </p>
-
-      <p>“I am glad to hear your Majesty say so.”</p>
-
-      <p>
-        “I am immensely indebted to you. Pray tell me in what way I can reward you. This ring—” He
-        slipped an emerald snake ring from his finger and held it out upon the palm of his hand.
-      </p>
-
-      <p>“Your Majesty has something which I should value even more highly,” said Holmes.</p>
-
-      <p>“You have but to name it.”</p>
-
-      <p>“This photograph!”</p>
-
-      <p>The King stared at him in amazement.</p>
-
-      <p>“Irene’s photograph!” he cried. “Certainly, if you wish it.”</p>
-
-      <p>
-        “I thank your Majesty. Then there is no more to be done in the matter. I have the honour
-        to wish you a very good morning.” He bowed, and, turning away without observing the hand
-        which the King had stretched out to him, he set off in my company for his chambers.
-      </p>
-
-      <p class="p2">
-        And that was how a great scandal threatened to affect the kingdom of Bohemia, and how the
-        best plans of Mr. Sherlock Holmes were beaten by a woman’s wit. He used to make merry over
-        the cleverness of women, but I have not heard him do it of late. And when he speaks of
-        Irene Adler, or when he refers to her photograph, it is always under the honourable title
-        of
-        <i>the</i> woman.
-      </p>
-      -->
-    </div>
-  </div>`,
-};
+import { ListOfDemos } from "src/demo/demo";
+// <div
+//         style="
+//           float: right;
+//           width: 200px;
+//           height: 202px;
+//           margin: 0 0 10px 10px;
+//           background: red;
+//           border: 1px solid black;
+//         "
+//       >
+//         Floated content :)
+//       </div>
+export const longTexts: ListOfDemos = [
+  {
+    id: "sherlock",
+    html: `<div class="gutenberg">
+<h1>THE HOUND OF THE BASKERVILLES</h1>
+<h4>Another Adventure of Sherlock Holmes</h4>
+<h2>by A. Conan Doyle</h2>
+<hr />
+<div class="chapter">
+<h2><a name="chap01"></a>Chapter 1.<br />
+Mr. Sherlock Holmes</h2>
+    <p>
+      Mr. Sherlock Holmes, who was usually very late in the mornings, save upon
+      those not infrequent occasions when he was up all night, was seated at the
+      breakfast table. I stood upon the hearth-rug and picked up the stick which
+      our visitor had left behind him the night before. It was a fine, thick
+      piece of wood, bulbous-headed, of the sort which is known as a &ldquo;Penang
+      lawyer.&rdquo; Just under the head was a broad silver band nearly an inch
+      across. &ldquo;To James Mortimer, M.R.C.S., from his friends of the C.C.H.,&rdquo; was
+      engraved upon it, with the date &ldquo;1884.&rdquo; It was just such a stick as the
+      old-fashioned family practitioner used to carry&mdash;dignified, solid,
+      and reassuring.
+    </p>
+    <p>
+      &ldquo;Well, Watson, what do you make of it?&rdquo;
+     </p>
+    <p>
+      Holmes was sitting with his back to me, and I had given him no sign of my
+      occupation.
+    </p>
+    <p>
+      &ldquo;How did you know what I was doing? I believe you have eyes in the back of
+      your head.&rdquo;
+     </p>
+    <p>
+      &ldquo;I have, at least, a well-polished, silver-plated coffee-pot in front of
+      me,&rdquo; said he. &ldquo;But, tell me, Watson, what do you make of our visitor&rsquo;s
+      stick? Since we have been so unfortunate as to miss him and have no notion
+      of his errand, this accidental souvenir becomes of importance. Let me hear
+      you reconstruct the man by an examination of it.&rdquo;
+     </p>
+    <p>
+      &ldquo;I think,&rdquo; said I, following as far as I could the methods of my
+      companion, &ldquo;that Dr. Mortimer is a successful, elderly medical man,
+      well-esteemed since those who know him give him this mark of their
+      appreciation.&rdquo;
+     </p>
+    <p>
+      &ldquo;Good!&rdquo; said Holmes. &ldquo;Excellent!&rdquo;
+     </p>
+    <p>
+      &ldquo;I think also that the probability is in favour of his being a country
+      practitioner who does a great deal of his visiting on foot.&rdquo;
+     </p>
+    <p>
+      &ldquo;Why so?&rdquo;
+     </p>
+    <p>
+      &ldquo;Because this stick, though originally a very handsome one has been so
+      knocked about that I can hardly imagine a town practitioner carrying it.
+      The thick-iron ferrule is worn down, so it is evident that he has done a
+      great amount of walking with it.&rdquo;
+     </p>
+    <p>
+      &ldquo;Perfectly sound!&rdquo; said Holmes.
+    </p>
+    <p>
+      &ldquo;And then again, there is the &lsquo;friends of the C.C.H.&rsquo; I should guess that
+      to be the Something Hunt, the local hunt to whose members he has possibly
+      given some surgical assistance, and which has made him a small
+      presentation in return.&rdquo;
+     </p>
+    <p>
+      &ldquo;Really, Watson, you excel yourself,&rdquo; said Holmes, pushing back his chair
+      and lighting a cigarette. &ldquo;I am bound to say that in all the accounts
+      which you have been so good as to give of my own small achievements you
+      have habitually underrated your own abilities. It may be that you are not
+      yourself luminous, but you are a conductor of light. Some people without
+      possessing genius have a remarkable power of stimulating it. I confess, my
+      dear fellow, that I am very much in your debt.&rdquo;
+     </p>
+    <p>
+      He had never said as much before, and I must admit that his words gave me
+      keen pleasure, for I had often been piqued by his indifference to my
+      admiration and to the attempts which I had made to give publicity to his
+      methods. I was proud, too, to think that I had so far mastered his system
+      as to apply it in a way which earned his approval. He now took the stick
+      from my hands and examined it for a few minutes with his naked eyes. Then
+      with an expression of interest he laid down his cigarette, and carrying
+      the cane to the window, he looked over it again with a convex lens.
+    </p>
+    <p>
+      &ldquo;Interesting, though elementary,&rdquo; said he as he returned to his favourite
+      corner of the settee. &ldquo;There are certainly one or two indications upon the
+      stick. It gives us the basis for several deductions.&rdquo;
+     </p>
+    <p>
+      &ldquo;Has anything escaped me?&rdquo; I asked with some self-importance. &ldquo;I trust
+      that there is nothing of consequence which I have overlooked?&rdquo;
+     </p>
+    <p>
+      &ldquo;I am afraid, my dear Watson, that most of your conclusions were
+      erroneous. When I said that you stimulated me I meant, to be frank, that
+      in noting your fallacies I was occasionally guided towards the truth. Not
+      that you are entirely wrong in this instance. The man is certainly a
+      country practitioner. And he walks a good deal.&rdquo;
+     </p>
+    <p>
+      &ldquo;Then I was right.&rdquo;
+     </p>
+    <p>
+      &ldquo;To that extent.&rdquo;
+     </p>
+    <p>
+      &ldquo;But that was all.&rdquo;
+     </p>
+    <p>
+      &ldquo;No, no, my dear Watson, not all&mdash;by no means all. I would suggest,
+      for example, that a presentation to a doctor is more likely to come from a
+      hospital than from a hunt, and that when the initials &lsquo;C.C.&rsquo; are placed
+      before that hospital the words &lsquo;Charing Cross&rsquo; very naturally suggest
+      themselves.&rdquo;
+     </p>
+    <p>
+      &ldquo;You may be right.&rdquo;
+     </p>
+    <p>
+      &ldquo;The probability lies in that direction. And if we take this as a working
+      hypothesis we have a fresh basis from which to start our construction of
+      this unknown visitor.&rdquo;
+     </p>
+    <p>
+      &ldquo;Well, then, supposing that &lsquo;C.C.H.&rsquo; does stand for &lsquo;Charing Cross
+      Hospital,&rsquo; what further inferences may we draw?&rdquo;
+     </p>
+    <p>
+      &ldquo;Do none suggest themselves? You know my methods. Apply them!&rdquo;
+     </p>
+    <p>
+      &ldquo;I can only think of the obvious conclusion that the man has practised in
+      town before going to the country.&rdquo;
+     </p>
+    <p>
+      &ldquo;I think that we might venture a little farther than this. Look at it in
+      this light. On what occasion would it be most probable that such a
+      presentation would be made? When would his friends unite to give him a
+      pledge of their good will? Obviously at the moment when Dr. Mortimer
+      withdrew from the service of the hospital in order to start a practice for
+      himself. We know there has been a presentation. We believe there has been
+      a change from a town hospital to a country practice. Is it, then,
+      stretching our inference too far to say that the presentation was on the
+      occasion of the change?&rdquo;
+     </p>
+    <p>
+      &ldquo;It certainly seems probable.&rdquo;
+     </p>
+    <p>
+      &ldquo;Now, you will observe that he could not have been on the <i>staff</i> of the
+      hospital, since only a man well-established in a London practice could
+      hold such a position, and such a one would not drift into the country.
+      What was he, then? If he was in the hospital and yet not on the staff he
+      could only have been a house-surgeon or a house-physician&mdash;little
+      more than a senior student. And he left five years ago&mdash;the date is
+      on the stick. So your grave, middle-aged family practitioner vanishes into
+      thin air, my dear Watson, and there emerges a young fellow under thirty,
+      amiable, unambitious, absent-minded, and the possessor of a favourite dog,
+      which I should describe roughly as being larger than a terrier and smaller
+      than a mastiff.&rdquo;
+     </p>
+    <p>
+      I laughed incredulously as Sherlock Holmes leaned back in his settee and
+      blew little wavering rings of smoke up to the ceiling.
+    </p>
+    <p>
+      &ldquo;As to the latter part, I have no means of checking you,&rdquo; said I, &ldquo;but at
+      least it is not difficult to find out a few particulars about the man&rsquo;s
+      age and professional career.&rdquo; From my small medical shelf I took down the
+      Medical Directory and turned up the name. There were several Mortimers,
+      but only one who could be our visitor. I read his record aloud.
+    </p>
+    <p class="letter">
+        &ldquo;Mortimer, James, M.R.C.S., 1882, Grimpen, Dartmoor, Devon.
+        House-surgeon, from 1882 to 1884, at Charing Cross Hospital. Winner of
+        the Jackson prize for Comparative Pathology, with essay entitled
+        &lsquo;Is Disease a Reversion?&rsquo;  Corresponding member of the
+        Swedish Pathological Society.  Author of &lsquo;Some Freaks of
+        Atavism&rsquo; (<i>Lancet</i> 1882).  &lsquo;Do We Progress?&rsquo;
+        (<i>Journal of Psychology</i>, March, 1883). Medical Officer for the
+        parishes of Grimpen, Thorsley, and High Barrow.&rdquo;
+    </p>
+    <p>
+      &ldquo;No mention of that local hunt, Watson,&rdquo; said Holmes with a mischievous
+      smile, &ldquo;but a country doctor, as you very astutely observed. I think that
+      I am fairly justified in my inferences. As to the adjectives, I said, if I
+      remember right, amiable, unambitious, and absent-minded. It is my
+      experience that it is only an amiable man in this world who receives
+      testimonials, only an unambitious one who abandons a London career for the
+      country, and only an absent-minded one who leaves his stick and not his
+      visiting-card after waiting an hour in your room.&rdquo;
+     </p>
+    <p>
+      &ldquo;And the dog?&rdquo;
+     </p>
+    <p>
+      &ldquo;Has been in the habit of carrying this stick behind his master. Being a
+      heavy stick the dog has held it tightly by the middle, and the marks of
+      his teeth are very plainly visible. The dog&rsquo;s jaw, as shown in the space
+      between these marks, is too broad in my opinion for a terrier and not
+      broad enough for a mastiff. It may have been&mdash;yes, by Jove, it <i>is</i> a
+      curly-haired spaniel.&rdquo;
+     </p>
+    <p>
+      He had risen and paced the room as he spoke. Now he halted in the recess
+      of the window. There was such a ring of conviction in his voice that I
+      glanced up in surprise.
+    </p>
+    <p>
+      &ldquo;My dear fellow, how can you possibly be so sure of that?&rdquo;
+     </p>
+    <p>
+      &ldquo;For the very simple reason that I see the dog himself on our very
+      door-step, and there is the ring of its owner. Don&rsquo;t move, I beg you,
+      Watson. He is a professional brother of yours, and your presence may be of
+      assistance to me. Now is the dramatic moment of fate, Watson, when you
+      hear a step upon the stair which is walking into your life, and you know
+      not whether for good or ill. What does Dr. James Mortimer, the man of
+      science, ask of Sherlock Holmes, the specialist in crime? Come in!&rdquo;
+     </p>
+    <p>
+      The appearance of our visitor was a surprise to me, since I had expected a
+      typical country practitioner. He was a very tall, thin man, with a long
+      nose like a beak, which jutted out between two keen, grey eyes, set
+      closely together and sparkling brightly from behind a pair of gold-rimmed
+      glasses. He was clad in a professional but rather slovenly fashion, for
+      his frock-coat was dingy and his trousers frayed. Though young, his long
+      back was already bowed, and he walked with a forward thrust of his head
+      and a general air of peering benevolence. As he entered his eyes fell upon
+      the stick in Holmes&rsquo;s hand, and he ran towards it with an exclamation of
+      joy. &ldquo;I am so very glad,&rdquo; said he. &ldquo;I was not sure whether I had left it
+      here or in the Shipping Office. I would not lose that stick for the
+      world.&rdquo;
+     </p>
+    <p>
+      &ldquo;A presentation, I see,&rdquo; said Holmes.
+    </p>
+    <p>
+      &ldquo;Yes, sir.&rdquo;
+     </p>
+    <p>
+      &ldquo;From Charing Cross Hospital?&rdquo;
+     </p>
+    <p>
+      &ldquo;From one or two friends there on the occasion of my marriage.&rdquo;
+     </p>
+    <p>
+      &ldquo;Dear, dear, that&rsquo;s bad!&rdquo; said Holmes, shaking his head.
+    </p>
+    <p>
+      Dr. Mortimer blinked through his glasses in mild astonishment. &ldquo;Why was it
+      bad?&rdquo;
+     </p>
+    <p>
+      &ldquo;Only that you have disarranged our little deductions. Your marriage, you
+      say?&rdquo;
+     </p>
+    <p>
+      &ldquo;Yes, sir. I married, and so left the hospital, and with it all hopes of a
+      consulting practice. It was necessary to make a home of my own.&rdquo;
+     </p>
+    <p>
+      &ldquo;Come, come, we are not so far wrong, after all,&rdquo; said Holmes. &ldquo;And now,
+      Dr. James Mortimer&mdash;&rdquo;
+     </p>
+    <p>
+      &ldquo;Mister, sir, Mister&mdash;a humble M.R.C.S.&rdquo;
+     </p>
+    <p>
+      &ldquo;And a man of precise mind, evidently.&rdquo;
+     </p>
+    <p>
+      &ldquo;A dabbler in science, Mr. Holmes, a picker up of shells on the shores of
+      the great unknown ocean. I presume that it is Mr. Sherlock Holmes whom I
+      am addressing and not&mdash;&rdquo;
+     </p>
+    <p>
+      &ldquo;No, this is my friend Dr. Watson.&rdquo;
+     </p>
+    <p>
+      &ldquo;Glad to meet you, sir. I have heard your name mentioned in connection
+      with that of your friend. You interest me very much, Mr. Holmes. I had
+      hardly expected so dolichocephalic a skull or such well-marked
+      supra-orbital development. Would you have any objection to my running my
+      finger along your parietal fissure? A cast of your skull, sir, until the
+      original is available, would be an ornament to any anthropological museum.
+      It is not my intention to be fulsome, but I confess that I covet your
+      skull.&rdquo;
+     </p>
+    <p>
+      Sherlock Holmes waved our strange visitor into a chair. &ldquo;You are an
+      enthusiast in your line of thought, I perceive, sir, as I am in mine,&rdquo;
+       said he. &ldquo;I observe from your forefinger that you make your own
+      cigarettes. Have no hesitation in lighting one.&rdquo;
+     </p>
+    <p>
+      The man drew out paper and tobacco and twirled the one up in the other
+      with surprising dexterity. He had long, quivering fingers as agile and
+      restless as the antennæ of an insect.
+    </p>
+    <p>
+      Holmes was silent, but his little darting glances showed me the interest
+      which he took in our curious companion. &ldquo;I presume, sir,&rdquo; said he at last,
+      &ldquo;that it was not merely for the purpose of examining my skull that you
+      have done me the honour to call here last night and again today?&rdquo;
+     </p>
+    <p>
+      &ldquo;No, sir, no; though I am happy to have had the opportunity of doing that
+      as well. I came to you, Mr. Holmes, because I recognized that I am myself
+      an unpractical man and because I am suddenly confronted with a most
+      serious and extraordinary problem. Recognizing, as I do, that you are the
+      second highest expert in Europe&mdash;&rdquo;
+     </p>
+    <p>
+      &ldquo;Indeed, sir! May I inquire who has the honour to be the first?&rdquo; asked
+      Holmes with some asperity.
+    </p>
+    <p>
+      &ldquo;To the man of precisely scientific mind the work of Monsieur Bertillon
+      must always appeal strongly.&rdquo;
+     </p>
+    <p>
+      &ldquo;Then had you not better consult him?&rdquo;
+     </p>
+    <p>
+      &ldquo;I said, sir, to the precisely scientific mind. But as a practical man of
+      affairs it is acknowledged that you stand alone. I trust, sir, that I have
+      not inadvertently&mdash;&rdquo;
+     </p>
+    <p>
+      &ldquo;Just a little,&rdquo; said Holmes. &ldquo;I think, Dr. Mortimer, you would do wisely
+      if without more ado you would kindly tell me plainly what the exact nature
+      of the problem is in which you demand my assistance.&rdquo;
+     </p>
+</div>
+<div class="chapter">
+<h2><a name="chap02"></a>Chapter 2.<br />
+The Curse of the Baskervilles</h2>
+    <p>
+      &ldquo;I have in my pocket a manuscript,&rdquo; said Dr. James Mortimer.
+    </p>
+    <p>
+      &ldquo;I observed it as you entered the room,&rdquo; said Holmes.
+    </p>
+    <p>
+      &ldquo;It is an old manuscript.&rdquo;
+     </p>
+    <p>
+      &ldquo;Early eighteenth century, unless it is a forgery.&rdquo;
+     </p>
+    <p>
+      &ldquo;How can you say that, sir?&rdquo;
+     </p>
+    <p>
+      &ldquo;You have presented an inch or two of it to my examination all the time
+      that you have been talking. It would be a poor expert who could not give
+      the date of a document within a decade or so. You may possibly have read
+      my little monograph upon the subject. I put that at 1730.&rdquo;
+     </p>
+    <p>
+      &ldquo;The exact date is 1742.&rdquo; Dr. Mortimer drew it from his breast-pocket.
+      &ldquo;This family paper was committed to my care by Sir Charles Baskerville,
+      whose sudden and tragic death some three months ago created so much
+      excitement in Devonshire. I may say that I was his personal friend as well
+      as his medical attendant. He was a strong-minded man, sir, shrewd,
+      practical, and as unimaginative as I am myself. Yet he took this document
+      very seriously, and his mind was prepared for just such an end as did
+      eventually overtake him.&rdquo;
+     </p>
+    <p>
+      Holmes stretched out his hand for the manuscript and flattened it upon
+      his knee. &ldquo;You will observe, Watson, the alternative use of the
+      long <i>s</i> and the short. It is one of several indications which
+      enabled me to fix the date.&rdquo;
+     </p>
+    <p>
+      I looked over his shoulder at the yellow paper and the faded script. At
+      the head was written: &ldquo;Baskerville Hall,&rdquo; and below in large, scrawling
+      figures: &ldquo;1742.&rdquo;
+     </p>
+    <p>
+      &ldquo;It appears to be a statement of some sort.&rdquo;
+     </p>
+    <p>
+      &ldquo;Yes, it is a statement of a certain legend which runs in the Baskerville
+      family.&rdquo;
+     </p>
+    <p>
+      &ldquo;But I understand that it is something more modern and practical upon
+      which you wish to consult me?&rdquo;
+     </p>
+    <p>
+      &ldquo;Most modern. A most practical, pressing matter, which must be decided
+      within twenty-four hours. But the manuscript is short and is intimately
+      connected with the affair. With your permission I will read it to you.&rdquo;
+     </p>
+    <p>
+      Holmes leaned back in his chair, placed his finger-tips together, and
+      closed his eyes, with an air of resignation. Dr. Mortimer turned the
+      manuscript to the light and read in a high, cracking voice the following
+      curious, old-world narrative:
+    </p>
+    <p class="letter">
+        &ldquo;Of the origin of the Hound of the Baskervilles there have been
+        many statements, yet as I come in a direct line from Hugo Baskerville,
+        and as I had the story from my father, who also had it from his, I have
+        set it down with all belief that it occurred even as is here set forth.
+         And I would have you believe, my sons, that the same Justice which
+        punishes sin may also most graciously forgive it, and that no ban is so
+        heavy but that by prayer and repentance it may be removed.  Learn then
+        from this story not to fear the fruits of the past, but rather to be
+        circumspect in the future, that those foul passions whereby our family
+        has suffered so grievously may not again be loosed to our undoing.<br />
+            &ldquo;Know then that in the time of the Great Rebellion (the
+        history of which by the learned Lord Clarendon I most earnestly commend
+        to your attention) this Manor of Baskerville was held by Hugo of that
+        name, nor can it be gainsaid that he was a most wild, profane, and
+        godless man.  This, in truth, his neighbours might have pardoned,
+        seeing that saints have never flourished in those parts, but there was
+        in him a certain wanton and cruel humour which made his name a by-word
+        through the West.  It chanced that this Hugo came to love (if, indeed,
+        so dark a passion may be known under so bright a name) the daughter of
+        a yeoman who held lands near the Baskerville estate. But the young
+        maiden, being discreet and of good repute, would ever avoid him, for
+        she feared his evil name.  So it came to pass that one Michaelmas this
+        Hugo, with five or six of his idle and wicked companions, stole down
+        upon the farm and carried off the maiden, her father and brothers being
+        from home, as he well knew.  When they had brought her to the Hall the
+        maiden was placed in an upper chamber, while Hugo and his friends sat
+        down to a long carouse, as was their nightly custom.  Now, the poor
+        lass upstairs was like to have her wits turned at the singing and
+        shouting and terrible oaths which came up to her from below, for they
+        say that the words used by Hugo Baskerville, when he was in wine, were
+        such as might blast the man who said them.  At last in the stress of
+        her fear she did that which might have daunted the bravest or most
+        active man, for by the aid of the growth of ivy which covered (and
+        still covers) the south wall she came down from under the eaves, and so
+        homeward across the moor, there being three leagues betwixt the Hall
+        and her father&rsquo;s farm.<br />
+            &ldquo;It chanced that some little time later Hugo left his guests
+        to carry food and drink&mdash;with other worse things,
+        perchance&mdash;to his captive, and so found the cage empty and the
+        bird escaped.  Then, as it would seem, he became as one that hath a
+        devil, for, rushing down the stairs into the dining-hall, he sprang
+        upon the great table, flagons and trenchers flying before him, and he
+        cried aloud before all the company that he would that very night render
+        his body and soul to the Powers of Evil if he might but overtake the
+        wench.  And while the revellers stood aghast at the fury of the man,
+        one more wicked or, it may be, more drunken than the rest, cried out
+        that they should put the hounds upon her.  Whereat Hugo ran from the
+        house, crying to his grooms that they should saddle his mare and
+        unkennel the pack, and giving the hounds a kerchief of the
+        maid&rsquo;s, he swung them to the line, and so off full cry in the
+        moonlight over the moor.<br />
+            &ldquo;Now, for some space the revellers stood agape, unable to
+        understand all that had been done in such haste.  But anon their
+        bemused wits awoke to the nature of the deed which was like to be done
+        upon the moorlands.  Everything was now in an uproar, some calling for
+        their pistols, some for their horses, and some for another flask of
+        wine.  But at length some sense came back to their crazed minds, and
+        the whole of them, thirteen in number, took horse and started in
+        pursuit.  The moon shone clear above them, and they rode swiftly
+        abreast, taking that course which the maid must needs have taken if she
+        were to reach her own home.<br />
+            &ldquo;They had gone a mile or two when they passed one of the
+        night shepherds upon the moorlands, and they cried to him to know if he
+        had seen the hunt.  And the man, as the story goes, was so crazed with
+        fear that he could scarce speak, but at last he said that he had indeed
+        seen the unhappy maiden, with the hounds upon her track.  &lsquo;But I
+        have seen more than that,&rsquo; said he, &lsquo;for Hugo Baskerville
+        passed me upon his black mare, and there ran mute behind him such a
+        hound of hell as God forbid should ever be at my heels.&rsquo;  So the
+        drunken squires cursed the shepherd and rode onward.  But soon their
+        skins turned cold, for there came a galloping across the moor, and the
+        black mare, dabbled with white froth, went past with trailing bridle
+        and empty saddle.  Then the revellers rode close together, for a great
+        fear was on them, but they still followed over the moor, though each,
+        had he been alone, would have been right glad to have turned his
+        horse&rsquo;s head.  Riding slowly in this fashion they came at last
+        upon the hounds.  These, though known for their valour and their breed,
+        were whimpering in a cluster at the head of a deep dip or goyal, as we
+        call it, upon the moor, some slinking away and some, with starting
+        hackles and staring eyes, gazing down the narrow valley before
+        them.<br />
+            &ldquo;The company had come to a halt, more sober men, as you may
+        guess, than when they started.  The most of them would by no means
+        advance, but three of them, the boldest, or it may be the most drunken,
+        rode forward down the goyal. Now, it opened into a broad space in which
+        stood two of those great stones, still to be seen there, which were set
+        by certain forgotten peoples in the days of old. The moon was shining
+        bright upon the clearing, and there in the centre lay the unhappy maid
+        where she had fallen, dead of fear and of fatigue.  But it was not the
+        sight of her body, nor yet was it that of the body of Hugo Baskerville
+        lying near her, which raised the hair upon the heads of these three
+        dare-devil roysterers, but it was that, standing over Hugo, and
+        plucking at his throat, there stood a foul thing, a great, black beast,
+        shaped like a hound, yet larger than any hound that ever mortal eye has
+        rested upon.  And even as they looked the thing tore the throat out of
+        Hugo Baskerville, on which, as it turned its blazing eyes and dripping
+        jaws upon them, the three shrieked with fear and rode for dear life,
+        still screaming, across the moor.  One, it is said, died that very
+        night of what he had seen, and the other twain were but broken men for
+        the rest of their days.<br />
+            &ldquo;Such is the tale, my sons, of the coming of the hound which
+        is said to have plagued the family so sorely ever since.  If I have set
+        it down it is because that which is clearly known hath less terror than
+        that which is but hinted at and guessed.  Nor can it be denied that
+        many of the family have been unhappy in their deaths, which have been
+        sudden, bloody, and mysterious.  Yet may we shelter ourselves in the
+        infinite goodness of Providence, which would not forever punish the
+        innocent beyond that third or fourth generation which is threatened in
+        Holy Writ.  To that Providence, my sons, I hereby commend you, and I
+        counsel you by way of caution to forbear from crossing the moor in
+        those dark hours when the powers of evil are exalted.<br />
+            &ldquo;[This from Hugo Baskerville to his sons Rodger and John,
+        with instructions that they say nothing thereof to their sister
+        Elizabeth.]&rdquo;
+    </p>
+    <p>
+      When Dr. Mortimer had finished reading this singular narrative he pushed
+      his spectacles up on his forehead and stared across at Mr. Sherlock
+      Holmes. The latter yawned and tossed the end of his cigarette into the
+      fire.
+    </p>
+    <p>
+      &ldquo;Well?&rdquo; said he.
+    </p>
+    <p>
+      &ldquo;Do you not find it interesting?&rdquo;
+     </p>
+    <p>
+      &ldquo;To a collector of fairy tales.&rdquo;
+     </p>
+    <p>
+      Dr. Mortimer drew a folded newspaper out of his pocket.
+    </p>
+    <p>
+      &ldquo;Now, Mr. Holmes, we will give you something a little more recent. This is
+      the <i>Devon County Chronicle</i> of May 14th of this year. It is a short account
+      of the facts elicited at the death of Sir Charles Baskerville which
+      occurred a few days before that date.&rdquo;
+     </p>
+    <p>
+      My friend leaned a little forward and his expression became intent. Our
+      visitor readjusted his glasses and began:
+    </p>
+    <p class="letter">
+        &ldquo;The recent sudden death of Sir Charles Baskerville, whose name
+        has been mentioned as the probable Liberal candidate for Mid-Devon at
+        the next election, has cast a gloom over the county.  Though Sir
+        Charles had resided at Baskerville Hall for a comparatively short
+        period his amiability of character and extreme generosity had won the
+        affection and respect of all who had been brought into contact with
+        him.  In these days of <i>nouveaux riches</i> it is refreshing to find a case
+        where the scion of an old county family which has fallen upon evil days
+        is able to make his own fortune and to bring it back with him to
+        restore the fallen grandeur of his line.  Sir Charles, as is well
+        known, made large sums of money in South African speculation. More wise
+        than those who go on until the wheel turns against them, he realised
+        his gains and returned to England with them.  It is only two years
+        since he took up his residence at Baskerville Hall, and it is common
+        talk how large were those schemes of reconstruction and improvement
+        which have been interrupted by his death.  Being himself childless, it
+        was his openly expressed desire that the whole countryside should,
+        within his own lifetime, profit by his good fortune, and many will have
+        personal reasons for bewailing his untimely end.  His generous
+        donations to local and county charities have been frequently chronicled
+        in these columns.<br />
+            &ldquo;The circumstances connected with the death of Sir Charles
+        cannot be said to have been entirely cleared up by the inquest, but at
+        least enough has been done to dispose of those rumours to which local
+        superstition has given rise. There is no reason whatever to suspect
+        foul play, or to imagine that death could be from any but natural
+        causes. Sir Charles was a widower, and a man who may be said to have
+        been in some ways of an eccentric habit of mind. In spite of his
+        considerable wealth he was simple in his personal tastes, and his
+        indoor servants at Baskerville Hall consisted of a married couple named
+        Barrymore, the husband acting as butler and the wife as housekeeper.
+        Their evidence, corroborated by that of several friends, tends to show
+        that Sir Charles&rsquo;s health has for some time been impaired, and
+        points especially to some affection of the heart, manifesting itself in
+        changes of colour, breathlessness, and acute attacks of nervous
+        depression. Dr. James Mortimer, the friend and medical attendant of the
+        deceased, has given evidence to the same effect.<br />
+            &ldquo;The facts of the case are simple.  Sir Charles Baskerville
+        was in the habit every night before going to bed of walking down the
+        famous yew alley of Baskerville Hall.  The evidence of the Barrymores
+        shows that this had been his custom. On the fourth of May Sir Charles
+        had declared his intention of starting next day for London, and had
+        ordered Barrymore to prepare his luggage.  That night he went out as
+        usual for his nocturnal walk, in the course of which he was in the
+        habit of smoking a cigar.  He never returned.  At twelve o&rsquo;clock
+        Barrymore, finding the hall door still open, became alarmed, and,
+        lighting a lantern, went in search of his master.  The day had been
+        wet, and Sir Charles&rsquo;s footmarks were easily traced down the
+        alley.  Halfway down this walk there is a gate which leads out on to
+        the moor. There were indications that Sir Charles had stood for some
+        little time here.  He then proceeded down the alley, and it was at the
+        far end of it that his body was discovered. One fact which has not been
+        explained is the statement of Barrymore that his master&rsquo;s
+        footprints altered their character from the time that he passed the
+        moor-gate, and that he appeared from thence onward to have been walking
+        upon his toes.  One Murphy, a gipsy horse-dealer, was on the moor at no
+        great distance at the time, but he appears by his own confession to
+        have been the worse for drink. He declares that he heard cries but is
+        unable to state from what direction they came.  No signs of violence
+        were to be discovered upon Sir Charles&rsquo;s person, and though the
+        doctor&rsquo;s evidence pointed to an almost incredible facial
+        distortion&mdash;so great that Dr. Mortimer refused at first to believe
+        that it was indeed his friend and patient who lay before him&mdash;it
+        was explained that that is a symptom which is not unusual in cases of
+        dyspnœa and death from cardiac exhaustion.  This explanation was borne
+        out by the post-mortem examination, which showed long-standing organic
+        disease, and the coroner&rsquo;s jury returned a verdict in accordance
+        with the medical evidence.  It is well that this is so, for it is
+        obviously of the utmost importance that Sir Charles&rsquo;s heir should
+        settle at the Hall and continue the good work which has been so sadly
+        interrupted.  Had the prosaic finding of the coroner not finally put an
+        end to the romantic stories which have been whispered in connection
+        with the affair, it might have been difficult to find a tenant for
+        Baskerville Hall.  It is understood that the next of kin is Mr. Henry
+        Baskerville, if he be still alive, the son of Sir Charles
+        Baskerville&rsquo;s younger brother.  The young man when last heard of
+        was in America, and inquiries are being instituted with a view to
+        informing him of his good fortune.&rdquo;
+    </p>
+    <p>
+      Dr. Mortimer refolded his paper and replaced it in his pocket. &ldquo;Those are
+      the public facts, Mr. Holmes, in connection with the death of Sir Charles
+      Baskerville.&rdquo;
+     </p>
+    <p>
+      &ldquo;I must thank you,&rdquo; said Sherlock Holmes, &ldquo;for calling my attention to a
+      case which certainly presents some features of interest. I had observed
+      some newspaper comment at the time, but I was exceedingly preoccupied by
+      that little affair of the Vatican cameos, and in my anxiety to oblige the
+      Pope I lost touch with several interesting English cases. This article,
+      you say, contains all the public facts?&rdquo;
+     </p>
+    <p>
+      &ldquo;It does.&rdquo;
+     </p>
+    <p>
+      &ldquo;Then let me have the private ones.&rdquo; He leaned back, put his finger-tips
+      together, and assumed his most impassive and judicial expression.
+    </p>
+    <p>
+      &ldquo;In doing so,&rdquo; said Dr. Mortimer, who had begun to show signs of some
+      strong emotion, &ldquo;I am telling that which I have not confided to anyone. My
+      motive for withholding it from the coroner&rsquo;s inquiry is that a man of
+      science shrinks from placing himself in the public position of seeming to
+      indorse a popular superstition. I had the further motive that Baskerville
+      Hall, as the paper says, would certainly remain untenanted if anything
+      were done to increase its already rather grim reputation. For both these
+      reasons I thought that I was justified in telling rather less than I knew,
+      since no practical good could result from it, but with you there is no
+      reason why I should not be perfectly frank.
+    </p>
+    <p>
+      &ldquo;The moor is very sparsely inhabited, and those who live near each other
+      are thrown very much together. For this reason I saw a good deal of Sir
+      Charles Baskerville. With the exception of Mr. Frankland, of Lafter Hall,
+      and Mr. Stapleton, the naturalist, there are no other men of education
+      within many miles. Sir Charles was a retiring man, but the chance of his
+      illness brought us together, and a community of interests in science kept
+      us so. He had brought back much scientific information from South Africa,
+      and many a charming evening we have spent together discussing the
+      comparative anatomy of the Bushman and the Hottentot.
+    </p>
+    <p>
+      &ldquo;Within the last few months it became increasingly plain to me that Sir
+      Charles&rsquo;s nervous system was strained to the breaking point. He had taken
+      this legend which I have read you exceedingly to heart&mdash;so much so
+      that, although he would walk in his own grounds, nothing would induce him
+      to go out upon the moor at night. Incredible as it may appear to you, Mr.
+      Holmes, he was honestly convinced that a dreadful fate overhung his
+      family, and certainly the records which he was able to give of his
+      ancestors were not encouraging. The idea of some ghastly presence
+      constantly haunted him, and on more than one occasion he has asked me
+      whether I had on my medical journeys at night ever seen any strange
+      creature or heard the baying of a hound. The latter question he put to me
+      several times, and always with a voice which vibrated with excitement.
+    </p>
+    <p>
+      &ldquo;I can well remember driving up to his house in the evening some three
+      weeks before the fatal event. He chanced to be at his hall door. I had
+      descended from my gig and was standing in front of him, when I saw his
+      eyes fix themselves over my shoulder and stare past me with an expression
+      of the most dreadful horror. I whisked round and had just time to catch a
+      glimpse of something which I took to be a large black calf passing at the
+      head of the drive. So excited and alarmed was he that I was compelled to
+      go down to the spot where the animal had been and look around for it. It
+      was gone, however, and the incident appeared to make the worst impression
+      upon his mind. I stayed with him all the evening, and it was on that
+      occasion, to explain the emotion which he had shown, that he confided to
+      my keeping that narrative which I read to you when first I came. I mention
+      this small episode because it assumes some importance in view of the
+      tragedy which followed, but I was convinced at the time that the matter
+      was entirely trivial and that his excitement had no justification.
+    </p>
+    <p>
+      &ldquo;It was at my advice that Sir Charles was about to go to London. His heart
+      was, I knew, affected, and the constant anxiety in which he lived, however
+      chimerical the cause of it might be, was evidently having a serious effect
+      upon his health. I thought that a few months among the distractions of
+      town would send him back a new man. Mr. Stapleton, a mutual friend who was
+      much concerned at his state of health, was of the same opinion. At the
+      last instant came this terrible catastrophe.
+    </p>
+    <p>
+      &ldquo;On the night of Sir Charles&rsquo;s death Barrymore the butler, who made the
+      discovery, sent Perkins the groom on horseback to me, and as I was sitting
+      up late I was able to reach Baskerville Hall within an hour of the event.
+      I checked and corroborated all the facts which were mentioned at the
+      inquest. I followed the footsteps down the yew alley, I saw the spot at
+      the moor-gate where he seemed to have waited, I remarked the change in the
+      shape of the prints after that point, I noted that there were no other
+      footsteps save those of Barrymore on the soft gravel, and finally I
+      carefully examined the body, which had not been touched until my arrival.
+      Sir Charles lay on his face, his arms out, his fingers dug into the
+      ground, and his features convulsed with some strong emotion to such an
+      extent that I could hardly have sworn to his identity. There was certainly
+      no physical injury of any kind. But one false statement was made by
+      Barrymore at the inquest. He said that there were no traces upon the
+      ground round the body. He did not observe any. But I did&mdash;some little
+      distance off, but fresh and clear.&rdquo;
+     </p>
+    <p>
+      &ldquo;Footprints?&rdquo;
+     </p>
+    <p>
+      &ldquo;Footprints.&rdquo;
+     </p>
+    <p>
+      &ldquo;A man&rsquo;s or a woman&rsquo;s?&rdquo;
+     </p>
+    <p>
+      Dr. Mortimer looked strangely at us for an instant, and his voice sank
+      almost to a whisper as he answered.
+    </p>
+    <p>
+      &ldquo;Mr. Holmes, they were the footprints of a gigantic hound!&rdquo;
+     </p>
+</div>
+</div>`,
+  },
+];

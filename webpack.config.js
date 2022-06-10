@@ -13,7 +13,7 @@ module.exports = {
     lib: "./src",
     ...hyphenLibs,
   },
-  devtool: "inline-source-map",
+  devtool: "source-map",
   mode: process.env.NODE_ENV || "development",
   module: {
     rules: [
