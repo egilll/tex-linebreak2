@@ -18,7 +18,7 @@ import { getMaxLineWidth } from "src/utils/utils";
  * @param _options
  * @param debug - Will run {@link visualizeBoxesForDebugging}.
  */
-export function texLinebreakDOM(
+export async function texLinebreakDOM(
   _elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
   _options: Partial<TexLinebreakOptions>,
   debug?: boolean
@@ -42,7 +42,16 @@ export function texLinebreakDOM(
   const domTextMeasureFn = new DOMTextMeasurer().measure;
   const floatingElements = getFloatingElements();
 
-  elements.forEach((element) => {
+  let i = 0;
+
+  for (const element of elements) {
+    /* Prevent rendering thread from hanging on large documents */
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    /* TEMP */
+    i++;
+    if (i > 10) break;
+
     /** Undo the changes made by any previous justification of this content. */
     resetDOMJustification(element);
     try {
@@ -64,9 +73,9 @@ export function texLinebreakDOM(
       });
       const lines = obj.lines;
 
-      if (process.env.NODE_ENV === "development") {
-        console.log(lines);
-      }
+      // if (process.env.NODE_ENV === "development") {
+      //   console.log(lines);
+      // }
 
       /**
        * Since `Range`s are fragile and will easily go out of sync when we make
@@ -186,7 +195,7 @@ export function texLinebreakDOM(
       resetDOMJustification(element);
       throw e;
     }
-  });
+  }
 
   if (options.updateOnWindowResize) {
     updateOnWindowResize(elements, options);

@@ -1,6 +1,5 @@
 import { renderToCanvas } from "src/demo/canvas";
 import { texLinebreakDOM } from "src/html/texLinebreakDOM";
-import { TexLinebreakOptions } from "src/options";
 import { hyphenateFn } from "test/utils/enHyphenateFn";
 
 export const textarea = document.querySelector("textarea")!;
@@ -19,19 +18,21 @@ export function renderUserInput() {
   const outputElementStyle = window.getComputedStyle(outputElement);
   document.body.style.setProperty("--line-width", `${lineWidth}px`);
 
-  const padding = {
-    left: parseInt(outputElementStyle.paddingLeft!),
-    right: parseInt(outputElementStyle.paddingRight!),
-  };
   const htmlParagraph = document.querySelector<HTMLElement>(".html-p")!;
   htmlParagraph.innerHTML = textarea.value;
-  const options: Partial<TexLinebreakOptions> = {
+  texLinebreakDOM(htmlParagraph, {
     hyphenateFn: hyphenateFn,
-  };
-  texLinebreakDOM(htmlParagraph, options);
+  });
 
   // Render to canvas.
-  renderToCanvas(textarea.value, padding, lineWidth);
+  renderToCanvas(
+    textarea.value,
+    {
+      left: parseInt(outputElementStyle.paddingLeft!),
+      right: parseInt(outputElementStyle.paddingRight!),
+    },
+    lineWidth
+  );
 
   // Render using CSS `text-justify`
   plainBrowserOutputElement.innerHTML = textarea.value;

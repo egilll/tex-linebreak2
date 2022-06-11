@@ -19,8 +19,8 @@ export class TexLinebreakOptions {
   hangingPunctuation: boolean = true;
 
   /**
-   * In certain contexts such as plain text, you may
-   * wish to only use right hanging punctuation.
+   * Used to turn off left hanging punctuation, such as when
+   * working with plain text or when you don't think it looks good.
    */
   onlyRightHangingPunctuation?: boolean;
 
@@ -39,11 +39,14 @@ export class TexLinebreakOptions {
    * If set to null, it the glue will have INFINITE_STRETCH, thus not
    * penalizing short last lines.
    * Set this to a low value (such as 0.2) to make the last line fill out more.
+   * A low value is not necessarily recommended for justified text (as the
+   * remaining words will be spaced out), however, the result is quite good for
+   * ragged alignment (e.g. left-aligned).
    *
    * Note: Is the ratio of the longest width, not the ratio of the current line
    * (which is usually not an issue)
    */
-  infiniteGlueStretchAsRatioOfWidth?: number | null = 1;
+  infiniteGlueStretchAsRatioOfWidth?: number | null = 4;
 
   /**
    * The adjustment ratio of a line is the amount by which a line's glue

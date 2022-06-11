@@ -4,17 +4,17 @@
     <title>tex-linebreak demo</title>
 
     <!-- Font served from https://brick.im/ -->
-    <link
-      rel="stylesheet"
-      href="//brick.a.ssl.fastly.net/Crimson:400,700,400i"
-    />
+    <!--    <link-->
+    <!--      rel="stylesheet"-->
+    <!--      href="//brick.a.ssl.fastly.net/Crimson:400,700,400i"-->
+    <!--    />-->
     <meta name="robots" content="noindex" />
 
     <meta charset="utf-8" />
     <style>
       :root {
         /** This value is updated when the slider is moved */
-        --line-width: 300px;
+        --line-width: 400px;
       }
 
       * {
@@ -25,7 +25,7 @@
         max-width: 500px;
         margin: auto;
         background-color: #fdfbf7;
-        font-family: "Crimson", serif;
+        font-family: serif;
         font-size: 14px;
       }
 
@@ -42,7 +42,8 @@
       }
 
       body > p {
-        font-family: "Crimson", serif;
+        /*font-family: "Crimson", serif;*/
+        font-family: serif;
         font-size: 17px;
         line-height: 1.1;
         /*font-style: italic;*/
@@ -50,7 +51,7 @@
 
       .demo-output {
         background-color: white;
-        font-size: 16px;
+        font-size: 15px;
         border: 1px solid #aaa;
         margin: 10px auto;
         padding: 15px 30px;
@@ -60,7 +61,6 @@
       }
 
       .canvas {
-        display: block;
         padding: 0;
       }
 
@@ -122,6 +122,8 @@
   </head>
   <body>
     <h1><i>tex-linebreak</i> demo</h1>
+
+    <div id="output-container"></div>
 
     <p id="demo-output" style="margin: auto"></p>
     <!--

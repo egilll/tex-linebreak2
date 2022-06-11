@@ -129,12 +129,11 @@ import { texLinebreakDOM } from "tex-linebreak2";
 texLinebreakDOM("p"); // Selects all <p/> elements
 ```
 
-The function accepts either a query selector or a list of elements:
+The function accepts either a query selector string or a list of elements:
 
 ```js
 import { texLinebreakDOM } from "tex-linebreak2";
 
-const paragraphs = document.querySelectorAll("p");
 texLinebreakDOM(document.querySelectorAll("p"), { align: "left" });
 ```
 
@@ -151,6 +150,7 @@ The library does not support:
 - Columns
 - Contenteditable elements
 - The CSS properties  `font-stretch`, `font-size-adjust`, and `font-kerning`
+- If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, which may introduce a noticable lag.
 
 ### Other types of text
 

@@ -26,3 +26,6 @@
 
 - nowrap ætti ekki að gilda um sub-elements!
 - performance test
+- wait until ondomloaded to check again whether things have changed (e.g. fonts loaded)
+
+- when applied to a top-level div, "no-break" should not apply to it!

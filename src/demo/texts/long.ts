@@ -14,7 +14,8 @@ import { ListOfDemos } from "src/demo/demo";
 export const longTexts: ListOfDemos = [
   {
     id: "sherlock",
-    html: `<div class="gutenberg">
+    selector: "p",
+    content: `<div class="gutenberg">
 <h1>THE HOUND OF THE BASKERVILLES</h1>
 <h4>Another Adventure of Sherlock Holmes</h4>
 <h2>by A. Conan Doyle</h2>

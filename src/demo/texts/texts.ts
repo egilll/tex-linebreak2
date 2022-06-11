@@ -3,7 +3,7 @@ import { ListOfDemos } from "src/demo/demo";
 export const texts2: ListOfDemos = [
   {
     id: "tmp",
-    html: `
+    content: `
       <span>
         Text
         <div style="display:none">not displayed</div>
@@ -16,11 +16,12 @@ export const texts2: ListOfDemos = [
       `,
     options: {
       addInfiniteGlueToFinalLine: false,
+      hyphenateFn: undefined,
     },
   },
   {
     id: "tmp2",
-    html: `“Some <a href="#">simple text <i>with</i></a> embedded <code>inline</code> and
+    content: `“Some <a href="#">simple text <i>with</i></a> embedded <code>inline</code> and
               <span style="display: inline-block; border: 1px solid gray">inline-block</span>
               el&shy;em&shy;ents can be found in this paragraph
               <!-- A comment node -->
