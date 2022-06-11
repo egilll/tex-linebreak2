@@ -29,3 +29,5 @@
 - wait until ondomloaded to check again whether things have changed (e.g. fonts loaded)
 
 - when applied to a top-level div, "no-break" should not apply to it!
+
+- ignore zero-width word-final glue in block elements

@@ -54,6 +54,13 @@ export interface Glue {
    * have a width of 4. A value of 0 means that it cannot shrink.
    */
   shrink: number;
+
+  /**
+   * Used to not add unnecessary spans in DOM.
+   *
+   * @internal
+   */
+  skipWhenRendering?: boolean;
 }
 
 /** An explicit candidate position for breaking a line. */

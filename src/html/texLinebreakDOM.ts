@@ -124,6 +124,7 @@ export async function texLinebreakDOM(
 
             /** Add spacing to glue */
             if (item.type === "glue") {
+              if (item.skipWhenRendering) return;
               const span = tagNode(document.createElement("span"));
               /**
                * We try to not use `inline-block` since that messes with

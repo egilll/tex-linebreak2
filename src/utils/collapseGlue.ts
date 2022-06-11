@@ -35,37 +35,45 @@ export const collapseAdjacentTextGlueWidths = (items: TextItem[]) => {
 
 export const makeGlueAtEndsZeroWidth = (
   items: Item[],
-  startIndex: number = 0
+  startIndex: number = 0,
+  markAsSkipped = false
 ) => {
-  makeGlueAtBeginningZeroWidth(items, startIndex);
-  makeGlueAtEndZeroWidth(items);
+  makeGlueAtBeginningZeroWidth(items, startIndex, markAsSkipped);
+  makeGlueAtEndZeroWidth(items, markAsSkipped);
 };
 
 export const makeGlueAtBeginningZeroWidth = (
   items: Item[],
-  startIndex: number = 0
+  startIndex: number = 0,
+  markAsSkipped = false
 ) => {
   for (let i = startIndex; i < items.length; i++) {
     if (items[i].type === "glue") {
-      makeZeroWidth(items[i] as Glue);
+      makeZeroWidth(items[i] as Glue, markAsSkipped);
     } else {
       break;
     }
   }
 };
 
-export const makeGlueAtEndZeroWidth = (items: Item[]) => {
+export const makeGlueAtEndZeroWidth = (
+  items: Item[],
+  markAsSkipped = false
+) => {
   for (let i = items.length - 1; i > 0; i--) {
     if (items[i].type === "glue") {
-      makeZeroWidth(items[i] as Glue);
+      makeZeroWidth(items[i] as Glue, markAsSkipped);
     } else {
       break;
     }
   }
 };
 
-export const makeZeroWidth = (item: Glue) => {
+export const makeZeroWidth = (item: Glue, markAsSkipped = false) => {
   item.width = 0;
   item.stretch = 0;
   item.shrink = 0;
+  if (markAsSkipped) {
+    item.skipWhenRendering = true;
+  }
 };

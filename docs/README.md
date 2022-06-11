@@ -24,7 +24,7 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 
 ## Features
 
-- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)) with decent performance (as long as hyphenation is not computed client-side)
+- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)) although performance is currently quite bad, such that it cannot be applied to pages that have a significant amount of text.
 - [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
 - Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 - Supports custom breaking rules.

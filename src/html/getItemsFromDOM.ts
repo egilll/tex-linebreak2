@@ -64,7 +64,7 @@ export function getItemsFromDOM(
     });
 
     if (addParagraphEnd) {
-      makeGlueAtEndZeroWidth(items);
+      makeGlueAtEndZeroWidth(items, true);
 
       const endOffset = node.childNodes.length;
 
@@ -184,7 +184,7 @@ export function getItemsFromDOM(
 
   getItemsFromNode(paragraphElement);
 
-  makeGlueAtEndsZeroWidth(items);
+  makeGlueAtEndsZeroWidth(items, 0, true);
   collapseAdjacentTextGlueWidths(items);
   return items;
 }

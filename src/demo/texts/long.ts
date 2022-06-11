@@ -15,6 +15,9 @@ export const longTexts: ListOfDemos = [
   {
     id: "sherlock",
     selector: "p",
+    options: {
+      // onlyRightHangingPunctuation: true,
+    },
     content: `<div class="gutenberg">
 <h1>THE HOUND OF THE BASKERVILLES</h1>
 <h4>Another Adventure of Sherlock Holmes</h4>
