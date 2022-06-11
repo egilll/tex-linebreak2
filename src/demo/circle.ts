@@ -14,17 +14,25 @@ outputElement.style.fontStyle = "italic";
 const lineHeight = parseInt(window.getComputedStyle(outputElement).lineHeight);
 
 const run = () => {
-  texLinebreakDOM(
-    outputElement,
-    {
-      optimizeByFn,
-      lineHeight,
-      hyphenateFn,
-      addInfiniteGlueToFinalLine: false,
-      setElementWidthToMaxLineWidth: true,
-    }
-    // true
-  );
+  try {
+    texLinebreakDOM(
+      outputElement,
+      {
+        optimizeByFn,
+        lineHeight,
+        hyphenateFn,
+        addInfiniteGlueToFinalLine: false,
+        setElementWidthToMaxLineWidth: true,
+      }
+      // true
+    );
+  } catch (e) {
+    console.error(e);
+    outputElement.insertAdjacentHTML(
+      "beforebegin",
+      `<div class="error">Error: Tex-linebreak encountered an error when breaking this paragraph.</div>`
+    );
+  }
 };
 run();
 

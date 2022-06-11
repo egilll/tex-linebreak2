@@ -182,12 +182,9 @@ export function texLinebreakDOM(
       /**
        * In the case of an error, we undo any changes we may have
        * made so that the user isn't left with a broken document.
-       * (Todo: Test if this actually works)
        */
-      console.error(e);
-      // if (process.env.NODE_ENV !== "development") {
       resetDOMJustification(element);
-      // }
+      throw e;
     }
   });
 

@@ -25,7 +25,12 @@ module.exports = {
     rules: [
       {
         test: /\.ts$/,
-        use: "ts-loader",
+        use: [
+          {
+            loader: "babel-loader",
+            options: require("./babel.config.js"),
+          },
+        ],
         exclude: /node_modules/,
       },
     ],

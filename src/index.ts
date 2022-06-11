@@ -1,3 +1,5 @@
+import "core-js/stable/array/at";
+
 import { breakLines, Item, MIN_ADJUSTMENT_RATIO } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
 import { optimizeByFn } from "src/optimize/optimizeByFn";
