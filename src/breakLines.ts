@@ -54,13 +54,6 @@ export interface Glue {
    * have a width of 4. A value of 0 means that it cannot shrink.
    */
   shrink: number;
-
-  /**
-   * Used to not add unnecessary spans in DOM.
-   *
-   * @internal
-   */
-  skipWhenRendering?: boolean;
 }
 
 /** An explicit candidate position for breaking a line. */
@@ -483,7 +476,22 @@ export function breakLines(
           items,
           new TexLinebreakOptions({
             ...options,
-            initialMaxAdjustmentRatio: minAdjustmentRatioAboveThreshold * 2,
+            /**
+             * Increase `initialMaxAdjustmentRatio`.
+             * We cannot only base this on `minAdjustmentRatioAboveThreshold`
+             * since that can cause long paragraphs to crawl to a halt due
+             * to excessive recursion. (Indeed the "* 2" was added to limit
+             * increases that are too small.) "+ 0.3" makes sure we don't
+             * increase too little, and basing it on `currentRecursionDepth`
+             * completely prevents excessive recursion.
+             */
+            initialMaxAdjustmentRatio:
+              currentRecursionDepth < 7
+                ? Math.max(
+                    minAdjustmentRatioAboveThreshold * 2,
+                    options.initialMaxAdjustmentRatio + 0.3
+                  )
+                : Infinity,
           }),
           returnMetadata,
           currentRecursionDepth + 1

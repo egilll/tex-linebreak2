@@ -22,11 +22,12 @@
     "test": "jest  --maxWorkers=1",
     "test_watch": "jest --watch --maxWorkers=1",
     "start": "webpack serve --mode development",
-    "publish_demo_to_github_pages": "yarn build && npx gh-pages -d dist --src '{demo\\.js,index\\.html}'"
+    "publish_demo_to_github_pages": "yarn build && gh-pages -d dist --src '{demo\\.js,index\\.html}'"
   },
   "dependencies": {
     "core-js": "3",
     "debounce": "^1.2.1",
+    "gh-pages": "^4.0.0",
     "linebreak": "^1.1.0",
     "string-width": "4.2.2",
     "webpack-license-plugin": "^4.2.2"

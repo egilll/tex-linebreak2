@@ -48,9 +48,9 @@ export async function texLinebreakDOM(
     /* Prevent rendering thread from hanging on large documents */
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    /* TEMP */
-    i++;
-    if (i > 10) break;
+    // /* TEMP */
+    // i++;
+    // if (i > 75 + 2) break;
 
     /** Undo the changes made by any previous justification of this content. */
     resetDOMJustification(element);

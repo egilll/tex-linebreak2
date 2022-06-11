@@ -150,7 +150,7 @@ The library does not support:
 - Columns
 - Contenteditable elements
 - The CSS properties  `font-stretch`, `font-size-adjust`, and `font-kerning`
-- If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, which may introduce a noticable lag.
+- If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, and that may introduce a noticable lag.
 
 ### Other types of text
 
@@ -201,7 +201,7 @@ console.log(t.lines.map((line) => line.positionedItems));
 You can also lay out arbitrary items (be it text or something else). The algorithm works with generic "box"
 (typeset material), "glue" (spaces that may have flexible sizing) and "penalty" items.
 Typically "boxes" are words, "glue" items are spaces and "penalty" items
-represent hyphenation points or other possible breaking points. These concepts are far more versatile than they may appear at first, as is discussed in the [original paper](#references).
+represent hyphenation points or other possible breaking points. These concepts are more versatile than they may appear at first, as is discussed in the [original paper](#references).
 
 ```js
 import { TexLinebreak, MIN_COST } from "tex-linebreak2";

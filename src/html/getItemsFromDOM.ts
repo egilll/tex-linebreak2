@@ -28,7 +28,14 @@ export interface DOMRangeOffset {
 }
 
 export type DOMBox = (Box | TextBox) & DOMRangeOffset;
-export type DOMGlue = (Glue | TextGlue) & DOMRangeOffset;
+export type DOMGlue = (Glue | TextGlue) &
+  DOMRangeOffset & {
+    /**
+     * Used to not add unnecessary spans when
+     * the whitespace will be collapsed anyways
+     */
+    skipWhenRendering?: boolean;
+  };
 export type DOMPenalty = Penalty & DOMRangeOffset;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 

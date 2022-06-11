@@ -59,9 +59,9 @@ module.exports = {
     // See https://github.com/webpack/webpack/issues/6522
     globalObject: "typeof self !== 'undefined' ? self : this",
   },
-  /** Will serve demo page at http://localhost:3000/index.html */
+  /** Will serve demo page at http://localhost:3001/index.html */
   devServer: {
-    port: 3000,
+    port: 3001,
     static: {
       directory: "./src/demo/",
     },

@@ -31,3 +31,4 @@
 - when applied to a top-level div, "no-break" should not apply to it!
 
 - ignore zero-width word-final glue in block elements
+- test if works with very very long paragraphs. prevent too many recursive breaklines calls
