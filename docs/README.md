@@ -1,10 +1,9 @@
 # tex-linebreak2
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <sub>(This repository is an extention of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight.)</sub>
 
-*tex-linebreak2* is a JavaScript library for breaking text into lines of optimal width and can be used to lay out justified text as you
+**tex-linebreak2** is a JavaScript library for breaking text into lines of optimal width. It can be used to lay out justified text as you
 would find in a newspaper, book or technical paper. It implements the
 [Knuth-Plass line-breaking algorithm](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)<sup>(PDF)</sup> which is used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
@@ -30,7 +29,7 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 - Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 - Supports custom breaking rules.
 - Supports justification and ragged alignment.
-- Can find the optimal width required for laying out text. This is especially useful when it comes to headlines (whose last line should not be mainly empty) but will also result in prettier output for general types of text.
+- (*work in progress*) Can find the optimal width required for laying out text. This is especially useful when it comes to headlines (whose last line should not be mainly empty) but will also result in prettier output for general types of text. 
 - Can be used in a browser or a Node.js environment[^2] to render to any target (`<canvas>`, HTML elements, PDF).
 
 ## About the Knuth-Plass algorithm
@@ -91,6 +90,7 @@ to restrict where scripts can be loaded from.
 
 ## Installation
 
+<!--
 ### As a third-party script
 
 ```html
@@ -107,13 +107,14 @@ to restrict where scripts can be loaded from.
   </script>
 </body>
 ```
+-->
 
 ### As a package
 
-Add the _tex-linebreak_ package to your dependencies:
+Add the _tex-linebreak2_ package to your dependencies:
 
 ```sh
-npm install tex-linebreak -s
+npm install git+ssh://git@github.com/egilll/tex-linebreak2.git -s
 ```
 
 ## Usage
@@ -123,7 +124,7 @@ npm install tex-linebreak -s
 Use the `texLinebreakDOM` function to lay out the paragraphs of a website:
 
 ```js
-import { texLinebreakDOM } from "tex-linebreak";
+import { texLinebreakDOM } from "tex-linebreak2";
 
 texLinebreakDOM("p"); // Selects all <p/> elements
 ```
@@ -131,7 +132,7 @@ texLinebreakDOM("p"); // Selects all <p/> elements
 The function accepts either a query selector or a list of elements:
 
 ```js
-import { texLinebreakDOM } from "tex-linebreak";
+import { texLinebreakDOM } from "tex-linebreak2";
 
 const paragraphs = document.querySelectorAll("p");
 texLinebreakDOM(document.querySelectorAll("p"), { align: "left" });
@@ -154,7 +155,7 @@ The library does not support:
 ### Other types of text
 
 ```js
-import { TexLinebreak } from "tex-linebreak";
+import { TexLinebreak } from "tex-linebreak2";
 
 const text =
   "Chamæleon animal est quadrupes, macrum & gibbosum, capite galeato, corpore & cauda lacertæ majoris, cervice penè nulla, costis plus minus sedecim, obliquo ductu ventri junctis ut piscibus.";
@@ -203,7 +204,7 @@ Typically "boxes" are words, "glue" items are spaces and "penalty" items
 represent hyphenation points or other possible breaking points. These concepts are far more versatile than they may appear at first, as is discussed in the [original paper](#references).
 
 ```js
-import { TexLinebreak, MIN_COST } from "tex-linebreak";
+import { TexLinebreak, MIN_COST } from "tex-linebreak2";
 
 const items = [
   { type: "box", width: 10 },
@@ -261,7 +262,7 @@ The following helper functions are available:
 To hyphenate text, you can [Hypher](https://github.com/bramstein/hypher) library and pass it in as the `hyphenateFn` option like so:
 
 ```js
-import { TexLinebreak } from "tex-linebreak";
+import { TexLinebreak } from "tex-linebreak2";
 import Hypher from "hypher";
 import enUsPatterns from "hyphenation.en-us";
 

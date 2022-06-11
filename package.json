@@ -21,7 +21,7 @@
     "prepublish": "yarn build",
     "test": "jest  --maxWorkers=1",
     "test_watch": "jest --watch --maxWorkers=1",
-    "start": "npx webpack serve --mode development"
+    "start": "webpack serve --mode development"
   },
   "dependencies": {
     "debounce": "^1.2.1",
