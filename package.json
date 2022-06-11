@@ -51,5 +51,9 @@
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.9.2",
     "xorshift": "^1.2.0"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead"
+  ]
 }
