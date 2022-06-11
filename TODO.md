@@ -25,3 +25,4 @@
 - inline-block items with margins
 
 - nowrap ætti ekki að gilda um sub-elements!
+- performance test

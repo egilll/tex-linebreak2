@@ -1,16 +1,16 @@
 # tex-linebreak2
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![npm version](https://img.shields.io/npm/v/tex-linebreak.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-_tex-linebreak2_ is a JavaScript library for laying out justified text as you
+<sub>(This repository is an extention of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight.)</sub>
+
+*tex-linebreak2* is a JavaScript library for breaking text into lines of optimal width and can be used to lay out justified text as you
 would find in a newspaper, book or technical paper. It implements the
-[Knuth-Plass line-breaking algorithm](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf) (PDF), as used by [TeX](https://en.wikipedia.org/wiki/TeX).
+[Knuth-Plass line-breaking algorithm](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)<sup>(PDF)</sup> which is used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
 **[Click here](#)** to see a demo.
 
 This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. It can be used to find the optimal size of an element to fit text.
-
-<sub>(This repository is an extention of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight.)</sub>
 
 ## Table of contents
 
@@ -25,11 +25,13 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 
 ## Features
 
-- Works on the average website (but see [limitations](#limitations-on-webpages))
+- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)) with decent performance (as long as hyphenation is not computed client-side)
 - [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
-- Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1] Custom breaking rules also supported.
+- Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
+- Supports custom breaking rules.
+- Supports justification and ragged alignment.
 - Can find the optimal width required for laying out text. This is especially useful when it comes to headlines (whose last line should not be mainly empty) but will also result in prettier output for general types of text.
-- Can be used in a browser or a Node.js environment[^2] or render target (`<canvas>`, HTML elements, PDF).
+- Can be used in a browser or a Node.js environment[^2] to render to any target (`<canvas>`, HTML elements, PDF).
 
 ## About the Knuth-Plass algorithm
 
@@ -143,11 +145,11 @@ The library will listen for window resizing (can be turned off with the option `
 
 The library does not support:
 
-- font-stretch, font-size-adjust, font-kerning
 - Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement> text</p>`)
-- Floating elements when the paragraph doesn't have `line-height` set
+- Floating elements when `line-height` isn't set
 - Columns
 - Contenteditable elements
+- The CSS properties  `font-stretch`, `font-size-adjust`, and `font-kerning`
 
 ### Other types of text
 
@@ -272,7 +274,7 @@ However, for websites it is highly recommended that you preprocess your text ser
 
 ## Contributors
 
-Written by [Robert Knight](https://github.com/robertknight/tex-linebreak), with some modifications by Egill.
+Written by [Robert Knight](https://github.com/robertknight/tex-linebreak) with some modifications by Egill.
 
 ## References
 

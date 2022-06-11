@@ -195,8 +195,8 @@ export function texLinebreakDOM(
 
   /** Add CSS to handle uncopiable hyphens */
   if (
-    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN" ||
-    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN"
+    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN" ||
+    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN"
   ) {
     if (
       document.querySelector("[data-uncopiable-text]") &&
@@ -240,18 +240,18 @@ export const getRangeOfItem = (item: DOMItem): Range => {
 export const getHyphenElement = (options: TexLinebreakOptions) => {
   let hyphen: HTMLElement | Text;
   let hyphenText = "-";
-  if (options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN") {
+  if (options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN") {
     hyphenText = "";
   } else if (
-    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN" ||
+    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN" ||
     options.softHyphenOutput === "SOFT_HYPHEN"
   ) {
     hyphenText = SOFT_HYPHEN;
   }
 
   if (
-    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN" ||
-    options.softHyphenOutput === "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN"
+    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN" ||
+    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN"
   ) {
     /**
      * Create a wrapper element that displays the

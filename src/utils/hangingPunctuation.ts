@@ -29,6 +29,7 @@ export const addHangingPunctuation = (
 
     /** Left hanging punctuation */
     if (
+      !options.onlyRightHangingPunctuation &&
       item.text &&
       // Check that this doesn't come directly after a non-breakable item
       (isBreakablePenalty(prevItem) ||

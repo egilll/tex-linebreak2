@@ -7,9 +7,8 @@ import { getHyphenateFnCached } from "src/utils/hyphenationCache";
  */
 export class TexLinebreakOptions {
   /**
-   * Can be a number (when the line width is the same for
-   * the entire paragraph), or, when the line width varies
-   * for each line, an array of numbers or an object.
+   * Can be a number (when the line width is the same for the entire paragraph),
+   * or, when the line width varies for each line, an list of line widths.
    */
   lineWidth!: LineWidth;
 
@@ -20,12 +19,18 @@ export class TexLinebreakOptions {
   hangingPunctuation: boolean = true;
 
   /**
+   * In certain contexts such as plain text, you may
+   * wish to only use right hanging punctuation.
+   */
+  onlyRightHangingPunctuation?: boolean;
+
+  /**
    * Whether to force words that are longer than the allowed width to
    * break, with the breakpoint being chosen at random (equivalent to
    * CSS's "word-wrap: break-word").
    * Should be off if working with plaintext that a user will be copying.
    */
-  forceOverflowToBreak: boolean = false;
+  forceOverflowToBreak: boolean;
 
   /**
    * How much stretch should there be to the "infinite" glue at the end of the
@@ -79,14 +84,18 @@ export class TexLinebreakOptions {
    */
   softHyphenPenalty: number = 50;
 
-  regularHyphenPenalty: number = 10;
+  /**
+   * Penalty for breaking after regular hyphen characters.
+   * Should be lower than `softHyphenPenalty`.
+   */
+  regularHyphenPenalty: number = 20;
 
   /** Penalty for significant differences in the tightness of adjacent lines. */
-  adjacentLooseTightPenalty: number = 0;
+  adjacentLooseTightPenalty: number = 10;
 
   /**
-   * How much can a glue (space) stretch (at an adjustment ratio of 1)?
-   * This only applies to spaces processed by this library, not to custom glue.
+   * Default value for how much spaces in text can
+   * stretch (at an adjustment ratio of 1)?
    *
    * A value of 0 means that the glue cannot shrink.
    * A value of 1 means that the glue can double in size
@@ -97,8 +106,8 @@ export class TexLinebreakOptions {
   glueStretchFactor: number = 1.2;
 
   /**
-   * How much can a glue (space) shrink (at an adjustment ratio of -1)?
-   * This only applies to spaces processed by this library, not to custom glue.
+   * Default value for how much spaces in text can shrink
+   * (at the adjustment ratio of -1)?
    *
    * Must be between 0 <= n <= 1.
    * A value of 0 means that the glue cannot shrink.
@@ -135,9 +144,9 @@ export class TexLinebreakOptions {
    * If a soft hyphen is chosen as a breakpoint, what character should be
    * used to display it?
    *
-   * - 'HTML_UNCOPYABLE_HYPHEN' – Recommended for websites. Outputs a hyphen
+   * - 'HTML_UNCOPIABLE_HYPHEN' – Recommended for websites. Outputs a hyphen
    *   using CSS so that it will not be included in the user's output.
-   * - 'HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN' - Outputs a hyphen using
+   * - 'HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN' - Outputs a hyphen using
    *   CSS, but includes an invisible soft hyphen that will be included in
    *   the text that a user copies.
    * - 'HYPHEN' - Recommended for plain text. Will be included as an
@@ -147,17 +156,17 @@ export class TexLinebreakOptions {
    *   intended output is a terminal emulator, see
    *   https://en.wikipedia.org/wiki/Soft_hyphen#Text_preformatted_by_the_originator
    *
-   * @default 'HTML_UNCOPYABLE_HYPHEN' for websites, 'HYPHEN' for plain text.
+   * @default 'HTML_UNCOPIABLE_HYPHEN' for websites, 'HYPHEN' for plain text.
    */
   softHyphenOutput:
-    | "HTML_UNCOPYABLE_HYPHEN"
-    | "HTML_UNCOPYABLE_HYPHEN_WITH_SOFT_HYPHEN"
+    | "HTML_UNCOPIABLE_HYPHEN"
+    | "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN"
     | "HYPHEN"
-    | "SOFT_HYPHEN" = "HTML_UNCOPYABLE_HYPHEN";
+    | "SOFT_HYPHEN" = "HTML_UNCOPIABLE_HYPHEN";
 
   /**
-   * How many spaces should be allowed at the end of a
-   * non-justified line given an adjustment ratio of 1?
+   * How many spaces should be included as "stretch" at the end of a
+   * non-justified line? A lower number makes the text more justified.
    */
   lineFinalSpacesInNonJustified: number = 3;
 
@@ -207,17 +216,18 @@ export class TexLinebreakOptions {
 
   /**
    * A pattern that should never be broken.
-   * Example: /{.+?}/ will never break inside curly braces.
+   * Example: /{.+?}/g will never break inside curly braces.
    */
   neverBreakInside?: (string | RegExp) | (string | RegExp)[];
 
   /**
    * Never break a line after a certain string or pattern.
-   * Example: ['-', 'e.g.'] will never break after a hyphen or the text 'e.g.'.
+   * Example: ["-", "e.g."] will never break after a hyphen or the text "e.g.".
    */
   neverBreakAfter?: (string | RegExp) | (string | RegExp)[];
 
-  keepNewlinesAfter?: (string | RegExp) | (string | RegExp)[];
+  /** WIP */
+  // keepNewlinesAfter?: (string | RegExp) | (string | RegExp)[];
 
   /**
    * HTML content collapses all whitespace and displays it as a single space.
@@ -225,7 +235,7 @@ export class TexLinebreakOptions {
    *
    * todo: skip for monospace
    */
-  collapseAllNewlines: boolean = true;
+  collapseAllNewlines: boolean = false;
 
   /**
    * If you're breaking the lines of plaintext that a user may have to
@@ -241,14 +251,10 @@ export class TexLinebreakOptions {
   addInfiniteGlueToFinalLine: boolean = true;
 
   /**
-   * (For internal use)
-   *
-   * Adds a MIN_COST penalty to the end of the paragraph. Without
-   * it, the paragraph cannot be broken. Only turn this option off if
-   * you're adding text from inline elements to the overall paragraph;
-   * the paragraph itself must always end with this penalty.
-   *
-   * @internal
+   * Adds a MIN_COST penalty to the end of the paragraph.
+   * Without it, the paragraph cannot be broken.
+   * Only turn this option off if you're adding text from inline elements to the
+   * overall paragraph; the paragraph itself must always end with this penalty.
    */
   addParagraphEnd: boolean = true;
 
@@ -293,11 +299,11 @@ export class TexLinebreakOptions {
   /** Whether to cache the output of the `hyphenateFn` globally. */
   cacheHyphenation: boolean = true;
 
-  /** (This only applies to texLinebreakDOM.) */
+  /** (Only applies to texLinebreakDOM) */
   updateOnWindowResize: boolean = true;
 
   /**
-   * (This only applies to texLinebreakDOM.)
+   * (Only applies to texLinebreakDOM)
    *
    * Whether the container element should be given a specific width after
    * the text has been laid out. This is used for when the width of the text
@@ -312,14 +318,18 @@ export class TexLinebreakOptions {
    */
   validateItems: boolean = true;
 
-  // required for some optimizations
+  /** required for some optimizations */
   lineHeight?: number;
 
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {
-    if (options.preset === "html") {
+    if (!options.preset || options.preset === "html") {
       this.collapseAllNewlines = true;
+      this.forceOverflowToBreak = true;
+    } else if (options.preset === "plainText") {
+      this.collapseAllNewlines = false;
+      this.forceOverflowToBreak = false;
     }
     /** Ragged text */
     if (options.align && options.align !== "justify") {

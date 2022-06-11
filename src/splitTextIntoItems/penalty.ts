@@ -43,7 +43,7 @@ export const getBreakpointPenalty = (
     nextLetterClass === UnicodeLineBreakingClasses.BreakOnEitherSide
   ) {
     /** Todo: Check how this behaves when space is followed by em-dash */
-    return 10;
+    return 5;
   }
 
   // Hyphens

@@ -63,9 +63,19 @@ export const splitTextIntoItems = (
   const breakpoints: Record<number, BreakpointInformation> =
     getAllowableUnicodeBreakpoints(inputWithSurroundingText);
 
-  if (options.neverBreakInside) {
-    // todo
-  }
+  /** Relative to inputWithSurroundingText */
+  let disallowedBreakpoints: number[] = [
+    ...getIndicesMatching(
+      inputWithSurroundingText,
+      options.neverBreakInside,
+      "inside"
+    ),
+    ...getIndicesMatching(
+      inputWithSurroundingText,
+      options.neverBreakAfter,
+      "after"
+    ),
+  ];
 
   /**
    * We start by splitting the input into segments of either boxes (text) or
@@ -82,8 +92,11 @@ export const splitTextIntoItems = (
   for (let charIndex = 0; charIndex < input.length; charIndex++) {
     const char = input[charIndex];
     const indexInInputWithSurroundingText = precedingText.length + charIndex;
-    const breakpoint: BreakpointInformation | undefined =
-      breakpoints[indexInInputWithSurroundingText + 1];
+    let breakpoint: BreakpointInformation | null =
+      breakpoints[indexInInputWithSurroundingText + 1] || null;
+    if (disallowedBreakpoints.includes(indexInInputWithSurroundingText)) {
+      breakpoint = null;
+    }
     /** Newline characters are just glue in HTML */
     const isGlue =
       glueCharacterRegex.test(char) ||
@@ -252,3 +265,45 @@ export const getUnicodeLineBreakingClassOfLetterAt = (
     j.nextCharClass() as keyof typeof convertEnumValuesOfLineBreakingPackageToUnicodeNames
   ] as UnicodeLineBreakingClasses;
 };
+
+/**
+ * Extracts indices from the options
+ * {@link TexLinebreakOptions#neverBreakInside} and similar
+ */
+export function getIndicesMatching(
+  input: string,
+  pattern: (string | RegExp) | (string | RegExp)[] | undefined,
+  type: "inside" | "after"
+): number[] {
+  if (Array.isArray(pattern)) {
+    return pattern.map((p) => getIndicesMatching(input, p, type)).flat();
+  } else if (pattern instanceof RegExp) {
+    let output: number[] = [];
+    let match;
+    while ((match = pattern.exec(input)) !== null) {
+      addToOutput(output, match.index, match[0].length);
+    }
+    return output;
+  } else if (typeof pattern === "string") {
+    let output: number[] = [];
+    let i = -1;
+    while ((i = input.indexOf(pattern, i + 1)) !== -1) {
+      addToOutput(output, i, pattern.length);
+    }
+    return output;
+  } else if (pattern === undefined) {
+    return [];
+  } else {
+    throw new Error("Invalid pattern type, got " + typeof pattern);
+  }
+
+  function addToOutput(arr: number[], startIndex: number, endIndex: number) {
+    if (type === "inside") {
+      for (let i = startIndex + 1; i < endIndex; i++) {
+        arr.push(i);
+      }
+    } else if (type === "after") {
+      arr.push(endIndex);
+    }
+  }
+}
