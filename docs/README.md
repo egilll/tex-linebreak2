@@ -152,6 +152,8 @@ The library does not support:
 - The CSS properties  `font-stretch`, `font-size-adjust`, and `font-kerning`
 - If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, and that may introduce a noticable lag.
 
+There may be other issues yet to be encountered.
+
 ### Other types of text
 
 ```js

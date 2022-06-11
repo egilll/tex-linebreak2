@@ -318,8 +318,11 @@ export class TexLinebreakOptions {
   /**
    * Whether to check the validity of the items
    * given as an input to {@link breakLines}.
+   *
+   * Recommended during development and when
+   * encountering errors. Only takes a couple of ms.
    */
-  validateItems: boolean = true;
+  validateItems: boolean = process.env.NODE_ENV === "development";
 
   /** required for some optimizations */
   lineHeight?: number;

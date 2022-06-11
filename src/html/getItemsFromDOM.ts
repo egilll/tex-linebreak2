@@ -206,11 +206,12 @@ function itemWithOffset(
   startOffset: number,
   endOffset: number
 ) {
-  return {
-    ...item,
-    startContainer: startContainer,
-    startOffset,
-    endContainer: startContainer,
-    endOffset,
-  };
+  // (Not using the spread operator here shaves off a
+  // few dozen milliseconds as it would otherwise use Babel's polyfill)
+  const output = item as DOMItem;
+  output.startContainer = startContainer;
+  output.startOffset = startOffset;
+  output.endContainer = startContainer;
+  output.endOffset = endOffset;
+  return output;
 }

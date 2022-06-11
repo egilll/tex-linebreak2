@@ -42,15 +42,9 @@ export async function texLinebreakDOM(
   const domTextMeasureFn = new DOMTextMeasurer().measure;
   const floatingElements = getFloatingElements();
 
-  let i = 0;
-
   for (const element of elements) {
     /* Prevent rendering thread from hanging on large documents */
     await new Promise((resolve) => setTimeout(resolve, 0));
-
-    // /* TEMP */
-    // i++;
-    // if (i > 75 + 2) break;
 
     /** Undo the changes made by any previous justification of this content. */
     resetDOMJustification(element);
@@ -77,110 +71,90 @@ export async function texLinebreakDOM(
       //   console.log(lines);
       // }
 
-      /**
-       * Since `Range`s are fragile and will easily go out of sync when we make
-       * changes to the DOM, we go through the lines in a reverse order. We
-       * also only alter one item at a time instead of wrapping the entire line.
-       */
-      lines
-        .slice()
-        .reverse()
-        .forEach((line) => {
-          /**
-           * For some reason, the ranges do not work correctly if one
-           * goes backwards in the line, only if onw goes forward.
-           * Going backwards causes the box wraps to go out of sync
-           * (breaking hanging punctuation).
-           */
+      let output = "";
 
-          const items = line.positionedItems;
-          const itemRanges = items.map(getRangeOfItem);
+      for (const line of lines) {
+        const items = line.positionedItems;
 
-          const firstBoxInLine = items.find((item) => item.type === "box");
-          const lastBoxInLine = items
-            .slice()
-            .reverse()
-            .find((item) => item.type === "box");
-          if (!firstBoxInLine || !lastBoxInLine) {
-            console.log({ items_in_line: line.items });
-            console.warn("Line has no box");
-            return;
-          }
-          const firstBoxRange = getRangeOfItem(firstBoxInLine);
-          const lastBoxRange = getRangeOfItem(lastBoxInLine);
+        /** Insert <br/> elements to separate the lines */
+        if (line.lineIndex > 0) {
+          output += "<br/>";
+        }
 
-          let curXOffset = 0;
+        let curXOffset = 0;
 
-          /**
-           * Adjust the spacing of glues and position of boxes.
-           *
-           * The position of boxes currently only makes adjustments in the
-           * case of boxes of a negative width (which represent a backspace,
-           * used for left hanging punctuation), however those boxes are not
-           * displayed, but they affect the boxes that come after them.
-           */
-          items.forEach((item, index) => {
-            const itemRange = itemRanges[index];
+        /**
+         * Adjust the spacing of glues and position of boxes.
+         *
+         * The position of boxes currently only makes adjustments in the
+         * case of boxes of a negative width (which represent a backspace,
+         * used for left hanging punctuation), however those boxes are not
+         * displayed, but they affect the boxes that come after them.
+         */
+        items.forEach((item, index) => {
+          /** Add spacing to glue */
+          if (item.type === "glue") {
+            if (item.skipWhenRendering) return;
+            const span = tagNode(document.createElement("span"));
+            /**
+             * We try to not use `inline-block` since that messes with
+             * the formatting of links (each word gets its own underline)
+             */
+            if ((item as TextGlue).text) {
+              span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
 
-            /** Add spacing to glue */
-            if (item.type === "glue") {
-              if (item.skipWhenRendering) return;
-              const span = tagNode(document.createElement("span"));
-              /**
-               * We try to not use `inline-block` since that messes with
-               * the formatting of links (each word gets its own underline)
-               */
-              if ((item as TextGlue).text) {
-                span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
-              } else {
-                span.style.width = `${item.adjustedWidth}px`;
-                span.style.display = "inline-block";
-              }
-              if (item.adjustedWidth <= 0) {
-                span.style.fontSize = "0";
-                span.style.width = "0";
-                // span.style.display = "inline-block";
-              } else {
-                curXOffset += item.adjustedWidth;
-              }
-              itemRange.surroundContents(span);
-            } else if (item.type === "box") {
-              /**
-               * If xOffset is not curXOffset, that means that a
-               * previous box has had a negative width. Here we wrap the
-               * text in a span with a (likely negative) left margin
-               */
-              if (item.xOffset !== curXOffset) {
-                const span = tagNode(document.createElement("span"));
-                span.style.marginLeft = `${item.xOffset - curXOffset}px`;
-                itemRange.insertNode(span);
-                curXOffset = item.xOffset;
-              }
-
-              // if (options.stripSoftHyphensFromOutputText) {
-              //   stripSoftHyphensFromOutputText(itemRange);
-              // }
-
-              if (item.adjustedWidth > 0) {
-                curXOffset += item.adjustedWidth;
-              }
+              output +=
+                '<span style  = "word-spacing: ' +
+                (item.adjustedWidth - item.width) +
+                'px">' +
+                (item as TextGlue).text +
+                "</span>";
+            } else {
+              span.style.width = `${item.adjustedWidth}px`;
+              span.style.display = "inline-block";
             }
-          });
+            if (item.adjustedWidth <= 0) {
+              span.style.fontSize = "0";
+              span.style.width = "0";
+              // span.style.display = "inline-block";
+            } else {
+              curXOffset += item.adjustedWidth;
+            }
+            // itemRange.surroundContents(span);
+          } else if (item.type === "box") {
+            /**
+             * If xOffset is not curXOffset, that means that a
+             * previous box has had a negative width. Here we wrap the
+             * text in a span with a (likely negative) left margin
+             */
+            if (item.xOffset !== curXOffset) {
+              const span = tagNode(document.createElement("span"));
+              span.style.marginLeft = `${item.xOffset - curXOffset}px`;
+              // itemRange.insertNode(span);
+              curXOffset = item.xOffset;
+            }
 
-          /** Insert <br/> elements to separate the lines */
-          if (line.lineIndex > 0) {
-            firstBoxRange.insertNode(tagNode(document.createElement("br")));
-          }
+            if ("text" in item) {
+              output += item.text;
+            }
+            // if (options.stripSoftHyphensFromOutputText) {
+            //   stripSoftHyphensFromOutputText(itemRange);
+            // }
 
-          /** Add soft hyphens */
-          if (line.endsWithSoftHyphen) {
-            const wrapperAroundFinalBox = tagNode(
-              document.createElement("span")
-            );
-            lastBoxRange.surroundContents(wrapperAroundFinalBox);
-            wrapperAroundFinalBox.appendChild(getHyphenElement(options));
+            if (item.adjustedWidth > 0) {
+              curXOffset += item.adjustedWidth;
+            }
           }
         });
+
+        // /** Add soft hyphens */
+        // if (line.endsWithSoftHyphen) {
+        //   const wrapperAroundFinalBox = tagNode(document.createElement("span"));
+        //   lastBoxRange.surroundContents(wrapperAroundFinalBox);
+        //   wrapperAroundFinalBox.appendChild(getHyphenElement(options));
+        // }
+      }
+      element.innerHTML = output;
 
       if (options.setElementWidthToMaxLineWidth) {
         /** TODO: Include padding */

@@ -478,12 +478,9 @@ export function breakLines(
             ...options,
             /**
              * Increase `initialMaxAdjustmentRatio`.
-             * We cannot only base this on `minAdjustmentRatioAboveThreshold`
-             * since that can cause long paragraphs to crawl to a halt due
-             * to excessive recursion. (Indeed the "* 2" was added to limit
-             * increases that are too small.) "+ 0.3" makes sure we don't
-             * increase too little, and basing it on `currentRecursionDepth`
-             * completely prevents excessive recursion.
+             *
+             * "+ 0.3" makes sure we don't increase too little, and basing
+             * it on `currentRecursionDepth` prevents excessive recursion.
              */
             initialMaxAdjustmentRatio:
               currentRecursionDepth < 7
@@ -557,6 +554,5 @@ export function breakLines(
   if (returnMetadata) {
     return outputMetadata;
   }
-
   return output;
 }

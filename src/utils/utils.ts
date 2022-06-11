@@ -10,15 +10,15 @@ import {
 import { TexLinebreakOptions } from "src/options";
 import { glue, penalty } from "src/utils/items";
 
-export const getSpaceWidth = (options: TexLinebreakOptions): number => {
+export function getSpaceWidth(options: TexLinebreakOptions): number {
   return options.measureFn(" ");
-};
+}
 
-export const getLineFinalStretchInNonJustified = (
+export function getLineFinalStretchInNonJustified(
   options: TexLinebreakOptions
-): number => {
+): number {
   return getSpaceWidth(options) * options.lineFinalSpacesInNonJustified;
-};
+}
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
 export const isSoftHyphen = (item: Item | undefined): boolean => {
@@ -30,26 +30,23 @@ export function isForcedBreak(item: Item) {
   return item.type === "penalty" && item.cost <= MIN_COST;
 }
 
-export const isBreakablePenalty = (item: Item) => {
+export function isBreakablePenalty(item: Item) {
   return item && item.type === "penalty" && item.cost < MAX_COST;
-};
+}
 
-export const isNonBreakablePenalty = (item: Item) => {
+export function isNonBreakablePenalty(item: Item) {
   return item && item.type === "penalty" && item.cost >= MAX_COST;
-};
+}
 
-export const isPenaltyThatDoesNotForceBreak = (item: Item) => {
+export function isPenaltyThatDoesNotForceBreak(item: Item) {
   return item.type === "penalty" && item.cost > MIN_COST;
-};
+}
 
 /**
  * Gets the stretch of a glue, taking into account the setting
  * {@link TexLinebreakOptions#infiniteGlueStretchAsRatioOfWidth}
  */
-export const getStretch = (
-  input: Glue,
-  options: TexLinebreakOptions
-): number => {
+export function getStretch(input: Glue, options: TexLinebreakOptions): number {
   if (
     input.stretch === INFINITE_STRETCH &&
     options.infiniteGlueStretchAsRatioOfWidth != null
@@ -61,7 +58,7 @@ export const getStretch = (
   } else {
     return input.stretch;
   }
-};
+}
 
 /**
  * Used to prevent the last line from having a hanging last line.
@@ -82,23 +79,23 @@ export const removeGlueFromEndOfParagraphs = <T extends Item>(
  * todo: this adds line-final glue for justified but it should
  * be marked as just extending whatever stretch there already is
  */
-export const addSlackIfBreakpoint = (
+export function addSlackIfBreakpoint(
   stretch: number,
   cost: number = 0
-): (Glue | Penalty)[] => {
+): (Glue | Penalty)[] {
   return [
     penalty(0, MAX_COST),
     glue(0, stretch, 0),
     penalty(0, cost),
     glue(0, -stretch, 0),
   ];
-};
+}
 
 export const infiniteGlue = (): Glue => {
   return glue(0, INFINITE_STRETCH, 0);
 };
 
-export const getMinLineWidth = (lineWidths: LineWidth): number => {
+export function getMinLineWidth(lineWidths: LineWidth): number {
   if (Array.isArray(lineWidths)) {
     return Math.min(...lineWidths);
   } else if (typeof lineWidths === "number") {
@@ -108,9 +105,9 @@ export const getMinLineWidth = (lineWidths: LineWidth): number => {
       ...[...Object.values(lineWidths), lineWidths.defaultLineWidth]
     );
   }
-};
+}
 
-export const getMaxLineWidth = (lineWidths: LineWidth): number => {
+export function getMaxLineWidth(lineWidths: LineWidth): number {
   if (Array.isArray(lineWidths)) {
     return Math.max(...lineWidths);
   } else if (typeof lineWidths === "number") {
@@ -122,12 +119,9 @@ export const getMaxLineWidth = (lineWidths: LineWidth): number => {
   } else {
     throw new Error("Invalid lineWidths, got " + typeof lineWidths);
   }
-};
+}
 
-export const getLineWidth = (
-  lineWidths: LineWidth,
-  lineIndex: number
-): number => {
+export function getLineWidth(lineWidths: LineWidth, lineIndex: number): number {
   if (Array.isArray(lineWidths)) {
     if (lineIndex < lineWidths.length) {
       return lineWidths[lineIndex];
@@ -143,9 +137,9 @@ export const getLineWidth = (
   } else {
     return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
   }
-};
+}
 
-export const validateItems = (items: Item[]) => {
+export function validateItems(items: Item[]) {
   /** Input has to end in a MIN_COST penalty */
   const lastItem = items[items.length - 1];
   if (!(lastItem.type === "penalty" && lastItem.cost <= MIN_COST)) {
@@ -191,4 +185,4 @@ export const validateItems = (items: Item[]) => {
   if (items.some((item) => item.type === "glue" && !isFinite(item.stretch))) {
     throw new Error(`Glue cannot have infinite stretch`);
   }
-};
+}
