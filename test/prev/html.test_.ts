@@ -1,9 +1,5 @@
-import enUsPatterns from "hyphenation.en-us";
-
-import { createHyphenator } from "src/deprecated/createHyphenator";
 import { justifyContent } from "src/deprecated/justifyContent";
-
-const hyphenate = createHyphenator(enUsPatterns);
+import { hyphenateFn } from "test/utils/enHyphenateFn";
 
 function extractLines(el: HTMLElement) {
   const tmpEl = document.createElement("span");
@@ -107,11 +103,11 @@ describe("html", () => {
       const text = "Content with longwords thatdefinitely needshyphenation";
       para.textContent = text;
 
-      justifyContent(para, hyphenate);
+      justifyContent(para, hyphenateFn);
       expect(para.textContent).not.toEqual(text);
 
       para.style.width = "400px";
-      justifyContent(para, hyphenate);
+      justifyContent(para, hyphenateFn);
       expect(para.textContent).toEqual(text);
     });
 

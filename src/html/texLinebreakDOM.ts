@@ -64,7 +64,9 @@ export function texLinebreakDOM(
       });
       const lines = obj.lines;
 
-      console.log(lines);
+      if (process.env.NODE_ENV === "development") {
+        console.log(lines);
+      }
 
       /**
        * Since `Range`s are fragile and will easily go out of sync when we make

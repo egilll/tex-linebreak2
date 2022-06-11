@@ -7,7 +7,7 @@
 would find in a newspaper, book or technical paper. It implements the
 [Knuth-Plass line-breaking algorithm](http://www.eprg.org/G53DOC/pdfs/knuth-plass-breaking.pdf)<sup>(PDF)</sup> which is used by [TeX](https://en.wikipedia.org/wiki/TeX).
 
-**[Click here](#)** to see a demo.
+**[See the demo](https://egilll.github.io/tex-linebreak2/)**.
 
 This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. It can be used to find the optimal size of an element to fit text.
 
