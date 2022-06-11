@@ -30,7 +30,7 @@ export class TexLinebreakOptions {
    * CSS's "word-wrap: break-word").
    * Should be off if working with plaintext that a user will be copying.
    */
-  forceOverflowToBreak: boolean;
+  forceOverflowToBreak: boolean = true;
 
   /**
    * How much stretch should there be to the "infinite" glue at the end of the

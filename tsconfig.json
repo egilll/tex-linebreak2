@@ -6,7 +6,6 @@
     "lib": ["dom", "esnext", "dom.iterable"],
     "outDir": "./dist",
     "moduleResolution": "node",
-    "noEmit": true,
     "strict": true,
     "esModuleInterop": true
   }

@@ -1,5 +1,3 @@
-//tmp
-import expect from "expect";
 import { texLinebreakMonospace } from "src/utils/monospace";
 
 it("neverBreakInside", () => {

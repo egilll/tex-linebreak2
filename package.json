@@ -1,7 +1,6 @@
 {
   "name": "tex-linebreak",
   "version": "0.7.0",
-  "main": "dist/lib.js",
   "license": "MIT",
   "author": {
     "name": "Robert Knight",
@@ -11,20 +10,18 @@
     "type": "git",
     "url": "https://github.com/robertknight/tex-linebreak.git"
   },
+  "main": "dist/lib.js",
   "files": [
     "dist/*.js",
     "dist/*.js.map"
   ],
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build-prod": "webpack --mode production",
-    "build-dev": "webpack --mode development",
-    "format": "prettier --write src/*.ts src/**/*.ts test/**/*.ts",
-    "prepublish": "yarn build-prod",
-    "test": "webpack --mode development --config webpack-test.config.js && karma start --single-run",
+    "build": "webpack --mode production && npx npm-dts generate --entry src/index.ts --output dist/index.d.ts",
+    "prepublish": "yarn build",
+    "test": "jest  --maxWorkers=1",
     "test_watch": "jest --watch --maxWorkers=1",
-    "watch": "webpack --watch --mode development",
-    "start": "npx webpack serve"
+    "start": "npx webpack serve --mode development"
   },
   "dependencies": {
     "debounce": "^1.2.1",
@@ -32,9 +29,9 @@
     "string-width": "4.2.2"
   },
   "devDependencies": {
-    "@microsoft/api-extractor": "^7.25.0",
     "@babel/preset-env": "^7.18.2",
     "@babel/preset-typescript": "^7.17.12",
+    "@microsoft/api-extractor": "^7.25.0",
     "@types/debounce": "^1.2.1",
     "@types/jest": "^27.5.1",
     "@types/node": "^17.0.5",

@@ -45,11 +45,9 @@
 -->
     <!--    <script src="../../dist/demos.js"></script>-->
 
-    <% for(var i=0; i < htmlWebpackPlugin.files.js.length; i++) {%>
     <script
       type="text/javascript"
-      src="<%= htmlWebpackPlugin.files.js[i] %>"
+      src="<%= htmlWebpackPlugin.files.js.find(i=>i.startsWith('demo')) %>"
     ></script>
-    <% } %>
   </body>
 </html>
