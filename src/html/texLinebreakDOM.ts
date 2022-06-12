@@ -67,48 +67,40 @@ export async function texLinebreakDOM(
       });
       const lines = obj.lines;
 
-      // if (process.env.NODE_ENV === "development") {
-      //   console.log(lines);
-      // }
-
-      let output = "";
+      if (process.env.NODE_ENV === "development") {
+        console.log(lines);
+      }
 
       for (const line of lines) {
         const items = line.positionedItems;
 
         /** Insert <br/> elements to separate the lines */
         if (line.lineIndex > 0) {
-          output += "<br/>";
+          const br = document.createElement("br");
+          const firstItem = items.find((i) => i.span);
+          if (firstItem) {
+            const span = firstItem.span!;
+            span.parentNode!.insertBefore(br, span);
+          } else {
+            throw new Error("No items in line");
+          }
         }
 
         let curXOffset = 0;
 
-        /**
-         * Adjust the spacing of glues and position of boxes.
-         *
-         * The position of boxes currently only makes adjustments in the
-         * case of boxes of a negative width (which represent a backspace,
-         * used for left hanging punctuation), however those boxes are not
-         * displayed, but they affect the boxes that come after them.
-         */
-        items.forEach((item, index) => {
+        for (const item of items) {
           /** Add spacing to glue */
           if (item.type === "glue") {
-            if (item.skipWhenRendering) return;
-            const span = tagNode(document.createElement("span"));
+            //todo
+            // if (item.skipWhenRendering) continue;
+            const span = item.span;
+            if (!span) continue;
             /**
              * We try to not use `inline-block` since that messes with
              * the formatting of links (each word gets its own underline)
              */
             if ((item as TextGlue).text) {
               span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
-
-              output +=
-                '<span style  = "word-spacing: ' +
-                (item.adjustedWidth - item.width) +
-                'px">' +
-                (item as TextGlue).text +
-                "</span>";
             } else {
               span.style.width = `${item.adjustedWidth}px`;
               span.style.display = "inline-block";
@@ -120,7 +112,6 @@ export async function texLinebreakDOM(
             } else {
               curXOffset += item.adjustedWidth;
             }
-            // itemRange.surroundContents(span);
           } else if (item.type === "box") {
             /**
              * If xOffset is not curXOffset, that means that a
@@ -128,14 +119,14 @@ export async function texLinebreakDOM(
              * text in a span with a (likely negative) left margin
              */
             if (item.xOffset !== curXOffset) {
-              const span = tagNode(document.createElement("span"));
+              const span = item.span!;
               span.style.marginLeft = `${item.xOffset - curXOffset}px`;
               // itemRange.insertNode(span);
               curXOffset = item.xOffset;
             }
 
             if ("text" in item) {
-              output += item.text;
+              // output += item.text;
             }
             // if (options.stripSoftHyphensFromOutputText) {
             //   stripSoftHyphensFromOutputText(itemRange);
@@ -145,7 +136,7 @@ export async function texLinebreakDOM(
               curXOffset += item.adjustedWidth;
             }
           }
-        });
+        }
 
         // /** Add soft hyphens */
         // if (line.endsWithSoftHyphen) {
@@ -154,7 +145,6 @@ export async function texLinebreakDOM(
         //   wrapperAroundFinalBox.appendChild(getHyphenElement(options));
         // }
       }
-      element.innerHTML = output;
 
       if (options.setElementWidthToMaxLineWidth) {
         /** TODO: Include padding */

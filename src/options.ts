@@ -367,3 +367,12 @@ export type RequireOnlyCertainKeys<T, K extends keyof T> = Partial<T> &
   Required<Pick<T, K>>;
 export type OptionalCertainKeys<T, K extends keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
+
+/**
+ * To add:
+ *
+ * - Preferentially break after `."`, `[a-z]{5,}\.` (long words followed
+ *   by period)
+ * - Try not to break after "Mr.", "Mrs.", "Dr.", "Prof.", "Sir", "Rev.",
+ * - Try not to break before "Jr.", "Sr.", "Ph.D."
+ */

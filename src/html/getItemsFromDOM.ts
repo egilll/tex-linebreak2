@@ -1,5 +1,6 @@
 import { Box, Glue, INFINITE_STRETCH, Penalty } from "src/breakLines";
 import DOMTextMeasurer from "src/html/domTextMeasurer";
+import { tagNode } from "src/html/tagNode";
 import { TexLinebreakOptions } from "src/options";
 import { splitTextIntoItems } from "src/splitTextIntoItems/splitTextIntoItems";
 import {
@@ -21,10 +22,12 @@ import {
  * Records character offset in a parent container.
  */
 export interface DOMRangeOffset {
-  startOffset: number;
-  startContainer: Node;
-  endOffset: number;
-  endContainer: Node;
+  // textOffsetInParagraph: number;
+  // startOffset: number;
+  // startContainer: Node;
+  // endOffset: number;
+  // endContainer: Node;
+  span?: HTMLElement;
 }
 
 export type DOMBox = (Box | TextBox) & DOMRangeOffset;
@@ -53,6 +56,8 @@ export function getItemsFromDOM(
   /**
    * This is done since we need to be aware of the
    * surrounding text in order to find correct break points.
+   *
+   * TODO: Should stop on <br/> and <div/> boundaries
    */
   let textOffsetInParagraph: number = 0;
 
@@ -65,7 +70,7 @@ export function getItemsFromDOM(
         getItemsFromText(child, false);
         curOffset += 1;
       } else if (child instanceof Element) {
-        getItemsFromElement(child, node, curOffset);
+        getItemsFromElement(child);
         curOffset += 1;
       }
     });
@@ -80,26 +85,15 @@ export function getItemsFromDOM(
          * Add a synthetic glue that absorbs any
          * left-over space at the end of the last line.
          */
-        items.push(
-          itemWithOffset(
-            glue(0, INFINITE_STRETCH, 0),
-            node,
-            endOffset,
-            endOffset
-          )
-        );
+        items.push(itemWithOffset(glue(0, INFINITE_STRETCH, 0)));
       }
 
       /** Add a forced break to end the paragraph. */
-      items.push(itemWithOffset(forcedBreak(), node, endOffset, endOffset));
+      items.push(itemWithOffset(forcedBreak()));
     }
   }
 
-  function getItemsFromElement(
-    element: Element,
-    parentNode: Node,
-    startOffset: number
-  ) {
+  function getItemsFromElement(element: Element) {
     const {
       display,
       position,
@@ -125,7 +119,7 @@ export function getItemsFromDOM(
         parseFloat(borderLeftWidth!) +
         parseFloat(paddingLeft!);
       if (leftMargin > 0) {
-        items.push(itemWithOffset(box(leftMargin), element, 0, 0));
+        items.push(itemWithOffset(box(leftMargin) /*element, 0, 0*/));
       }
 
       // Add items for child nodes.
@@ -138,7 +132,9 @@ export function getItemsFromDOM(
         parseFloat(paddingRight!);
       if (rightMargin > 0) {
         const length = element.childNodes.length;
-        items.push(itemWithOffset(box(rightMargin), element, length, length));
+        items.push(
+          itemWithOffset(box(rightMargin) /*element, length, length*/)
+        );
       }
     } else {
       let _width = parseFloat(width);
@@ -152,7 +148,7 @@ export function getItemsFromDOM(
 
       // Treat this item as an opaque box.
       // items.push(itemWithOffset(box(_width), parentNode, startOffset, startOffset + 1);
-      items.push(itemWithOffset(box(_width), element, 0, 1));
+      items.push(itemWithOffset(box(_width) /*element, 0, 1*/));
     }
   }
 
@@ -178,13 +174,24 @@ export function getItemsFromDOM(
       followingText
     );
 
+    let output = document.createDocumentFragment();
     textItems.forEach((item: TextItem) => {
-      const startOffset = textOffsetInThisNode;
       textOffsetInThisNode += (("text" in item && item.text) || "").length;
-      items.push(
-        itemWithOffset(item, textNode, startOffset, textOffsetInThisNode)
-      );
+      let span: HTMLElement | undefined;
+
+      if (item.type === "glue" || item.type === "box") {
+        span = tagNode(document.createElement("span"));
+        span.textContent = item.text || "";
+      }
+
+      items.push(itemWithOffset(item, span));
+
+      if (span) {
+        output.appendChild(span);
+      }
     });
+
+    textNode.parentNode!.replaceChild(output, textNode);
 
     textOffsetInParagraph += textOffsetInThisNode;
   }
@@ -200,18 +207,10 @@ export function getItemsFromDOM(
  * Helper function that limits boilerplate above.
  * Adds an item and makes a record of its DOM range
  */
-function itemWithOffset(
-  item: Box | Glue | Penalty,
-  startContainer: Node,
-  startOffset: number,
-  endOffset: number
-) {
+function itemWithOffset(item: Box | Glue | Penalty, span?: HTMLElement) {
   // (Not using the spread operator here shaves off a
   // few dozen milliseconds as it would otherwise use Babel's polyfill)
   const output = item as DOMItem;
-  output.startContainer = startContainer;
-  output.startOffset = startOffset;
-  output.endContainer = startContainer;
-  output.endOffset = endOffset;
+  output.span = span;
   return output;
 }
