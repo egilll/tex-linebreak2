@@ -1,33 +1,6 @@
 import { ListOfDemos } from "src/demo/demo";
-// <div
-//         style="
-//           float: right;
-//           width: 200px;
-//           height: 202px;
-//           margin: 0 0 10px 10px;
-//           background: red;
-//           border: 1px solid black;
-//         "
-//       >
-//         Floated content :)
-//       </div>
+
 export const longTexts: ListOfDemos = [
-  {
-    id: "tmp3",
-    selector: "p",
-    content: `
-  <div class="gutenberg">
-  <div class="chapter">
-  
-    <p class="letter">
-        &lsquo;Do We Progress?&rsquo;
-        (<i>Journal of Psychology</i>, March, 1883)
-    </p>
-    </div>
-    </div>
-  
-  `,
-  },
   {
     id: "sherlock",
     selector: "p",
@@ -43,6 +16,19 @@ export const longTexts: ListOfDemos = [
 <div class="chapter">
 <h2><a name="chap01"></a>Chapter 1.<br />
 Mr. Sherlock Holmes</h2>
+ <div
+         style="
+           float: right;
+           width: 150px;
+           height: 202px;
+           margin: 0 0 10px 10px;
+           background: red;
+           border: 1px solid black;
+         "
+       >
+         Example floated content
+       </div>
+
     <p>
       Mr. Sherlock Holmes, who was usually very late in the mornings, save upon
       those not infrequent occasions when he was up all night, was seated at the

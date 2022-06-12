@@ -23,18 +23,17 @@ if (
   demos.forEach(renderDemo);
 }
 
-function renderDemo(demo: ListOfDemos[number]) {
+async function renderDemo(demo: ListOfDemos[number]) {
   const div = document.createElement("div");
   div.innerHTML = demo.content;
   div.className = "demo-output";
   document.getElementById("output-container")!.appendChild(div);
-  console.log(demo);
-  const element = demo.selector
+  const paragraphs = demo.selector
     ? div.querySelectorAll<HTMLElement>(demo.selector)
     : div;
 
   try {
-    texLinebreakDOM(element, demo.options || {});
+    await texLinebreakDOM(paragraphs, demo.options || {});
   } catch (e) {
     console.error(e);
     div.insertAdjacentHTML(

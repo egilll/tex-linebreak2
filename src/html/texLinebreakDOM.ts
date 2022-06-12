@@ -44,21 +44,41 @@ export async function texLinebreakDOM(
 
   addCSSForUncopiableHyphens(options);
 
-  let linesProcessed = 0;
+  let elementsSeen = 0;
   for (const element of elements) {
-    /* Prevent rendering thread from hanging on large documents */
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // if (options.dontBlockBrowserRenderingThread) {
+    if (elementsSeen++ % 4 === 3) {
+      /* Prevent rendering thread from hanging on large documents */
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
 
-    /** Undo the changes made by any previous justification of this content. */
-    resetDOMJustification(element);
+    // /** Undo the changes made by any previous justification of this content. */
+    // TODO!!!!!
+    // resetDOMJustification(element);
+    removeInsertedBrs(element);
+
     try {
       const lineWidth =
         options.lineWidth || getElementLineWidth(element, floatingElements);
-      const items = getItemsFromDOM(
-        element,
-        { ...options, lineWidth },
-        domTextMeasureFn
-      );
+
+      let items: DOMItem[];
+
+      /** Cache for items */
+      if (
+        !options.clearItemCache &&
+        "texLinebreakItems" in element &&
+        (element as any)["lastTextContent"] === element.textContent
+      ) {
+        items = (element as any)["texLinebreakItems"] as DOMItem[];
+      } else {
+        items = getItemsFromDOM(
+          element,
+          { ...options, lineWidth },
+          domTextMeasureFn
+        );
+        (element as any)["texLinebreakItems"] = items;
+        (element as any)["lastTextContent"] = element.textContent;
+      }
 
       const obj = new TexLinebreak<DOMItem>(items, {
         ...options,
@@ -72,17 +92,12 @@ export async function texLinebreakDOM(
       }
 
       for (const line of lines) {
-        // Does this cause too many reflows?
-        // if (linesProcessed++ % 100 === 0) {
-        //   /* Prevent rendering thread from hanging on large documents */
-        //   await new Promise((resolve) => setTimeout(resolve, 0));
-        // }
-
         const items = line.positionedItems;
 
         /** Insert <br/> elements to separate the lines */
         if (line.lineIndex > 0) {
           const br = document.createElement("br");
+          br.className = "texLinebreak";
           const firstItem = items.find((i) => i.span);
           if (firstItem) {
             const span = firstItem.span!;
@@ -121,21 +136,27 @@ export async function texLinebreakDOM(
               curXOffset += item.adjustedWidth;
             }
           } else if (item.type === "box") {
+            const span = item.span!;
             /**
              * If xOffset is not curXOffset, that means that a
              * previous box has had a negative width. Here we wrap the
              * text in a span with a (likely negative) left margin
              */
             if (item.xOffset !== curXOffset) {
-              const span = item.span!;
               span.style.marginLeft = `${item.xOffset - curXOffset}px`;
               // itemRange.insertNode(span);
               curXOffset = item.xOffset;
             }
 
-            // if (options.stripSoftHyphensFromOutputText) {
-            //   stripSoftHyphensFromOutputText(itemRange);
-            // }
+            /** Strip soft hyphens (Todo: is destructive!!) */
+            if (
+              options.stripSoftHyphensFromOutputText &&
+              "text" in item &&
+              item.text &&
+              span.textContent?.includes(SOFT_HYPHEN)
+            ) {
+              span.textContent = span.textContent!.replaceAll(SOFT_HYPHEN, "");
+            }
 
             if (item.adjustedWidth > 0) {
               curXOffset += item.adjustedWidth;
@@ -167,6 +188,7 @@ export async function texLinebreakDOM(
        * the above loop can take a noticable amount of time.
        */
       element.style.whiteSpace = "nowrap";
+      // element.style.visibility = "visible";
 
       if (debug) visualizeBoxesForDebugging(lines, element);
     } catch (e) {
@@ -181,6 +203,13 @@ export async function texLinebreakDOM(
 
   if (options.updateOnWindowResize) {
     updateOnWindowResize(elements, options);
+  }
+}
+
+export function removeInsertedBrs(element: HTMLElement) {
+  const brs = Array.from(element.querySelectorAll("br.texLinebreak"));
+  for (const br of brs) {
+    br.remove();
   }
 }
 
@@ -199,7 +228,7 @@ export function resetDOMJustification(element: HTMLElement) {
 
   // Re-join text nodes that were split by `justifyContent`.
   element.normalize();
-
+  element.style.visibility = "visible";
   element.style.whiteSpace = "initial";
 }
 

@@ -21,10 +21,10 @@ export function getLineFinalStretchInNonJustified(
 }
 
 /** Todo: Should regular hyphens not be flagged? If so this function doesn't work */
-export const isSoftHyphen = (item: Item | undefined): boolean => {
+export function isSoftHyphen(item: Item | undefined): boolean {
   // Note: Do not take width into account here as it will be zero for hanging punctuation
   return Boolean(item && item.type === "penalty" && item.flagged);
-};
+}
 
 export function isForcedBreak(item: Item) {
   return item.type === "penalty" && item.cost <= MIN_COST;

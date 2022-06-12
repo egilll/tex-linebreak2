@@ -13,10 +13,10 @@ import {
  * Here we calculate the width of the hanging punctuation of this item,
  * which will be used if the item is at the beginning or end of a line.
  */
-export const addHangingPunctuation = (
+export function addHangingPunctuation(
   items: TextItem[],
   options: TexLinebreakOptions
-): TextItem[] => {
+): TextItem[] {
   let output: TextItem[] = [];
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
@@ -85,7 +85,7 @@ export const addHangingPunctuation = (
   }
 
   return output;
-};
+}
 
 /**
  * The following punctuation items are not

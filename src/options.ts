@@ -328,6 +328,8 @@ export class TexLinebreakOptions {
   lineHeight?: number;
   /** (Used internally in texLinebreakDOM by some optimizeFn) */
   element?: HTMLElement;
+  dontBlockBrowserRenderingThread: boolean = false;
+  clearItemCache?: boolean;
 
   /** ====================== End of options ====================== */
 
@@ -351,9 +353,9 @@ export class TexLinebreakOptions {
   }
 }
 
-export const getOptionsWithDefaults = (
+export function getOptionsWithDefaults(
   options: Partial<TexLinebreakOptions>
-): TexLinebreakOptions => {
+): TexLinebreakOptions {
   if (options instanceof TexLinebreakOptions) {
     return options;
   } else {
@@ -362,7 +364,7 @@ export const getOptionsWithDefaults = (
     }
     return new TexLinebreakOptions(options);
   }
-};
+}
 
 export type RequireCertainKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
 export type RequireOnlyCertainKeys<T, K extends keyof T> = Partial<T> &

@@ -5,7 +5,7 @@ export function getElementLineWidth(
   paragraphElement: HTMLElement,
   floatingElements?: HTMLElement[]
 ): LineWidth {
-  let { width, boxSizing, paddingLeft, paddingRight, textIndent } =
+  let { width, boxSizing, paddingLeft, paddingRight, textIndent, lineHeight } =
     getComputedStyle(paragraphElement);
   let defaultLineWidth: number | number[] = parseFloat(width!);
   if (boxSizing === "border-box") {
@@ -21,10 +21,8 @@ export function getElementLineWidth(
   }
 
   if (floatingElements && floatingElements.length > 0) {
-    const lineHeight = parseFloat(
-      window.getComputedStyle(paragraphElement).lineHeight
-    );
-    if (!lineHeight) {
+    const _lineHeight = parseFloat(lineHeight);
+    if (!_lineHeight) {
       console.warn(
         "Floating elements are not supported without CSS line-height being set"
       );
@@ -52,13 +50,13 @@ export function getElementLineWidth(
           (floatingElementRect.top -
             parseFloat(floatingElementStyle.marginTop) -
             paragraphRect.top) /
-            lineHeight
+            _lineHeight
         );
         const lastLineThatOverlaps = Math.floor(
           (floatingElementRect.bottom +
             parseFloat(floatingElementStyle.marginBottom) -
             paragraphRect.top) /
-            lineHeight
+            _lineHeight
         );
         if (lastLineThatOverlaps < 0) return;
         for (

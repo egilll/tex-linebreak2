@@ -1,4 +1,4 @@
-import { Box, Glue, INFINITE_STRETCH, Penalty } from "src/breakLines";
+import { Box, Glue, Penalty } from "src/breakLines";
 import DOMTextMeasurer from "src/html/domTextMeasurer";
 import { tagNode } from "src/html/tagNode";
 import { TexLinebreakOptions } from "src/options";
@@ -10,8 +10,8 @@ import {
 } from "src/utils/collapseGlue";
 import {
   box,
-  forcedBreak,
   glue,
+  paragraphEnd,
   TextBox,
   TextGlue,
   TextItem,
@@ -77,19 +77,7 @@ export function getItemsFromDOM(
 
     if (addParagraphEnd) {
       makeGlueAtEndZeroWidth(items, true);
-
-      const endOffset = node.childNodes.length;
-
-      if (options.addInfiniteGlueToFinalLine) {
-        /**
-         * Add a synthetic glue that absorbs any
-         * left-over space at the end of the last line.
-         */
-        items.push(itemWithOffset(glue(0, INFINITE_STRETCH, 0)));
-      }
-
-      /** Add a forced break to end the paragraph. */
-      items.push(itemWithOffset(forcedBreak()));
+      items.push(...paragraphEnd(options));
     }
   }
 
@@ -111,7 +99,7 @@ export function getItemsFromDOM(
     }
 
     if (element.tagName === "BR") {
-      items.push(forcedBreak());
+      items.push(...paragraphEnd(options));
       // TODO: A hack
       (element as HTMLElement).style.display = "none";
       return;

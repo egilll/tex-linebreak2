@@ -1,4 +1,11 @@
-import { Box, Glue, MAX_COST, MIN_COST, Penalty } from "src/breakLines";
+import {
+  Box,
+  Glue,
+  INFINITE_STRETCH,
+  MAX_COST,
+  MIN_COST,
+  Penalty,
+} from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
 import {
   getLineFinalStretchInNonJustified,
@@ -100,7 +107,7 @@ export function textGlue(
   }
 }
 
-export const softHyphen = (options: TexLinebreakOptions): TextItem[] => {
+export function softHyphen(options: TexLinebreakOptions): TextItem[] {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn("-");
   if (options.align === "justify") {
     return [penalty(hyphenWidth, options.softHyphenPenalty, true)];
@@ -119,8 +126,15 @@ export const softHyphen = (options: TexLinebreakOptions): TextItem[] => {
       glue(0, -getLineFinalStretchInNonJustified(options), 0),
     ];
   }
-};
+}
 
 export function forcedBreak(): Penalty {
   return penalty(0, MIN_COST);
+}
+
+export function paragraphEnd(options: TexLinebreakOptions): TextItem[] {
+  if (options.addInfiniteGlueToFinalLine) {
+    return [glue(0, INFINITE_STRETCH, 0), forcedBreak()];
+  }
+  return [forcedBreak()];
 }
