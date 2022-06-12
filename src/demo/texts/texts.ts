@@ -8,7 +8,7 @@ export const texts2: ListOfDemos = [
         Text
         <div style="display:none">not displayed</div>
       </span>
-      <span>
+      <span> 
         that
         <div style="position:absolute;right:0;border:1px solid red;">absolute</div>
       </span>

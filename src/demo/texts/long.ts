@@ -1,5 +1,4 @@
 import { ListOfDemos } from "src/demo/demo";
-import { hyphenateFn } from "test/utils/enHyphenateFn";
 // <div
 //         style="
 //           float: right;
@@ -17,7 +16,7 @@ export const longTexts: ListOfDemos = [
     id: "sherlock",
     selector: "p",
     options: {
-      hyphenateFn,
+      // hyphenateFn,
       // onlyRightHangingPunctuation: true,
     },
     content: `<div class="gutenberg">

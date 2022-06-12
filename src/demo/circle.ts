@@ -1,6 +1,5 @@
 import { ListOfDemos } from "src/demo/demo";
 import { optimizeByFn } from "src/optimize/optimizeByFn";
-import { hyphenateFn } from "test/utils/enHyphenateFn";
 
 // const text = texts[0];
 
@@ -45,7 +44,7 @@ export const circle: ListOfDemos[number] = {
   options: {
     optimizeByFn,
     // lineHeight,
-    hyphenateFn,
+    // hyphenateFn,
     addInfiniteGlueToFinalLine: false,
     setElementWidthToMaxLineWidth: true,
   },

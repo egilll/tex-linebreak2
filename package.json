@@ -30,6 +30,7 @@
     "gh-pages": "^4.0.0",
     "linebreak": "^1.1.0",
     "string-width": "4.2.2",
+    "ttfjs": "^0.4.0",
     "webpack-license-plugin": "^4.2.2"
   },
   "devDependencies": {

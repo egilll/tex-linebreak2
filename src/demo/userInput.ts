@@ -1,6 +1,5 @@
 import { renderToCanvas } from "src/demo/canvas";
 import { texLinebreakDOM } from "src/html/texLinebreakDOM";
-import { hyphenateFn } from "test/utils/enHyphenateFn";
 
 export const textarea = document.querySelector("textarea")!;
 export const lineWidthSlider = document.querySelector(
@@ -21,7 +20,7 @@ export function renderUserInput() {
   const htmlParagraph = document.querySelector<HTMLElement>(".html-p")!;
   htmlParagraph.innerHTML = textarea.value;
   texLinebreakDOM(htmlParagraph, {
-    hyphenateFn: hyphenateFn,
+    // hyphenateFn: hyphenateFn,
   });
 
   // Render to canvas.

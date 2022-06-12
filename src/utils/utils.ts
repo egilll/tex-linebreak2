@@ -176,11 +176,17 @@ export function validateItems(items: Item[]) {
       )}`
     );
   }
-  if (
-    items.some((item) => typeof item.width !== "number" || isNaN(item.width))
-  ) {
+
+  let nonNumber = items.find(
+    (item) => typeof item.width !== "number" || isNaN(item.width)
+  );
+  if (nonNumber) {
     console.log(items);
-    throw new Error(`Width must be a number`);
+    throw new Error(
+      `Width must be a number, got ${typeof nonNumber} (${JSON.stringify(
+        nonNumber
+      )})`
+    );
   }
   if (items.some((item) => item.type === "glue" && !isFinite(item.stretch))) {
     throw new Error(`Glue cannot have infinite stretch`);
