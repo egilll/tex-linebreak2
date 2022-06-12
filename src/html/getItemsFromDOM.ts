@@ -107,7 +107,13 @@ export function getItemsFromDOM(
     } = getComputedStyle(element);
 
     if (display === "none" || position === "absolute") {
-      // items.push(itemWithOffset(box(0), element, 0, 1);
+      return;
+    }
+
+    if (element.tagName === "BR") {
+      items.push(forcedBreak());
+      // TODO: A hack
+      (element as HTMLElement).style.display = "none";
       return;
     }
 
@@ -131,7 +137,6 @@ export function getItemsFromDOM(
         parseFloat(borderRightWidth!) +
         parseFloat(paddingRight!);
       if (rightMargin > 0) {
-        const length = element.childNodes.length;
         items.push(
           itemWithOffset(box(rightMargin) /*element, length, length*/)
         );

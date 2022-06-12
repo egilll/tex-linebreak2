@@ -14,7 +14,10 @@ export type ListOfDemos = {
 }[];
 const demos: ListOfDemos = [circle, ...texts2, ...longTexts];
 
-if (window.location.hash) {
+if (
+  window.location.hash &&
+  demos.some((d) => d.id === window.location.hash.slice(1))
+) {
   renderDemo(demos.find((demo) => demo.id === window.location.hash.slice(1))!);
 } else {
   demos.forEach(renderDemo);

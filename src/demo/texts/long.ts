@@ -1,4 +1,5 @@
 import { ListOfDemos } from "src/demo/demo";
+import { hyphenateFn } from "test/utils/enHyphenateFn";
 // <div
 //         style="
 //           float: right;
@@ -13,93 +14,10 @@ import { ListOfDemos } from "src/demo/demo";
 //       </div>
 export const longTexts: ListOfDemos = [
   {
-    id: "sh_temp",
-    selector: "p",
-    content: `<p class="letter">
-          &ldquo;The recent sudden death of Sir Charles Baskerville, whose name
-          has been mentioned as the probable Liberal candidate for Mid-Devon at
-          the next election, has cast a gloom over the county.  Though Sir
-          Charles had resided at Baskerville Hall for a comparatively short
-          period his amiability of character and extreme generosity had won the
-          affection and respect of all who had been brought into contact with
-          him.  In these days of <i>nouveaux riches</i> it is refreshing to find a case
-          where the scion of an old county family which has fallen upon evil days
-          is able to make his own fortune and to bring it back with him to
-          restore the fallen grandeur of his line.  Sir Charles, as is well
-          known, made large sums of money in South African speculation. More wise
-          than those who go on until the wheel turns against them, he realised
-          his gains and returned to England with them.  It is only two years
-          since he took up his residence at Baskerville Hall, and it is common
-          talk how large were those schemes of reconstruction and improvement
-          which have been interrupted by his death.  Being himself childless, it
-          was his openly expressed desire that the whole countryside should,
-          within his own lifetime, profit by his good fortune, and many will have
-          personal reasons for bewailing his untimely end.  His generous
-          donations to local and county charities have been frequently chronicled
-          in these columns.<br />
-              &ldquo;The circumstances connected with the death of Sir Charles
-          cannot be said to have been entirely cleared up by the inquest, but at
-          least enough has been done to dispose of those rumours to which local
-          superstition has given rise. There is no reason whatever to suspect
-          foul play, or to imagine that death could be from any but natural
-          causes. Sir Charles was a widower, and a man who may be said to have
-          been in some ways of an eccentric habit of mind. In spite of his
-          considerable wealth he was simple in his personal tastes, and his
-          indoor servants at Baskerville Hall consisted of a married couple named
-          Barrymore, the husband acting as butler and the wife as housekeeper.
-          Their evidence, corroborated by that of several friends, tends to show
-          that Sir Charles&rsquo;s health has for some time been impaired, and
-          points especially to some affection of the heart, manifesting itself in
-          changes of colour, breathlessness, and acute attacks of nervous
-          depression. Dr. James Mortimer, the friend and medical attendant of the
-          deceased, has given evidence to the same effect.<br />
-              &ldquo;The facts of the case are simple.  Sir Charles Baskerville
-          was in the habit every night before going to bed of walking down the
-          famous yew alley of Baskerville Hall.  The evidence of the Barrymores
-          shows that this had been his custom. On the fourth of May Sir Charles
-          had declared his intention of starting next day for London, and had
-          ordered Barrymore to prepare his luggage.  That night he went out as
-          usual for his nocturnal walk, in the course of which he was in the
-          habit of smoking a cigar.  He never returned.  At twelve o&rsquo;clock
-          Barrymore, finding the hall door still open, became alarmed, and,
-          lighting a lantern, went in search of his master.  The day had been
-          wet, and Sir Charles&rsquo;s footmarks were easily traced down the
-          alley.  Halfway down this walk there is a gate which leads out on to
-          the moor. There were indications that Sir Charles had stood for some
-          little time here.  He then proceeded down the alley, and it was at the
-          far end of it that his body was discovered. One fact which has not been
-          explained is the statement of Barrymore that his master&rsquo;s
-          footprints altered their character from the time that he passed the
-          moor-gate, and that he appeared from thence onward to have been walking
-          upon his toes.  One Murphy, a gipsy horse-dealer, was on the moor at no
-          great distance at the time, but he appears by his own confession to
-          have been the worse for drink. He declares that he heard cries but is
-          unable to state from what direction they came.  No signs of violence
-          were to be discovered upon Sir Charles&rsquo;s person, and though the
-          doctor&rsquo;s evidence pointed to an almost incredible facial
-          distortion&mdash;so great that Dr. Mortimer refused at first to believe
-          that it was indeed his friend and patient who lay before him&mdash;it
-          was explained that that is a symptom which is not unusual in cases of
-          dyspnœa and death from cardiac exhaustion.  This explanation was borne
-          out by the post-mortem examination, which showed long-standing organic
-          disease, and the coroner&rsquo;s jury returned a verdict in accordance
-          with the medical evidence.  It is well that this is so, for it is
-          obviously of the utmost importance that Sir Charles&rsquo;s heir should
-          settle at the Hall and continue the good work which has been so sadly
-          interrupted.  Had the prosaic finding of the coroner not finally put an
-          end to the romantic stories which have been whispered in connection
-          with the affair, it might have been difficult to find a tenant for
-          Baskerville Hall.  It is understood that the next of kin is Mr. Henry
-          Baskerville, if he be still alive, the son of Sir Charles
-          Baskerville&rsquo;s younger brother.  The young man when last heard of
-          was in America, and inquiries are being instituted with a view to
-          informing him of his good fortune.&rdquo;
-      </p>`,
-  },
-  {
     id: "sherlock",
     selector: "p",
     options: {
+      hyphenateFn,
       // onlyRightHangingPunctuation: true,
     },
     content: `<div class="gutenberg">

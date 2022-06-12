@@ -67,7 +67,7 @@ export async function texLinebreakDOM(
       });
       const lines = obj.lines;
 
-      if (process.env.NODE_ENV === "development") {
+      if (process.env.NODE_ENV === "development" && window.location.hash) {
         console.log(lines);
       }
 
@@ -91,10 +91,12 @@ export async function texLinebreakDOM(
         for (const item of items) {
           /** Add spacing to glue */
           if (item.type === "glue") {
-            //todo
-            // if (item.skipWhenRendering) continue;
             const span = item.span;
             if (!span) continue;
+            if (item.skipWhenRendering) {
+              span.style.display = "none";
+              continue;
+            }
             /**
              * We try to not use `inline-block` since that messes with
              * the formatting of links (each word gets its own underline)
@@ -108,7 +110,7 @@ export async function texLinebreakDOM(
             if (item.adjustedWidth <= 0) {
               span.style.fontSize = "0";
               span.style.width = "0";
-              // span.style.display = "inline-block";
+              span.style.display = "inline-block";
             } else {
               curXOffset += item.adjustedWidth;
             }
@@ -125,9 +127,6 @@ export async function texLinebreakDOM(
               curXOffset = item.xOffset;
             }
 
-            if ("text" in item) {
-              // output += item.text;
-            }
             // if (options.stripSoftHyphensFromOutputText) {
             //   stripSoftHyphensFromOutputText(itemRange);
             // }
