@@ -9,7 +9,15 @@ import {
 import { collapseAdjacentTextGlueWidths } from "src/utils/collapseGlue";
 import { forciblySplitLongWords } from "src/utils/forciblySplitLongWords";
 import { addHangingPunctuation } from "src/utils/hangingPunctuation";
-import { forcedBreak, glue, penalty, softHyphen, textBox, textGlue, TextItem, } from "src/utils/items";
+import {
+  forcedBreak,
+  glue,
+  penalty,
+  softHyphen,
+  textBox,
+  textGlue,
+  TextItem,
+} from "src/utils/items";
 import { infiniteGlue } from "src/utils/utils";
 
 export const NON_BREAKING_SPACE = "\u00A0";
@@ -35,7 +43,7 @@ export type BreakpointInformation = {
   position: number;
 };
 
-export function splitTextIntoItems (
+export function splitTextIntoItems(
   input: string,
   options: TexLinebreakOptions,
   /**
@@ -44,7 +52,7 @@ export function splitTextIntoItems (
    */
   precedingText: string = "",
   followingText: string = ""
-): TextItem[] => {
+): TextItem[] {
   options = getOptionsWithDefaults(options);
 
   let items: TextItem[] = [];
@@ -133,7 +141,7 @@ export function splitTextIntoItems (
     }
   }
 
-  segments.forEach((segment, index) {
+  segments.forEach((segment, index) => {
     const isLastSegment = index === segments.length - 1;
     let cost =
       segment.breakpoint && getBreakpointPenalty(segment.breakpoint, options);
@@ -210,15 +218,15 @@ export function splitTextIntoItems (
 
   collapseAdjacentTextGlueWidths(items);
   return items;
-};
+}
 
 /**
  * A helper function around the {@link LineBreaker} module.
  * Returns breakpoints and their Unicode breakpoint letter classification.
  */
-export const getAllowableUnicodeBreakpoints = (
+export function getAllowableUnicodeBreakpoints(
   input: string
-): Record<number, BreakpointInformation> => {
+): Record<number, BreakpointInformation> {
   const lineBreaker = new LineBreaker(input);
   let currentBreak: Break;
   let positionToBreakpointInformation: Record<number, BreakpointInformation> =
@@ -241,22 +249,22 @@ export const getAllowableUnicodeBreakpoints = (
     };
   }
   return positionToBreakpointInformation;
-};
+}
 
 /**
  * Input should be the full string and not a substring – it has to
  * include the surrounding characters to get an accurate classification.
  */
-export const getUnicodeLineBreakingClassOfLetterAt = (
+export function getUnicodeLineBreakingClassOfLetterAt(
   input: string,
   position: number
-): UnicodeLineBreakingClasses => {
+): UnicodeLineBreakingClasses {
   const j = new LineBreaker(input);
   j.pos = position;
   return convertEnumValuesOfLineBreakingPackageToUnicodeNames[
     j.nextCharClass() as keyof typeof convertEnumValuesOfLineBreakingPackageToUnicodeNames
   ] as UnicodeLineBreakingClasses;
-};
+}
 
 /**
  * Extracts indices from the options

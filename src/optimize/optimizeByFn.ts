@@ -45,7 +45,7 @@ const getScore = ({
   return diff + Math.cbrt(totalDemerits) / lineBreakingNodes.length / 10000;
 };
 
-export function optimizeByFn (obj: TexLinebreak): number[] => {
+export function optimizeByFn(obj: TexLinebreak): number[] {
   obj.options.addInfiniteGlueToFinalLine = false;
 
   const best = BisectionFindMinimumPositiveIntegerOutput({
@@ -53,7 +53,7 @@ export function optimizeByFn (obj: TexLinebreak): number[] => {
     min: 4 * obj.options.lineHeight!,
     maxAttempts: 30,
     scoreFunc: getScore,
-    func: (x) {
+    func: (x) => {
       let { lineWidth, leftIndentPerLine } = getLineWidths(
         x,
         obj.options.lineHeight!
@@ -82,7 +82,7 @@ export function optimizeByFn (obj: TexLinebreak): number[] => {
     console.error("Failed to find a good width");
     return breakLines(obj.items, obj.options);
   }
-};
+}
 
 export function BisectionFindMinimumPositiveIntegerOutput<T>({
   initialGuess,

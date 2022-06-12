@@ -1,4 +1,5 @@
 import { Glue, Item } from "src/breakLines";
+import { DOMGlue } from "src/html/getItemsFromDOM";
 import { TextItem } from "src/utils/items";
 
 /**
@@ -71,6 +72,6 @@ export function makeZeroWidth(item: Glue, markAsSkipped = false) {
   item.stretch = 0;
   item.shrink = 0;
   if (markAsSkipped) {
-    item.skipWhenRendering = true;
+    (item as DOMGlue).skipWhenRendering = true;
   }
 }

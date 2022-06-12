@@ -72,10 +72,11 @@ export async function texLinebreakDOM(
       }
 
       for (const line of lines) {
-        if (linesProcessed++ % 100 === 0) {
-          /* Prevent rendering thread from hanging on large documents */
-          await new Promise((resolve) => setTimeout(resolve, 0));
-        }
+        // Does this cause too many reflows?
+        // if (linesProcessed++ % 100 === 0) {
+        //   /* Prevent rendering thread from hanging on large documents */
+        //   await new Promise((resolve) => setTimeout(resolve, 0));
+        // }
 
         const items = line.positionedItems;
 
