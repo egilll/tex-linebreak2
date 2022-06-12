@@ -324,8 +324,10 @@ export class TexLinebreakOptions {
    */
   validateItems: boolean = process.env.NODE_ENV === "development";
 
-  /** required for some optimizations */
+  /** TEMP - required for some optimizeFn */
   lineHeight?: number;
+  /** (Used internally in texLinebreakDOM by some optimizeFn) */
+  element?: HTMLElement;
 
   /** ====================== End of options ====================== */
 

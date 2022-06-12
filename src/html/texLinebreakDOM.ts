@@ -42,6 +42,9 @@ export async function texLinebreakDOM(
   const domTextMeasureFn = new DOMTextMeasurer().measure;
   const floatingElements = getFloatingElements();
 
+  addCSSForUncopiableHyphens(options);
+
+  let linesProcessed = 0;
   for (const element of elements) {
     /* Prevent rendering thread from hanging on large documents */
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -57,9 +60,6 @@ export async function texLinebreakDOM(
         domTextMeasureFn
       );
 
-      /** Disable automatic line wrap. */
-      element.style.whiteSpace = "nowrap";
-
       const obj = new TexLinebreak<DOMItem>(items, {
         ...options,
         lineWidth,
@@ -72,6 +72,11 @@ export async function texLinebreakDOM(
       }
 
       for (const line of lines) {
+        if (linesProcessed++ % 100 === 0) {
+          /* Prevent rendering thread from hanging on large documents */
+          await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+
         const items = line.positionedItems;
 
         /** Insert <br/> elements to separate the lines */
@@ -137,18 +142,30 @@ export async function texLinebreakDOM(
           }
         }
 
-        // /** Add soft hyphens */
-        // if (line.endsWithSoftHyphen) {
-        //   const wrapperAroundFinalBox = tagNode(document.createElement("span"));
-        //   lastBoxRange.surroundContents(wrapperAroundFinalBox);
-        //   wrapperAroundFinalBox.appendChild(getHyphenElement(options));
-        // }
+        /** Add soft hyphens */
+        if (line.endsWithSoftHyphen) {
+          const lastBoxInLine = items
+            .slice()
+            .reverse()
+            .find((item) => item.type === "box" && "text" in item && item.text);
+          if (lastBoxInLine) {
+            lastBoxInLine.span!.appendChild(getHyphenElement(options));
+          } else {
+            throw new Error("No box in line");
+          }
+        }
       }
 
       if (options.setElementWidthToMaxLineWidth) {
         /** TODO: Include padding */
         element.style.width = `${getMaxLineWidth(obj.options.lineWidth)}px`;
       }
+
+      /**
+       * Disable automatic line wrap. This comes at the end since
+       * the above loop can take a noticable amount of time.
+       */
+      element.style.whiteSpace = "nowrap";
 
       if (debug) visualizeBoxesForDebugging(lines, element);
     } catch (e) {
@@ -163,23 +180,6 @@ export async function texLinebreakDOM(
 
   if (options.updateOnWindowResize) {
     updateOnWindowResize(elements, options);
-  }
-
-  /** Add CSS to handle uncopiable hyphens */
-  if (
-    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN" ||
-    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN"
-  ) {
-    if (
-      document.querySelector("[data-uncopiable-text]") &&
-      !document.querySelector("style#tex-linebreak-uncopiable-text")
-    ) {
-      const style = document.createElement("style");
-      style.id = "tex-linebreak-uncopiable-text";
-      style.innerHTML =
-        "[data-uncopiable-text]::after{content: attr(data-uncopiable-text);}";
-      document.head.appendChild(style);
-    }
   }
 }
 
@@ -202,12 +202,25 @@ export function resetDOMJustification(element: HTMLElement) {
   element.style.whiteSpace = "initial";
 }
 
-export const getRangeOfItem = (item: DOMItem): Range => {
-  const range = document.createRange();
-  range.setStart(item.startContainer, item.startOffset);
-  range.setEnd(item.endContainer, item.endOffset);
-  return range;
-};
+/**
+ * Add CSS to handle uncopiable hyphens.
+ * This has to be added at the top of the loop since
+ * the loop may take a long time on large documents.
+ */
+export function addCSSForUncopiableHyphens(options: TexLinebreakOptions) {
+  if (
+    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN" ||
+    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN"
+  ) {
+    if (!document.querySelector("style#tex-linebreak-uncopiable-text")) {
+      const style = document.createElement("style");
+      style.id = "tex-linebreak-uncopiable-text";
+      style.innerHTML =
+        "[data-uncopiable-text]::after{content: attr(data-uncopiable-text);}";
+      document.head.appendChild(style);
+    }
+  }
+}
 
 export const getHyphenElement = (options: TexLinebreakOptions) => {
   let hyphen: HTMLElement | Text;
