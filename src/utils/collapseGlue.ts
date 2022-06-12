@@ -10,7 +10,7 @@ import { TextItem } from "src/utils/items";
  * The HTML "text <!-- comment node --> text" becomes ["text", " ",
  * " ", "text"], and here we make the second space a zero width one.
  */
-export const collapseAdjacentTextGlueWidths = (items: TextItem[]) => {
+export function collapseAdjacentTextGlueWidths(items: TextItem[]) {
   for (let i = 0; i < items.length; i++) {
     if (
       items[i].type === "glue" &&
@@ -31,22 +31,22 @@ export const collapseAdjacentTextGlueWidths = (items: TextItem[]) => {
       }
     }
   }
-};
+}
 
-export const makeGlueAtEndsZeroWidth = (
+export function makeGlueAtEndsZeroWidth(
   items: Item[],
   startIndex: number = 0,
   markAsSkipped = false
-) => {
+) {
   makeGlueAtBeginningZeroWidth(items, startIndex, markAsSkipped);
   makeGlueAtEndZeroWidth(items, markAsSkipped);
-};
+}
 
-export const makeGlueAtBeginningZeroWidth = (
+export function makeGlueAtBeginningZeroWidth(
   items: Item[],
   startIndex: number = 0,
   markAsSkipped = false
-) => {
+) {
   for (let i = startIndex; i < items.length; i++) {
     if (items[i].type === "glue") {
       makeZeroWidth(items[i] as Glue, markAsSkipped);
@@ -54,12 +54,9 @@ export const makeGlueAtBeginningZeroWidth = (
       break;
     }
   }
-};
+}
 
-export const makeGlueAtEndZeroWidth = (
-  items: Item[],
-  markAsSkipped = false
-) => {
+export function makeGlueAtEndZeroWidth(items: Item[], markAsSkipped = false) {
   for (let i = items.length - 1; i > 0; i--) {
     if (items[i].type === "glue") {
       makeZeroWidth(items[i] as Glue, markAsSkipped);
@@ -67,13 +64,13 @@ export const makeGlueAtEndZeroWidth = (
       break;
     }
   }
-};
+}
 
-export const makeZeroWidth = (item: Glue, markAsSkipped = false) => {
+export function makeZeroWidth(item: Glue, markAsSkipped = false) {
   item.width = 0;
   item.stretch = 0;
   item.shrink = 0;
   if (markAsSkipped) {
     item.skipWhenRendering = true;
   }
-};
+}

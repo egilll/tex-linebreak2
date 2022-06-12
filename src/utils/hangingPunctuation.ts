@@ -1,5 +1,6 @@
+import { MAX_COST } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
-import { box, glue, TextItem } from "src/utils/items";
+import { box, glue, penalty, TextItem } from "src/utils/items";
 import {
   isBreakablePenalty,
   isForcedBreak,
@@ -42,6 +43,8 @@ export const addHangingPunctuation = (
       const leftHangingPunctuationWidth =
         item.width - options.measureFn(item.text.slice(1));
 
+      // Prevents the period in "<i>text</i>." (which is processed separately) from being breakable
+      output.push(penalty(0, MAX_COST));
       output.push(glue(leftHangingPunctuationWidth, 0, 0));
       output.push(box(-leftHangingPunctuationWidth));
     }

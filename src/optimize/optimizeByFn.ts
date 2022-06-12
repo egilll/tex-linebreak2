@@ -45,7 +45,7 @@ const getScore = ({
   return diff + Math.cbrt(totalDemerits) / lineBreakingNodes.length / 10000;
 };
 
-export const optimizeByFn = (obj: TexLinebreak): number[] => {
+export function optimizeByFn (obj: TexLinebreak): number[] => {
   obj.options.addInfiniteGlueToFinalLine = false;
 
   const best = BisectionFindMinimumPositiveIntegerOutput({
@@ -53,7 +53,7 @@ export const optimizeByFn = (obj: TexLinebreak): number[] => {
     min: 4 * obj.options.lineHeight!,
     maxAttempts: 30,
     scoreFunc: getScore,
-    func: (x) => {
+    func: (x) {
       let { lineWidth, leftIndentPerLine } = getLineWidths(
         x,
         obj.options.lineHeight!

@@ -179,7 +179,7 @@ export function getItemsFromDOM(
       followingText
     );
 
-    let output = document.createDocumentFragment();
+    let replacementFragment = document.createDocumentFragment();
     textItems.forEach((item: TextItem) => {
       textOffsetInThisNode += (("text" in item && item.text) || "").length;
       let span: HTMLElement | undefined;
@@ -192,11 +192,11 @@ export function getItemsFromDOM(
       items.push(itemWithOffset(item, span));
 
       if (span) {
-        output.appendChild(span);
+        replacementFragment.appendChild(span);
       }
     });
 
-    textNode.parentNode!.replaceChild(output, textNode);
+    textNode.parentNode!.replaceChild(replacementFragment, textNode);
 
     textOffsetInParagraph += textOffsetInThisNode;
   }

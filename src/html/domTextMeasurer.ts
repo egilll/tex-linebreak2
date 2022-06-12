@@ -1,4 +1,3 @@
-import { measureTextFromFontFile } from "src/html/textMeasurer2";
 import { TexLinebreakOptions } from "src/options";
 
 class TextMetricsCache {
@@ -71,7 +70,7 @@ function measureText(
   text: string,
   options: TexLinebreakOptions
 ) {
-  if (true /* todo */) {
+  if (true) {
     if (!measureCtx) {
       const canvas = document.createElement("canvas");
       measureCtx = canvas.getContext("2d")!;
@@ -89,7 +88,7 @@ function measureText(
     measureCtx.font = cssFont;
     return measureCtx.measureText(text).width;
   } else {
-    return measureTextFromFontFile(text, parseInt(cssFont) /* Temp */);
+    // return measureTextFromFontFile(text, parseInt(cssFont) /* Temp */);
   }
 }
 

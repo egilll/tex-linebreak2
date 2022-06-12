@@ -4,11 +4,11 @@ import { textNodesInRange } from "src/deprecated/textNodesInRange";
  * Todo: limit to possible overlaps (i.e.
  * ignore those off x-axis and above element
  */
-export const getFloatingElements = (): HTMLElement[] => {
+export function getFloatingElements (): HTMLElement[] => {
   let floating: HTMLElement[] = [];
   Array.from(
     document.querySelectorAll<HTMLElement>("body *:not(span,script,b,i,br)")
-  ).forEach((element) => {
+  ).forEach((element) {
     const { float } = window.getComputedStyle(element);
     if (float === "left" || float === "right") {
       floating.push(element);
@@ -18,7 +18,7 @@ export const getFloatingElements = (): HTMLElement[] => {
 };
 
 /** Todo: does not work.... */
-export const stripSoftHyphensFromOutputText = (range: Range) => {
+export function stripSoftHyphensFromOutputText (range: Range) {
   const text = textNodesInRange(range);
 
   // text.forEach((textNode) => {

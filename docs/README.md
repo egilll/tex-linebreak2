@@ -261,7 +261,9 @@ The following helper functions are available:
 
 ## Hyphenation
 
-To hyphenate text, you can [Hypher](https://github.com/bramstein/hypher) library and pass it in as the `hyphenateFn` option like so:
+For websites it is highly recommended that you preprocess your text server-side (using a library such as [Hypher](https://github.com/bramstein/hypher) or [Hyphenopoly](https://github.com/mnater/Hyphenopoly)) and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text, since hyphenating client-side causes a significant amount of lag.
+
+If the lag does not matter for your use-case, you can pass in [Hypher](https://github.com/bramstein/hypher) as the `hyphenateFn` option, and tex-linebreak will add hyphenations for you.
 
 ```js
 import { TexLinebreak } from "tex-linebreak2";
@@ -272,8 +274,6 @@ new TexLinebreak(items, {
   hyphenateFn: new Hypher(enUsPatterns).hyphenate,
 });
 ```
-
-However, for websites it is highly recommended that you preprocess your text server-side (using a library such as [Hypher](https://github.com/bramstein/hypher) or [Hyphenopoly](https://github.com/mnater/Hyphenopoly)) and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text, since the hyphenation step introduces a noticable amount of lag.
 
 ## Contributors
 

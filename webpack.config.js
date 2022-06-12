@@ -19,6 +19,7 @@ module.exports = {
     demo: "./src/demo/demo.ts",
     lib: files,
     lib_web: "./src/html/texLinebreakDOM.ts",
+    // webWorker: "./src/html/webWorker.ts",
   },
   devtool: "source-map",
   module: {

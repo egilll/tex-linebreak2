@@ -9,15 +9,7 @@ import {
 import { collapseAdjacentTextGlueWidths } from "src/utils/collapseGlue";
 import { forciblySplitLongWords } from "src/utils/forciblySplitLongWords";
 import { addHangingPunctuation } from "src/utils/hangingPunctuation";
-import {
-  forcedBreak,
-  glue,
-  penalty,
-  softHyphen,
-  textBox,
-  textGlue,
-  TextItem,
-} from "src/utils/items";
+import { forcedBreak, glue, penalty, softHyphen, textBox, textGlue, TextItem, } from "src/utils/items";
 import { infiniteGlue } from "src/utils/utils";
 
 export const NON_BREAKING_SPACE = "\u00A0";
@@ -43,7 +35,7 @@ export type BreakpointInformation = {
   position: number;
 };
 
-export const splitTextIntoItems = (
+export function splitTextIntoItems (
   input: string,
   options: TexLinebreakOptions,
   /**
@@ -141,7 +133,7 @@ export const splitTextIntoItems = (
     }
   }
 
-  segments.forEach((segment, index) => {
+  segments.forEach((segment, index) {
     const isLastSegment = index === segments.length - 1;
     let cost =
       segment.breakpoint && getBreakpointPenalty(segment.breakpoint, options);

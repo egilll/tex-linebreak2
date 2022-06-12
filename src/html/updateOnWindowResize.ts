@@ -8,10 +8,10 @@ let elementsAndTheirWidths: Map<
   { width: number; options: TexLinebreakOptions }
 > = new Map();
 
-export const updateOnWindowResize = (
+export function updateOnWindowResize(
   elements: HTMLElement[],
   options: TexLinebreakOptions
-) => {
+) {
   if (!isListening) {
     window.addEventListener("resize", debounce(onResize, 30), true);
     isListening = true;
@@ -23,7 +23,7 @@ export const updateOnWindowResize = (
       options,
     });
   });
-};
+}
 
 const onResize = () => {
   elementsAndTheirWidths.forEach(({ width, options }, element) => {

@@ -13,6 +13,22 @@ import { ListOfDemos } from "src/demo/demo";
 //       </div>
 export const longTexts: ListOfDemos = [
   {
+    id: "tmp3",
+    selector: "p",
+    content: `
+  <div class="gutenberg">
+  <div class="chapter">
+  
+    <p class="letter">
+        &lsquo;Do We Progress?&rsquo;
+        (<i>Journal of Psychology</i>, March, 1883)
+    </p>
+    </div>
+    </div>
+  
+  `,
+  },
+  {
     id: "sherlock",
     selector: "p",
     options: {

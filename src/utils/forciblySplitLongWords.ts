@@ -1,13 +1,9 @@
 import { TexLinebreakOptions } from "src/options";
 import { glue, penalty, textBox, TextItem } from "src/utils/items";
-import {
-  addSlackIfBreakpoint,
-  getMinLineWidth,
-  infiniteGlue,
-} from "src/utils/utils";
+import { addSlackIfBreakpoint, getMinLineWidth, infiniteGlue, } from "src/utils/utils";
 
 /** TODO: Needs rework */
-export const forciblySplitLongWords = (
+export function forciblySplitLongWords (
   items: TextItem[],
   options: TexLinebreakOptions
 ): TextItem[] => {
@@ -16,7 +12,7 @@ export const forciblySplitLongWords = (
   }
   let output: TextItem[] = [];
   const minLineWidth = getMinLineWidth(options.lineWidth);
-  items.forEach((item) => {
+  items.forEach((item) {
     if (item.type === "box" && item.text && item.width > minLineWidth) {
       output.push(infiniteGlue());
       for (let i = 0; i < item.text.length; i++) {

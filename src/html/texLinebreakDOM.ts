@@ -222,7 +222,7 @@ export function addCSSForUncopiableHyphens(options: TexLinebreakOptions) {
   }
 }
 
-export const getHyphenElement = (options: TexLinebreakOptions) => {
+export function getHyphenElement(options: TexLinebreakOptions) {
   let hyphen: HTMLElement | Text;
   let hyphenText = "-";
   if (options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN") {
@@ -249,4 +249,4 @@ export const getHyphenElement = (options: TexLinebreakOptions) => {
     hyphen = tagNode(document.createTextNode(hyphenText));
   }
   return hyphen;
-};
+}

@@ -1,12 +1,9 @@
 import { MAX_COST, MIN_COST } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
-import {
-  BreakpointInformation,
-  SOFT_HYPHEN,
-} from "src/splitTextIntoItems/splitTextIntoItems";
+import { BreakpointInformation, SOFT_HYPHEN, } from "src/splitTextIntoItems/splitTextIntoItems";
 import { UnicodeLineBreakingClasses } from "src/typings/unicodeLineBreakingClasses";
 
-export const getBreakpointPenalty = (
+export function getBreakpointPenalty (
   breakpoint: BreakpointInformation,
   options: TexLinebreakOptions
 ): number => {
@@ -96,6 +93,6 @@ export const getBreakpointPenalty = (
   }
 };
 
-export const penaltyLowerIfFarAwayFromBreakingPoint = () => {
+export const penaltyLowerIfFarAwayFromBreakingPoint = () {
   throw new Error("Not implemented");
 };

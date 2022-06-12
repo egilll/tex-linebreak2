@@ -5,10 +5,10 @@ import { Line } from "src/index";
  * Draw boxes at the end of a paragraph (in a browser context)
  * on screen to see any possible mismatches in size calculations
  */
-export const visualizeBoxesForDebugging = (
+export function visualizeBoxesForDebugging(
   lines: Line[],
   appendToElement: HTMLElement
-) => {
+) {
   // /* Remove previous debugging boxes */
   // appendToElement.querySelectorAll(".debug-line").forEach((el) => el.remove());
   const box1 = tagNode(document.createElement("div"));
@@ -36,4 +36,4 @@ export const visualizeBoxesForDebugging = (
     });
   });
   appendToElement.after(box1);
-};
+}
