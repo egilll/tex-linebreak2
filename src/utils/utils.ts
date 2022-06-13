@@ -192,3 +192,22 @@ export function validateItems(items: Item[]) {
     throw new Error(`Glue cannot have infinite stretch`);
   }
 }
+
+/** Used for inline-block elements where glue has to expand but nothing can break */
+export function makeNonBreaking(
+  items: Item[],
+  startIndex: number,
+  endIndex: number
+) {
+  for (let i = startIndex; i < endIndex; i++) {
+    if (items[i].type === "penalty") {
+      (items[i] as Penalty).cost = MAX_COST;
+    }
+    if (items[i].type === "glue") {
+      // Insert a penalty item before this item
+      items.splice(i, 0, penalty(0, MAX_COST));
+      i++;
+      console.log("glue");
+    }
+  }
+}

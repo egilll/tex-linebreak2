@@ -16,6 +16,7 @@ import {
   TextGlue,
   TextItem,
 } from "src/utils/items";
+import { makeNonBreaking } from "src/utils/utils";
 
 /**
  * Information used to construct a `Range` later.
@@ -105,7 +106,7 @@ export function getItemsFromDOM(
       return;
     }
 
-    if (display === "inline") {
+    if (display === "inline" || display === "inline-block") {
       // Add box for margin/border/padding at start of box.
       // TODO: Verify
       const leftMargin =
@@ -116,8 +117,17 @@ export function getItemsFromDOM(
         items.push(itemWithOffset(box(leftMargin) /*element, 0, 0*/));
       }
 
+      let startLength = items.length;
+
       // Add items for child nodes.
       getItemsFromNode(element, false);
+
+      if (display === "inline-block") {
+        makeNonBreaking(items, startLength - 1, items.length - 1);
+        (element as HTMLElement).classList.add(
+          "texLinebreakNearestBlockElement"
+        );
+      }
 
       // Add box for margin/border/padding at end of box.
       const rightMargin =

@@ -101,7 +101,17 @@ export async function texLinebreakDOM(
           const firstItem = items.find((i) => i.span);
           if (firstItem) {
             const span = firstItem.span!;
-            span.parentNode!.insertBefore(br, span);
+            /**
+             * For inline-block elements, we have to break before that element.
+             * Todo: Make work for inline elements as well, would be better to
+             * break before them.
+             */
+            const closestBreakBeforeElement =
+              span.closest(".texLinebreakNearestBlockElement") || span;
+            closestBreakBeforeElement.parentNode!.insertBefore(
+              br,
+              closestBreakBeforeElement
+            );
           } else {
             throw new Error("No items in line");
           }

@@ -86,8 +86,8 @@ export class Line<
   positionedItems: (InputItemType & ItemPosition)[];
   adjustmentRatio: number;
   /**
-   * Items that matter for the purposes of rendering this
-   * line (i.e. filters out certain glues and penalties)
+   * Items that matter for the purposes of rendering this line (i.e.
+   * filters out penalties, and non-important glues are made zero-width)
    */
   itemsFiltered: InputItemType[];
   options: TexLinebreakOptions;
@@ -227,21 +227,32 @@ export class Line<
       if (item.type === "penalty" && curIndex !== items.length - 1)
         return false;
 
-      // Ignore glue that is a breakpoint
-      if (item.type === "glue" && curIndex === items.length - 1) return false;
-
       return true;
     });
 
-    /** Ignore glue at the beginning of a line (can be multiple adjacent glues) */
-    for (let i = 0; i < itemsFiltered.length; i++) {
-      if (itemsFiltered[i].type === "glue") {
-        itemsFiltered.splice(i, 1);
-        i--;
-      } else {
-        break;
-      }
-    }
+    // /**
+    //  * Make non-important glue zero width.
+    //  * (Not removed since this is better when re-applying justification)
+    //  */
+    // itemsFiltered = itemsFiltered.map((item, index) => {
+    //   // Glue that is a breakpoint
+    //   if (item.type === "glue" && index === this.items.length - 1)
+    //     return makeZeroWidth({ ...item }) as InputItemType;
+    //
+    //   return item;
+    // });
+
+    // /** Ignore glue at the beginning of a line (can be multiple adjacent glues) */
+    // for (let i = 0; i < itemsFiltered.length; i++) {
+    //   if (itemsFiltered[i].type === "glue") {
+    //     itemsFiltered[i] = makeZeroWidth({
+    //       ...(itemsFiltered[i] as Glue),
+    //     }) as InputItemType;
+    //     i--;
+    //   } else {
+    //     break;
+    //   }
+    // }
 
     /**
      * Handle soft hyphens in non-justified text, see
@@ -269,17 +280,17 @@ export class Line<
       }
     }
 
-    /** Filter glues that have canceled out (see discussion on negative glue) */
-    itemsFiltered = itemsFiltered.filter(
-      (i) =>
-        !(
-          i.type === "glue" &&
-          !("text" in i && i.text) &&
-          i.width === 0 &&
-          i.stretch === 0 &&
-          i.shrink === 0
-        )
-    );
+    // /** Filter glues that have canceled out (see discussion on negative glue) */
+    // itemsFiltered = itemsFiltered.filter(
+    //   (i) =>
+    //     !(
+    //       i.type === "glue" &&
+    //       !("text" in i && i.text) &&
+    //       i.width === 0 &&
+    //       i.stretch === 0 &&
+    //       i.shrink === 0
+    //     )
+    // );
 
     return itemsFiltered;
   }

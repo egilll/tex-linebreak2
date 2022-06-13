@@ -74,4 +74,5 @@ export function makeZeroWidth(item: Glue, markAsSkipped = false) {
   if (markAsSkipped) {
     (item as DOMGlue).skipWhenRendering = true;
   }
+  return item;
 }
