@@ -194,12 +194,14 @@ export class TexLinebreakOptions {
    *
    * as simply:
    *
-   *     { hyphenateFn: new Hypher(enUsPatterns).hyphenate }
+   *       { hyphenateFn: new Hypher(enUsPatterns).hyphenate }
    *
    * does not work.
    *
    * Will be cached unless {@link TexLinebreakOptions#cacheHyphenation} is
    * turned off.
+   *
+   * @deprecated
    */
   hyphenateFn?: (word: string) => string[];
 

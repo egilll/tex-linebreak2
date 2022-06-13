@@ -261,19 +261,15 @@ The following helper functions are available:
 
 ## Hyphenation
 
-For websites it is highly recommended that you preprocess your text server-side (using a library such as [Hypher](https://github.com/bramstein/hypher) or [Hyphenopoly](https://github.com/mnater/Hyphenopoly)) and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text, since hyphenating client-side causes a significant amount of lag.
+Use a library such as [Hyphen](https://github.com/ytiurin/hyphen) 
 
-If the lag does not matter for your use-case, you can pass in [Hypher](https://github.com/bramstein/hypher) as the `hyphenateFn` option, and tex-linebreak will add hyphenations for you.
 
-```js
-import { TexLinebreak } from "tex-linebreak2";
-import Hypher from "hypher";
-import enUsPatterns from "hyphenation.en-us";
 
-new TexLinebreak(items, {
-  hyphenateFn: new Hypher(enUsPatterns).hyphenate,
-});
-```
+
+
+For websites it is highly recommended that you preprocess your text server-side (using a library such as [Hyphen](https://github.com/ytiurin/hyphen) and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text, since hyphenating client-side causes a significant amount of lag.
+
+*tex-linebreak2* will strip the soft hyphen characters from the output so they won't be of annoyance to users who copy your text.
 
 ## Contributors
 

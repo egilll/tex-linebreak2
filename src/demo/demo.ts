@@ -1,4 +1,3 @@
-// import "src/demo/circle";
 import { circle } from "src/demo/circle";
 import { longTexts } from "src/demo/texts/long";
 import { texts2 } from "src/demo/texts/texts";

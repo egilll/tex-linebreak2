@@ -1450,6 +1450,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/hyphen@^1.6.5":
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/@types/hyphen/-/hyphen-1.6.5.tgz#d44a654fed340d65c6e40b01d7254712e7ff4ac9"
+  integrity sha512-BnFY2Npf3px1ldRzDusoRSEaB4uoWKGGa2mQwImQ+tH/+t+70kd1SPtvJN+/v+iLabr4MKUi2p2enlYa9cekww==
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0", "@types/istanbul-lib-coverage@^2.0.1":
   version "2.0.4"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.4.tgz#8467d4b3c087805d63580480890791277ce35c44"
@@ -3471,6 +3476,11 @@ human-signals@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/human-signals/-/human-signals-2.1.0.tgz"
   integrity sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==
+
+hyphen@^1.6.4:
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/hyphen/-/hyphen-1.6.4.tgz#9859678fe1af2793b49e7d466e85f85b5698917e"
+  integrity sha512-nWwvXceFMAFIjkiRzqZMZSOa1LVngieSolnYIVKWSwmDwMSmdutjzqImmdbxe2eUCfX693fgrCgtPjbllqx1lA==
 
 hyphenation.en-us@^0.2.1:
   version "0.2.1"
