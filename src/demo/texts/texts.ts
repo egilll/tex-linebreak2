@@ -2,30 +2,33 @@ import { ListOfDemos } from "src/demo/demo";
 
 export const texts2: ListOfDemos = [
   {
+    id: "tmp2",
+    content: `“Some <a href="#">simple text <i>with</i></a> <code>inline</code> and
+              <span style="display: inline-block; border: 1px solid gray">inline block</span>
+              el&shy;em&shy;ents can be found in this paragraph
+              <!-- A comment node -->
+              of text <a href="#">which includes</a> <b>bold text</b>, as well as <i>italic text</i>. The spaces of <span style="display: inline-block; border: 1px solid gray">inline block elements</span> should also expand.`,
+    options: {
+      addInfiniteGlueToFinalLine: false,
+    },
+  },
+  {
     id: "tmp",
     content: `
       <span>
-        Text
+        This 
         <div style="display:none">not displayed</div>
       </span>
       <span> 
-        that
-        <div style="position:absolute;right:0;border:1px solid red;">absolute</div>
+        text
+        <div style="position:absolute;right:0;border:1px solid red;font-size:smaller;">This element is <br/>absolutely position.</div>
       </span>
-      shou<div style="display:none">not displayed</div>ld handle display:none elements.
+      incl<div style="display:none">not displayed</div>udes "display:none" and "position:absolute" elements, which should not interfere with the justification.
       `,
     options: {
       addInfiniteGlueToFinalLine: false,
       hyphenateFn: undefined,
     },
-  },
-  {
-    id: "tmp2",
-    content: `“Some <a href="#">simple text <i>with</i></a> embedded <code>inline</code> and
-              <span style="display: inline-block; border: 1px solid gray">inline-block</span>
-              el&shy;em&shy;ents can be found in this paragraph
-              <!-- A comment node -->
-              of text which includes <b>bold text</b>, as well as <i>italic text</i>.`,
   },
   {
     id: "tmp3",
