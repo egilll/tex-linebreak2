@@ -25,9 +25,9 @@ const getLineWidths = (height: number, lineHeight: number) => {
   const heightAdjusted = height - leftover;
 
   for (
-    let yOffset = leftover / 2 + TRIM_AMOUNT_OFF_TOP_AND_BOTTOM;
-    yOffset < heightAdjusted;
-    yOffset += lineHeight + (yOffset / height) * TRIM_AMOUNT_OFF_TOP_AND_BOTTOM
+    let yOffset = 0.3 * lineHeight;
+    yOffset < height;
+    yOffset += lineHeight
   ) {
     const x = circleOfHeightOne(yOffset / height) * height;
     lineWidth.push(x);

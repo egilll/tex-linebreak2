@@ -3,7 +3,7 @@
 # tex-linebreak2
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<sub>(This repository is an extention of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight. It is functional, but is a work-in-progress as of June 2022.)</sub>
+<sub>(This repository is an extension of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight. It is functional, but is a work-in-progress as of June 2022.)</sub>
 
 **tex-linebreak2** is a JavaScript library for breaking text into lines of optimal width. It can be used to lay out justified text as you
 would find in a newspaper, book or technical paper. It implements the
@@ -11,11 +11,11 @@ would find in a newspaper, book or technical paper. It implements the
 
 **[See the demo](https://egilll.github.io/tex-linebreak2/)**.
 
-This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. It can be used to find the optimal size of an element to fit text.
+This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. <!--It can be used to find the optimal size of an element to fit text.-->
 
 ## Features
 
-- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)). Is sufficiently fast for many use cases, the time it takes to draw the content the user is currently viewing usually takes <40ms, but rendering the entirety of a very large document may take ~200ms. 
+- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)). Rendering the elements that are visible on screen usually does not take more than 40ms; rendering a very lare document in its entirety may take 200ms.
 - [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
 - Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 - Supports custom breaking rules.
@@ -226,14 +226,15 @@ const positionedItems = new TexLinebreak(items, {
 
 See [`TexLinebreakOptions`](../src/options.ts) for a list of available options. Of these, the most relevant ones to a user are:
 
-- `align` – Can be "justify", "left", "center", or "right". Default "justify".
+- `align` – Can currently be "justify" or "left". Default "justify".
 - `hangingPunctuation` (boolean)
 - `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is _not_ a hard limit; see `renderLineAsLeftAlignedIfAdjustmentRatioExceeds` for hard limits.
 - `glueShrinkFactor` (default 0.2, i.e. becoming 80% of the space's original width) – How much a glue (space) is allowed to shrink. This is a hard limit.
 - `softHyphenPenalty` (default 50) – Set to 1000 to prohibit breaking on soft hyphens.
 - `forceOverflowToBreak`
-- `lineBreakingType`
 - `setElementWidthToMaxLineWidth`
+
+<!-- lineBreakingType -->
 
 ## API
 

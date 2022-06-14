@@ -1,6 +1,7 @@
 import { circle } from "src/demo/circle";
 import { longTexts } from "src/demo/texts/long";
 import { texts2 } from "src/demo/texts/tests";
+import { various } from "src/demo/texts/various";
 import { texLinebreakDOM } from "src/html/texLinebreakDOM";
 import { TexLinebreakOptions } from "src/options";
 
@@ -8,11 +9,12 @@ export type ListOfDemos = {
   id: string;
   description?: string;
   content: string;
+  className?: string;
   options?: Partial<TexLinebreakOptions>;
   style?: Partial<CSSStyleDeclaration>;
   selector?: string;
 }[];
-const demos: ListOfDemos = [circle, ...longTexts, ...texts2];
+const demos: ListOfDemos = [circle, ...various, ...longTexts, ...texts2];
 
 if (
   window.location.hash &&
@@ -26,7 +28,11 @@ if (
 async function renderDemo(demo: ListOfDemos[number]) {
   const div = document.createElement("div");
   div.innerHTML = demo.content;
-  div.className = "demo-output";
+  if ("className" in demo) {
+    div.className = demo.className!;
+  } else {
+    div.className = "demo-output";
+  }
   document.getElementById("output-container")!.appendChild(div);
   const paragraphs = demo.selector
     ? div.querySelectorAll<HTMLElement>(demo.selector)
@@ -56,7 +62,6 @@ async function renderDemo(demo: ListOfDemos[number]) {
   // Print unjustified for comparison
   if (window.location.hash) {
     const div2 = document.createElement("div");
-    div2.innerHTML = demo.content;
     div2.className = "demo-output";
     document.getElementById("output-container")!.appendChild(div2);
   }
