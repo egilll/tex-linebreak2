@@ -1,6 +1,6 @@
 import { circle } from "src/demo/circle";
 import { longTexts } from "src/demo/texts/long";
-import { texts2 } from "src/demo/texts/texts";
+import { texts2 } from "src/demo/texts/tests";
 import { texLinebreakDOM } from "src/html/texLinebreakDOM";
 import { TexLinebreakOptions } from "src/options";
 
@@ -32,12 +32,24 @@ async function renderDemo(demo: ListOfDemos[number]) {
     : div;
 
   try {
-    await texLinebreakDOM(paragraphs, demo.options || {});
+    await texLinebreakDOM(
+      paragraphs,
+      demo.options || {},
+      Boolean(window.location.hash)
+    );
   } catch (e) {
     console.error(e);
     div.insertAdjacentHTML(
       "beforebegin",
       `<div class="error">Error: Tex-linebreak encountered an error when breaking this paragraph.</div>`
     );
+  }
+
+  // Print unjustified for comparison
+  if (window.location.hash) {
+    const div2 = document.createElement("div");
+    div2.innerHTML = demo.content;
+    div2.className = "demo-output";
+    document.getElementById("output-container")!.appendChild(div2);
   }
 }

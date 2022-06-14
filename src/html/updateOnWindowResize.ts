@@ -30,7 +30,7 @@ const onResize = () => {
     if (element.offsetWidth !== width) {
       // Timeout in order to limit blocking of the browser's rendering thread
       setTimeout(() => {
-        texLinebreakDOM(element, options);
+        void texLinebreakDOM(element, options);
       }, 0);
     }
   });

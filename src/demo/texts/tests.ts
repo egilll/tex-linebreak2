@@ -4,21 +4,30 @@ export const texts2: ListOfDemos = [
   {
     id: "tmp2",
     content: `“Some <a href="#">simple text <i>with</i></a> <code>inline</code> and
-              <span style="display: inline-block; border: 1px solid gray">inline block</span>
+              <span style="display: inline-block; border: 1px solid gray"> inline block </span>
               el&shy;em&shy;ents can be found in this paragraph
               <!-- A comment node -->
               of text <a href="#">which includes</a> <b>bold text</b>, 
               as well as <i>italic text</i>. 
               The spaces of <span style="display: inline-block; border: 1px solid gray">inline block elements</span> should also expand.
               <br/>
+              <br/>  
+              <span style="display: inline-block; border: 1px solid gray"> “A test  <!-- --> </span> whether 
+              <span style="display: inline; border: 1px solid gray"> (inline) </span> and <br/> 
+              <span style="display: inline; border: 1px solid gray">  inline <i>block!</i></span><br/> elements have correct 
+              <span style="display: inline; border: 1px solid gray"> hanging punctuation? </span>
               <br/>
-              <span style="display: inline-block; border: 1px solid gray">“A test</span> whether 
-              <span style="display: inline; border: 1px solid gray">(inline)</span><br/> and
-              <span style="display: inline; border: 1px solid gray">inline block!</span><br/> elements have correct 
-              <span style="display: inline; border: 1px solid gray">hanging punctuation?</span>
+              <br/>
+              Text with <span style="display: inline-block; padding:0 4px; border: 2px solid gray"> padding </span> and
+              text with <span style="margin: 0 6px; padding:0 1px; border: 1px solid gray">margin</span>.
+              <br/>
+              <br/>
+              <span style="display: inline; border: 5px solid gray">This box</span> should have no visible padding or margins.
+              
 `,
     options: {
       addInfiniteGlueToFinalLine: false,
+      hangingPunctuation: false,
     },
   },
   {

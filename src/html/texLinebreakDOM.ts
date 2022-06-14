@@ -52,11 +52,6 @@ export async function texLinebreakDOM(
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
 
-    // /** Undo the changes made by any previous justification of this content. */
-    // TODO!!!!!
-    // resetDOMJustification(element);
-    removeInsertedBrs(element);
-
     try {
       const lineWidth =
         options.lineWidth || getElementLineWidth(element, floatingElements);
@@ -69,8 +64,11 @@ export async function texLinebreakDOM(
         "texLinebreakItems" in element &&
         (element as any)["lastTextContent"] === element.textContent
       ) {
+        removeInsertedBrs(element);
         items = (element as any)["texLinebreakItems"] as DOMItem[];
       } else {
+        /** Undo the changes made by any previous justification of this content. */
+        resetDOMJustification(element);
         items = getItemsFromDOM(
           element,
           { ...options, lineWidth },
@@ -95,7 +93,7 @@ export async function texLinebreakDOM(
         const items = line.positionedItems;
 
         /** Insert <br/> elements to separate the lines */
-        if (line.lineIndex > 0) {
+        if (line.lineIndex > 0 && !line.prevBreakItem?.skipWhenRendering) {
           const br = document.createElement("br");
           br.className = "texLinebreak";
           const firstItem = items.find((i) => i.span);
@@ -108,6 +106,10 @@ export async function texLinebreakDOM(
              */
             const closestBreakBeforeElement =
               span.closest(".texLinebreakNearestBlockElement") || span;
+            if (!closestBreakBeforeElement.parentNode) {
+              console.error("No parent node for", firstItem);
+              throw new Error("No parent node");
+            }
             closestBreakBeforeElement.parentNode!.insertBefore(
               br,
               closestBreakBeforeElement
@@ -146,29 +148,36 @@ export async function texLinebreakDOM(
               curXOffset += item.adjustedWidth;
             }
           } else if (item.type === "box") {
-            const span = item.span!;
-            /**
-             * If xOffset is not curXOffset, that means that a
-             * previous box has had a negative width. Here we wrap the
-             * text in a span with a (likely negative) left margin
-             */
-            if (item.xOffset !== curXOffset) {
-              span.style.marginLeft = `${item.xOffset - curXOffset}px`;
-              // itemRange.insertNode(span);
-              curXOffset = item.xOffset;
+            const span = item.span;
+            if (span && !item.skipWhenRendering) {
+              /**
+               * If xOffset is not curXOffset, that means that a
+               * previous box has had a negative width. Here we wrap the
+               * text in a span with a (likely negative) left margin
+               */
+              if (item.xOffset !== curXOffset) {
+                span.style.marginLeft = `${item.xOffset - curXOffset}px`;
+                // itemRange.insertNode(span);
+                curXOffset = item.xOffset;
+              } else {
+                span.style.marginLeft = "0";
+              }
+
+              /** Strip soft hyphens (Todo: is destructive!!) */
+              if (
+                options.stripSoftHyphensFromOutputText &&
+                "text" in item &&
+                item.text &&
+                span.textContent?.includes(SOFT_HYPHEN)
+              ) {
+                span.textContent = span.textContent!.replaceAll(
+                  SOFT_HYPHEN,
+                  ""
+                );
+              }
             }
 
-            /** Strip soft hyphens (Todo: is destructive!!) */
-            if (
-              options.stripSoftHyphensFromOutputText &&
-              "text" in item &&
-              item.text &&
-              span.textContent?.includes(SOFT_HYPHEN)
-            ) {
-              span.textContent = span.textContent!.replaceAll(SOFT_HYPHEN, "");
-            }
-
-            if (item.adjustedWidth > 0) {
+            if (span || item.skipWhenRendering) {
               curXOffset += item.adjustedWidth;
             }
           }

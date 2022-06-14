@@ -325,6 +325,10 @@ export class Line<
     );
   }
 
+  get prevBreakItem() {
+    return this.parentClass.items[this.startBreakpoint];
+  }
+
   get endsWithSoftHyphen(): boolean {
     return isSoftHyphen(this.items.at(-1));
   }

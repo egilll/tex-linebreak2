@@ -1,4 +1,4 @@
-import { Box, Glue, Penalty } from "src/breakLines";
+import { Box, Glue, INFINITE_STRETCH, Penalty } from "src/breakLines";
 import DOMTextMeasurer from "src/html/domTextMeasurer";
 import { tagNode } from "src/html/tagNode";
 import { TexLinebreakOptions } from "src/options";
@@ -6,10 +6,10 @@ import { splitTextIntoItems } from "src/splitTextIntoItems/splitTextIntoItems";
 import {
   collapseAdjacentTextGlueWidths,
   makeGlueAtEndsZeroWidth,
-  makeGlueAtEndZeroWidth,
 } from "src/utils/collapseGlue";
 import {
   box,
+  forcedBreak,
   glue,
   paragraphEnd,
   TextBox,
@@ -18,29 +18,26 @@ import {
 } from "src/utils/items";
 import { makeNonBreaking } from "src/utils/utils";
 
-/**
- * Information used to construct a `Range` later.
- * Records character offset in a parent container.
- */
-export interface DOMRangeOffset {
-  // textOffsetInParagraph: number;
-  // startOffset: number;
-  // startContainer: Node;
-  // endOffset: number;
-  // endContainer: Node;
+export interface DOMInfo {
   span?: HTMLElement;
+  /**
+   * For boxes:
+   * Marks a box as being ignored for xOffset width calculations,
+   * such as when the styling is already included in th element.
+   *
+   * For glue:
+   * Used to not add unnecessary spans when the whitespace will
+   * be collapsed anyways
+   *
+   * For penalty:
+   * Used to skip adding a <br/> when one already exists
+   */
+  skipWhenRendering?: boolean;
 }
 
-export type DOMBox = (Box | TextBox) & DOMRangeOffset;
-export type DOMGlue = (Glue | TextGlue) &
-  DOMRangeOffset & {
-    /**
-     * Used to not add unnecessary spans when
-     * the whitespace will be collapsed anyways
-     */
-    skipWhenRendering?: boolean;
-  };
-export type DOMPenalty = Penalty & DOMRangeOffset;
+export type DOMBox = (Box | TextBox) & DOMInfo;
+export type DOMGlue = (Glue | TextGlue) & DOMInfo;
+export type DOMPenalty = Penalty & DOMInfo;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
 /**
@@ -62,6 +59,9 @@ export function getItemsFromDOM(
    */
   let textOffsetInParagraph: number = 0;
 
+  let markGlueAsSkippedComingAfter = new Set<number>([0]);
+  let markGlueAsSkippedComingBefore = new Set<number>();
+
   function getItemsFromNode(node: Node, addParagraphEnd = true) {
     const children = Array.from(node.childNodes);
 
@@ -77,7 +77,7 @@ export function getItemsFromDOM(
     });
 
     if (addParagraphEnd) {
-      makeGlueAtEndZeroWidth(items, true);
+      markGlueAsSkippedComingBefore.add(items.length);
       items.push(...paragraphEnd(options));
     }
   }
@@ -99,25 +99,30 @@ export function getItemsFromDOM(
       return;
     }
 
+    /** <br/> elements */
     if (element.tagName === "BR") {
-      makeGlueAtEndZeroWidth(items, true);
-      items.push(...paragraphEnd(options));
-      // TODO: A hack
-      (element as HTMLElement).style.display = "none";
+      markGlueAsSkippedComingBefore.add(items.length);
+      if (options.addInfiniteGlueToFinalLine) {
+        items.push(glue(0, INFINITE_STRETCH, 0));
+      }
+      items.push({ ...forcedBreak(), skipWhenRendering: true });
+      markGlueAsSkippedComingAfter.add(items.length);
       return;
     }
 
     if (display === "inline" || display === "inline-block") {
-      // TODO: DOES NOT WORK
-      // // Add box for margin/border/padding at start of box.
-      // // TODO: Verify
-      // const leftMargin =
-      //   parseFloat(marginLeft!) +
-      //   parseFloat(borderLeftWidth!) +
-      //   parseFloat(paddingLeft!);
-      // if (leftMargin > 0) {
-      //   items.push(itemWithOffset(box(leftMargin) /*element, 0, 0*/));
-      // }
+      // Add box for margin/border/padding at start of box.
+      // TODO: Verify.
+      const leftMargin =
+        parseFloat(marginLeft!) +
+        parseFloat(borderLeftWidth!) +
+        parseFloat(paddingLeft!);
+      if (leftMargin > 0) {
+        items.push({
+          ...box(leftMargin),
+          skipWhenRendering: true,
+        });
+      }
 
       let startLength = items.length;
 
@@ -131,16 +136,17 @@ export function getItemsFromDOM(
         );
       }
 
-      // // Add box for margin/border/padding at end of box.
-      // const rightMargin =
-      //   parseFloat(marginRight!) +
-      //   parseFloat(borderRightWidth!) +
-      //   parseFloat(paddingRight!);
-      // if (rightMargin > 0) {
-      //   items.push(
-      //     itemWithOffset(box(rightMargin) /*element, length, length*/)
-      //   );
-      // }
+      // Add box for margin/border/padding at end of box.
+      const rightMargin =
+        parseFloat(marginRight!) +
+        parseFloat(borderRightWidth!) +
+        parseFloat(paddingRight!);
+      if (rightMargin > 0) {
+        items.push({
+          ...box(rightMargin),
+          skipWhenRendering: true,
+        });
+      }
     } else {
       let _width = parseFloat(width);
       if (isNaN(_width)) {
@@ -153,7 +159,8 @@ export function getItemsFromDOM(
 
       // Treat this item as an opaque box.
       // items.push(itemWithOffset(box(_width), parentNode, startOffset, startOffset + 1);
-      items.push(itemWithOffset(box(_width) /*element, 0, 1*/));
+      items.push(itemWithSpan(box(_width) /*element, 0, 1*/));
+      textOffsetInParagraph += element.textContent?.length || 0;
     }
   }
 
@@ -189,7 +196,7 @@ export function getItemsFromDOM(
         span.textContent = item.text || "";
       }
 
-      items.push(itemWithOffset(item, span));
+      items.push(itemWithSpan(item, span));
 
       if (span) {
         replacementFragment.appendChild(span);
@@ -213,7 +220,7 @@ export function getItemsFromDOM(
  * Helper function that limits boilerplate above.
  * Adds an item and makes a record of its DOM range
  */
-function itemWithOffset(item: Box | Glue | Penalty, span?: HTMLElement) {
+function itemWithSpan(item: Box | Glue | Penalty, span?: HTMLElement) {
   // (Not using the spread operator here shaves off a
   // few dozen milliseconds as it would otherwise use Babel's polyfill)
   const output = item as DOMItem;
