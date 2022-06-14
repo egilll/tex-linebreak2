@@ -207,7 +207,7 @@ export function makeNonBreaking(
     if (items[i].type === "penalty") {
       (items[i] as Penalty).cost = MAX_COST;
     }
-    if (items[i].type === "glue") {
+    if (items[i].type === "glue" && items[i - 1]?.type === "box") {
       // Insert a penalty item before this item
       items.splice(i, 0, penalty(0, MAX_COST));
       i++;

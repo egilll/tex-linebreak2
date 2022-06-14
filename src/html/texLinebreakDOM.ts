@@ -88,9 +88,9 @@ export async function texLinebreakDOM(
       });
       const lines = obj.lines;
 
-      if (process.env.NODE_ENV === "development" && window.location.hash) {
-        console.log(lines);
-      }
+      // if (process.env.NODE_ENV === "development" && window.location.hash) {
+      //   console.log(lines);
+      // }
 
       for (const line of lines) {
         const items = line.positionedItems;

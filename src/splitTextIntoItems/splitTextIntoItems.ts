@@ -1,12 +1,15 @@
 import LineBreaker, { Break } from "linebreak";
 import { MAX_COST, MIN_COST } from "src/breakLines";
-import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
+import {
+  getOptionsWithDefaults,
+  RequireOnlyCertainKeys,
+  TexLinebreakOptions,
+} from "src/options";
 import { getBreakpointPenalty } from "src/splitTextIntoItems/penalty";
 import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
   UnicodeLineBreakingClasses,
 } from "src/typings/unicodeLineBreakingClasses";
-import { collapseAdjacentTextGlueWidths } from "src/utils/collapseGlue";
 import { forciblySplitLongWords } from "src/utils/forciblySplitLongWords";
 import { addHangingPunctuation } from "src/utils/hangingPunctuation";
 import {
@@ -28,7 +31,7 @@ export const SOFT_HYPHEN = "\u00AD";
  * they are actually breakpoints or not.
  * `General_Category=Zs` are space separators, including NBSP
  */
-const glueCharacterRegex = /[ \t\p{General_Category=Zs}]/u;
+const glueCharacterRegex = /[ \t\p{General_Category=Zs}\n\r]/u;
 
 type Segment = {
   text: string;
@@ -45,7 +48,7 @@ export type BreakpointInformation = {
 
 export function splitTextIntoItems(
   input: string,
-  options: TexLinebreakOptions,
+  _options: RequireOnlyCertainKeys<TexLinebreakOptions, "measureFn">,
   /**
    * When splitting text inside HTML elements,
    * the text that surrounds it matters
@@ -53,7 +56,7 @@ export function splitTextIntoItems(
   precedingText: string = "",
   followingText: string = ""
 ): TextItem[] {
-  options = getOptionsWithDefaults(options);
+  const options = getOptionsWithDefaults(_options);
 
   let items: TextItem[] = [];
 
@@ -97,10 +100,10 @@ export function splitTextIntoItems(
     if (disallowedBreakpoints.includes(indexInInputWithSurroundingText)) {
       breakpoint = null;
     }
-    /** Newline characters are just glue in HTML */
-    const isGlue =
-      glueCharacterRegex.test(char) ||
-      (options.collapseAllNewlines && breakpoint?.required);
+
+    /** TODO: Special handling of newlines? */
+
+    const isGlue = glueCharacterRegex.test(char);
     let type: Segment["type"] = isGlue ? "glue" : "box";
 
     if (
@@ -216,8 +219,6 @@ export function splitTextIntoItems(
     items = forciblySplitLongWords(items, options);
   }
 
-  // TODO: Check if necessary here, if so, move above the above functions and make it actually collapse glue instead of just their widths.
-  collapseAdjacentTextGlueWidths(items);
   return items;
 }
 

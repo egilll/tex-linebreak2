@@ -2,6 +2,19 @@ import { ListOfDemos } from "src/demo/demo";
 
 export const texts2: ListOfDemos = [
   {
+    id: "tmp3",
+    content: `
+<br/>
+
+              <span style="display: inline-block; border: 1px solid gray"> “A test  <!-- --> </span> whether <br/>
+              
+`,
+    options: {
+      addInfiniteGlueToFinalLine: false,
+      hangingPunctuation: false,
+    },
+  },
+  {
     id: "tmp2",
     content: `“Some <a href="#">simple text <i>with</i></a> <code>inline</code> and
               <span style="display: inline-block; border: 1px solid gray"> inline block </span>

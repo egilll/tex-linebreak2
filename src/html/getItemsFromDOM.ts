@@ -5,7 +5,8 @@ import { TexLinebreakOptions } from "src/options";
 import { splitTextIntoItems } from "src/splitTextIntoItems/splitTextIntoItems";
 import {
   collapseAdjacentTextGlueWidths,
-  makeGlueAtEndsZeroWidth,
+  makeGlueAtBeginningZeroWidth,
+  makeGlueAtEndZeroWidth,
 } from "src/utils/collapseGlue";
 import {
   box,
@@ -16,7 +17,7 @@ import {
   TextGlue,
   TextItem,
 } from "src/utils/items";
-import { getText, isForcedBreak } from "src/utils/utils";
+import { getText, isForcedBreak, makeNonBreaking } from "src/utils/utils";
 
 export interface DOMInfo {
   span?: HTMLElement;
@@ -39,11 +40,21 @@ export type DOMBox = (Box | TextBox) & DOMInfo;
 export type DOMGlue = (Glue | TextGlue) & DOMInfo;
 export type DOMPenalty = Penalty & DOMInfo;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
-type TemporaryUnprocessedText = {
+
+type TemporaryUnprocessedTextNode = {
   text: string;
   textNode: Text;
   element: Element;
 };
+type ControlItem =
+  | "IGNORE_WHITESPACE_AFTER"
+  | "IGNORE_WHITESPACE_BEFORE"
+  | "START_NON_BREAKING_RANGE"
+  | "END_NON_BREAKING_RANGE";
+
+export class DomItemHelper extends Array<
+  DOMItem | TemporaryUnprocessedTextNode | ControlItem
+> {}
 
 /**
  * This function is fairly confusing, but the reason is that:
@@ -62,29 +73,49 @@ type TemporaryUnprocessedText = {
  * finally render the output.
  */
 export class GetItemsFromDOMAndWrapInSpans {
-  itemsWithUnprocessedText: (DOMItem | TemporaryUnprocessedText)[] = [];
-  items: DOMItem[] = [];
-
-  /** All relative to indices in `itemsWithUnprocessedText` */
-  ignoreWhitespaceComingAfter = new Set<number>([0]);
-  ignoreWhitespaceComingBefore = new Set<number>();
-  nonBreakingRanges = new Map<number, number>();
+  items = new DomItemHelper();
 
   constructor(
     public paragraphElement: HTMLElement,
     public options: TexLinebreakOptions,
     public domTextMeasureFn: InstanceType<typeof DOMTextMeasurer>["measure"]
   ) {
+    this.items.push("IGNORE_WHITESPACE_AFTER");
     this.getItemsFromNode(this.paragraphElement);
-    this.ignoreWhitespaceComingBefore.add(this.itemsWithUnprocessedText.length);
+    this.items.push("IGNORE_WHITESPACE_BEFORE");
+
     this.processText();
+    this.processControlItems();
     collapseAdjacentTextGlueWidths(this.items);
+  }
+
+  processControlItems() {
+    this.ignoreWhitespaceComingAfter.forEach((oldIndex) => {
+      makeGlueAtBeginningZeroWidth(
+        items,
+        oldToNewIndexMap.get(oldIndex)!,
+        true
+      );
+    });
+    this.ignoreWhitespaceComingBefore.forEach((oldIndex) => {
+      makeGlueAtEndZeroWidth(items, oldToNewIndexMap.get(oldIndex)!, true);
+    });
+    if (false) {
+      this.nonBreakingRanges.forEach((oldStartIndex, oldEndIndex) => {
+        makeNonBreaking(
+          items,
+          oldToNewIndexMap.get(oldStartIndex)!,
+          oldToNewIndexMap.get(oldEndIndex)!
+        );
+      });
+    }
+    this.items = items;
   }
 
   getItemsFromNode(node: Node, addParagraphEnd = true) {
     Array.from(node.childNodes).forEach((child) => {
       if (child instanceof Text) {
-        this.itemsWithUnprocessedText.push({
+        this.items.push({
           text: child.nodeValue || "",
           textNode: child,
           element: node as Element,
@@ -95,10 +126,8 @@ export class GetItemsFromDOMAndWrapInSpans {
     });
 
     if (addParagraphEnd) {
-      this.ignoreWhitespaceComingBefore.add(
-        this.itemsWithUnprocessedText.length
-      );
-      this.itemsWithUnprocessedText.push(...paragraphEnd(this.options));
+      this.items.push("IGNORE_WHITESPACE_BEFORE");
+      this.items.push(...paragraphEnd(this.options));
     }
   }
 
@@ -121,19 +150,15 @@ export class GetItemsFromDOMAndWrapInSpans {
 
     /** <br/> elements */
     if (element.tagName === "BR") {
-      this.ignoreWhitespaceComingBefore.add(
-        this.itemsWithUnprocessedText.length
-      );
+      this.ignoreWhitespaceComingBefore.add(this.items.length);
       if (this.options.addInfiniteGlueToFinalLine) {
-        this.itemsWithUnprocessedText.push(glue(0, INFINITE_STRETCH, 0));
+        this.items.push(glue(0, INFINITE_STRETCH, 0));
       }
-      this.itemsWithUnprocessedText.push({
+      this.items.push({
         ...forcedBreak(),
         skipWhenRendering: true,
       });
-      this.ignoreWhitespaceComingAfter.add(
-        this.itemsWithUnprocessedText.length
-      );
+      this.ignoreWhitespaceComingAfter.add(this.items.length);
       return;
     }
 
@@ -144,30 +169,24 @@ export class GetItemsFromDOMAndWrapInSpans {
         parseFloat(borderLeftWidth!) +
         parseFloat(paddingLeft!);
       if (leftMargin) {
-        this.itemsWithUnprocessedText.push({
+        this.items.push({
           ...box(leftMargin),
           skipWhenRendering: true,
         });
       }
 
-      const startLength = this.itemsWithUnprocessedText.length;
-
-      // Add this.items for child nodes.
-      this.getItemsFromNode(element, false);
-
       if (display === "inline-block") {
-        this.nonBreakingRanges.set(
-          startLength - 1,
-          this.itemsWithUnprocessedText.length - 1
-        );
-        this.ignoreWhitespaceComingAfter.add(startLength);
-        this.ignoreWhitespaceComingBefore.add(
-          this.itemsWithUnprocessedText.length
-        );
+        this.items.push("START_NON_BREAKING_RANGE");
+        this.items.push("IGNORE_WHITESPACE_AFTER");
+        this.getItemsFromNode(element, false);
+        this.items.push("IGNORE_WHITESPACE_BEFORE");
+        this.items.push("END_NON_BREAKING_RANGE");
 
         // (element as HTMLElement).classList.add(
         //   "texLinebreakNearestBlockElement"
         // );
+      } else {
+        this.getItemsFromNode(element, false);
       }
 
       // Add box for margin/border/padding at end of box.
@@ -176,7 +195,7 @@ export class GetItemsFromDOMAndWrapInSpans {
         parseFloat(borderRightWidth!) +
         parseFloat(paddingRight!);
       if (rightMargin) {
-        this.itemsWithUnprocessedText.push({
+        this.items.push({
           ...box(rightMargin),
           skipWhenRendering: true,
         });
@@ -192,30 +211,27 @@ export class GetItemsFromDOMAndWrapInSpans {
       }
 
       // Treat this item as an opaque box.
-      this.itemsWithUnprocessedText.push(box(_width));
+      this.items.push(box(_width));
     }
   }
 
   /**
-   * Process all text in `itemsWithUnprocessedText` and
-   * wrap the items in the text node in <span/> elements
+   * Processes all text in `itemsWithUnprocessedText` and
+   * wraps the items in the text node in <span/> elements.
    */
   processText() {
     let items: DOMItem[] = [];
 
-    const newToOldIndexMap = new Map<number, number>();
+    const oldToNewIndexMap = new Map<number, number>();
 
-    for (let index = 0; index < this.itemsWithUnprocessedText.length; index++) {
-      newToOldIndexMap.set(items.length, index);
-      const item = this.itemsWithUnprocessedText[index];
+    for (let index = 0; index < this.items.length; index++) {
+      oldToNewIndexMap.set(index, items.length);
+      const item = this.items[index];
       if (!("textNode" in item)) {
         items.push(item);
       } else {
         const precedingText = (() => {
-          const allPrecedingItems = this.itemsWithUnprocessedText.slice(
-            0,
-            index
-          );
+          const allPrecedingItems = this.items.slice(0, index);
           const previousParagraphBreakIndex = allPrecedingItems.findIndex(
             (_item, _index) => isForcedBreak(_item as DOMItem) || _index === 0
           );
@@ -226,7 +242,7 @@ export class GetItemsFromDOMAndWrapInSpans {
         })();
 
         const followingText = (() => {
-          const allFollowingItems = this.itemsWithUnprocessedText.slice(index);
+          const allFollowingItems = this.items.slice(index);
           const nextParagraphBreakIndex = allFollowingItems.findIndex(
             (_item, _index) =>
               isForcedBreak(_item as DOMItem) ||
@@ -251,6 +267,8 @@ export class GetItemsFromDOMAndWrapInSpans {
           followingText
         );
 
+        console.log({ text: item.text, textItems });
+
         let replacementFragment = document.createDocumentFragment();
         textItems.forEach((item: TextItem) => {
           let span: HTMLElement | undefined;
@@ -272,15 +290,7 @@ export class GetItemsFromDOMAndWrapInSpans {
           item.textNode
         );
       }
-      newToOldIndexMap.set(items.length, index + 1);
+      oldToNewIndexMap.set(index + 1, items.length);
     }
-
-    makeGlueAtEndsZeroWidth(this.items, 0, true);
-
-    ignoreWhitespaceComingAfter = new Set<number>([0]);
-    ignoreWhitespaceComingBefore = new Set<number>();
-    nonBreakingRanges = new Map<number, number>();
-
-    this.items = items;
   }
 }

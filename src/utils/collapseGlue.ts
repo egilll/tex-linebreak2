@@ -1,5 +1,5 @@
 import { Glue, Item } from "src/breakLines";
-import { DOMGlue } from "src/html/getItemsFromDOM";
+import { DOMGlue, DOMItem } from "src/html/getItemsFromDOM";
 import { TextItem } from "src/utils/items";
 
 /**
@@ -41,7 +41,7 @@ export function makeGlueAtEndsZeroWidth(
   markAsSkipped = false
 ) {
   makeGlueAtBeginningZeroWidth(items, startIndex, markAsSkipped);
-  makeGlueAtEndZeroWidth(items, markAsSkipped);
+  makeGlueAtEndZeroWidth(items, undefined, markAsSkipped);
 }
 
 export function makeGlueAtBeginningZeroWidth(
@@ -52,20 +52,30 @@ export function makeGlueAtBeginningZeroWidth(
   for (let i = startIndex; i < items.length; i++) {
     if (items[i].type === "glue") {
       makeZeroWidth(items[i] as Glue, markAsSkipped);
-    } else {
+    } else if (!isFakeBox(items[i])) {
       break;
     }
   }
 }
 
-export function makeGlueAtEndZeroWidth(items: Item[], markAsSkipped = false) {
-  for (let i = items.length - 1; i > 0; i--) {
+export function makeGlueAtEndZeroWidth(
+  items: Item[],
+  startIndex?: number,
+  markAsSkipped = false
+) {
+  for (let i = (startIndex ?? items.length) - 1; i > 0; i--) {
     if (items[i].type === "glue") {
       makeZeroWidth(items[i] as Glue, markAsSkipped);
-    } else {
+    } else if (!isFakeBox(items[i])) {
       break;
     }
   }
+}
+
+export function isFakeBox(item: Item) {
+  return (
+    item && "skipWhenRendering" in item && (item as DOMItem).skipWhenRendering
+  );
 }
 
 export function makeZeroWidth(item: Glue, markAsSkipped = false) {
