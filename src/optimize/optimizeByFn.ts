@@ -23,12 +23,16 @@ const getLineWidths = (height: number, lineHeight: number) => {
   const REMAINING_LINE_HEIGHT_PORTION = 0.1;
 
   for (
-    let yOffset = lineHeight * REMAINING_LINE_HEIGHT_PORTION;
-    yOffset < height;
+    let yOffset = 0;
+    yOffset < height - lineHeight;
     yOffset +=
-      lineHeight + (1 - lineHeight * REMAINING_LINE_HEIGHT_PORTION) / height
+      // lineHeight + (lineHeight * REMAINING_LINE_HEIGHT_PORTION) / height
+      lineHeight
   ) {
-    const x = circleOfHeightOne(yOffset / height) * height;
+    let additionalOffset =
+      REMAINING_LINE_HEIGHT_PORTION * lineHeight + yOffset / height;
+
+    const x = circleOfHeightOne((yOffset + additionalOffset) / height) * height;
     lineWidth.push(x);
     leftIndentPerLine.push((height - x) / 2);
   }
