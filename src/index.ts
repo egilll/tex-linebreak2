@@ -9,6 +9,7 @@ import {
   SOFT_HYPHEN,
   splitTextIntoItems,
 } from "src/splitTextIntoItems/splitTextIntoItems";
+import { makeZeroWidth } from "src/utils/collapseGlue";
 import { breakLinesGreedy } from "src/utils/greedy";
 import { TextBox, TextGlue, TextItem } from "src/utils/items";
 import {
@@ -63,7 +64,7 @@ export class TexLinebreak<
         breakpoints[b + 1],
         b
       );
-      if (!line.isExtranousLine) {
+      if (!line.isExtraneousLine) {
         lines.push(line);
       }
     }
@@ -175,7 +176,7 @@ export class Line<
    * line will consist of nothing but infinite glue and the
    * final penalty. Such lines do not need to be printed.
    */
-  get isExtranousLine() {
+  get isExtraneousLine() {
     return (
       !this.itemsFiltered.some((item) => item.type === "box") &&
       isForcedBreak(this.parentClass.items[this.endBreakpoint]) &&
@@ -222,37 +223,31 @@ export class Line<
   }
 
   getItemsFiltered(): InputItemType[] {
-    let itemsFiltered = this.items.filter((item, curIndex, items) => {
-      // Ignore penalty that's not the breakpoint
+    let itemsFiltered = this.items.slice();
+    let hasBoxBeenSeen: boolean;
+
+    /**
+     * Make non-important glue zero width.
+     * (Not removed since this is better when re-applying justification)
+     */
+    itemsFiltered = itemsFiltered.map((item, index) => {
+      // Glue that is a breakpoint
+      if (
+        item.type === "glue" &&
+        (index === this.items.length - 1 || !hasBoxBeenSeen)
+      )
+        return makeZeroWidth({ ...item }) as InputItemType;
+      if (item.type === "box") hasBoxBeenSeen = true;
+      return item;
+    });
+
+    /** Ignore penalty that's not the breakpoint */
+    itemsFiltered = itemsFiltered.filter((item, curIndex, items) => {
       if (item.type === "penalty" && curIndex !== items.length - 1)
         return false;
 
       return true;
     });
-
-    // /**
-    //  * Make non-important glue zero width.
-    //  * (Not removed since this is better when re-applying justification)
-    //  */
-    // itemsFiltered = itemsFiltered.map((item, index) => {
-    //   // Glue that is a breakpoint
-    //   if (item.type === "glue" && index === this.items.length - 1)
-    //     return makeZeroWidth({ ...item }) as InputItemType;
-    //
-    //   return item;
-    // });
-
-    // /** Ignore glue at the beginning of a line (can be multiple adjacent glues) */
-    // for (let i = 0; i < itemsFiltered.length; i++) {
-    //   if (itemsFiltered[i].type === "glue") {
-    //     itemsFiltered[i] = makeZeroWidth({
-    //       ...(itemsFiltered[i] as Glue),
-    //     }) as InputItemType;
-    //     i--;
-    //   } else {
-    //     break;
-    //   }
-    // }
 
     /**
      * Handle soft hyphens in non-justified text, see

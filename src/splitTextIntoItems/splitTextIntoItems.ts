@@ -209,7 +209,7 @@ export function splitTextIntoItems(
   });
 
   if (options.hangingPunctuation) {
-    items = addHangingPunctuation(items, options);
+    items = addHangingPunctuation(items, options /* followingText*/);
   }
 
   if (options.forceOverflowToBreak) {

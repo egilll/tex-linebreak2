@@ -16,6 +16,8 @@ import {
 export function addHangingPunctuation(
   items: TextItem[],
   options: TexLinebreakOptions
+  // // We need to know if the last item is followed by anything
+  // followingText?: string,
 ): TextItem[] {
   let output: TextItem[] = [];
   for (let i = 0; i < items.length; i++) {
@@ -29,6 +31,7 @@ export function addHangingPunctuation(
     }
 
     /** Left hanging punctuation */
+    // TODO: Check regarding nested elements
     if (
       !options.onlyRightHangingPunctuation &&
       item.text &&
@@ -62,9 +65,11 @@ export function addHangingPunctuation(
     if (
       item.text &&
       // Must not be followed by another box
-      (isBreakablePenalty(nextItem) || nextItem?.type === "glue") &&
+      (isBreakablePenalty(nextItem) ||
+        nextItem?.type === "glue" ||
+        // TODO: Needs testing!!!
+        nextItem === undefined) &&
       !isSoftHyphen(nextItem) &&
-      !isForcedBreak(nextItem) &&
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
       item.text.slice(-1) !== item.text.slice(-2, -1)
     ) {
@@ -80,7 +85,10 @@ export function addHangingPunctuation(
         output.push(nextItem);
         i++;
       }
-      output.push(glue(rightHangingPunctuationWidth, 0, 0));
+
+      if (!isForcedBreak(nextItem)) {
+        output.push(glue(rightHangingPunctuationWidth, 0, 0));
+      }
     }
   }
 

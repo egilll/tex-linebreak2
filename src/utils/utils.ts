@@ -27,7 +27,7 @@ export function isSoftHyphen(item: Item | undefined): boolean {
 }
 
 export function isForcedBreak(item: Item) {
-  return item.type === "penalty" && item.cost <= MIN_COST;
+  return item && item.type === "penalty" && item.cost <= MIN_COST;
 }
 
 export function isBreakablePenalty(item: Item) {
@@ -39,7 +39,7 @@ export function isNonBreakablePenalty(item: Item) {
 }
 
 export function isPenaltyThatDoesNotForceBreak(item: Item) {
-  return item.type === "penalty" && item.cost > MIN_COST;
+  return item && item.type === "penalty" && item.cost > MIN_COST;
 }
 
 /**
@@ -207,7 +207,6 @@ export function makeNonBreaking(
       // Insert a penalty item before this item
       items.splice(i, 0, penalty(0, MAX_COST));
       i++;
-      console.log("glue");
     }
   }
 }

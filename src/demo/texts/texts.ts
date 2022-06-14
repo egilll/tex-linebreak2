@@ -7,7 +7,16 @@ export const texts2: ListOfDemos = [
               <span style="display: inline-block; border: 1px solid gray">inline block</span>
               el&shy;em&shy;ents can be found in this paragraph
               <!-- A comment node -->
-              of text <a href="#">which includes</a> <b>bold text</b>, as well as <i>italic text</i>. The spaces of <span style="display: inline-block; border: 1px solid gray">inline block elements</span> should also expand.`,
+              of text <a href="#">which includes</a> <b>bold text</b>, 
+              as well as <i>italic text</i>. 
+              The spaces of <span style="display: inline-block; border: 1px solid gray">inline block elements</span> should also expand.
+              <br/>
+              <br/>
+              <span style="display: inline-block; border: 1px solid gray">“A test</span> whether 
+              <span style="display: inline; border: 1px solid gray">(inline)</span><br/> and
+              <span style="display: inline; border: 1px solid gray">inline block!</span><br/> elements have correct 
+              <span style="display: inline; border: 1px solid gray">hanging punctuation?</span>
+`,
     options: {
       addInfiniteGlueToFinalLine: false,
     },

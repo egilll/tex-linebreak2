@@ -100,6 +100,7 @@ export function getItemsFromDOM(
     }
 
     if (element.tagName === "BR") {
+      makeGlueAtEndZeroWidth(items, true);
       items.push(...paragraphEnd(options));
       // TODO: A hack
       (element as HTMLElement).style.display = "none";
@@ -107,15 +108,16 @@ export function getItemsFromDOM(
     }
 
     if (display === "inline" || display === "inline-block") {
-      // Add box for margin/border/padding at start of box.
-      // TODO: Verify
-      const leftMargin =
-        parseFloat(marginLeft!) +
-        parseFloat(borderLeftWidth!) +
-        parseFloat(paddingLeft!);
-      if (leftMargin > 0) {
-        items.push(itemWithOffset(box(leftMargin) /*element, 0, 0*/));
-      }
+      // TODO: DOES NOT WORK
+      // // Add box for margin/border/padding at start of box.
+      // // TODO: Verify
+      // const leftMargin =
+      //   parseFloat(marginLeft!) +
+      //   parseFloat(borderLeftWidth!) +
+      //   parseFloat(paddingLeft!);
+      // if (leftMargin > 0) {
+      //   items.push(itemWithOffset(box(leftMargin) /*element, 0, 0*/));
+      // }
 
       let startLength = items.length;
 
@@ -129,16 +131,16 @@ export function getItemsFromDOM(
         );
       }
 
-      // Add box for margin/border/padding at end of box.
-      const rightMargin =
-        parseFloat(marginRight!) +
-        parseFloat(borderRightWidth!) +
-        parseFloat(paddingRight!);
-      if (rightMargin > 0) {
-        items.push(
-          itemWithOffset(box(rightMargin) /*element, length, length*/)
-        );
-      }
+      // // Add box for margin/border/padding at end of box.
+      // const rightMargin =
+      //   parseFloat(marginRight!) +
+      //   parseFloat(borderRightWidth!) +
+      //   parseFloat(paddingRight!);
+      // if (rightMargin > 0) {
+      //   items.push(
+      //     itemWithOffset(box(rightMargin) /*element, length, length*/)
+      //   );
+      // }
     } else {
       let _width = parseFloat(width);
       if (isNaN(_width)) {
@@ -203,6 +205,7 @@ export function getItemsFromDOM(
 
   makeGlueAtEndsZeroWidth(items, 0, true);
   collapseAdjacentTextGlueWidths(items);
+
   return items;
 }
 
