@@ -7,7 +7,7 @@ import {
 import {
   processText,
   TemporaryUnprocessedTextNode,
-} from "src/html/getItemsFromDOM/processTextNodes";
+} from "src/html/getItemsFromDOM/textNodes";
 import { addItemsFromNode } from "src/html/getItemsFromDOM/traverse";
 import { TexLinebreakOptions } from "src/options";
 import { collapseAdjacendDOMWhitespace } from "src/utils/collapseGlue";

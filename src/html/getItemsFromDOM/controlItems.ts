@@ -38,19 +38,13 @@ export function processControlItems(
             item.type === "box" ||
             item.type === "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX"
         );
-      if (
-        nextBoxIndex < 0 ||
-        items[nextBoxIndex].type === "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX"
-      ) {
-        throw new Error(
-          "Expected a box inside element. Empty boxes with borders or padding are not yet supported."
-        );
+      if (nextBoxIndex < 0) {
+        console.error("Expected a nextBoxIndex");
+        continue;
       }
 
       items.splice(nextBoxIndex, 0, item);
       items.splice(i, 1);
-
-      deletedItems.add(item);
     }
 
     if (
@@ -59,6 +53,7 @@ export function processControlItems(
     ) {
       const prevBoxIndex =
         items.length -
+        1 -
         items
           .slice(i - 1)
           .reverse()
@@ -67,17 +62,12 @@ export function processControlItems(
               item.type === "box" ||
               item.type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
           );
-      if (
-        prevBoxIndex < 0 ||
-        items[prevBoxIndex].type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
-      ) {
-        throw new Error(
-          "Expected a box inside element. Empty boxes with borders or padding are not yet supported."
-        );
+      if (prevBoxIndex < 0) {
+        console.error("Expected a prevBoxIndex");
+        continue;
       }
-      items.splice(prevBoxIndex, 0, item);
       items.splice(i, 1);
-      deletedItems.add(item);
+      items.splice(prevBoxIndex, 0, item);
     }
   }
 

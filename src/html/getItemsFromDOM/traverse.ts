@@ -1,7 +1,7 @@
 import { INFINITE_STRETCH } from "src/breakLines";
 import { TemporaryControlItem } from "src/html/getItemsFromDOM/controlItems";
 import { DOMItem } from "src/html/getItemsFromDOM/index";
-import { TemporaryUnprocessedTextNode } from "src/html/getItemsFromDOM/processTextNodes";
+import { TemporaryUnprocessedTextNode } from "src/html/getItemsFromDOM/textNodes";
 import { TexLinebreakOptions } from "src/options";
 import { box, forcedBreak, glue, paragraphEnd } from "src/utils/items";
 

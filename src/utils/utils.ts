@@ -9,7 +9,7 @@ import {
 } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
 import { TemporaryControlItem } from "src/html/getItemsFromDOM/controlItems";
-import { TemporaryUnprocessedTextNode } from "src/html/getItemsFromDOM/processTextNodes";
+import { TemporaryUnprocessedTextNode } from "src/html/getItemsFromDOM/textNodes";
 import { TexLinebreakOptions } from "src/options";
 import { glue, penalty } from "src/utils/items";
 

@@ -4,10 +4,13 @@ export const texts2: ListOfDemos = [
   {
     id: "tmp3",
     content: `
-<br/>
-
-              <span style="display: inline-block; border: 1px solid gray"> “A test  <!-- --> </span> whether <br/>
+              Text with <span style="display: inline-block; padding:0 8px; border: 2px solid gray"> padding </span> and
+              text with <span style="margin: 0 6px; padding:0 1px; border: 1px solid gray">margin</span>.
+              <br/>
+              <br/>
+              <span style="display: inline; border: 5px solid gray">This box</span> has no padding or margins.
               
+          
 `,
     options: {
       addInfiniteGlueToFinalLine: false,
@@ -31,11 +34,11 @@ export const texts2: ListOfDemos = [
               <span style="display: inline; border: 1px solid gray"> hanging punctuation? </span>
               <br/>
               <br/>
-              Text with <span style="display: inline-block; padding:0 4px; border: 2px solid gray"> padding </span> and
+              Text with <span style="display: inline-block; padding:0 8px; border: 2px solid gray"> padding </span> and
               text with <span style="margin: 0 6px; padding:0 1px; border: 1px solid gray">margin</span>.
               <br/>
               <br/>
-              <span style="display: inline; border: 5px solid gray">This box</span> should have no visible padding or margins.
+              <span style="display: inline; border: 5px solid gray">This box</span> has no padding or margins.
               
 `,
     options: {
