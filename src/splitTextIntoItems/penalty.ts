@@ -18,15 +18,19 @@ export function getBreakpointPenalty(
 
   // Spaces
   else if (
-    // Space
-    lastLetterClass === UnicodeLineBreakingClasses.Space ||
+    [
+      UnicodeLineBreakingClasses.Space,
+      UnicodeLineBreakingClasses.ZeroWidthSpace,
+      UnicodeLineBreakingClasses.CarriageReturn,
+      UnicodeLineBreakingClasses.LineFeed,
+      UnicodeLineBreakingClasses.NextLine,
+      UnicodeLineBreakingClasses.BreakMandatory,
+    ].includes(lastLetterClass) ||
     // Tab
     lastLetter === "\t" ||
     // Other breaking spaces
     (lastLetterClass === UnicodeLineBreakingClasses.BreakAfter &&
-      lastLetter.match(/\p{General_Category=Zs}/gu)) ||
-    // Zero width space
-    lastLetterClass === UnicodeLineBreakingClasses.ZeroWidthSpace
+      lastLetter.match(/\p{General_Category=Zs}/gu))
   ) {
     return 0;
   }
@@ -92,6 +96,9 @@ export function getBreakpointPenalty(
 
   // Other break-classes
   else {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(`Unknown other break-class: `, breakpoint);
+    }
     return 900;
   }
 }
