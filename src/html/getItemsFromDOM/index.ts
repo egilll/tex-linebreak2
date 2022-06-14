@@ -72,9 +72,5 @@ export function getItemsFromDOMAndWrapInSpans(
   );
   const output = processControlItems(temporaryItemsProcessedText);
   collapseAdjacendDOMWhitespace(output);
-
-  if (process.env.NODE_ENV === "development") {
-    console.log(temporaryItems);
-  }
   return output;
 }

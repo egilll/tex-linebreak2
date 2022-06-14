@@ -20,7 +20,14 @@ const getLineWidths = (height: number, lineHeight: number) => {
   let lineWidth = [];
   let leftIndentPerLine = [];
 
-  for (let yOffset = lineHeight / 2; yOffset < height; yOffset += lineHeight) {
+  const REMAINING_LINE_HEIGHT_PORTION = 0.1;
+
+  for (
+    let yOffset = lineHeight * REMAINING_LINE_HEIGHT_PORTION;
+    yOffset < height;
+    yOffset +=
+      lineHeight + (1 - lineHeight * REMAINING_LINE_HEIGHT_PORTION) / height
+  ) {
     const x = circleOfHeightOne(yOffset / height) * height;
     lineWidth.push(x);
     leftIndentPerLine.push((height - x) / 2);
