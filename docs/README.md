@@ -1,8 +1,7 @@
+<p align="center"><img width="245" src="images/knuth_quote_circle.png" align="center" title="Quote from the introduction of Knuth & Plass's paper"></p>
+
 # tex-linebreak2
-
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-<img width="220" src="images/knuth_quote_circle.png">
 
 <sub>(This repository is an extention of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight. It is functional, but is a work-in-progress as of June 2022.)</sub>
 
@@ -14,9 +13,19 @@ would find in a newspaper, book or technical paper. It implements the
 
 This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. It can be used to find the optimal size of an element to fit text.
 
+## Features
+
+- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)). Is sufficiently fast for many use cases, the time it takes to draw the content the user is currently viewing usually takes <40ms, but rendering the entirety of a very large document may take ~200ms. 
+- [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
+- Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
+- Supports custom breaking rules.
+- Supports both justification and ragged alignment.
+- Can be used in a browser or a Node.js environment[^2] to render to any target (`<canvas>`, HTML elements, PDF).
+
+<!-- (*work in progress*) Can find the optimal width required for laying out text. This is especially useful when it comes to headlines (whose last line should not be mainly empty) but will also result in prettier output for general types of text.  -->
+
 ## Table of contents
 
-- [Features](#features)
 - [About the Knuth-Plass algorithm](#about-the-knuth-plass-algorithm)
 - [Bookmarklet](#bookmarklet)
 - [Installation](#installation)
@@ -24,16 +33,6 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 - [Options](#options)
 - [API](#api)
 - [Hyphenation](#hyphenation)
-
-## Features
-
-- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)) although performance is currently quite bad, such that it cannot be applied to pages that have a significant amount of text.
-- [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
-- Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
-- Supports custom breaking rules.
-- Supports justification and ragged alignment.
-- (*work in progress*) Can find the optimal width required for laying out text. This is especially useful when it comes to headlines (whose last line should not be mainly empty) but will also result in prettier output for general types of text. 
-- Can be used in a browser or a Node.js environment[^2] to render to any target (`<canvas>`, HTML elements, PDF).
 
 ## About the Knuth-Plass algorithm
 
@@ -148,14 +147,13 @@ The library will listen for window resizing (can be turned off with the option `
 
 The library does not support:
 
-- Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement> text</p>`)
+- Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement/> text</p>`)
 - Floating elements when `line-height` isn't set
 - Columns
 - Contenteditable elements
 - The CSS properties  `font-stretch`, `font-size-adjust`, and `font-kerning`
 - If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, and that may introduce a noticable lag.
-
-There may be other issues yet to be encountered.
+- There may be issues regarding nested inline-block elements.
 
 ### Other types of text
 
