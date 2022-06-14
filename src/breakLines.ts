@@ -483,9 +483,9 @@ export function breakLines(
              * it on `currentRecursionDepth` prevents excessive recursion.
              */
             initialMaxAdjustmentRatio:
-              currentRecursionDepth < 7
+              currentRecursionDepth < 10
                 ? Math.max(
-                    minAdjustmentRatioAboveThreshold * 2,
+                    minAdjustmentRatioAboveThreshold,
                     options.initialMaxAdjustmentRatio + 0.3
                   )
                 : Infinity,

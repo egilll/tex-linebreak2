@@ -24,14 +24,13 @@ export class TexLinebreakOptions {
    */
   onlyRightHangingPunctuation?: boolean;
 
-  // /** Used internally to turn off hanging punctuation when inside inline elements */
-  // turnOffHangingPunctuationAtEnds?: boolean;
-
   /**
    * Whether to force words that are longer than the allowed width to
    * break, with the breakpoint being chosen at random (equivalent to
    * CSS's "word-wrap: break-word").
    * Should be off if working with plaintext that a user will be copying.
+   *
+   * TODO: Is somewhat buggy
    */
   forceOverflowToBreak!: boolean;
 
@@ -240,8 +239,6 @@ export class TexLinebreakOptions {
   /**
    * HTML content collapses all whitespace and displays it as a single space.
    * This overrides {@link TexLinebreakOptions#keepNewlinesAfter}.
-   *
-   * todo: skip for monospace
    */
   collapseAllNewlines: boolean = false;
 

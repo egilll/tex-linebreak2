@@ -60,25 +60,25 @@ export async function texLinebreakDOM(
 
       let items: DOMItem[];
 
-      /** Cache for items */
-      if (
-        !options.clearItemCache &&
-        "texLinebreakItems" in element &&
-        (element as any)["lastTextContent"] === element.textContent
-      ) {
-        removeInsertedBrs(element);
-        items = (element as any)["texLinebreakItems"] as DOMItem[];
-      } else {
-        /** Undo the changes made by any previous justification of this content. */
-        resetDOMJustification(element);
-        items = getItemsFromDOMAndWrapInSpans(
-          element,
-          { ...options, lineWidth },
-          domTextMeasureFn
-        );
-        (element as any)["texLinebreakItems"] = items;
-        (element as any)["lastTextContent"] = element.textContent;
-      }
+      // /** Cache for items */ Todo: Remove soft hyphens
+      // if (
+      //   !options.clearItemCache &&
+      //   "texLinebreakItems" in element &&
+      //   (element as any)["lastTextContent"] === element.textContent
+      // ) {
+      //   removeInsertedBrs(element);
+      //   items = (element as any)["texLinebreakItems"] as DOMItem[];
+      // } else {
+      /** Undo the changes made by any previous justification of this content. */
+      resetDOMJustification(element);
+      items = getItemsFromDOMAndWrapInSpans(
+        element,
+        { ...options, lineWidth },
+        domTextMeasureFn
+      );
+      (element as any)["texLinebreakItems"] = items;
+      (element as any)["lastTextContent"] = element.textContent;
+      // }
 
       const obj = new TexLinebreak<DOMItem>(items, {
         ...options,
