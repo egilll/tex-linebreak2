@@ -7,11 +7,9 @@ import {
   MIN_COST,
   Penalty,
 } from "src/breakLines";
-import {
-  DOMItem,
-  TemporaryControlItem,
-  TemporaryUnprocessedTextNode,
-} from "src/html/getItemsFromDOM";
+import { DOMItem } from "src/html/getItemsFromDOM";
+import { TemporaryControlItem } from "src/html/getItemsFromDOM/controlItems";
+import { TemporaryUnprocessedTextNode } from "src/html/getItemsFromDOM/processTextNodes";
 import { TexLinebreakOptions } from "src/options";
 import { glue, penalty } from "src/utils/items";
 
