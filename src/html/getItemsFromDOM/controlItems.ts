@@ -31,22 +31,25 @@ export function processControlItems(
       item?.type === "box" &&
       items[i - 1]?.type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
     ) {
-      const nextBox = items
+      const nextBoxIndex = items
         .slice(i + 1)
-        .find(
+        .findIndex(
           (item) =>
             item.type === "box" ||
             item.type === "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX"
         );
-      if (!nextBox || isControlItem(nextBox)) {
+      if (
+        nextBoxIndex < 0 ||
+        items[nextBoxIndex].type === "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX"
+      ) {
         throw new Error(
           "Expected a box inside element. Empty boxes with borders or padding are not yet supported."
         );
       }
 
-      console.log({ item, nextBox });
+      items.splice(nextBoxIndex, 0, item);
+      items.splice(i, 1);
 
-      (nextBox as DOMItem).width += item.width;
       deletedItems.add(item);
     }
 
@@ -54,20 +57,26 @@ export function processControlItems(
       item?.type === "box" &&
       items[i - 1]?.type === "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX"
     ) {
-      const prevBox = items
-        .slice(i - 1)
-        .reverse()
-        .find(
-          (item) =>
-            item.type === "box" ||
-            item.type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
-        );
-      if (!prevBox || isControlItem(prevBox)) {
+      const prevBoxIndex =
+        items.length -
+        items
+          .slice(i - 1)
+          .reverse()
+          .findIndex(
+            (item) =>
+              item.type === "box" ||
+              item.type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
+          );
+      if (
+        prevBoxIndex < 0 ||
+        items[prevBoxIndex].type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
+      ) {
         throw new Error(
           "Expected a box inside element. Empty boxes with borders or padding are not yet supported."
         );
       }
-      (prevBox as DOMItem).width += item.width;
+      items.splice(prevBoxIndex, 0, item);
+      items.splice(i, 1);
       deletedItems.add(item);
     }
   }
