@@ -7,6 +7,11 @@ import {
   MIN_COST,
   Penalty,
 } from "src/breakLines";
+import {
+  DOMItem,
+  TemporaryControlItem,
+  TemporaryUnprocessedTextNode,
+} from "src/html/getItemsFromDOM";
 import { TexLinebreakOptions } from "src/options";
 import { glue, penalty } from "src/utils/items";
 
@@ -30,6 +35,10 @@ export function isForcedBreak(item: Item) {
   return item && item.type === "penalty" && item.cost <= MIN_COST;
 }
 
+export function isNonForcedBreak(item: Item) {
+  return item && item.type === "penalty" && item.cost > MIN_COST;
+}
+
 export function isBreakablePenalty(item: Item) {
   return item && item.type === "penalty" && item.cost < MAX_COST;
 }
@@ -42,8 +51,10 @@ export function isPenaltyThatDoesNotForceBreak(item: Item) {
   return item && item.type === "penalty" && item.cost > MIN_COST;
 }
 
-export function getText(input: any): string {
-  return ("text" in input && input.text) || "";
+export function getText(
+  input: DOMItem | TemporaryUnprocessedTextNode | TemporaryControlItem
+): string {
+  return (typeof input === "object" && "text" in input && input.text) || "";
 }
 
 /**

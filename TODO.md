@@ -32,3 +32,4 @@
 
 - ignore zero-width word-final glue in block elements
 - test if works with very very long paragraphs. prevent too many recursive breaklines calls
+- can nested inline blocks break?

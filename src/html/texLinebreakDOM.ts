@@ -76,7 +76,7 @@ export async function texLinebreakDOM(
           element,
           { ...options, lineWidth },
           domTextMeasureFn
-        ).items;
+        ).getItems();
         (element as any)["texLinebreakItems"] = items;
         (element as any)["lastTextContent"] = element.textContent;
       }

@@ -1,6 +1,7 @@
 import { Glue, Item } from "src/breakLines";
 import { DOMGlue, DOMItem } from "src/html/getItemsFromDOM";
 import { TextItem } from "src/utils/items";
+import { isNonForcedBreak } from "src/utils/utils";
 
 /**
  * We cannot actually merge adjacent glue into one since sometimes
@@ -11,7 +12,7 @@ import { TextItem } from "src/utils/items";
  * The HTML "text <!-- comment node --> text" becomes ["text", " ",
  * " ", "text"], and here we make the second space a zero width one.
  */
-export function collapseAdjacentTextGlueWidths(items: TextItem[]) {
+export function collapseAdjacendDOMWhitespace(items: TextItem[]) {
   for (let i = 0; i < items.length; i++) {
     if (
       items[i].type === "glue" &&
@@ -52,7 +53,7 @@ export function makeGlueAtBeginningZeroWidth(
   for (let i = startIndex; i < items.length; i++) {
     if (items[i].type === "glue") {
       makeZeroWidth(items[i] as Glue, markAsSkipped);
-    } else if (!isFakeBox(items[i])) {
+    } else if (!(isFakeBox(items[i]) || isNonForcedBreak(items[i]))) {
       break;
     }
   }
@@ -66,7 +67,7 @@ export function makeGlueAtEndZeroWidth(
   for (let i = (startIndex ?? items.length) - 1; i > 0; i--) {
     if (items[i].type === "glue") {
       makeZeroWidth(items[i] as Glue, markAsSkipped);
-    } else if (!isFakeBox(items[i])) {
+    } else if (!(isFakeBox(items[i]) || isNonForcedBreak(items[i]))) {
       break;
     }
   }
