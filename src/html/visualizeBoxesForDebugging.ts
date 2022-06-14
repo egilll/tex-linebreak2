@@ -32,6 +32,11 @@ export function visualizeBoxesForDebugging(
       box.style.background = "#7272ed80";
       box.style.font = "9px sans-serif";
       box.innerHTML = ("text" in item && item.text) || "?";
+      if (item.type === "penalty") {
+        box.style.background = "rgb(185,0,0)";
+        box.innerHTML = "";
+        box.style.minWidth = "1px";
+      }
       box1.appendChild(box);
     });
   });
