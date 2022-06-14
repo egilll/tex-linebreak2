@@ -24,6 +24,9 @@ export class TexLinebreakOptions {
    */
   onlyRightHangingPunctuation?: boolean;
 
+  // /** Used internally to turn off hanging punctuation when inside inline elements */
+  // turnOffHangingPunctuationAtEnds?: boolean;
+
   /**
    * Whether to force words that are longer than the allowed width to
    * break, with the breakpoint being chosen at random (equivalent to

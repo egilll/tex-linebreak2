@@ -68,7 +68,7 @@ export function addHangingPunctuation(
       (isBreakablePenalty(nextItem) ||
         nextItem?.type === "glue" ||
         // TODO: Needs testing!!!
-        nextItem === undefined) &&
+        !nextItem) &&
       !isSoftHyphen(nextItem) &&
       hangingPunctuationRegex.test(item.text.slice(-1)) &&
       item.text.slice(-1) !== item.text.slice(-2, -1)

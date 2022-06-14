@@ -17,6 +17,7 @@ export function addItemsFromNode(
         text: child.nodeValue || "",
         textNode: child,
         element: node as Element,
+        options,
       });
     } else if (child instanceof Element) {
       addItemsFromElement(child, items, options);
@@ -44,6 +45,7 @@ export function addItemsFromElement(
     marginRight,
     borderLeftWidth,
     borderRightWidth,
+    backgroundColor,
   } = getComputedStyle(element);
 
   if (display === "none" || position === "absolute") {
@@ -78,6 +80,19 @@ export function addItemsFromElement(
       });
     }
 
+    /**
+     * Turn off hanging punctuation when the element
+     * has a border, background, or is inline-block
+     */
+    if (
+      display === "inline-block" ||
+      backgroundColor !== "rgba(0, 0, 0, 0)" ||
+      parseFloat(borderLeftWidth!) ||
+      parseFloat(paddingLeft!)
+    ) {
+      options = { ...options, hangingPunctuation: false };
+    }
+
     if (display === "inline-block") {
       items.push({ type: "START_NON_BREAKING_RANGE" });
       items.push({ type: "IGNORE_WHITESPACE_AFTER" });
@@ -85,9 +100,7 @@ export function addItemsFromElement(
       items.push({ type: "IGNORE_WHITESPACE_BEFORE" });
       items.push({ type: "END_NON_BREAKING_RANGE" });
 
-      // (element as HTMLElement).classList.add(
-      //   "texLinebreakNearestBlockElement"
-      // );
+      (element as HTMLElement).classList.add("texLinebreakNearestBlockElement");
     } else {
       addItemsFromNode(element, items, options, false);
     }

@@ -68,7 +68,6 @@ export function getItemsFromDOMAndWrapInSpans(
 
   const temporaryItemsProcessedText = processText(
     temporaryItems,
-    options,
     domTextMeasureFn
   );
   const output = processControlItems(temporaryItemsProcessedText);

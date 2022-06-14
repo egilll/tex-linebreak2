@@ -14,7 +14,7 @@ export const texts2: ListOfDemos = [
 `,
     options: {
       addInfiniteGlueToFinalLine: false,
-      hangingPunctuation: false,
+      // hangingPunctuation: false,
     },
   },
   {
@@ -38,12 +38,14 @@ export const texts2: ListOfDemos = [
               text with <span style="margin: 0 6px; padding:0 1px; border: 1px solid gray">margin</span>.
               <br/>
               <br/>
-              <span style="display: inline; border: 5px solid gray">This box</span> has no padding or margins.
+              <span style="display: inline; border: 5px solid gray">This box</span> has no padding or margins. 
+              <br/>
+              <b>(Do inline,</b> <i>elements?</i> <b>)</b> have hanging punctuation?
               
 `,
     options: {
       addInfiniteGlueToFinalLine: false,
-      hangingPunctuation: false,
+      // hangingPunctuation: false,
     },
   },
   {

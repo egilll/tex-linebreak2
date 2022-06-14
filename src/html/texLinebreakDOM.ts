@@ -180,7 +180,7 @@ export async function texLinebreakDOM(
               }
             }
 
-            if (span || item.skipWhenRendering) {
+            if ((span || item.skipWhenRendering) && item.width > 0) {
               curXOffset += item.adjustedWidth;
             }
           }

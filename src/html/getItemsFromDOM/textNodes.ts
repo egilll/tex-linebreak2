@@ -11,6 +11,7 @@ export type TemporaryUnprocessedTextNode = {
   text: string;
   textNode: Text;
   element: Element;
+  options: TexLinebreakOptions;
 };
 
 /**
@@ -19,7 +20,6 @@ export type TemporaryUnprocessedTextNode = {
  */
 export function processText(
   items: (DOMItem | TemporaryUnprocessedTextNode | TemporaryControlItem)[],
-  options: TexLinebreakOptions,
   domTextMeasureFn: InstanceType<typeof DOMTextMeasurer>["measure"]
 ): (DOMItem | TemporaryControlItem)[] {
   for (let index = 0; index < items.length; index++) {
@@ -53,8 +53,8 @@ export function processText(
     const textItems = splitTextIntoItems(
       item.text,
       {
-        ...options,
-        measureFn: (word) => domTextMeasureFn(word, item.element, options),
+        ...item.options,
+        measureFn: (word) => domTextMeasureFn(word, item.element, item.options),
         addParagraphEnd: false,
         collapseAllNewlines: true,
       },
