@@ -1,4 +1,3 @@
-- inline-block elements
 - urls should break on / not on dashes
 - break only visible paragraphs
 - demo should respect newlines
@@ -33,3 +32,5 @@
 - ignore zero-width word-final glue in block elements
 - test if works with very very long paragraphs. prevent too many recursive breaklines calls
 - can nested inline blocks break?
+- <wbr/>
+- there is something wrong with <br/>, the output is different depending on actual paragraph breaks vs <br/> breaks. Should perhaps be separated.

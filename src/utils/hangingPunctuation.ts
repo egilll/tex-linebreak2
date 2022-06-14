@@ -87,6 +87,9 @@ export function addHangingPunctuation(
       }
 
       if (!isForcedBreak(nextItem)) {
+        if (nextItem?.type !== "glue") {
+          output.push(penalty(0, MAX_COST));
+        }
         output.push(glue(rightHangingPunctuationWidth, 0, 0));
       }
     }

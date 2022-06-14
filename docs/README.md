@@ -154,6 +154,7 @@ The library does not support:
 - The CSS properties  `font-stretch`, `font-size-adjust`, and `font-kerning`
 - If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, and that may introduce a noticable lag.
 - There may be issues regarding nested inline-block elements.
+- Using `<br/>` instead of using new paragraph elements currently sometimes causes very wide spaces instead of optimal spacing, which is a bug.
 
 ### Other types of text
 
