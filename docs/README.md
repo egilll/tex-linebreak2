@@ -1,5 +1,8 @@
 # tex-linebreak2
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+<img width="220" src="images/knuth_quote_circle.png">
 
 <sub>(This repository is an extention of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight. It is functional, but is a work-in-progress as of June 2022.)</sub>
 
