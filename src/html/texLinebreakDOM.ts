@@ -166,7 +166,7 @@ export async function texLinebreakDOM(
                 span.style.marginLeft = "0";
               }
 
-              /** Strip soft hyphens (Todo: is destructive!!) */
+              /** Strip soft hyphens (note: is destructive!) */
               if (
                 options.stripSoftHyphensFromOutputText &&
                 "text" in item &&
