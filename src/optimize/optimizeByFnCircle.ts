@@ -20,21 +20,21 @@ const getLineWidths = (height: number, lineHeight: number) => {
   let lineWidth = [];
   let leftIndentPerLine = [];
 
-  const REMAINING_LINE_HEIGHT_PORTION = 0.1;
+  const leftover = height % lineHeight;
+  const TRIM_AMOUNT_OFF_TOP_AND_BOTTOM = 0.05 * lineHeight;
+  const heightAdjusted = height - leftover;
 
   for (
-    let yOffset = 0;
-    yOffset < height - lineHeight;
-    yOffset +=
-      // lineHeight + (lineHeight * REMAINING_LINE_HEIGHT_PORTION) / height
-      lineHeight
+    let yOffset = leftover / 2 + TRIM_AMOUNT_OFF_TOP_AND_BOTTOM;
+    yOffset < heightAdjusted;
+    yOffset += lineHeight + (yOffset / height) * TRIM_AMOUNT_OFF_TOP_AND_BOTTOM
   ) {
-    let additionalOffset =
-      REMAINING_LINE_HEIGHT_PORTION * lineHeight + yOffset / height;
-
-    const x = circleOfHeightOne((yOffset + additionalOffset) / height) * height;
+    const x = circleOfHeightOne(yOffset / height) * height;
     lineWidth.push(x);
     leftIndentPerLine.push((height - x) / 2);
+  }
+  if (lineWidth[0] !== lineWidth.at(-1)) {
+    console.warn(lineWidth);
   }
   return { lineWidth, leftIndentPerLine };
 };
@@ -56,7 +56,7 @@ const getScore = ({
   return diff + Math.cbrt(totalDemerits) / lineBreakingNodes.length / 10000;
 };
 
-export function optimizeByFn(obj: TexLinebreak): number[] {
+export function optimizeByFnCircle(obj: TexLinebreak): number[] {
   obj.options.addInfiniteGlueToFinalLine = false;
 
   const best = BisectionFindMinimumPositiveIntegerOutput({

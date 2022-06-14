@@ -1,5 +1,5 @@
 import { ListOfDemos } from "src/demo/demo";
-import { optimizeByFn } from "src/optimize/optimizeByFn";
+import { optimizeByFnCircle } from "src/optimize/optimizeByFnCircle";
 
 // const text = texts[0];
 
@@ -43,7 +43,7 @@ export const circle: ListOfDemos[number] = {
     `,
 
   options: {
-    optimizeByFn,
+    optimizeByFn: optimizeByFnCircle,
     lineHeight: 15,
     // hyphenateFn,
     addInfiniteGlueToFinalLine: false,

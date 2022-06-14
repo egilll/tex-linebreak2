@@ -2,7 +2,7 @@ import "core-js/stable/array/at";
 
 import { breakLines, Item, MIN_ADJUSTMENT_RATIO } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
-import { optimizeByFn } from "src/optimize/optimizeByFn";
+import { optimizeByFnCircle } from "src/optimize/optimizeByFnCircle";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import {
   NON_BREAKING_SPACE,
@@ -49,7 +49,7 @@ export class TexLinebreak<
       return breakLinesGreedy(this.items, this.options);
     } else {
       if (this.options.optimizeByFn) {
-        return optimizeByFn(this);
+        return optimizeByFnCircle(this);
       }
       return breakLines(this.items, this.options);
     }

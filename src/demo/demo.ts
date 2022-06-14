@@ -6,12 +6,13 @@ import { TexLinebreakOptions } from "src/options";
 
 export type ListOfDemos = {
   id: string;
+  description?: string;
   content: string;
   options?: Partial<TexLinebreakOptions>;
   style?: Partial<CSSStyleDeclaration>;
   selector?: string;
 }[];
-const demos: ListOfDemos = [circle, ...texts2, ...longTexts];
+const demos: ListOfDemos = [circle, ...longTexts, ...texts2];
 
 if (
   window.location.hash &&
@@ -30,6 +31,13 @@ async function renderDemo(demo: ListOfDemos[number]) {
   const paragraphs = demo.selector
     ? div.querySelectorAll<HTMLElement>(demo.selector)
     : div;
+
+  if (demo.description) {
+    div.insertAdjacentHTML(
+      "beforebegin",
+      `<div class="description">${demo.description}</div>`
+    );
+  }
 
   try {
     await texLinebreakDOM(
