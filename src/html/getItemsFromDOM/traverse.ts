@@ -1,26 +1,39 @@
 import { INFINITE_STRETCH } from "src/breakLines";
+import { TemporaryControlItem } from "src/html/getItemsFromDOM/controlItems";
+import { DOMItem } from "src/html/getItemsFromDOM/index";
+import { TemporaryUnprocessedTextNode } from "src/html/getItemsFromDOM/processTextNodes";
+import { TexLinebreakOptions } from "src/options";
 import { box, forcedBreak, glue, paragraphEnd } from "src/utils/items";
 
-export function getItemsFromNode(node: Node, addParagraphEnd = true) {
+export function addItemsFromNode(
+  node: Node,
+  items: (DOMItem | TemporaryUnprocessedTextNode | TemporaryControlItem)[],
+  options: TexLinebreakOptions,
+  addParagraphEnd = true
+) {
   Array.from(node.childNodes).forEach((child) => {
     if (child instanceof Text) {
-      this.temporaryItems.push({
+      items.push({
         text: child.nodeValue || "",
         textNode: child,
         element: node as Element,
       });
     } else if (child instanceof Element) {
-      this.getItemsFromElement(child);
+      addItemsFromElement(child, items, options);
     }
   });
 
   if (addParagraphEnd) {
-    this.temporaryItems.push("IGNORE_WHITESPACE_BEFORE");
-    this.temporaryItems.push(...paragraphEnd(this.options));
+    items.push({ type: "IGNORE_WHITESPACE_BEFORE" });
+    items.push(...paragraphEnd(options));
   }
 }
 
-export function getItemsFromElement(element: Element) {
+export function addItemsFromElement(
+  element: Element,
+  items: (DOMItem | TemporaryUnprocessedTextNode | TemporaryControlItem)[],
+  options: TexLinebreakOptions
+) {
   const {
     display,
     position,
@@ -39,15 +52,15 @@ export function getItemsFromElement(element: Element) {
 
   /** <br/> elements */
   if (element.tagName === "BR") {
-    this.temporaryItems.push("IGNORE_WHITESPACE_BEFORE");
-    if (this.options.addInfiniteGlueToFinalLine) {
-      this.temporaryItems.push(glue(0, INFINITE_STRETCH, 0));
+    items.push({ type: "IGNORE_WHITESPACE_BEFORE" });
+    if (options.addInfiniteGlueToFinalLine) {
+      items.push(glue(0, INFINITE_STRETCH, 0));
     }
-    this.temporaryItems.push({
+    items.push({
       ...forcedBreak(),
       skipWhenRendering: true,
     });
-    this.temporaryItems.push({ type: "IGNORE_WHITESPACE_AFTER" });
+    items.push({ type: "IGNORE_WHITESPACE_AFTER" });
     return;
   }
 
@@ -58,25 +71,25 @@ export function getItemsFromElement(element: Element) {
       parseFloat(borderLeftWidth!) +
       parseFloat(paddingLeft!);
     if (leftMargin) {
-      this.temporaryItems.push("MERGE_THIS_BOX_WITH_NEXT_BOX");
-      this.temporaryItems.push({
+      items.push({ type: "MERGE_THIS_BOX_WITH_NEXT_BOX" });
+      items.push({
         ...box(leftMargin),
         skipWhenRendering: true,
       });
     }
 
     if (display === "inline-block") {
-      this.temporaryItems.push("START_NON_BREAKING_RANGE");
-      this.temporaryItems.push({ type: "IGNORE_WHITESPACE_AFTER" });
-      this.getItemsFromNode(element, false);
-      this.temporaryItems.push("IGNORE_WHITESPACE_BEFORE");
-      this.temporaryItems.push("END_NON_BREAKING_RANGE");
+      items.push({ type: "START_NON_BREAKING_RANGE" });
+      items.push({ type: "IGNORE_WHITESPACE_AFTER" });
+      addItemsFromNode(element, items, options, false);
+      items.push({ type: "IGNORE_WHITESPACE_BEFORE" });
+      items.push({ type: "END_NON_BREAKING_RANGE" });
 
       // (element as HTMLElement).classList.add(
       //   "texLinebreakNearestBlockElement"
       // );
     } else {
-      this.getItemsFromNode(element, false);
+      addItemsFromNode(element, items, options, false);
     }
 
     // Add box for margin/border/padding at end of box.
@@ -85,8 +98,8 @@ export function getItemsFromElement(element: Element) {
       parseFloat(borderRightWidth!) +
       parseFloat(paddingRight!);
     if (rightMargin) {
-      this.temporaryItems.push("MERGE_THIS_BOX_WITH_PREVIOUS_BOX");
-      this.temporaryItems.push({
+      items.push({ type: "MERGE_THIS_BOX_WITH_PREVIOUS_BOX" });
+      items.push({
         ...box(rightMargin),
         skipWhenRendering: true,
       });
@@ -102,6 +115,6 @@ export function getItemsFromElement(element: Element) {
     }
 
     // Treat this item as an opaque box.
-    this.temporaryItems.push(box(_width));
+    items.push(box(_width));
   }
 }

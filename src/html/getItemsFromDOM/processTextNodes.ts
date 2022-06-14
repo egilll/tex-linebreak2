@@ -1,5 +1,8 @@
+import DOMTextMeasurer from "src/html/domTextMeasurer";
+import { TemporaryControlItem } from "src/html/getItemsFromDOM/controlItems";
 import { DOMItem } from "src/html/getItemsFromDOM/index";
 import { tagNode } from "src/html/tagNode";
+import { TexLinebreakOptions } from "src/options";
 import { splitTextIntoItems } from "src/splitTextIntoItems/splitTextIntoItems";
 import { TextItem } from "src/utils/items";
 import { getText, isForcedBreak } from "src/utils/utils";
@@ -14,13 +17,17 @@ export type TemporaryUnprocessedTextNode = {
  * Processes the temporary text nodes and wraps
  * the items in the text node in <span/> elements.
  */
-export function processText() {
-  for (let index = 0; index < this.temporaryItems.length; index++) {
-    const item = this.temporaryItems[index];
+export function processText(
+  items: (DOMItem | TemporaryUnprocessedTextNode | TemporaryControlItem)[],
+  options: TexLinebreakOptions,
+  domTextMeasureFn: InstanceType<typeof DOMTextMeasurer>["measure"]
+): (DOMItem | TemporaryControlItem)[] {
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
     if (!(typeof item === "object" && "textNode" in item)) continue;
 
     const precedingText = (() => {
-      const allPrecedingItems = this.temporaryItems.slice(0, index);
+      const allPrecedingItems = items.slice(0, index);
       const previousParagraphBreakIndex = allPrecedingItems.findIndex(
         (_item, _index) => isForcedBreak(_item as DOMItem) || _index === 0
       );
@@ -31,7 +38,7 @@ export function processText() {
     })();
 
     const followingText = (() => {
-      const allFollowingItems = this.temporaryItems.slice(index);
+      const allFollowingItems = items.slice(index);
       const nextParagraphBreakIndex = allFollowingItems.findIndex(
         (_item, _index) =>
           isForcedBreak(_item as DOMItem) ||
@@ -46,9 +53,8 @@ export function processText() {
     const textItems = splitTextIntoItems(
       item.text,
       {
-        ...this.options,
-        measureFn: (word) =>
-          this.domTextMeasureFn(word, item.element, this.options),
+        ...options,
+        measureFn: (word) => domTextMeasureFn(word, item.element, options),
         addParagraphEnd: false,
         collapseAllNewlines: true,
       },
@@ -56,7 +62,7 @@ export function processText() {
       followingText
     );
 
-    let items: DOMItem[] = [];
+    let _items: DOMItem[] = [];
     let replacementFragment = document.createDocumentFragment();
     textItems.forEach((item: TextItem) => {
       let span: HTMLElement | undefined;
@@ -66,7 +72,7 @@ export function processText() {
         span.textContent = getText(item);
       }
 
-      items.push({ ...item, span });
+      _items.push({ ...item, span });
 
       if (span) {
         replacementFragment.appendChild(span);
@@ -74,8 +80,9 @@ export function processText() {
     });
 
     /** Overwrite the temporary text node item in the items array */
-    this.temporaryItems.splice(index, 1, ...items);
+    items.splice(index, 1, ..._items);
 
     item.textNode.parentNode!.replaceChild(replacementFragment, item.textNode);
   }
+  return items as (DOMItem | TemporaryControlItem)[];
 }

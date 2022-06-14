@@ -8,7 +8,7 @@ import {
   processText,
   TemporaryUnprocessedTextNode,
 } from "src/html/getItemsFromDOM/processTextNodes";
-import { getItemsFromNode } from "src/html/getItemsFromDOM/traverse";
+import { addItemsFromNode } from "src/html/getItemsFromDOM/traverse";
 import { TexLinebreakOptions } from "src/options";
 import { collapseAdjacendDOMWhitespace } from "src/utils/collapseGlue";
 import { TextBox, TextGlue } from "src/utils/items";
@@ -51,31 +51,31 @@ export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
  * is done since it saves us from having to walk the tree again when we
  * finally render the output.
  */
-export class GetItemsFromDOMAndWrapInSpans {
-  temporaryItems: (
+export function getItemsFromDOMAndWrapInSpans(
+  paragraphElement: HTMLElement,
+  options: TexLinebreakOptions,
+  domTextMeasureFn: InstanceType<typeof DOMTextMeasurer>["measure"]
+) {
+  const temporaryItems: (
     | DOMItem
     | TemporaryUnprocessedTextNode
     | TemporaryControlItem
   )[] = [];
 
-  constructor(
-    public paragraphElement: HTMLElement,
-    public options: TexLinebreakOptions,
-    public domTextMeasureFn: InstanceType<typeof DOMTextMeasurer>["measure"]
-  ) {}
+  temporaryItems.push({ type: "IGNORE_WHITESPACE_AFTER" });
+  addItemsFromNode(paragraphElement, temporaryItems, options);
+  temporaryItems.push({ type: "IGNORE_WHITESPACE_BEFORE" });
 
-  getItems() {
-    this.temporaryItems.push({ type: "IGNORE_WHITESPACE_AFTER" });
-    getItemsFromNode(this.paragraphElement);
-    this.temporaryItems.push("IGNORE_WHITESPACE_BEFORE");
+  const temporaryItemsProcessedText = processText(
+    temporaryItems,
+    options,
+    domTextMeasureFn
+  );
+  const output = processControlItems(temporaryItemsProcessedText);
+  collapseAdjacendDOMWhitespace(output);
 
-    processText();
-    const output = processControlItems();
-    collapseAdjacendDOMWhitespace(output);
-
-    if (process.env.NODE_ENV === "development") {
-      console.log(this.temporaryItems);
-    }
-    return output;
+  if (process.env.NODE_ENV === "development") {
+    console.log(temporaryItems);
   }
+  return output;
 }

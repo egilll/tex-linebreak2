@@ -16,28 +16,22 @@ export type TemporaryControlItem = {
     | "MERGE_THIS_BOX_WITH_PREVIOUS_BOX";
 };
 export function isControlItem(item: Item | TemporaryControlItem) {
-  return (
-    item.type &&
-    item.type !== "box" &&
-    item.type !== "glue" &&
-    item.type !== "penalty"
-  );
+  return item.type && !["box", "glue", "penalty"].includes(item.type);
 }
 
-export function processControlItems(): DOMItem[] {
-  const temporaryItems = this.temporaryItems as (
-    | DOMItem
-    | TemporaryControlItem
-  )[];
+export function processControlItems(
+  items: (DOMItem | TemporaryControlItem)[]
+): DOMItem[] {
   const deletedItems = new Set<DOMItem>();
 
-  for (let i = 0; i < temporaryItems.length; i++) {
-    const item = temporaryItems[i];
+  /** Merge temporary boxes */
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
     if (
       item?.type === "box" &&
-      temporaryItems[i - 1]?.type === "MERGE_THIS_BOX_WITH_NEXT_BOX"
+      items[i - 1]?.type === "MERGE_THIS_BOX_WITH_NEXT_BOX"
     ) {
-      const nextBox = temporaryItems
+      const nextBox = items
         .slice(i + 1)
         .find(
           (item) =>
@@ -55,9 +49,9 @@ export function processControlItems(): DOMItem[] {
 
     if (
       item?.type === "box" &&
-      temporaryItems[i - 1]?.type === "MERGE_THIS_BOX_WITH_PREVIOUS_BOX"
+      items[i - 1]?.type === "MERGE_THIS_BOX_WITH_PREVIOUS_BOX"
     ) {
-      const prevBox = temporaryItems
+      const prevBox = items
         .slice(i - 1)
         .reverse()
         .find(
@@ -75,13 +69,14 @@ export function processControlItems(): DOMItem[] {
     }
   }
 
+  /** Process whitespace */
   const ignoreWhitespaceAfter = new Set<number>([0]);
   const ignoreWhitespaceBefore = new Set<number>();
   const nonBreakingRanges = new Map<number, number>();
 
   let openNonBreakingRanges: number[] = [];
   let output: DOMItem[] = [];
-  temporaryItems.forEach((item) => {
+  items.forEach((item) => {
     if (!isControlItem(item)) {
       if (!deletedItems.has(item)) {
         output.push(item);
