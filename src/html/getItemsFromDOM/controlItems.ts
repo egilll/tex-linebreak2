@@ -12,8 +12,8 @@ export type TemporaryControlItem = {
     | "IGNORE_WHITESPACE_BEFORE"
     | "START_NON_BREAKING_RANGE"
     | "END_NON_BREAKING_RANGE"
-    | "MERGE_THIS_BOX_WITH_NEXT_BOX"
-    | "MERGE_THIS_BOX_WITH_PREVIOUS_BOX";
+    | "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
+    | "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX";
 };
 export function isControlItem(item: Item | TemporaryControlItem) {
   return item.type && !["box", "glue", "penalty"].includes(item.type);
@@ -29,35 +29,38 @@ export function processControlItems(
     const item = items[i];
     if (
       item?.type === "box" &&
-      items[i - 1]?.type === "MERGE_THIS_BOX_WITH_NEXT_BOX"
+      items[i - 1]?.type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
     ) {
       const nextBox = items
         .slice(i + 1)
         .find(
           (item) =>
-            (typeof item === "object" && item.type === "box") ||
-            item.type === "MERGE_THIS_BOX_WITH_PREVIOUS_BOX"
+            item.type === "box" ||
+            item.type === "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX"
         );
       if (!nextBox || isControlItem(nextBox)) {
         throw new Error(
           "Expected a box inside element. Empty boxes with borders or padding are not yet supported."
         );
       }
+
+      console.log({ item, nextBox });
+
       (nextBox as DOMItem).width += item.width;
       deletedItems.add(item);
     }
 
     if (
       item?.type === "box" &&
-      items[i - 1]?.type === "MERGE_THIS_BOX_WITH_PREVIOUS_BOX"
+      items[i - 1]?.type === "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX"
     ) {
       const prevBox = items
         .slice(i - 1)
         .reverse()
         .find(
           (item) =>
-            (typeof item === "object" && item.type === "box") ||
-            item.type === "MERGE_THIS_BOX_WITH_NEXT_BOX"
+            item.type === "box" ||
+            item.type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
         );
       if (!prevBox || isControlItem(prevBox)) {
         throw new Error(
@@ -78,11 +81,11 @@ export function processControlItems(
   let output: DOMItem[] = [];
   items.forEach((item) => {
     if (!isControlItem(item)) {
-      if (!deletedItems.has(item)) {
-        output.push(item);
+      if (!deletedItems.has(item as DOMItem)) {
+        output.push(item as DOMItem);
       }
     } else {
-      switch (item) {
+      switch ((item as TemporaryControlItem).type) {
         case "IGNORE_WHITESPACE_AFTER":
           ignoreWhitespaceAfter.add(output.length);
           break;

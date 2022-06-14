@@ -71,7 +71,7 @@ export function addItemsFromElement(
       parseFloat(borderLeftWidth!) +
       parseFloat(paddingLeft!);
     if (leftMargin) {
-      items.push({ type: "MERGE_THIS_BOX_WITH_NEXT_BOX" });
+      items.push({ type: "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX" });
       items.push({
         ...box(leftMargin),
         skipWhenRendering: true,
@@ -98,7 +98,7 @@ export function addItemsFromElement(
       parseFloat(borderRightWidth!) +
       parseFloat(paddingRight!);
     if (rightMargin) {
-      items.push({ type: "MERGE_THIS_BOX_WITH_PREVIOUS_BOX" });
+      items.push({ type: "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX" });
       items.push({
         ...box(rightMargin),
         skipWhenRendering: true,

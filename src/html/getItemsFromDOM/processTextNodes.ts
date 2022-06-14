@@ -24,7 +24,7 @@ export function processText(
 ): (DOMItem | TemporaryControlItem)[] {
   for (let index = 0; index < items.length; index++) {
     const item = items[index];
-    if (!(typeof item === "object" && "textNode" in item)) continue;
+    if (!("textNode" in item)) continue;
 
     const precedingText = (() => {
       const allPrecedingItems = items.slice(0, index);
