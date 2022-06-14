@@ -216,6 +216,7 @@ export function splitTextIntoItems(
     items = forciblySplitLongWords(items, options);
   }
 
+  // TODO: Check if necessary here, if so, move above the above functions and make it actually collapse glue instead of just their widths.
   collapseAdjacentTextGlueWidths(items);
   return items;
 }

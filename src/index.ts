@@ -11,10 +11,11 @@ import {
 } from "src/splitTextIntoItems/splitTextIntoItems";
 import { makeZeroWidth } from "src/utils/collapseGlue";
 import { breakLinesGreedy } from "src/utils/greedy";
-import { TextBox, TextGlue, TextItem } from "src/utils/items";
+import { TextBox, TextItem } from "src/utils/items";
 import {
   getLineWidth,
   getStretch,
+  getText,
   isForcedBreak,
   isSoftHyphen,
 } from "src/utils/utils";
@@ -304,7 +305,7 @@ export class Line<
           }
           if (item.type === "glue" && "text" in item) {
             // TODO:  COLLAPSE ADJACENT GLUE
-            const text = (item as TextGlue).text || "";
+            const text = getText(item);
             if (text.length === 0) return "";
             // TODO: OPTIONS.COLLAPSE_SPACES
             /** Does it contain any characters that are not non-breaking-spaces? */

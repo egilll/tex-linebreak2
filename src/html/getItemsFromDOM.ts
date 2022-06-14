@@ -16,7 +16,7 @@ import {
   TextGlue,
   TextItem,
 } from "src/utils/items";
-import { makeNonBreaking } from "src/utils/utils";
+import { getText, isForcedBreak } from "src/utils/utils";
 
 export interface DOMInfo {
   span?: HTMLElement;
@@ -39,11 +39,36 @@ export type DOMBox = (Box | TextBox) & DOMInfo;
 export type DOMGlue = (Glue | TextGlue) & DOMInfo;
 export type DOMPenalty = Penalty & DOMInfo;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
+type TemporaryUnprocessedText = {
+  text: string;
+  textNode: Text;
+  element: Element;
+};
 
-export class GetItemsFromDOM {
+/**
+ * This function is fairly confusing, but the reason is that:
+ *
+ * 1. in order to correctly split text we have to know what the surrounding
+ *    text is, and
+ * 2. we need to collapse whitespace in the same manner as HTML documents do.
+ *
+ * We start by finding all elements and building a temporary list of items
+ * in which the text has not been processed into items.
+ *
+ * We then split the text into items, knowing what text surrounds it.
+ *
+ * Then we wrap each item in the text node in <span/> elements. This
+ * is done since it saves us from having to walk the tree again when we
+ * finally render the output.
+ */
+export class GetItemsFromDOMAndWrapInSpans {
+  itemsWithUnprocessedText: (DOMItem | TemporaryUnprocessedText)[] = [];
   items: DOMItem[] = [];
-  markGlueAsSkippedComingAfter = new Set<number>([0]);
-  markGlueAsSkippedComingBefore = new Set<number>();
+
+  /** All relative to indices in `itemsWithUnprocessedText` */
+  ignoreWhitespaceComingAfter = new Set<number>([0]);
+  ignoreWhitespaceComingBefore = new Set<number>();
+  nonBreakingRanges = new Set<[number, number]>();
 
   constructor(
     public paragraphElement: HTMLElement,
@@ -51,28 +76,29 @@ export class GetItemsFromDOM {
     public domTextMeasureFn: InstanceType<typeof DOMTextMeasurer>["measure"]
   ) {
     this.getItemsFromNode(this.paragraphElement);
-
+    this.processText();
     makeGlueAtEndsZeroWidth(this.items, 0, true);
     collapseAdjacentTextGlueWidths(this.items);
   }
 
   getItemsFromNode(node: Node, addParagraphEnd = true) {
-    const children = Array.from(node.childNodes);
-
-    let curOffset = 0;
-    children.forEach((child) => {
+    Array.from(node.childNodes).forEach((child) => {
       if (child instanceof Text) {
-        this.getItemsFromText(child, false);
-        curOffset += 1;
+        this.itemsWithUnprocessedText.push({
+          text: child.nodeValue || "",
+          textNode: child,
+          element: node as Element,
+        });
       } else if (child instanceof Element) {
         this.getItemsFromElement(child);
-        curOffset += 1;
       }
     });
 
     if (addParagraphEnd) {
-      this.markGlueAsSkippedComingBefore.add(this.items.length);
-      this.items.push(...paragraphEnd(this.options));
+      this.ignoreWhitespaceComingBefore.add(
+        this.itemsWithUnprocessedText.length
+      );
+      this.itemsWithUnprocessedText.push(...paragraphEnd(this.options));
     }
   }
 
@@ -95,12 +121,19 @@ export class GetItemsFromDOM {
 
     /** <br/> elements */
     if (element.tagName === "BR") {
-      this.markGlueAsSkippedComingBefore.add(this.items.length);
+      this.ignoreWhitespaceComingBefore.add(
+        this.itemsWithUnprocessedText.length
+      );
       if (this.options.addInfiniteGlueToFinalLine) {
-        this.items.push(glue(0, INFINITE_STRETCH, 0));
+        this.itemsWithUnprocessedText.push(glue(0, INFINITE_STRETCH, 0));
       }
-      this.items.push({ ...forcedBreak(), skipWhenRendering: true });
-      this.markGlueAsSkippedComingAfter.add(this.items.length);
+      this.itemsWithUnprocessedText.push({
+        ...forcedBreak(),
+        skipWhenRendering: true,
+      });
+      this.ignoreWhitespaceComingAfter.add(
+        this.itemsWithUnprocessedText.length
+      );
       return;
     }
 
@@ -111,19 +144,22 @@ export class GetItemsFromDOM {
         parseFloat(borderLeftWidth!) +
         parseFloat(paddingLeft!);
       if (leftMargin) {
-        this.items.push({
+        this.itemsWithUnprocessedText.push({
           ...box(leftMargin),
           skipWhenRendering: true,
         });
       }
 
-      const startLength = this.items.length;
+      const startLength = this.itemsWithUnprocessedText.length;
 
       // Add this.items for child nodes.
       this.getItemsFromNode(element, false);
 
       if (display === "inline-block") {
-        makeNonBreaking(this.items, startLength - 1, this.items.length - 1);
+        this.nonBreakingRanges.add([
+          startLength - 1,
+          this.itemsWithUnprocessedText.length - 1,
+        ]);
         // (element as HTMLElement).classList.add(
         //   "texLinebreakNearestBlockElement"
         // );
@@ -135,7 +171,7 @@ export class GetItemsFromDOM {
         parseFloat(borderRightWidth!) +
         parseFloat(paddingRight!);
       if (rightMargin) {
-        this.items.push({
+        this.itemsWithUnprocessedText.push({
           ...box(rightMargin),
           skipWhenRendering: true,
         });
@@ -151,53 +187,81 @@ export class GetItemsFromDOM {
       }
 
       // Treat this item as an opaque box.
-      this.items.push(box(_width));
+      this.itemsWithUnprocessedText.push(box(_width));
     }
   }
 
-  getItemsFromText(
-    textNode: Text,
-
-    addParagraphEnd = true
-  ) {
-    const text = textNode.nodeValue!;
-    const element = textNode.parentNode! as Element;
-
-    const precedingText = paragraphText.slice(0, textOffsetInParagraph);
-    const followingText = paragraphText.slice(
-      textOffsetInParagraph + text.length
-    );
-
-    let textOffsetInThisNode = 0;
-    const textItems = splitTextIntoItems(
-      text,
-      {
-        ...this.options,
-        measureFn: (word) => this.domTextMeasureFn(word, element, this.options),
-        addParagraphEnd,
-        collapseAllNewlines: true,
-      },
-      precedingText,
-      followingText
-    );
-
-    let replacementFragment = document.createDocumentFragment();
-    textItems.forEach((item: TextItem) => {
-      textOffsetInThisNode += (("text" in item && item.text) || "").length;
-      let span: HTMLElement | undefined;
-
-      if (item.type === "glue" || item.type === "box") {
-        span = tagNode(document.createElement("span"));
-        span.textContent = item.text || "";
+  /**
+   * Process all text in `itemsWithUnprocessedText` and
+   * wrap the items in the text node in <span/> elements
+   */
+  processText() {
+    let items: DOMItem[] = [];
+    for (let index = 0; index < this.itemsWithUnprocessedText.length; index++) {
+      const item = this.itemsWithUnprocessedText[index];
+      if (!("textNode" in item)) {
+        items.push(item);
+        continue;
       }
 
-      this.items.push({ ...item, span });
+      const precedingText = (() => {
+        const allPrecedingItems = this.itemsWithUnprocessedText.slice(0, index);
+        const previousParagraphBreakIndex = allPrecedingItems.findIndex(
+          (_item, _index) => isForcedBreak(_item as DOMItem) || _index === 0
+        );
+        return allPrecedingItems
+          .slice(previousParagraphBreakIndex)
+          .map(getText)
+          .join("");
+      })();
 
-      if (span) {
-        replacementFragment.appendChild(span);
-      }
-    });
+      const followingText = (() => {
+        const allFollowingItems = this.itemsWithUnprocessedText.slice(index);
+        const nextParagraphBreakIndex = allFollowingItems.findIndex(
+          (_item, _index) =>
+            isForcedBreak(_item as DOMItem) ||
+            _index === allFollowingItems.length - 1
+        );
+        return allFollowingItems
+          .slice(nextParagraphBreakIndex)
+          .map(getText)
+          .join("");
+      })();
 
-    textNode.parentNode!.replaceChild(replacementFragment, textNode);
+      const textItems = splitTextIntoItems(
+        item.text,
+        {
+          ...this.options,
+          measureFn: (word) =>
+            this.domTextMeasureFn(word, item.element, this.options),
+          addParagraphEnd: false,
+          collapseAllNewlines: true,
+        },
+        precedingText,
+        followingText
+      );
+
+      let replacementFragment = document.createDocumentFragment();
+      textItems.forEach((item: TextItem) => {
+        let span: HTMLElement | undefined;
+
+        if (item.type === "glue" || item.type === "box") {
+          span = tagNode(document.createElement("span"));
+          span.textContent = getText(item);
+        }
+
+        this.items.push({ ...item, span });
+
+        if (span) {
+          replacementFragment.appendChild(span);
+        }
+      });
+
+      item.textNode.parentNode!.replaceChild(
+        replacementFragment,
+        item.textNode
+      );
+    }
+    this.items = items;
   }
 }

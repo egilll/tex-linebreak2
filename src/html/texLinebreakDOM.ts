@@ -1,5 +1,8 @@
 import DOMTextMeasurer from "src/html/domTextMeasurer";
-import { DOMItem, GetItemsFromDOM } from "src/html/getItemsFromDOM";
+import {
+  DOMItem,
+  GetItemsFromDOMAndWrapInSpans,
+} from "src/html/getItemsFromDOM";
 import { getFloatingElements } from "src/html/htmlUtils";
 import { getElementLineWidth } from "src/html/lineWidthDOM";
 import { getTaggedChildren, tagNode } from "src/html/tagNode";
@@ -69,11 +72,11 @@ export async function texLinebreakDOM(
       } else {
         /** Undo the changes made by any previous justification of this content. */
         resetDOMJustification(element);
-        items = GetItemsFromDOM(
+        items = new GetItemsFromDOMAndWrapInSpans(
           element,
           { ...options, lineWidth },
           domTextMeasureFn
-        );
+        ).items;
         (element as any)["texLinebreakItems"] = items;
         (element as any)["lastTextContent"] = element.textContent;
       }

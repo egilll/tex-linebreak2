@@ -15,6 +15,7 @@ export function collapseAdjacentTextGlueWidths(items: TextItem[]) {
   for (let i = 0; i < items.length; i++) {
     if (
       items[i].type === "glue" &&
+      items[i].width > 0 &&
       items[i - 1]?.type !== "glue" &&
       items[i + 1]?.type === "glue" &&
       "text" in items[i]

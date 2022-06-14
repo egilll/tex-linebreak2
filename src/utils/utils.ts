@@ -42,6 +42,10 @@ export function isPenaltyThatDoesNotForceBreak(item: Item) {
   return item && item.type === "penalty" && item.cost > MIN_COST;
 }
 
+export function getText(input: any): string {
+  return ("text" in input && input.text) || "";
+}
+
 /**
  * Gets the stretch of a glue, taking into account the setting
  * {@link TexLinebreakOptions#infiniteGlueStretchAsRatioOfWidth}
