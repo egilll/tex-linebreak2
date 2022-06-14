@@ -175,6 +175,7 @@ export function validateItems(items: Item[]) {
       items[index + 2].type === "box"
   );
   if (gluePenaltyBoxIndex >= 0) {
+    console.log({ items });
     console.log(items.slice(gluePenaltyBoxIndex - 2, gluePenaltyBoxIndex + 5));
     throw new Error(
       `It appears you're trying to penalize a glue at index ${gluePenaltyBoxIndex}, but remember that penalty comes before the glue.`

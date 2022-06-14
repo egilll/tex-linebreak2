@@ -35,3 +35,4 @@
 - <wbr/>
 - there is something wrong with <br/>, the output is different depending on actual paragraph breaks vs <br/> breaks. Should perhaps be separated.
 - last glue in ragged text should be of the same stretchiness
+- force split doesn't work right

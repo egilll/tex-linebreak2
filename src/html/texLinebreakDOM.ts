@@ -96,7 +96,7 @@ export async function texLinebreakDOM(
 
         /** Insert <br/> elements to separate the lines */
         if (line.lineIndex > 0 && !line.prevBreakItem?.skipWhenRendering) {
-          const br = document.createElement("br");
+          const br = tagNode(document.createElement("br"));
           br.className = "texLinebreak";
           const firstItem = items.find((i) => i.span);
           if (firstItem) {
@@ -250,7 +250,6 @@ export function resetDOMJustification(element: HTMLElement) {
 
   // Re-join text nodes that were split by `justifyContent`.
   element.normalize();
-  element.style.visibility = "visible";
   element.style.whiteSpace = "initial";
 }
 

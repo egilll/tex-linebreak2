@@ -33,9 +33,6 @@ const getLineWidths = (height: number, lineHeight: number) => {
     lineWidth.push(x);
     leftIndentPerLine.push((height - x) / 2);
   }
-  if (lineWidth[0] !== lineWidth.at(-1)) {
-    console.warn(lineWidth);
-  }
   return { lineWidth, leftIndentPerLine };
 };
 

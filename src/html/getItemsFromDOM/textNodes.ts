@@ -69,7 +69,7 @@ export function processText(
 
       if (item.type === "glue" || item.type === "box") {
         span = tagNode(document.createElement("span"));
-        span.textContent = getText(item);
+        span.appendChild(document.createTextNode(getText(item)));
       }
 
       _items.push({ ...item, span });

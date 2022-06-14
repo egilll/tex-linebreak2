@@ -33,7 +33,7 @@ export class TexLinebreakOptions {
    * CSS's "word-wrap: break-word").
    * Should be off if working with plaintext that a user will be copying.
    */
-  forceOverflowToBreak: boolean = true;
+  forceOverflowToBreak!: boolean;
 
   /**
    * How much stretch should there be to the "infinite" glue at the end of the
@@ -341,7 +341,8 @@ export class TexLinebreakOptions {
   constructor(options: Partial<TexLinebreakOptions> = {}) {
     if (!options.preset || options.preset === "html") {
       this.collapseAllNewlines = true;
-      this.forceOverflowToBreak = true;
+      // Needs work
+      this.forceOverflowToBreak = false;
     } else if (options.preset === "plainText") {
       this.collapseAllNewlines = false;
       this.forceOverflowToBreak = false;
