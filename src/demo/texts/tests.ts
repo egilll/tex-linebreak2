@@ -13,7 +13,7 @@ export const texts2: ListOfDemos = [
   },
   {
     id: "tmp2",
-    description: "<br/><br/><h2>Various tests</h2>",
+    description: "<h2>Various tests</h2>",
     content: `“Some <a href="#">simple text <i>with</i></a> <code>inline</code> and
               <span style="display: inline-block; border: 1px solid gray"> inline block </span>
               el&shy;em&shy;ents can be found in this paragraph

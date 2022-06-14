@@ -11,7 +11,6 @@ import { visualizeBoxesForDebugging } from "src/html/visualizeBoxesForDebugging"
 import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
-import { TextGlue } from "src/utils/items";
 import { getMaxLineWidth } from "src/utils/utils";
 
 /**
@@ -133,16 +132,17 @@ export async function texLinebreakDOM(
               span.style.display = "none";
               continue;
             }
-            /**
-             * We try to not use `inline-block` since that messes with
-             * the formatting of links (each word gets its own underline)
-             */
-            if ((item as TextGlue).text) {
-              span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
-            } else {
-              span.style.width = `${item.adjustedWidth}px`;
-              span.style.display = "inline-block";
-            }
+            // /**
+            //  * We try to not use `inline-block` since that messes with
+            //  * the formatting of links (each word gets its own underline)
+            // TODO: Does not work for left-aligned text
+            //  */
+            // if ((item as TextGlue).text) {
+            //   span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
+            // } else {
+            span.style.width = `${item.adjustedWidth}px`;
+            span.style.display = "inline-block";
+            // }
             if (item.adjustedWidth <= 0) {
               span.style.fontSize = "0";
               span.style.width = "0";

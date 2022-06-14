@@ -1,4 +1,4 @@
-import { Glue, Item } from "src/breakLines";
+import { Glue, Item, MAX_COST, Penalty } from "src/breakLines";
 import { DOMGlue, DOMItem } from "src/html/getItemsFromDOM";
 import { TextItem } from "src/utils/items";
 import { isNonForcedBreak } from "src/utils/utils";
@@ -55,6 +55,9 @@ export function makeGlueAtBeginningZeroWidth(
       makeZeroWidth(items[i] as Glue, markAsSkipped);
     } else if (!(isFakeBox(items[i]) || isNonForcedBreak(items[i]))) {
       break;
+    } else if (isNonForcedBreak(items[i])) {
+      /** Note: Needed for left aligned text preceded by newlines. */
+      (items[i] as Penalty).cost = MAX_COST;
     }
   }
 }
@@ -69,6 +72,8 @@ export function makeGlueAtEndZeroWidth(
       makeZeroWidth(items[i] as Glue, markAsSkipped);
     } else if (!(isFakeBox(items[i]) || isNonForcedBreak(items[i]))) {
       break;
+    } else if (isNonForcedBreak(items[i])) {
+      (items[i] as Penalty).cost = MAX_COST;
     }
   }
 }
