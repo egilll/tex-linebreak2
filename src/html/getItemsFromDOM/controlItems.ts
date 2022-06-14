@@ -31,19 +31,19 @@ export function processControlItems(
       item?.type === "box" &&
       items[i - 1]?.type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
     ) {
-      const nextBoxIndex = items
+      const nextBoxIndexRelativeToThisItem = items
         .slice(i + 1)
         .findIndex(
           (item) =>
             item.type === "box" ||
             item.type === "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX"
         );
-      if (nextBoxIndex < 0) {
+      if (nextBoxIndexRelativeToThisItem < 0) {
         console.error("Expected a nextBoxIndex");
         continue;
       }
 
-      items.splice(nextBoxIndex, 0, item);
+      items.splice(nextBoxIndexRelativeToThisItem + i + 1, 0, item);
       items.splice(i, 1);
     }
 
@@ -51,21 +51,19 @@ export function processControlItems(
       item?.type === "box" &&
       items[i - 1]?.type === "MOVE_THIS_BOX_ADJACENT_TO_PREVIOUS_BOX"
     ) {
-      const prevBoxIndex =
-        items.length -
-        1 -
-        items
-          .slice(i - 1)
-          .reverse()
-          .findIndex(
-            (item) =>
-              item.type === "box" ||
-              item.type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
-          );
-      if (prevBoxIndex < 0) {
+      const prevBoxIndexRelativeToThisItem = items
+        .slice(0, i - 1)
+        .reverse()
+        .findIndex(
+          (item) =>
+            item.type === "box" ||
+            item.type === "MOVE_THIS_BOX_ADJACENT_TO_NEXT_BOX"
+        );
+      if (prevBoxIndexRelativeToThisItem < 0) {
         console.error("Expected a prevBoxIndex");
         continue;
       }
+      const prevBoxIndex = i - prevBoxIndexRelativeToThisItem - 1;
       items.splice(i, 1);
       items.splice(prevBoxIndex, 0, item);
     }
