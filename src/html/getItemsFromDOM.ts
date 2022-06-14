@@ -40,49 +40,43 @@ export type DOMGlue = (Glue | TextGlue) & DOMInfo;
 export type DOMPenalty = Penalty & DOMInfo;
 export type DOMItem = DOMBox | DOMGlue | DOMPenalty;
 
-/**
- * Multiple functions are placed inside the lexical scope of this function only
- * since we need to keep track of our current position in the paragraph's text.
- */
-export function getItemsFromDOM(
-  paragraphElement: HTMLElement,
-  options: TexLinebreakOptions,
-  domTextMeasureFn: InstanceType<typeof DOMTextMeasurer>["measure"]
-): DOMItem[] {
-  let items: DOMItem[] = [];
-  let paragraphText = paragraphElement.textContent || "";
-  /**
-   * This is done since we need to be aware of the
-   * surrounding text in order to find correct break points.
-   *
-   * TODO: Should stop on <br/> and <div/> boundaries
-   */
-  let textOffsetInParagraph: number = 0;
+export class GetItemsFromDOM {
+  items: DOMItem[] = [];
+  markGlueAsSkippedComingAfter = new Set<number>([0]);
+  markGlueAsSkippedComingBefore = new Set<number>();
 
-  let markGlueAsSkippedComingAfter = new Set<number>([0]);
-  let markGlueAsSkippedComingBefore = new Set<number>();
+  constructor(
+    public paragraphElement: HTMLElement,
+    public options: TexLinebreakOptions,
+    public domTextMeasureFn: InstanceType<typeof DOMTextMeasurer>["measure"]
+  ) {
+    this.getItemsFromNode(this.paragraphElement);
 
-  function getItemsFromNode(node: Node, addParagraphEnd = true) {
+    makeGlueAtEndsZeroWidth(this.items, 0, true);
+    collapseAdjacentTextGlueWidths(this.items);
+  }
+
+  getItemsFromNode(node: Node, addParagraphEnd = true) {
     const children = Array.from(node.childNodes);
 
     let curOffset = 0;
     children.forEach((child) => {
       if (child instanceof Text) {
-        getItemsFromText(child, false);
+        this.getItemsFromText(child, false);
         curOffset += 1;
       } else if (child instanceof Element) {
-        getItemsFromElement(child);
+        this.getItemsFromElement(child);
         curOffset += 1;
       }
     });
 
     if (addParagraphEnd) {
-      markGlueAsSkippedComingBefore.add(items.length);
-      items.push(...paragraphEnd(options));
+      this.markGlueAsSkippedComingBefore.add(this.items.length);
+      this.items.push(...paragraphEnd(this.options));
     }
   }
 
-  function getItemsFromElement(element: Element) {
+  getItemsFromElement(element: Element) {
     const {
       display,
       position,
@@ -101,39 +95,38 @@ export function getItemsFromDOM(
 
     /** <br/> elements */
     if (element.tagName === "BR") {
-      markGlueAsSkippedComingBefore.add(items.length);
-      if (options.addInfiniteGlueToFinalLine) {
-        items.push(glue(0, INFINITE_STRETCH, 0));
+      this.markGlueAsSkippedComingBefore.add(this.items.length);
+      if (this.options.addInfiniteGlueToFinalLine) {
+        this.items.push(glue(0, INFINITE_STRETCH, 0));
       }
-      items.push({ ...forcedBreak(), skipWhenRendering: true });
-      markGlueAsSkippedComingAfter.add(items.length);
+      this.items.push({ ...forcedBreak(), skipWhenRendering: true });
+      this.markGlueAsSkippedComingAfter.add(this.items.length);
       return;
     }
 
     if (display === "inline" || display === "inline-block") {
       // Add box for margin/border/padding at start of box.
-      // TODO: Verify.
       const leftMargin =
         parseFloat(marginLeft!) +
         parseFloat(borderLeftWidth!) +
         parseFloat(paddingLeft!);
-      if (leftMargin > 0) {
-        items.push({
+      if (leftMargin) {
+        this.items.push({
           ...box(leftMargin),
           skipWhenRendering: true,
         });
       }
 
-      let startLength = items.length;
+      const startLength = this.items.length;
 
-      // Add items for child nodes.
-      getItemsFromNode(element, false);
+      // Add this.items for child nodes.
+      this.getItemsFromNode(element, false);
 
       if (display === "inline-block") {
-        makeNonBreaking(items, startLength - 1, items.length - 1);
-        (element as HTMLElement).classList.add(
-          "texLinebreakNearestBlockElement"
-        );
+        makeNonBreaking(this.items, startLength - 1, this.items.length - 1);
+        // (element as HTMLElement).classList.add(
+        //   "texLinebreakNearestBlockElement"
+        // );
       }
 
       // Add box for margin/border/padding at end of box.
@@ -141,8 +134,8 @@ export function getItemsFromDOM(
         parseFloat(marginRight!) +
         parseFloat(borderRightWidth!) +
         parseFloat(paddingRight!);
-      if (rightMargin > 0) {
-        items.push({
+      if (rightMargin) {
+        this.items.push({
           ...box(rightMargin),
           skipWhenRendering: true,
         });
@@ -158,13 +151,15 @@ export function getItemsFromDOM(
       }
 
       // Treat this item as an opaque box.
-      // items.push(itemWithOffset(box(_width), parentNode, startOffset, startOffset + 1);
-      items.push(itemWithSpan(box(_width) /*element, 0, 1*/));
-      textOffsetInParagraph += element.textContent?.length || 0;
+      this.items.push(box(_width));
     }
   }
 
-  function getItemsFromText(textNode: Text, addParagraphEnd = true) {
+  getItemsFromText(
+    textNode: Text,
+
+    addParagraphEnd = true
+  ) {
     const text = textNode.nodeValue!;
     const element = textNode.parentNode! as Element;
 
@@ -177,8 +172,8 @@ export function getItemsFromDOM(
     const textItems = splitTextIntoItems(
       text,
       {
-        ...options,
-        measureFn: (word) => domTextMeasureFn(word, element, options),
+        ...this.options,
+        measureFn: (word) => this.domTextMeasureFn(word, element, this.options),
         addParagraphEnd,
         collapseAllNewlines: true,
       },
@@ -196,7 +191,7 @@ export function getItemsFromDOM(
         span.textContent = item.text || "";
       }
 
-      items.push(itemWithSpan(item, span));
+      this.items.push({ ...item, span });
 
       if (span) {
         replacementFragment.appendChild(span);
@@ -204,26 +199,5 @@ export function getItemsFromDOM(
     });
 
     textNode.parentNode!.replaceChild(replacementFragment, textNode);
-
-    textOffsetInParagraph += textOffsetInThisNode;
   }
-
-  getItemsFromNode(paragraphElement);
-
-  makeGlueAtEndsZeroWidth(items, 0, true);
-  collapseAdjacentTextGlueWidths(items);
-
-  return items;
-}
-
-/**
- * Helper function that limits boilerplate above.
- * Adds an item and makes a record of its DOM range
- */
-function itemWithSpan(item: Box | Glue | Penalty, span?: HTMLElement) {
-  // (Not using the spread operator here shaves off a
-  // few dozen milliseconds as it would otherwise use Babel's polyfill)
-  const output = item as DOMItem;
-  output.span = span;
-  return output;
 }
