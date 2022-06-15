@@ -133,6 +133,20 @@ export type LineBreakingNode = {
   prev: null | LineBreakingNode;
 };
 
+// (TypeScript function overloading)
+export function breakLines(
+  items: Item[],
+  _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
+  returnMetadata?: undefined,
+  currentRecursionDepth?: number
+): number[];
+export function breakLines(
+  items: Item[],
+  _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
+  returnMetadata: boolean,
+  currentRecursionDepth?: number
+): LineBreakingNode[];
+
 /**
  * Break a paragraph of text into justified lines.
  *
@@ -158,15 +172,16 @@ export type LineBreakingNode = {
  *       {@link TexLinebreakOptions#doubleHyphenPenalty}
  *       {@link TexLinebreakOptions#adjacentLooseTightPenalty}
  *       {@link TexLinebreakOptions#preventSingleWordLines}
+ * @param returnMetadata - May be used by optimization functions to retrieve the line-breaking nodes.
  * @param currentRecursionDepth - Used internally to keep track of how often this function has called itself
- *       (done when increasing the allowed adjustmend ratio).
+ *       (done when increasing the allowed adjustment ratio).
  */
 export function breakLines(
   items: Item[],
   _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
   returnMetadata = false,
   currentRecursionDepth = 0
-): any /* TEMP */ {
+): number[] | LineBreakingNode[] {
   if (items.length === 0) return [];
 
   const options = getOptionsWithDefaults(_options);

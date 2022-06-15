@@ -212,13 +212,16 @@ export class TexLinebreakOptions {
   /**
    * - `normal` fills the entire allowed width, with the the last line of each
    *   paragraph being allowed to end with a significant amount of space.
-   * - `findOptimalWidth` will shrink the paragraph's width until ... TODO
-   * - `compact` will shrink each paragraph independently so all lines
-   *   (including the last line) are aligned.
    * - `greedy` will break greedily instead of using TeX's line breaking
    *   algorithm.
+   *
+   * Work in progress:
+   *
+   * - `findOptimalWidth` will shrink the paragraph's width to keep few
+   *   unfilled last lines
+   * - `compact` will shrink each paragraph independently
    */
-  lineBreakingType: "normal" | "findOptimalWidth" | "compact" | "greedy" =
+  lineBreakingType: "normal" /* | "findOptimalWidth" | "compact"*/ | "greedy" =
     "normal";
 
   /**
@@ -263,11 +266,11 @@ export class TexLinebreakOptions {
    */
   addParagraphEnd: boolean = true;
 
-  /**
-   * If the lineBreakingType option is set to `findOptimalWidth` or
-   * `compact`, this value may be used to set a lower limit for the width.
-   */
-  minWidth?: number;
+  // /**
+  //  * If the lineBreakingType option is set to `findOptimalWidth` or
+  //  * `compact`, this value may be used to set a lower limit for the width.
+  //  */
+  // minWidth?: number;
 
   /**
    * Whether to prevent single long word that does not fill 100% of the allowed

@@ -27,10 +27,10 @@ export class TexLinebreak<
 > {
   items: InputItemType[];
   options: TexLinebreakOptions;
+
   constructor(
     input: string | InputItemType[],
     options: Partial<TexLinebreakOptions>
-    // options: RequireOnlyCertainKeys<TexLinebreakOptions, 'lineWidth'>,
   ) {
     this.options = getOptionsWithDefaults(options);
     if (typeof input === "string") {
@@ -40,7 +40,7 @@ export class TexLinebreak<
     }
   }
 
-  /** Returns the indices of items which are breakpoints */
+  /** The indices of items which are breakpoints */
   get breakpoints(): number[] {
     if (!this.options.lineWidth) {
       throw new Error("The option `lineWidth` is required");
@@ -55,6 +55,7 @@ export class TexLinebreak<
     }
   }
 
+  /** An array of {@link Line} objects describing each line. */
   get lines(): Line<InputItemType>[] {
     let lines: Line<InputItemType>[] = [];
     const breakpoints = this.breakpoints;
@@ -81,15 +82,25 @@ export class TexLinebreak<
   }
 }
 
+/**
+ * An object describing each line of the output.
+ *
+ * For most use-cases, the only property you're
+ * interested in is `positionedItems`.
+ */
 export class Line<
   InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item
 > {
-  items: InputItemType[];
+  /**
+   * Items with information regarding their position (xOffset)
+   * and their adjusted width ({@see ItemPosition}).
+   */
   positionedItems: (InputItemType & ItemPosition)[];
   adjustmentRatio: number;
+  items: InputItemType[];
   /**
-   * Items that matter for the purposes of rendering this line (i.e.
-   * filters out penalties, and non-important glues are made zero-width)
+   * Items with penalties (non-breakpoint) filtered
+   * out and with beginning glue collapsed.
    */
   itemsFiltered: InputItemType[];
   options: TexLinebreakOptions;
@@ -114,10 +125,7 @@ export class Line<
     }
   }
 
-  /**
-   * Returns items to be displayed with their
-   * position information ({@see ItemPosition}).
-   */
+  /** @see Line#positionedItems */
   getPositionedItems(): (InputItemType & ItemPosition)[] {
     const output: (InputItemType & ItemPosition)[] = [];
     let xOffset = this.leftIndentation;
@@ -165,26 +173,6 @@ export class Line<
     return output;
   }
 
-  get leftIndentation() {
-    if (this.options.leftIndentPerLine) {
-      return getLineWidth(this.options.leftIndentPerLine, this.lineIndex);
-    }
-    return 0;
-  }
-
-  /**
-   * In certain cases such as overflowing text, the last
-   * line will consist of nothing but infinite glue and the
-   * final penalty. Such lines do not need to be printed.
-   */
-  get isExtraneousLine() {
-    return (
-      !this.itemsFiltered.some((item) => item.type === "box") &&
-      isForcedBreak(this.parentClass.items[this.endBreakpoint]) &&
-      !isForcedBreak(this.parentClass.items[this.startBreakpoint])
-    );
-  }
-
   getAdjustmentRatio(): number {
     const idealWidth = getLineWidth(this.options.lineWidth, this.lineIndex);
     let actualWidth = 0;
@@ -223,6 +211,7 @@ export class Line<
     }
   }
 
+  /** @see Line#itemsFiltered */
   getItemsFiltered(): InputItemType[] {
     let itemsFiltered = this.items.slice();
     let hasBoxBeenSeen: boolean;
@@ -332,5 +321,27 @@ export class Line<
 
   get endsWithSoftHyphen(): boolean {
     return isSoftHyphen(this.items.at(-1));
+  }
+
+  get leftIndentation() {
+    if (this.options.leftIndentPerLine) {
+      return getLineWidth(this.options.leftIndentPerLine, this.lineIndex);
+    }
+    return 0;
+  }
+
+  /**
+   * In certain cases such as overflowing text, the last
+   * line will consist of nothing but infinite glue and the
+   * final penalty. Such lines do not need to be printed.
+   *
+   * Todo: This should be dealt with differently.
+   */
+  get isExtraneousLine() {
+    return (
+      !this.itemsFiltered.some((item) => item.type === "box") &&
+      isForcedBreak(this.parentClass.items[this.endBreakpoint]) &&
+      !isForcedBreak(this.parentClass.items[this.startBreakpoint])
+    );
   }
 }

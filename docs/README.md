@@ -1,6 +1,7 @@
 <p align="center"><img width="245" height="251" src="images/knuth_quote_circle.png" align="center" title="Quote from the introduction of Knuth & Plass's paper"></p>
 
 # tex-linebreak2
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 <sub>(This repository is an extension of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight. It is functional, but is a work-in-progress as of June 2022, and has not been published on NPM.)</sub>
@@ -77,6 +78,7 @@ hyphenation and this library:
   </tr>
 </table>
 
+<!--
 ## Bookmarklet
 
 One way to see what the library can do is to [install the bookmarklet](bookmarklet.js) and activate it on an existing web page, such as this
@@ -89,6 +91,7 @@ so try it in your browser's responsive design mode.
 Note that the bookmarklet does not work on sites that use
 [Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
 to restrict where scripts can be loaded from.
+-->
 
 ## Installation
 
@@ -151,7 +154,7 @@ The library does not support:
 - Floating elements when `line-height` isn't set
 - Columns
 - Contenteditable elements
-- The CSS properties  `font-stretch`, `font-size-adjust`, and `font-kerning`
+- The CSS properties `font-stretch`, `font-size-adjust`, and `font-kerning`
 - If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, and that may introduce a noticable lag.
 - There may be issues regarding nested inline-block elements.
 - Using `<br/>` instead of using new paragraph elements currently sometimes causes very wide spaces instead of optimal spacing, which is a bug.
@@ -264,9 +267,9 @@ The following helper functions are available:
 
 ## Hyphenation
 
-The recommended way to add hyphenation is to preprocess your text server-side and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text. This can be achieved with a library such as [Hyphen](https://github.com/ytiurin/hyphen). Client-side hyphenation will cause a noticable amount of lag on large documents. 
+The recommended way to add hyphenation is to preprocess your text server-side and add [soft hyphen](https://en.wikipedia.org/wiki/Soft_hyphen) characters (`&shy;` in HTML, `\u00AD` in Unicode) to your text. This can be achieved with a library such as [Hyphen](https://github.com/ytiurin/hyphen). Client-side hyphenation will cause a noticable amount of lag on large documents.
 
-*tex-linebreak2* will strip the soft hyphen characters from the output so they won't be of annoyance to users who copy your text (can be turned off with the option `stripSoftHyphensFromOutputText`).
+_tex-linebreak2_ will strip the soft hyphen characters from the output so they won't be of annoyance to users who copy your text (can be turned off with the option `stripSoftHyphensFromOutputText`).
 
 ## Contributors
 

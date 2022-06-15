@@ -1,4 +1,4 @@
-import DOMTextMeasurer from "src/html/domTextMeasurer";
+import DOMTextMeasurer from "src/html/DOMTextMeasurer";
 import {
   DOMItem,
   getItemsFromDOMAndWrapInSpans,
@@ -237,7 +237,7 @@ export function removeInsertedBrs(element: HTMLElement) {
 
 /** Reverse the changes made to an element by {@link texLinebreakDOM}. */
 export function resetDOMJustification(element: HTMLElement) {
-  // Find and remove all elements inserted by `justifyContent`.
+  // Find and remove all elements inserted by `texLinebreakDOM`.
   const tagged = getTaggedChildren(element);
   for (let node of tagged) {
     const parent = node.parentNode!;
@@ -248,7 +248,7 @@ export function resetDOMJustification(element: HTMLElement) {
     parent.removeChild(node);
   }
 
-  // Re-join text nodes that were split by `justifyContent`.
+  // Re-join text nodes that were split by `texLinebreakDOM`.
   element.normalize();
   element.style.whiteSpace = "initial";
 }

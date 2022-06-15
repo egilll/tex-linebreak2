@@ -1,4 +1,4 @@
-import DOMTextMeasurer from "src/html/domTextMeasurer";
+import DOMTextMeasurer from "src/html/DOMTextMeasurer";
 import { TemporaryControlItem } from "src/html/getItemsFromDOM/controlItems";
 import { DOMItem } from "src/html/getItemsFromDOM/index";
 import { tagNode } from "src/html/tagNode";

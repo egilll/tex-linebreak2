@@ -1,5 +1,5 @@
 import { Box, Glue, Penalty } from "src/breakLines";
-import DOMTextMeasurer from "src/html/domTextMeasurer";
+import DOMTextMeasurer from "src/html/DOMTextMeasurer";
 import {
   processControlItems,
   TemporaryControlItem,
