@@ -1,4 +1,4 @@
-<p align="center"><img width="245" src="images/knuth_quote_circle.png" align="center" title="Quote from the introduction of Knuth & Plass's paper"></p>
+<p align="center"><img width="245" height="251" src="images/knuth_quote_circle.png" align="center" title="Quote from the introduction of Knuth & Plass's paper"></p>
 
 # tex-linebreak2
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

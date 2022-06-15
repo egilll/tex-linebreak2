@@ -1,38 +1,40 @@
-- urls should break on / not on dashes
-- break only visible paragraphs
-- demo should respect newlines
-- hypher very slow since it needs to initialize tries
-- inline block elements do not have stretchy glue
-- optimal width ætti að prófa nokkrar stærðir
-- includeSoftHyphensInOutput
-- \penalty 1000
+Important:
 
-- treat "\ " as a non-breaking space
-- include spaces in output
+* The `nowrap` which is applied to the paragraph should not apply to sub-elements such as floated nested content.
+* Test nested inline-block elemenents.
+* Wait until `DOMContentLoaded` to check again whether things have changed (e.g. fonts loaded)
+* Tthere is something wrong with `<br/>`, the output is different depending on actual paragraph breaks vs `<br/>` breaks. Should perhaps be separated.
+* last glue in ragged text should be of the same stretchiness
+* `<wbr/>` not supported
 
-- optimum fit
-- vera viss um að webpack exporti öllu
 
-- Since the task of word division is nontrivial, TEX first tries to break a paragraph into lines without any discretionary hyphens
-- The second pass would only try to hyphenate uncapitalized words of five or more letters
 
--If the paragraph is to be indented, the first item x,will be an empty box whose width is the amount of indentation.
+For the future:
 
-- ability to prefer certain soft hyphens over others
-- prefer already-existing soft hyphens
-- þarf að passa að keyra ekki hyphenation aftur á orðum sem eru nú þegar með soft hyphen?
-- inline-block items with margins
+- Indentation: "If the paragraph is to be indented, the first item x,will be an empty box whose width is the amount of indentation."
 
-- nowrap ætti ekki að gilda um sub-elements!
-- performance test
+- Ability to prefer certain soft hyphens over others (i.e. word-level breaks over syllable breaks)
+
+- Urls should break on slashes rather than dashes
+
+- Find optimal width
+
+- 
+
+  
+
 - wait until ondomloaded to check again whether things have changed (e.g. fonts loaded)
 
 - when applied to a top-level div, "no-break" should not apply to it!
 
 - ignore zero-width word-final glue in block elements
+
 - test if works with very very long paragraphs. prevent too many recursive breaklines calls
+
 - can nested inline blocks break?
-- <wbr/>
-- there is something wrong with <br/>, the output is different depending on actual paragraph breaks vs <br/> breaks. Should perhaps be separated.
-- last glue in ragged text should be of the same stretchiness
+
+- `<wbr/>`
+
+- 
+
 - force split doesn't work right
