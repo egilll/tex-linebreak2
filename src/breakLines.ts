@@ -296,17 +296,6 @@ export function breakLines(
       const idealLen = getLineWidth(options.lineWidth, a.line);
       let actualLen = sumWidth - a.totalWidth;
 
-      // /** Hanging punctuation */
-      // if (options.hangingPunctuation) {
-      //   const firstBoxInLine = items.slice(a.index, b).find((i) => i.type === 'box') as Box;
-      //   const lastBoxInLine = items
-      //     .slice(a.index, b)
-      //     .reverse()
-      //     .find((i) => i.type === 'box') as Box;
-      //   actualLen -= firstBoxInLine?.leftHangingPunctuationWidth || 0;
-      //   actualLen -= lastBoxInLine?.rightHangingPunctuationWidth || 0;
-      // }
-
       /** Include width of penalty in line length if chosen as a breakpoint. */
       if (item.type === "penalty") {
         actualLen += item.width;
@@ -392,7 +381,8 @@ export function breakLines(
          */
         let demerits;
         const badness = 100 * Math.abs(adjustmentRatio) ** 3;
-        const penalty = item.type === "penalty" ? item.cost : 0;
+        const penalty =
+          item.type === "penalty" ? item.cost * options.penaltyMultiplier : 0;
 
         if (penalty >= 0) {
           demerits = (1 + badness + penalty) ** 2;

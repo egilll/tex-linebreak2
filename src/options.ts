@@ -311,6 +311,14 @@ export class TexLinebreakOptions {
   updateOnWindowResize: boolean = true;
 
   /**
+   * If you feel the algorithm isn't penalizing your penalties enough
+   * even at the maximum breakable cost (MAX_COST - 1), you can increase
+   * this value to make the penalties count more towards demerits. You
+   * may also want to increase `initialMaxAdjustmentRatio` alongside.
+   */
+  penaltyMultiplier: number = 1;
+
+  /**
    * (Only applies to texLinebreakDOM)
    *
    * Whether the container element should be given a specific width after
@@ -350,6 +358,7 @@ export class TexLinebreakOptions {
     /** Ragged text */
     if (options.align && options.align !== "justify") {
       this.softHyphenPenalty = 500;
+      this.penaltyMultiplier = 4;
       this.glueShrinkFactor = 0.2;
       this.glueStretchFactor = 0.3;
       this.renderLineAsLeftAlignedIfAdjustmentRatioExceeds = 1;

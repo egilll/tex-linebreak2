@@ -9,10 +9,11 @@
 - Test on actual webpages.
 - Bookmarklet
 - Cache
+- Penalty based on distance to next penalty
 
 Other:
 
-* `isExtraneousLine`
+- `isExtraneousLine`
 
 ---
 
