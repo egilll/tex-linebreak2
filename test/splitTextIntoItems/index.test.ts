@@ -1,5 +1,5 @@
 import { texLinebreakMonospace } from "src/utils/monospace";
-import { hyphenateFn } from "test/utils/enHyphenateFn";
+import { hyphenateFn } from "test/testUtils/enHyphenateFn";
 
 it("lays out lines applying hyphenation", () => {
   const text = `When the first paper volume of Donald Knuth's The Art of Computer Programming was published in 1968,[4] it was typeset using hot metal typesetting set by a Monotype Corporation typecaster. This method, dating back to the 19th century, produced a "good classic style" appreciated by Knuth.`;

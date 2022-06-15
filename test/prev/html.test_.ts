@@ -1,5 +1,5 @@
 import { justifyContent } from "src/deprecated/justifyContent";
-import { hyphenateFn } from "test/utils/enHyphenateFn";
+import { hyphenateFn } from "test/testUtils/enHyphenateFn";
 
 function extractLines(el: HTMLElement) {
   const tmpEl = document.createElement("span");
