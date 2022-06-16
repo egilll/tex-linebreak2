@@ -157,7 +157,7 @@ The library does not support:
 - The CSS properties `font-stretch`, `font-size-adjust`, and `font-kerning`
 - If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, and that may introduce a noticable lag.
 - There may be issues regarding nested inline-block elements.
-- Using `<br/>` instead of using new paragraph elements currently sometimes causes very wide spaces instead of optimal spacing, which is a bug.
+- Using `<br/>` instead of using new paragraph elements currently sometimes causes very wide spaces instead of optimal spacing, which is a bug.
 
 ### Other types of text
 
@@ -256,9 +256,9 @@ It has the following properties:
 - `items`, the boxes, glues, and penalties that make up a paragraph
 - `breakpoints` are the indices of items that break a line
 
-A [`Line`](../src/index.ts) object describes a single line of the output. Its has the following properties:
+A [`Line`](../src/index.ts) object describes a single line of the output. Its has the following property:
 
-- `positionedItems` – An array of each item (box, glue, and penalty) that is relevant for rendering the line (i.e. without irrelevant glues and penalties), along with their positioning information given as `xOffset` and `adjustedWidth` (width including any stretching or shrinking).
+- `positionedItems` – An array of the items (box, glue, and penalties) that are relevant for rendering the line (with irrelevant penalties having been removed and with irrelevant glue having been given a width of zero), along with their positioning information given as `xOffset` and `adjustedWidth` (width including any stretching or shrinking).
 
 The following helper functions are available:
 

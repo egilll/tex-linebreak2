@@ -10,6 +10,7 @@
 - Bookmarklet
 - Cache
 - Penalty based on distance to next penalty
+- Sanity check in DOM: Check if the last element in the first line is actually positioned as expected. That would detect issues with the DOM layout (for example, the iOS browser occasionally makes lines overflow)
 
 Other:
 

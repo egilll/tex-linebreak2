@@ -17,13 +17,6 @@ export interface Box {
   type: "box";
   /** Amount of space required by this content. Must be >= 0. */
   width: number;
-
-  // /** Values for hanging punctuation. */
-  // rightHangingPunctuationWidth?: number;
-  // leftHangingPunctuationWidth?: number;
-
-  // /** If we have to take into account different widths depending on whether a word is broken apart or not (e.g. ligatures) */
-  // widthIfNoBreakAfter?: number;
 }
 
 /**
