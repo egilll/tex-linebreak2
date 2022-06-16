@@ -1,1 +1,0 @@
-- extensions: ['.ts', '.js'] – necessary due to the "linebreak" package otherwise not resolving
