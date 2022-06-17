@@ -96,13 +96,13 @@ export class Line<
    * and their adjusted width ({@see ItemPosition}).
    */
   positionedItems: (InputItemType & ItemPosition)[];
-  adjustmentRatio: number;
-  items: InputItemType[];
   /**
    * Items with penalties (non-breakpoint) filtered
    * out and with beginning glue collapsed.
    */
   itemsFiltered: InputItemType[];
+  adjustmentRatio: number;
+  items: InputItemType[];
   options: TexLinebreakOptions;
   constructor(
     public parentClass: TexLinebreak<any>,
@@ -312,6 +312,7 @@ export class Line<
         .join("")
         // Collapse whitespace (todo: verify this should be done)
         .replace(/\s{2,}/g, " ")
+        .trim() /* Todo: verify */
     );
   }
 

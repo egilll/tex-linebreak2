@@ -29,14 +29,14 @@
   "dependencies": {
     "core-js": "3",
     "debounce": "^1.2.1",
-    "gh-pages": "^4.0.0",
     "hyphen": "^1.6.4",
     "linebreak": "^1.1.0",
     "string-width": "4.2.2",
-    "ttfjs": "^0.4.0",
-    "webpack-license-plugin": "^4.2.2"
+    "ttfjs": "^0.4.0"
   },
   "devDependencies": {
+    "gh-pages": "^4.0.0",
+    "webpack-license-plugin": "^4.2.2",
     "@babel/core": "^7.18.5",
     "@babel/preset-env": "^7.18.2",
     "@babel/preset-typescript": "^7.17.12",

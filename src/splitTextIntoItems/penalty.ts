@@ -30,7 +30,8 @@ export function getBreakpointPenalty(
     lastLetter === "\t" ||
     // Other breaking spaces
     (lastLetterClass === UnicodeLineBreakingClasses.BreakAfter &&
-      lastLetter.match(/\p{General_Category=Zs}/gu))
+      lastLetter.match(/\p{General_Category=Zs}/gu)) ||
+    nextLetterClass === null
   ) {
     return 0;
   }
@@ -94,11 +95,11 @@ export function getBreakpointPenalty(
     return 100;
   }
 
-  // Other break-classes
+  // Other break-classes, such as punctuation followed by opening brackets.
   else {
-    if (process.env.NODE_ENV === "development") {
-      console.warn(`Unknown other break-class: `, breakpoint);
-    }
+    // if (process.env.NODE_ENV === "development") {
+    //   console.warn(`Unknown other break-class: `, breakpoint);
+    // }
     return 900;
   }
 }

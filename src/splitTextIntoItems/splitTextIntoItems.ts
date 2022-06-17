@@ -42,7 +42,7 @@ export type BreakpointInformation = {
   required: boolean;
   lastLetter: string;
   lastLetterClass: UnicodeLineBreakingClasses;
-  nextLetterClass: UnicodeLineBreakingClasses;
+  nextLetterClass: UnicodeLineBreakingClasses | null;
   position: number;
 };
 
@@ -238,10 +238,10 @@ export function getAllowableUnicodeBreakpoints(
       input,
       currentBreak.position - 1
     );
-    const nextLetterClass = getUnicodeLineBreakingClassOfLetterAt(
-      input,
-      currentBreak.position
-    );
+    const nextLetterClass =
+      currentBreak.position < input.length
+        ? getUnicodeLineBreakingClassOfLetterAt(input, currentBreak.position)
+        : null;
     positionToBreakpointInformation[currentBreak.position] = {
       position: currentBreak.position,
       required: currentBreak.required,
@@ -299,9 +299,10 @@ export function getIndicesMatching(
     throw new Error("Invalid pattern type, got " + typeof pattern);
   }
 
-  function addToOutput(arr: number[], startIndex: number, endIndex: number) {
+  function addToOutput(arr: number[], startIndex: number, length: number) {
+    const endIndex = startIndex + length;
     if (type === "inside") {
-      for (let i = startIndex + 1; i < endIndex; i++) {
+      for (let i = startIndex + 1; i < endIndex - 1; i++) {
         arr.push(i);
       }
     } else if (type === "after") {

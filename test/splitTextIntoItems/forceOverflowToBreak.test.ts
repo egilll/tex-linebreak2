@@ -1,3 +1,4 @@
+import { assert } from "chai";
 import { texLinebreakMonospace } from "src/utils/monospace";
 
 it("forceOverflowToBreak", () => {

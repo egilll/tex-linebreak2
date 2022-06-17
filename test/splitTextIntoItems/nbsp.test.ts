@@ -1,3 +1,4 @@
+import { assert } from "chai";
 import { NON_BREAKING_SPACE } from "src/splitTextIntoItems/splitTextIntoItems";
 import { texLinebreakMonospace } from "src/utils/monospace";
 

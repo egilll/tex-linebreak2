@@ -1,3 +1,4 @@
+import { assert, expect } from "chai";
 import { breakLines, Item } from "src/breakLines";
 import { box, forcedBreak, glue } from "src/utils/items";
 import { texLinebreakMonospace } from "src/utils/monospace";
@@ -23,18 +24,18 @@ describe("layout", () => {
         "purposes of sponsorship) took place on 2",
         "April 2017. Held annually, the Boat Race",
         "is a side-by-side rowing race between",
-        "crews from the universities of Oxford",
-        "and Cambridge along a 4.2-mile (6.8 km)",
-        "tidal stretch of the River Thames in",
-        "south-west London. For the second time",
-        "in the history of the event, the men's,",
-        "women's and both reserves' races were",
-        "all held on the Tideway on the same day.",
+        "crews from the universities of Oxford and",
+        "Cambridge along a 4.2-mile (6.8 km) tidal",
+        "stretch of the River Thames in south-",
+        "west London. For the second time in the",
+        "history of the event, the men's, women's",
+        "and both reserves' races were all held",
+        "on the Tideway on the same day.",
       ]);
 
       // Check that adjustment ratios for each line are in range.
       t.lines.forEach((line) => {
-        expect(line.adjustmentRatio).toBeGreaterThanOrEqual(-1);
+        expect(line.adjustmentRatio).to.be.gte(-1);
         // expect(line.adjustmentRatio).toBeLessThanOrEqual(layoutOptions.maxAdjustmentRatio);
       });
     });
@@ -165,13 +166,13 @@ describe("layout", () => {
         adjacentLooseTightPenalty: 10000,
       });
 
-      expect(breakpointsA).not.toEqual(breakpointsB);
+      expect(breakpointsA).not.to.eq(breakpointsB);
     });
 
     it("throws `MaxAdjustmentExceededError` if max adjustment ratio is exceeded", () => {
       const items = [box(10), glue(5, 10, 10), box(10), forcedBreak()];
       const opts = { maxAdjustmentRatio: 1 };
-      expect(() => breakLines(items, { lineWidth: 100, ...opts })).toThrow();
+      expect(() => breakLines(items, { lineWidth: 100, ...opts })).to.throw();
     });
   });
 

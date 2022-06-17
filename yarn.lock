@@ -4531,6 +4531,11 @@ karma-chrome-launcher@^3.1.0:
   dependencies:
     which "^1.2.1"
 
+karma-clear-screen-reporter@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/karma-clear-screen-reporter/-/karma-clear-screen-reporter-1.0.0.tgz#97e270ab1715e2d8a194b86b9d11845f8a6186e1"
+  integrity sha512-tERjRQ1agCq00odJ7KTHglvQGslhezsGs6uSSsLSNA72f3rkncXk6we5yd3XuEUGvYoaBo9EdpWL0SUyo47b/g==
+
 karma-jasmine-diff-reporter@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/karma-jasmine-diff-reporter/-/karma-jasmine-diff-reporter-2.0.1.tgz#8e6969c06daa213a6126177f6c980a0d0754dc7d"

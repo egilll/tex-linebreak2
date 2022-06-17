@@ -10,5 +10,5 @@ export function justifyContent(
   elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
   hyphenateFn?: (word: string) => string[]
 ) {
-  texLinebreakDOM(elements, { hyphenateFn });
+  void texLinebreakDOM(elements, { hyphenateFn });
 }

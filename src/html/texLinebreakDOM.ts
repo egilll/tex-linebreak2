@@ -22,7 +22,7 @@ import { getMaxLineWidth } from "src/utils/utils";
  */
 export async function texLinebreakDOM(
   _elements: string | HTMLElement | HTMLElement[] | NodeListOf<HTMLElement>,
-  _options: Partial<TexLinebreakOptions>,
+  _options?: Partial<TexLinebreakOptions>,
   debug?: boolean
 ) {
   const options = getOptionsWithDefaults({
@@ -97,7 +97,7 @@ export async function texLinebreakDOM(
         /** Insert <br/> elements to separate the lines */
         if (line.lineIndex > 0 && !line.prevBreakItem?.skipWhenRendering) {
           const br = tagNode(document.createElement("br"));
-          br.className = "texLinebreak";
+          // br.className = "texLinebreak";
           const firstItem = items.find((i) => i.span);
           if (firstItem) {
             const span = firstItem.span!;
