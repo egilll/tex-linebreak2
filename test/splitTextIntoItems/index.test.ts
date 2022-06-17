@@ -22,5 +22,5 @@ it("lays out lines applying hyphenation", () => {
     'produced a "good classic style"',
     "appreciated by Knuth.",
   ];
-  expect(lines).toEqual(expectedLines);
+  assert.deepEqual(lines, expectedLines);
 });

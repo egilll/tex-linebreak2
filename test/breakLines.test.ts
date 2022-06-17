@@ -7,7 +7,7 @@ describe("layout", () => {
   describe("breakLines", () => {
     it("returns an empty list if the input is empty", () => {
       const breakpoints = breakLines([], { lineWidth: 100 });
-      expect(breakpoints).toEqual([]);
+      assert.deepEqual(breakpoints, []);
     });
 
     it("generates expected layout", () => {
@@ -17,7 +17,7 @@ describe("layout", () => {
         lineWidth: 41,
       });
 
-      expect(t.plainTextLines).toEqual([
+      assert.deepEqual(t.plainTextLines, [
         "The Boat Races 2017 (also known as The",
         "Cancer Research UK Boat Races for the",
         "purposes of sponsorship) took place on 2",
@@ -52,19 +52,19 @@ describe("layout", () => {
         lineWidth: 5,
         maxAdjustmentRatio: 1,
       });
-      expect(breakpoints).toEqual([0, 1, 3, 5, 7, 9, 10]);
+      assert.deepEqual(breakpoints, [0, 1, 3, 5, 7, 9, 10]);
     });
 
     it("handles glue with zero stretch", () => {
       const items = [box(10), glue(5, 0, 0), box(10), forcedBreak()];
       const breakpoints = breakLines(items, { lineWidth: 50 });
-      expect(breakpoints).toEqual([0, 3]);
+      assert.deepEqual(breakpoints, [0, 3]);
     });
 
     it("handles glue with zero shrink", () => {
       const items = [box(10), glue(5, 0, 0), box(10), forcedBreak()];
       const breakpoints = breakLines(items, { lineWidth: 21 });
-      expect(breakpoints).toEqual([0, 1, 3]);
+      assert.deepEqual(breakpoints, [0, 1, 3]);
     });
 
     it("handles boxes that are wider than the line width", () => {
@@ -76,7 +76,7 @@ describe("layout", () => {
         forcedBreak(),
       ];
       const breakpoints = breakLines(items, { lineWidth: 50 });
-      expect(breakpoints).toEqual([0, 1, 3, 4]);
+      assert.deepEqual(breakpoints, [0, 1, 3, 4]);
     });
 
     [
@@ -105,7 +105,7 @@ describe("layout", () => {
           lineWidth,
           initialMaxAdjustmentRatio: 1,
         });
-        expect(breakpoints).toEqual(expectedBreakpoints);
+        assert.deepEqual(breakpoints, expectedBreakpoints);
       });
     });
 
@@ -115,22 +115,22 @@ describe("layout", () => {
     //   const lineWidth = 13;
     //
     //   // Break lines without a double-hyphen penalty.
-    //   expect(
+    //   assert.deepEqual(
     //     texLinebreakMonospace(text, {
     //       lineWidth,
     //       doubleHyphenPenalty: 0,
     //       hangingPunctuation: false,
     //     }).plainTextLines,
-    //   ).toEqual(['one two long-', 'word one long-', 'word']);
+    //   , ['one two long-', 'word one long-', 'word']);
     //
     //   // Break lines with a double-hyphen penalty.
-    //   expect(
+    //   assert.deepEqual(
     //     texLinebreakMonospace(text, {
     //       lineWidth,
     //       doubleHyphenPenalty: 200,
     //       hangingPunctuation: false,
     //     }).plainTextLines,
-    //   ).toEqual(['one two', 'longword one', 'longword']);
+    //   , ['one two', 'longword one', 'longword']);
     // });
 
     it("applies a penalty when adjacent lines have different tightness", () => {
@@ -191,7 +191,7 @@ describe("layout", () => {
     //
     //   const boxes = positionItems(items, lineWidth, breakpoints);
     //
-    //   expect(boxes).toEqual([
+    //   assert.deepEqual(boxes, [
     //     {
     //       item: 0,
     //       line: 0,
@@ -219,7 +219,7 @@ describe("layout", () => {
     //
     //   const boxes = positionItems(items, lineWidth, breakpoints);
     //
-    //   expect(boxes).toEqual([
+    //   assert.deepEqual(boxes, [
     //     {
     //       item: 0,
     //       line: 0,

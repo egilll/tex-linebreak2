@@ -1,13 +1,15 @@
+import { assert } from "chai";
 import { texLinebreakMonospace } from "src/utils/monospace";
 
 it("onlyBreakOnWhitespace", () => {
-  expect(
+  assert.deepEqual(
     texLinebreakMonospace("Ilex-grandis-arbor-est-patula-quanta Pyrus.", {
       onlyBreakOnWhitespace: true,
       forceOverflowToBreak: false,
       lineWidth: 20,
-    }).plainTextLines
-  ).toEqual(["Ilex-grandis-arbor-est-patula-quanta", "Pyrus."]);
+    }).plainTextLines,
+    ["Ilex-grandis-arbor-est-patula-quanta", "Pyrus."]
+  );
 });
 
 // console.log(

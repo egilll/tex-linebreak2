@@ -8,18 +8,17 @@ module.exports = (config) => {
 
     frameworks: ["mocha"],
 
-    files: [{ pattern: "test/**/*-test.ts", watched: true }],
+    files: [{ pattern: "test/**/*.test.ts", watched: true }],
 
-    mime: {
-      // Serve compiled TypeScript bundles with correct mime type.
-      //
-      // See https://github.com/angular/angular-cli/issues/2125#issuecomment-247395088
-      "application/javascript": ["ts", "tsx"],
-    },
+    // mime: {
+    //   // Serve compiled TypeScript bundles with correct mime type.
+    //   //
+    //   // See https://github.com/angular/angular-cli/issues/2125#issuecomment-247395088
+    //   "application/javascript": ["ts", "tsx"],
+    // },
 
     preprocessors: {
-      "src/**/*.ts": "webpack",
-      "test/**/*.ts": "webpack",
+      "**/*.ts": "webpack",
     },
 
     webpack: {
@@ -31,6 +30,10 @@ module.exports = (config) => {
     webpackMiddleware: {
       stats: "errors-only",
     },
-    reporters: ["dots"],
+
+    reporters: ["mocha"],
+    mochaReporter: {
+      showDiff: true,
+    },
   });
 };

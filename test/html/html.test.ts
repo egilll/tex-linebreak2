@@ -1,5 +1,4 @@
 import { assert } from "chai";
-import { expect } from "expect";
 import { justifyContent } from "src/deprecated/justifyContent";
 
 function extractLines(el: HTMLElement) {
@@ -49,13 +48,19 @@ describe("html", () => {
       justifyContent(para);
 
       const lines = extractLines(para);
+      assert.deepEqual(lines, [
+        "This is some",
+        "test content",
+        "that should be",
+        "wrapped",
+      ]);
       // assert.deepEqual(lines, [
       //   "This is some",
       //   "test content",
       //   "that should be",
       //   "wrapped",
       // ]);
-      expect(lines.length).toBe(4);
+      // expect(lines.length).toBe(4);
     });
     return;
     it("uses word-spacing to adjust lines to fill available space", () => {
