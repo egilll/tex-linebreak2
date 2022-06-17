@@ -83,16 +83,18 @@ export type LineWidthObject = {
 /**
  * Minimum cost for a breakpoint.
  *
- * Values <= `MIN_COST` force a break.
+ * A value of `MIN_COST` forces a break.
+ * Has a value of -1000 in the original paper.
  */
-export const MIN_COST = -1000;
+export const MIN_COST = -Infinity;
 
 /**
  * Maximum cost for a breakpoint.
  *
- * Values >= `MAX_COST` prevent a break.
+ * A value of `MAX_COST` prevents a break.
+ * Has a value of 1000 in the original paper.
  */
-export const MAX_COST = 1000;
+export const MAX_COST = Infinity;
 
 export const INFINITE_STRETCH = 100000;
 

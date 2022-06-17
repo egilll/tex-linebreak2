@@ -2,13 +2,9 @@
   "name": "tex-linebreak",
   "version": "0.7.0",
   "license": "MIT",
-  "author": {
-    "name": "Robert Knight",
-    "email": "robertknight@gmail.com"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/robertknight/tex-linebreak.git"
+    "url": "https://github.com/egilll/tex-linebreak2"
   },
   "main": "dist/lib.js",
   "files": [

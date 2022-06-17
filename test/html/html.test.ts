@@ -197,11 +197,11 @@ describe("html", () => {
 
       const lines1 = extractLines(p1);
       const lines2 = extractLines(p2);
-      console.log({ lines1, lines2 });
       assert.deepEqual(lines1, [
         "test that",
-        "multiple paragraphs",
-        "are justified",
+        "multiple",
+        "paragraphs are",
+        "justified",
       ]);
       assert.deepEqual(lines1, lines2);
     });

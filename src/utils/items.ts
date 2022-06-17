@@ -35,8 +35,8 @@ export function box(width: number, text?: string): Box | TextBox {
 /** (Stretch comes before shrink as in the original paper) */
 export function glue(
   width: number,
-  stretch: number,
-  shrink: number,
+  stretch: number = 0,
+  shrink: number = 0,
   text?: string
 ): Glue | TextGlue {
   if (text) {

@@ -38,7 +38,7 @@ export async function texLinebreakDOM(
   } else if (!Array.isArray(_elements)) {
     elements = [_elements];
   } else {
-    return console.error("texLinebreakDOM didn't receive any items");
+    elements = _elements;
   }
 
   const domTextMeasureFn = new DOMTextMeasurer().measure;
