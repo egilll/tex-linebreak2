@@ -1,6 +1,7 @@
 import { breakLines, LineWidth } from "src/breakLines";
 import { TexLinebreak } from "src/index";
 import { TexLinebreakOptions } from "src/options";
+import { getLineWidth } from "src/utils/utils";
 
 export type ParagraphWithWidth = {
   input: string;
@@ -26,6 +27,13 @@ export function balancedLineWrap(
       { ...t.options, infiniteGlueStretchAsRatioOfWidth: 0 },
       true
     );
+    /** Loop through nodes to find minimum remaining width */
+    let minRemainingSpace = Infinity;
+    for (let i = 1; i < nodes.length; i++) {
+      const width = nodes[i].totalWidth - nodes[i - 1].totalWidth;
+      const remainingWidth = getLineWidth(t.options.lineWidth, i - 1) - width;
+      minRemainingSpace = Math.min(minRemainingSpace, remainingWidth);
+    }
   });
 
   /**
