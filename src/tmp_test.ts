@@ -9,5 +9,5 @@ console.log(
     lineWidth: 2,
     forceOverflowToBreak: false,
     neverBreakInside: [/{.+?}/g, "t t"],
-  }).plainTextLines
+  }).plaintextLines
 );

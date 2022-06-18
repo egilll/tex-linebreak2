@@ -14,7 +14,7 @@ export class TexLinebreakOptions {
 
   align: "justify" | "left" /*| "right" | "center"*/ = "justify";
 
-  preset: "html" | "plainText" = "html";
+  preset: "html" | "plaintext" = "html";
 
   hangingPunctuation: boolean = true;
 
@@ -194,11 +194,11 @@ export class TexLinebreakOptions {
    *       hyphenateFn: (word) => hypher.hyphenate(word),
    *     };
    *
-   * as simply:
+   * As simply:
    *
    *       { hyphenateFn: new Hypher(enUsPatterns).hyphenate }
    *
-   * does not work.
+   * Does not work.
    *
    * Will be cached unless {@link TexLinebreakOptions#cacheHyphenation} is
    * turned off.
@@ -351,7 +351,7 @@ export class TexLinebreakOptions {
       this.collapseAllNewlines = true;
       // Needs work
       this.forceOverflowToBreak = false;
-    } else if (options.preset === "plainText") {
+    } else if (options.preset === "plaintext") {
       this.collapseAllNewlines = false;
       this.forceOverflowToBreak = false;
     }

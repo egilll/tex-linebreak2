@@ -1,3 +1,4 @@
+/// <reference path="./../typings/linebreak.d.ts" />
 import LineBreaker, { Break } from "linebreak";
 import { MAX_COST, MIN_COST } from "src/breakLines";
 import {

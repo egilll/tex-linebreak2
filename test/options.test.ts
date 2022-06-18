@@ -7,7 +7,7 @@ it("onlyBreakOnWhitespace", () => {
       onlyBreakOnWhitespace: true,
       forceOverflowToBreak: false,
       lineWidth: 20,
-    }).plainTextLines,
+    }).plaintextLines,
     ["Ilex-grandis-arbor-est-patula-quanta", "Pyrus."]
   );
 });
@@ -17,5 +17,5 @@ it("onlyBreakOnWhitespace", () => {
 //     onlyBreakOnWhitespace: true,
 //     forceOverflowToBreak: false,
 //     lineWidth: 20,
-//   }).plainTextLines,
+//   }).plaintextLines,
 // );

@@ -18,7 +18,7 @@ describe("layout", () => {
         lineWidth: 41,
       });
 
-      assert.deepEqual(t.plainTextLines, [
+      assert.deepEqual(t.plaintextLines, [
         "The Boat Races 2017 (also known as The",
         "Cancer Research UK Boat Races for the",
         "purposes of sponsorship) took place on 2",
@@ -121,7 +121,7 @@ describe("layout", () => {
     //       lineWidth,
     //       doubleHyphenPenalty: 0,
     //       hangingPunctuation: false,
-    //     }).plainTextLines,
+    //     }).plaintextLines,
     //   , ['one two long-', 'word one long-', 'word']);
     //
     //   // Break lines with a double-hyphen penalty.
@@ -130,7 +130,7 @@ describe("layout", () => {
     //       lineWidth,
     //       doubleHyphenPenalty: 200,
     //       hangingPunctuation: false,
-    //     }).plainTextLines,
+    //     }).plaintextLines,
     //   , ['one two', 'longword one', 'longword']);
     // });
 

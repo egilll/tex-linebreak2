@@ -4,20 +4,23 @@ const LicensePlugin = require("webpack-license-plugin");
 const glob = require("glob");
 const { BannerPlugin } = require("webpack");
 const TerserPlugin = require("terser-webpack-plugin");
+// const WebpackShellPluginNext = require("webpack-shell-plugin-next");
 
-const files = glob.sync("./src/**/*.ts").filter(
+const exportedFiles = glob.sync("./src/**/*.ts").filter(
   (filename) =>
     !filename.includes("/demo/") &&
     // !filename.includes("/deprecated/") &&
     // !filename.includes("monospace") &&
-    !filename.includes("/tmp_") &&
-    !filename.endsWith(".d.ts")
+    !filename.includes("/tmp_")
+    // &&
+    // !filename.endsWith(".d.ts")
 );
 
 module.exports = {
   entry: {
     demo: "./src/demo/demo.ts",
-    lib: files,
+    lib: exportedFiles,
+    // lib: "./src/exports.ts",
     lib_web: "./src/html/texLinebreakDOM.ts",
     // webWorker: "./src/html/webWorker.ts",
   },
@@ -89,6 +92,14 @@ module.exports = {
       },
     }),
     new BannerPlugin("For license information, see licenses.json"),
+
+    // new WebpackShellPluginNext({
+    //   onBuildEnd: {
+    //     scripts: [`npx dts-bundle-generator -o dist/index.d.ts src/exports.ts`],
+    //     blocking: false,
+    //     parallel: true,
+    //   },
+    // }),
   ],
   stats: {
     assets: false,

@@ -10,7 +10,7 @@ it("lays out lines applying hyphenation", () => {
     infiniteGlueStretchAsRatioOfWidth: 0.5,
     softHyphenPenalty: 10,
     hyphenateFn,
-  }).plainTextLines;
+  }).plaintextLines;
   const expectedLines = [
     "When the first paper volume of",
     "Donald Knuth's The Art of Com-",

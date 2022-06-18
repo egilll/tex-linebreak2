@@ -25,3 +25,4 @@ For the future:
 - Ability to prefer certain soft hyphens over others (i.e. word-level breaks over syllable breaks)
 - Urls should break on slashes rather than dashes
 - To consider: Automatically apply justification to paragraphs while applying centering to `<h1/>` elements?
+- resize font to find optimal width

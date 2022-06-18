@@ -9,7 +9,7 @@ it("nbsp", () => {
     texLinebreakMonospace(text, {
       lineWidth: 2,
       forceOverflowToBreak: false,
-    }).plainTextLines,
+    }).plaintextLines,
     [`bla${NON_BREAKING_SPACE}bla`, `bla${NON_BREAKING_SPACE}bla .`]
   );
 });

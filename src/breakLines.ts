@@ -132,15 +132,15 @@ export type LineBreakingNode = {
 export function breakLines(
   items: Item[],
   _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
-  returnMetadata?: undefined,
+  returnMetadata: true,
   currentRecursionDepth?: number
-): number[];
+): LineBreakingNode[];
 export function breakLines(
   items: Item[],
   _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
-  returnMetadata: boolean,
+  returnMetadata?: boolean,
   currentRecursionDepth?: number
-): LineBreakingNode[];
+): number[];
 
 /**
  * Break a paragraph of text into justified lines.

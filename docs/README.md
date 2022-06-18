@@ -181,10 +181,10 @@ const t = new TexLinebreak(text, {
 });
 
 /* Get output as plain text */
-console.log(t.plainText);
+console.log(t.plaintext);
 /*
   Output:
- 
+
   Chamæleon animal est quadrupes, macrum &
   gibbosum, capite galeato, corpore & cauda
   lacertæ majoris, cervice penè nulla, costis
@@ -196,7 +196,7 @@ console.log(t.plainText);
 console.log(t.lines.map((line) => line.positionedItems));
 /*
   Output:
- 
+
   [[{ type: 'box', text: 'Chamæleon', xOffset: 0, width: 9 },
     { type: 'glue', text: ' ', xOffset: 9, width: 1 },
     ...
@@ -252,7 +252,7 @@ new TexLinebreak(items, {});
 It has the following properties:
 
 - `lines` is an array of [`Line`](../src/index.ts) objects which describe each line of the output
-- `plainText` will output the text as plain text
+- `plaintext` will output the text as plain text
 - `items`, the boxes, glues, and penalties that make up a paragraph
 - `breakpoints` are the indices of items that break a line
 

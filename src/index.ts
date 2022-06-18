@@ -19,6 +19,7 @@ import {
   isForcedBreak,
   isSoftHyphen,
 } from "src/utils/utils";
+import { Memoize } from "typescript-memoize";
 
 export type ItemPosition = { xOffset: number; adjustedWidth: number };
 
@@ -41,6 +42,7 @@ export class TexLinebreak<
   }
 
   /** The indices of items which are breakpoints */
+  @Memoize()
   get breakpoints(): number[] {
     if (!this.options.lineWidth) {
       throw new Error("The option `lineWidth` is required");
@@ -73,12 +75,12 @@ export class TexLinebreak<
     return lines;
   }
 
-  get plainTextLines(): string[] {
-    return this.lines.map((line) => line.plainText);
+  get plaintextLines(): string[] {
+    return this.lines.map((line) => line.plaintext);
   }
 
-  get plainText(): string {
-    return this.plainTextLines.join("\n");
+  get plaintext(): string {
+    return this.plaintextLines.join("\n");
   }
 }
 
@@ -91,17 +93,6 @@ export class TexLinebreak<
 export class Line<
   InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item
 > {
-  /**
-   * Items with information regarding their position (xOffset)
-   * and their adjusted width ({@see ItemPosition}).
-   */
-  positionedItems: (InputItemType & ItemPosition)[];
-  /**
-   * Items with penalties (non-breakpoint) filtered
-   * out and with beginning glue collapsed.
-   */
-  itemsFiltered: InputItemType[];
-  adjustmentRatio: number;
   items: InputItemType[];
   options: TexLinebreakOptions;
   constructor(
@@ -115,18 +106,14 @@ export class Line<
       this.startBreakpoint === 0 ? 0 : this.startBreakpoint + 1,
       this.endBreakpoint + 1
     );
-    this.itemsFiltered = this.getItemsFiltered();
-    this.adjustmentRatio = this.getAdjustmentRatio();
-    this.positionedItems = this.getPositionedItems();
-
-    if (isNaN(this.adjustmentRatio)) {
-      console.log(this);
-      throw new Error("Adjustment ratio is NaN");
-    }
   }
 
-  /** @see Line#positionedItems */
-  getPositionedItems(): (InputItemType & ItemPosition)[] {
+  /**
+   * Items with information regarding their position (xOffset)
+   * and their adjusted width ({@see ItemPosition}).
+   */
+  @Memoize()
+  get positionedItems(): (InputItemType & ItemPosition)[] {
     const output: (InputItemType & ItemPosition)[] = [];
     let xOffset = this.leftIndentation;
     this.itemsFiltered.forEach((item) => {
@@ -173,7 +160,8 @@ export class Line<
     return output;
   }
 
-  getAdjustmentRatio(): number {
+  @Memoize()
+  get adjustmentRatio(): number {
     const idealWidth = getLineWidth(this.options.lineWidth, this.lineIndex);
     let actualWidth = 0;
     let lineShrink = 0;
@@ -185,34 +173,47 @@ export class Line<
         lineStretch += getStretch(item, this.options);
       }
     });
+
+    let adjustmentRatio: number;
     if (actualWidth < idealWidth) {
       if (lineStretch > 0) {
-        let adjustmentRatio = (idealWidth - actualWidth) / lineStretch;
+        adjustmentRatio = (idealWidth - actualWidth) / lineStretch;
         if (
-          typeof this.options
-            .renderLineAsLeftAlignedIfAdjustmentRatioExceeds === "number"
+          this.options.renderLineAsLeftAlignedIfAdjustmentRatioExceeds != null
         ) {
           adjustmentRatio = Math.min(
             adjustmentRatio,
             this.options.renderLineAsLeftAlignedIfAdjustmentRatioExceeds
           );
         }
-        return adjustmentRatio;
       } else {
-        return 0;
+        adjustmentRatio = 0;
       }
     } else {
       if (lineShrink > 0) {
-        const j = (idealWidth - actualWidth) / lineShrink;
-        return Math.max(MIN_ADJUSTMENT_RATIO, j);
+        adjustmentRatio = Math.max(
+          MIN_ADJUSTMENT_RATIO,
+          (idealWidth - actualWidth) / lineShrink
+        );
       } else {
-        return 0;
+        adjustmentRatio = 0;
       }
     }
+
+    if (isNaN(adjustmentRatio)) {
+      console.log(this);
+      throw new Error("Adjustment ratio is NaN");
+    }
+
+    return adjustmentRatio;
   }
 
-  /** @see Line#itemsFiltered */
-  getItemsFiltered(): InputItemType[] {
+  /**
+   * Items with penalties (non-breakpoint) filtered
+   * out and with beginning glue collapsed.
+   */
+  @Memoize()
+  get itemsFiltered(): InputItemType[] {
     let itemsFiltered = this.items.slice();
     let hasBoxBeenSeen: boolean;
 
@@ -280,7 +281,7 @@ export class Line<
     return itemsFiltered;
   }
 
-  get plainText() {
+  get plaintext() {
     return (
       this.positionedItems
         .map((item) => {
