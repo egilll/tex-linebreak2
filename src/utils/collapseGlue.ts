@@ -3,6 +3,8 @@ import { DOMGlue, DOMItem } from "src/html/getItemsFromDOM";
 import { TextItem } from "src/utils/items";
 import { isNonForcedBreak } from "src/utils/utils";
 
+export function collapseNegativeWidths() {}
+
 /**
  * We cannot actually merge adjacent glue into one since sometimes
  * the user has to depend on the output being the same as the input.
@@ -12,7 +14,7 @@ import { isNonForcedBreak } from "src/utils/utils";
  * The HTML "text <!-- comment node --> text" becomes ["text", " ",
  * " ", "text"], and here we make the second space a zero width one.
  */
-export function collapseAdjacendDOMWhitespace(items: TextItem[]) {
+export function collapseAdjacentDOMWhitespace(items: TextItem[]) {
   for (let i = 0; i < items.length; i++) {
     if (
       items[i].type === "glue" &&

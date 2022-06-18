@@ -192,7 +192,6 @@ export class Line<
    * Items with:
    *   - line-beginning glue collapsed (i.e. zero width)
    *   - non-breakpoint penalties filtered out
-   *   - negative widths collapsed into the adjacent glue when possible
    */
   @Memoize()
   get itemsCollapsed(): InputItemType[] {
@@ -262,6 +261,7 @@ export class Line<
     //     )
     // );
 
+    // Todo: Needs to include stretch/shrink
     // /**
     //  * Collapse negative widths. Not strictly necessary, but it saves
     //  * the output HTML from having unnecessary negative margins. (The below does not currently work)

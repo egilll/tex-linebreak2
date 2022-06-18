@@ -10,7 +10,7 @@ import {
 } from "src/html/getItemsFromDOM/textNodes";
 import { addItemsFromNode } from "src/html/getItemsFromDOM/traverse";
 import { TexLinebreakOptions } from "src/options";
-import { collapseAdjacendDOMWhitespace } from "src/utils/collapseGlue";
+import { collapseAdjacentDOMWhitespace } from "src/utils/collapseGlue";
 import { TextBox, TextGlue } from "src/utils/items";
 
 export interface DOMInfo {
@@ -71,6 +71,6 @@ export function getItemsFromDOMAndWrapInSpans(
     domTextMeasureFn
   );
   const output = processControlItems(temporaryItemsProcessedText);
-  collapseAdjacendDOMWhitespace(output);
+  collapseAdjacentDOMWhitespace(output);
   return output;
 }
