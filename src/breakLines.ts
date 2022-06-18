@@ -12,19 +12,19 @@ import {
   validateItems,
 } from "src/utils/utils";
 
-/** An object (eg. a word) to be typeset. */
+/** An object (e.g. a word) to be typeset. */
 export interface Box {
   type: "box";
-  /** Amount of space required by this content. Must be >= 0. */
+  /** Amount of space required by this content. */
   width: number;
 }
 
 /**
- * A space between `Box` items with a preferred width
- * and some capacity to stretch or shrink.
+ * A space between `Box` items with a preferred
+ * width and some capacity to stretch or shrink.
  *
- * `Glue` items are also candidates for breakpoints
- * if they immediately follow a `Box`. // TODO: Check
+ * `Glue` items are candidates for breakpoints
+ * only if they immediately follow a `Box`.
  */
 export interface Glue {
   type: "glue";
