@@ -116,7 +116,7 @@ export class Line<
   get positionedItems(): (InputItemType & ItemPosition)[] {
     const output: (InputItemType & ItemPosition)[] = [];
     let xOffset = this.leftIndentation;
-    this.itemsFiltered.forEach((item) => {
+    this.itemsCollapsed.forEach((item) => {
       let adjustedWidth: number;
       if (this.adjustmentRatio >= 0) {
         adjustedWidth =
@@ -137,26 +137,6 @@ export class Line<
       xOffset += adjustedWidth;
     });
 
-    // /**
-    //  * Collapse negative widths. Not strictly necessary, but it saves
-    //  * the output HTML from having unnecessary negative margins. (The below does not currently work)
-    //  */
-    // for (let index = 0; index < output.length; index++) {
-    //   if (output[index].adjustedWidth < 0) {
-    //     if (
-    //       output[index + 1]?.type === "glue" &&
-    //       output[index + 1].adjustedWidth > 0
-    //     ) {
-    //       const diff = -output[index].adjustedWidth;
-    //       output[index].adjustedWidth = 0;
-    //       output[index].xOffset += diff;
-    //       output[index + 1].adjustedWidth += diff;
-    //       output[index + 1].xOffset += -diff;
-    //     }
-    //     // output[index].adjustedWidth = 0;
-    //   }
-    // }
-
     return output;
   }
 
@@ -166,7 +146,7 @@ export class Line<
     let actualWidth = 0;
     let lineShrink = 0;
     let lineStretch = 0;
-    this.itemsFiltered.forEach((item) => {
+    this.itemsCollapsed.forEach((item) => {
       actualWidth += item.width;
       if (item.type === "glue") {
         lineShrink += item.shrink;
@@ -209,11 +189,13 @@ export class Line<
   }
 
   /**
-   * Items with penalties (non-breakpoint) filtered
-   * out and with beginning glue collapsed.
+   * Items with:
+   *   - line-beginning glue collapsed (i.e. zero width)
+   *   - non-breakpoint penalties filtered out
+   *   - negative widths collapsed into the adjacent glue when possible
    */
   @Memoize()
-  get itemsFiltered(): InputItemType[] {
+  get itemsCollapsed(): InputItemType[] {
     let itemsFiltered = this.items.slice();
     let hasBoxBeenSeen: boolean;
 
@@ -226,16 +208,18 @@ export class Line<
       if (
         item.type === "glue" &&
         (index === this.items.length - 1 || !hasBoxBeenSeen)
-      )
+      ) {
         return makeZeroWidth({ ...item }) as InputItemType;
+      }
       if (item.type === "box") hasBoxBeenSeen = true;
       return item;
     });
 
     /** Ignore penalty that's not the breakpoint */
     itemsFiltered = itemsFiltered.filter((item, curIndex, items) => {
-      if (item.type === "penalty" && curIndex !== items.length - 1)
+      if (item.type === "penalty" && curIndex !== items.length - 1) {
         return false;
+      }
 
       return true;
     });
@@ -277,6 +261,26 @@ export class Line<
     //       i.shrink === 0
     //     )
     // );
+
+    // /**
+    //  * Collapse negative widths. Not strictly necessary, but it saves
+    //  * the output HTML from having unnecessary negative margins. (The below does not currently work)
+    //  */
+    // for (let index = 0; index < output.length; index++) {
+    //   if (output[index].adjustedWidth < 0) {
+    //     if (
+    //       output[index + 1]?.type === "glue" &&
+    //       output[index + 1].adjustedWidth > 0
+    //     ) {
+    //       const diff = -output[index].adjustedWidth;
+    //       output[index].adjustedWidth = 0;
+    //       output[index].xOffset += diff;
+    //       output[index + 1].adjustedWidth += diff;
+    //       output[index + 1].xOffset += -diff;
+    //     }
+    //     // output[index].adjustedWidth = 0;
+    //   }
+    // }
 
     return itemsFiltered;
   }
@@ -341,7 +345,7 @@ export class Line<
    */
   get isExtraneousLine() {
     return (
-      !this.itemsFiltered.some((item) => item.type === "box") &&
+      !this.itemsCollapsed.some((item) => item.type === "box") &&
       isForcedBreak(this.parentClass.items[this.endBreakpoint]) &&
       !isForcedBreak(this.parentClass.items[this.startBreakpoint])
     );
