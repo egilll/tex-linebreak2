@@ -27,7 +27,6 @@ export function balancedLineWrap(
       { ...t.options, infiniteGlueStretchAsRatioOfWidth: 0 },
       true
     );
-    /** Loop through nodes to find minimum remaining width */
     let minRemainingSpace = Infinity;
     for (let i = 1; i < nodes.length; i++) {
       const width = nodes[i].totalWidth - nodes[i - 1].totalWidth;
