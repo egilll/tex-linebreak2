@@ -69,7 +69,8 @@ export function textBox(
 
 export function textGlue(
   text: string,
-  options: TexLinebreakOptions
+  options: TexLinebreakOptions,
+  cost: number = 0
 ): TextItem[] {
   const spaceShrink = getSpaceWidth(options) * options.glueShrinkFactor;
   const spaceStretch = getSpaceWidth(options) * options.glueStretchFactor;
@@ -91,7 +92,7 @@ export function textGlue(
         spaceShrink,
         text
       ),
-      penalty(0, 0),
+      penalty(0, cost),
       glue(
         getSpaceWidth(options),
         -getLineFinalStretchInNonJustified(options),

@@ -31,7 +31,8 @@ export const TexLinebreakPresets: {
     glueShrinkFactor: 0,
     leftHangingPunctuation: false,
     rightHangingPunctuation: true,
-    // infiniteGlueStretchAsRatioOfWidth: 0,
+    initialMaxAdjustmentRatio: 1,
+    // infiniteGlueStretchAsRatioOfWidth: 0.4,
     /** Not relevant by default since `onlyBreakOnWhitespace` is on */
     softHyphenOutput: "HYPHEN",
   },
@@ -46,8 +47,7 @@ export function texLinebreakMonospace(
   options: Partial<TexLinebreakOptions>
 ): TexLinebreak {
   return new TexLinebreak(input, {
-    measureFn: stringWidth,
-    softHyphenOutput: "HYPHEN",
+    preset: ["plaintext"],
     ...options,
   });
 }
