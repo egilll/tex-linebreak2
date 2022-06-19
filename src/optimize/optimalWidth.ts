@@ -30,57 +30,74 @@ export function texLinebreakMultiple(
    * (without going to the next line).
    * This gives us a good starting point of sizes to try out.
    */
-  const remainingWidthsOfEachParagraph = paragraphObjects.map((p) =>
-    getRemainingWidth(p, { infiniteGlueStretchAsRatioOfWidth: 0 })
-  );
+  const remainingWidthsOfEachParagraph: number[] = [];
+  const numberOfLinesInEachParagraph: number[] = [];
+  paragraphObjects.forEach((paragraphObject) => {
+    const nodes = breakLines(paragraphObject.items, {
+      ...paragraphObject.options,
+      infiniteGlueStretchAsRatioOfWidth: 0,
+    }).lineBreakingNodes;
+    remainingWidthsOfEachParagraph.push(
+      getRemainingWidth(nodes, paragraphObject.options)
+    );
+    numberOfLinesInEachParagraph.push(nodes.length - 1);
+  });
   const minRemainingWidth = Math.min(...remainingWidthsOfEachParagraph, 0);
 
+  const minLineWidth = Math.min(
+    ...paragraphObjects.map((p) => getMaxLineWidth(p.options.lineWidth))
+  );
   const best = RandomWalkTemp({
     initialGuess: minRemainingWidth,
     min: minRemainingWidth,
-    max: Math.min(
-      ...paragraphObjects.map((p) => getMaxLineWidth(p.options.lineWidth))
-    ),
+    max: minLineWidth * 0.9,
+    // initialStepSize: minLineWidth * 0.1,
+    initialStepSize: 1,
+    minStepSize: 1,
     func: (makeSmallerBy) => {
       return paragraphObjects.map((paragraphObject) => {
         return breakLines(paragraphObject.items, {
           ...paragraphObject.options,
+          // // hmm..
+          infiniteGlueStretchAsRatioOfWidth: 0,
           makeLineWidthSmallerBy: makeSmallerBy,
         }).lineBreakingNodes;
       });
     },
-    scoreFunc: (paragraphNodes: LineBreakingNode[][]) => {
-      const sumDemerits = paragraphNodes.reduce(
-        (a, b) => a + (b.at(-1)?.totalDemerits || 0),
-        0
-      );
-      const avgDemerits = sumDemerits / paragraphNodes.length || 0;
-      return avgDemerits;
+    scoreFunc: (allParagraphNodes: LineBreakingNode[][]) => {
+      return allParagraphNodes
+        .map((paragraphNodes, index) => {
+          const numberOfLines = paragraphNodes.length - 1;
+          const numberOfExtraLines =
+            numberOfLines - numberOfLinesInEachParagraph[index];
+          if (numberOfExtraLines >= 2) {
+            return Infinity;
+          }
+          return paragraphNodes.at(-1)?.totalDemerits || 0;
+        })
+        .reduce((a, b) => a + b, 0);
     },
     maxAttempts: 30,
   });
 
+  console.log({ best, numberOfLinesInEachParagraph });
+
   return paragraphObjects.map((t) => {
     // t.options.infiniteGlueStretchAsRatioOfWidth = 0;
-    t.options.makeLineWidthSmallerBy = minRemainingWidth;
+    t.options.makeLineWidthSmallerBy = best || minRemainingWidth;
     return t;
   });
 }
 
 /* Gets the remaining width for a single paragraph */
 export function getRemainingWidth(
-  paragraphObject: TexLinebreak,
+  nodes: LineBreakingNode[],
   options: Partial<TexLinebreakOptions>
 ): number {
-  const nodes = breakLines(paragraphObject.items, {
-    ...paragraphObject.options,
-    ...options,
-  }).lineBreakingNodes;
   let minRemainingWidth = Infinity;
   for (let i = 1; i < nodes.length; i++) {
     const width = nodes[i].totalWidth - nodes[i - 1].totalWidth;
-    const remainingWidth =
-      getLineWidth(paragraphObject.options.lineWidth, i - 1) - width;
+    const remainingWidth = getLineWidth(options.lineWidth!, i - 1) - width;
     minRemainingWidth = Math.min(
       minRemainingWidth,
       Math.max(0, remainingWidth)

@@ -276,6 +276,9 @@ export class TexLinebreakOptions {
   //  * `compact`, this value may be used to set a lower limit for the width.
   //  */
   // minWidth?: number;
+  /**
+   * Can be used by optimization functions.
+   */
   makeLineWidthSmallerBy?: number;
 
   /**

@@ -258,7 +258,7 @@ export function breakLines(
         }
       }
 
-      const idealLen = getLineWidth(options.lineWidth, a.line);
+      const idealLen = getLineWidth(options.lineWidth, a.line, options);
       let actualLen = sumWidth - a.totalWidth;
 
       /** Include width of penalty in line length if chosen as a breakpoint. */
