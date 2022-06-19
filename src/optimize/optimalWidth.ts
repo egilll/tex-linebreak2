@@ -51,29 +51,27 @@ export function texLinebreakMultiple(
     initialGuess: minRemainingWidth,
     min: minRemainingWidth,
     max: minLineWidth * 0.9,
-    // initialStepSize: minLineWidth * 0.1,
-    initialStepSize: 1,
+    initialStepSize: Math.round(minLineWidth * 0.1),
     minStepSize: 1,
     func: (makeSmallerBy) => {
       return paragraphObjects.map((paragraphObject) => {
         return breakLines(paragraphObject.items, {
           ...paragraphObject.options,
-          // // hmm..
-          infiniteGlueStretchAsRatioOfWidth: 0,
+          // hmm..
+          infiniteGlueStretchAsRatioOfWidth: 0.1,
           makeLineWidthSmallerBy: makeSmallerBy,
+          initialMaxAdjustmentRatio: Infinity,
         }).lineBreakingNodes;
       });
     },
     scoreFunc: (allParagraphNodes: LineBreakingNode[][]) => {
       return allParagraphNodes
         .map((paragraphNodes, index) => {
-          const numberOfLines = paragraphNodes.length - 1;
+          let demerits = paragraphNodes.at(-1)?.totalDemerits || 0;
           const numberOfExtraLines =
-            numberOfLines - numberOfLinesInEachParagraph[index];
-          if (numberOfExtraLines >= 2) {
-            return Infinity;
-          }
-          return paragraphNodes.at(-1)?.totalDemerits || 0;
+            paragraphNodes.length - 1 - numberOfLinesInEachParagraph[index];
+          demerits *= 2 * Math.abs(numberOfExtraLines) ** 3;
+          return demerits;
         })
         .reduce((a, b) => a + b, 0);
     },
