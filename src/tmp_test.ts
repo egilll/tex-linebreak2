@@ -7,11 +7,12 @@ console.log(
   texLinebreakMultiple(
     [
       {
-        input: "Halskdj laskdj laksjd laskjd laskjd laskdj laskdj",
+        input:
+          "If we remove the infinite glue, the lines will try to fit the most compact way possible (without going to the next line).",
         lineWidth: 47,
       },
       {
-        input: "Halskdj laskdj laksjd",
+        input: "This gives us a good starting point of sizes to try out.",
         lineWidth: 40,
       },
     ],

@@ -1,9 +1,8 @@
-import { INFINITE_STRETCH } from "src/breakLines";
 import { TemporaryControlItem } from "src/html/getItemsFromDOM/controlItems";
-import { DOMItem } from "src/html/getItemsFromDOM/index";
+import { DOMItem, DOMPenalty } from "src/html/getItemsFromDOM/index";
 import { TemporaryUnprocessedTextNode } from "src/html/getItemsFromDOM/textNodes";
 import { TexLinebreakOptions } from "src/options";
-import { box, forcedBreak, glue, paragraphEnd } from "src/utils/items";
+import { box, paragraphEnd } from "src/utils/items";
 
 export function addItemsFromNode(
   node: Node,
@@ -55,13 +54,9 @@ export function addItemsFromElement(
   /** <br/> elements */
   if (element.tagName === "BR") {
     items.push({ type: "IGNORE_WHITESPACE_BEFORE" });
-    if (options.addInfiniteGlueToFinalLine) {
-      items.push(glue(0, INFINITE_STRETCH, 0));
-    }
-    items.push({
-      ...forcedBreak(),
-      skipWhenRendering: true,
-    });
+    items.push(...paragraphEnd(options));
+    /** Prevent the forcedBreak from outputting a <br/> when rendering */
+    (items.at(-1) as DOMPenalty).skipWhenRendering = true;
     items.push({ type: "IGNORE_WHITESPACE_AFTER" });
     return;
   }

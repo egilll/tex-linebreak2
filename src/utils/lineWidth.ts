@@ -53,7 +53,7 @@ export function getLineWidth(
   } else {
     output = lineWidths[lineIndex] || lineWidths.defaultLineWidth;
   }
-  if (options?.makeLineWidthSmallerBy) {
+  if (options?.makeLineWidthSmallerBy && options.makeLineWidthSmallerBy > 0) {
     output -= options.makeLineWidthSmallerBy;
   }
   return output;

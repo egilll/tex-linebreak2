@@ -1,15 +1,9 @@
-import {
-  Box,
-  Glue,
-  INFINITE_STRETCH,
-  MAX_COST,
-  MIN_COST,
-  Penalty,
-} from "src/breakLines";
+import { Box, Glue, MAX_COST, MIN_COST, Penalty } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
 import {
   getLineFinalStretchInNonJustified,
   getSpaceWidth,
+  infiniteGlue,
 } from "src/utils/utils";
 
 export interface TextBox extends Box {
@@ -133,8 +127,13 @@ export function forcedBreak(): Penalty {
 }
 
 export function paragraphEnd(options: TexLinebreakOptions): TextItem[] {
-  if (options.addInfiniteGlueToFinalLine) {
-    return [glue(0, INFINITE_STRETCH, 0), forcedBreak()];
+  let output: TextItem[] = [];
+  if (options.align !== "justify") {
+    output.push(glue(0, getLineFinalStretchInNonJustified(options), 0));
   }
-  return [forcedBreak()];
+  if (options.addInfiniteGlueToFinalLine) {
+    output.push(infiniteGlue());
+  }
+  output.push(forcedBreak());
+  return output;
 }

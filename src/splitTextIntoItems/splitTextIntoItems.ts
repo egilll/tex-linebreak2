@@ -14,15 +14,14 @@ import {
 import { forciblySplitLongWords } from "src/utils/forciblySplitLongWords";
 import { addHangingPunctuation } from "src/utils/hangingPunctuation";
 import {
-  forcedBreak,
   glue,
+  paragraphEnd,
   penalty,
   softHyphen,
   textBox,
   textGlue,
   TextItem,
 } from "src/utils/items";
-import { infiniteGlue } from "src/utils/utils";
 
 export const NON_BREAKING_SPACE = "\u00A0";
 export const SOFT_HYPHEN = "\u00AD";
@@ -189,10 +188,7 @@ export function splitTextIntoItems(
     if (segment.breakpoint) {
       /** Paragraph end */
       if (isParagraphEnd) {
-        if (options.addInfiniteGlueToFinalLine) {
-          remainingItems.push(infiniteGlue());
-        }
-        remainingItems.push(forcedBreak());
+        remainingItems.push(...paragraphEnd(options));
       } else {
         /** Soft hyphens. */
         if (segment.breakpoint?.lastLetter === SOFT_HYPHEN) {
