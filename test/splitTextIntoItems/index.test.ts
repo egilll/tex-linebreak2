@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { texLinebreakMonospace } from "src/utils/monospace";
+import { texLinebreakMonospace } from "src/utils/presets";
 import { hyphenateFn } from "test/testUtils/enHyphenateFn";
 
 it("lays out lines applying hyphenation", () => {

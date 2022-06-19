@@ -1,13 +1,22 @@
 // import { hyphenateHTMLSync } from "hyphen/en";
+import { texLinebreakMultiple } from "src/optimize/optimalWidth";
 // hyphenateHTMLSync()
-import { texLinebreakMonospace } from "src/utils/monospace";
-
-const text = `te{st test}{ t}est test`;
+import { TexLinebreakPresets } from "src/utils/presets";
 
 console.log(
-  texLinebreakMonospace(text, {
-    lineWidth: 2,
-    forceOverflowToBreak: false,
-    neverBreakInside: [/{.+?}/g, "t t"],
-  }).plaintextLines
+  texLinebreakMultiple(
+    [
+      {
+        input: "Halskdj laskdj laksjd laskjd laskjd laskdj laskdj",
+        lineWidth: 47,
+      },
+      {
+        input: "Halskdj laskdj laksjd",
+        lineWidth: 40,
+      },
+    ],
+    TexLinebreakPresets.plaintext
+  )
+    .map((t) => t.plaintext)
+    .join("\n~\n")
 );

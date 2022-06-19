@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { NON_BREAKING_SPACE } from "src/splitTextIntoItems/splitTextIntoItems";
-import { texLinebreakMonospace } from "src/utils/monospace";
+import { texLinebreakMonospace } from "src/utils/presets";
 
 it("nbsp", () => {
   const text = `bla${NON_BREAKING_SPACE}bla${NON_BREAKING_SPACE} bla${NON_BREAKING_SPACE}bla .`;

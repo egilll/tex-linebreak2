@@ -17,12 +17,9 @@ export class TexLinebreakOptions {
   preset: "html" | "plaintext" = "html";
 
   hangingPunctuation: boolean = true;
-
-  /**
-   * Used to turn off left hanging punctuation, such as when
-   * working with plain text or when you don't think it looks good.
-   */
-  onlyRightHangingPunctuation?: boolean;
+  /** On by default if `hangingPunctuation` is on. */
+  leftHangingPunctuation?: boolean;
+  rightHangingPunctuation?: boolean;
 
   /**
    * Whether to force words that are longer than the allowed width to

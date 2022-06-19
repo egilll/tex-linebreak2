@@ -18,7 +18,6 @@ import {
   getText,
   isForcedBreak,
   isSoftHyphen,
-  removeGlueAtEnd,
 } from "src/utils/utils";
 import { Memoize } from "typescript-memoize";
 
@@ -179,7 +178,7 @@ export class Line<
       if (lineShrink > 0) {
         adjustmentRatio = Math.max(
           MIN_ADJUSTMENT_RATIO,
-          (idealWidth - actualWidth) / lineShrink
+          (this.idealWidth - actualWidth) / lineShrink
         );
       } else {
         adjustmentRatio = 0;
@@ -362,14 +361,14 @@ export class Line<
     );
   }
 
-  /**
-   * How much space is there left over at the right of the line (without any adjustments)?
-   */
-  get remainingWidth() {
-    const widthIgnoringGlueAtEnd = removeGlueAtEnd(this.itemsCollapsed).reduce(
-      (acc, item) => acc + item.width,
-      0
-    );
-    return this.idealWidth - widthIgnoringGlueAtEnd;
-  }
+  // /**
+  //  * How much space is there left over at the right of the line (without any adjustments)?
+  //  */
+  // get remainingWidth() {
+  //   const widthIgnoringGlueAtEnd = removeGlueAtEnd(this.itemsCollapsed).reduce(
+  //     (acc, item) => acc + item.width,
+  //     0
+  //   );
+  //   return this.idealWidth - widthIgnoringGlueAtEnd;
+  // }
 }

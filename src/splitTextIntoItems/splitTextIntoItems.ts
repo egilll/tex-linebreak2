@@ -212,7 +212,11 @@ export function splitTextIntoItems(
     items.push(...remainingItems);
   });
 
-  if (options.hangingPunctuation) {
+  if (
+    options.hangingPunctuation ||
+    options.leftHangingPunctuation ||
+    options.rightHangingPunctuation
+  ) {
     items = addHangingPunctuation(items, options /* followingText*/);
   }
 

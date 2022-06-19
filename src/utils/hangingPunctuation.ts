@@ -33,7 +33,7 @@ export function addHangingPunctuation(
     /** Left hanging punctuation */
     // TODO: Check regarding nested elements
     if (
-      !options.onlyRightHangingPunctuation &&
+      (options.leftHangingPunctuation ?? options.hangingPunctuation) &&
       item.text &&
       // Check that this doesn't come directly after a non-breakable item
       (isBreakablePenalty(prevItem) ||
@@ -63,6 +63,7 @@ export function addHangingPunctuation(
      * actually being their given width, unless we use absolute positioning.
      */
     if (
+      (options.rightHangingPunctuation ?? options.hangingPunctuation) &&
       item.text &&
       // Must not be followed by another box
       (isBreakablePenalty(nextItem) ||

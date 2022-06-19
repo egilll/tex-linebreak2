@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { texLinebreakMonospace } from "src/utils/monospace";
+import { texLinebreakMonospace } from "src/utils/presets";
 
 it("onlyBreakOnWhitespace", () => {
   assert.deepEqual(
