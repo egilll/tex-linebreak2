@@ -53,7 +53,7 @@ export class TexLinebreak<
       if (this.options.optimizeByFn) {
         return optimizeByFnCircle(this);
       }
-      return breakLines(this.items, this.options);
+      return breakLines(this.items, this.options).breakpoints;
     }
   }
 

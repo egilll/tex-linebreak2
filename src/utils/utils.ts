@@ -74,21 +74,6 @@ export function getStretch(input: Glue, options: TexLinebreakOptions): number {
 }
 
 /**
- * Used to prevent the last line from having a hanging last line.
- * Note: This results in the paragraph not filling the entire
- * allowed width, but the output will have all lines balanced.
- */
-export const removeGlueFromEndOfParagraphs = <T extends Item>(
-  items: T[]
-): T[] => {
-  return items
-    .slice()
-    .filter(
-      (item) => !(item.type === "glue" && item.stretch === INFINITE_STRETCH)
-    );
-};
-
-/**
  * todo: this adds line-final glue for justified but it should
  * be marked as just extending whatever stretch there already is
  */

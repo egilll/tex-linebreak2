@@ -72,6 +72,7 @@ export function optimizeByFnCircle(obj: TexLinebreak): number[] {
           ...obj.options,
           lineWidth,
         },
+        0,
         true
       );
       return {

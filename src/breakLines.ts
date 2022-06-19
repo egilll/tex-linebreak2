@@ -128,20 +128,6 @@ export type LineBreakingNode = {
   prev: null | LineBreakingNode;
 };
 
-// (TypeScript function overloading)
-export function breakLines(
-  items: Item[],
-  _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
-  returnMetadata: true,
-  currentRecursionDepth?: number
-): LineBreakingNode[];
-export function breakLines(
-  items: Item[],
-  _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
-  returnMetadata?: boolean,
-  currentRecursionDepth?: number
-): number[];
-
 /**
  * Break a paragraph of text into justified lines.
  *
@@ -167,18 +153,14 @@ export function breakLines(
  *       {@link TexLinebreakOptions#doubleHyphenPenalty}
  *       {@link TexLinebreakOptions#adjacentLooseTightPenalty}
  *       {@link TexLinebreakOptions#preventSingleWordLines}
- * @param returnMetadata - May be used by optimization functions to retrieve the line-breaking nodes.
  * @param currentRecursionDepth - Used internally to keep track of how often this function has called itself
  *       (done when increasing the allowed adjustment ratio).
  */
 export function breakLines(
   items: Item[],
   _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
-  returnMetadata = false,
   currentRecursionDepth = 0
-): number[] | LineBreakingNode[] {
-  if (items.length === 0) return [];
-
+): { breakpoints: number[]; nodes: LineBreakingNode[] } {
   const options = getOptionsWithDefaults(_options);
 
   /** Validate input (if this is the first time the function is called) */
@@ -490,7 +472,6 @@ export function breakLines(
                   )
                 : Infinity,
           }),
-          returnMetadata,
           currentRecursionDepth + 1
         );
       } else {
@@ -543,16 +524,15 @@ export function breakLines(
    * Follow the chain backwards from the chosen node
    * to get the sequence of chosen breakpoints.
    */
-  const output = [];
-  const outputMetadata: LineBreakingNode[] = [];
+  const chosenNodes: LineBreakingNode[] = [];
   let next: LineBreakingNode | null = bestNode!;
   while (next) {
-    output.unshift(next.index);
-    outputMetadata.unshift(next);
+    chosenNodes.unshift(next);
     next = next.prev;
   }
-  if (returnMetadata) {
-    return outputMetadata;
-  }
-  return output;
+
+  return {
+    breakpoints: chosenNodes.map((i) => i.index),
+    nodes: chosenNodes,
+  };
 }
