@@ -160,7 +160,7 @@ export function breakLines(
   items: Item[],
   _options: RequireOnlyCertainKeys<TexLinebreakOptions, "lineWidth">,
   currentRecursionDepth = 0
-): { breakpoints: number[]; nodes: LineBreakingNode[] } {
+): { breakpoints: number[]; lineBreakingNodes: LineBreakingNode[] } {
   const options = getOptionsWithDefaults(_options);
 
   /** Validate input (if this is the first time the function is called) */
@@ -533,6 +533,6 @@ export function breakLines(
 
   return {
     breakpoints: chosenNodes.map((i) => i.index),
-    nodes: chosenNodes,
+    lineBreakingNodes: chosenNodes,
   };
 }

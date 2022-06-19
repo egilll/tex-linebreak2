@@ -93,7 +93,6 @@ export class TexLinebreak<
 export class Line<
   InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item
 > {
-  items: InputItemType[];
   options: TexLinebreakOptions;
   constructor(
     public parentClass: TexLinebreak<any>,
@@ -102,7 +101,10 @@ export class Line<
     public lineIndex: number
   ) {
     this.options = parentClass.options;
-    this.items = parentClass.items.slice(
+  }
+
+  get items(): InputItemType[] {
+    return this.parentClass.items.slice(
       this.startBreakpoint === 0 ? 0 : this.startBreakpoint + 1,
       this.endBreakpoint + 1
     );

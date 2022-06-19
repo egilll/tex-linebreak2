@@ -72,9 +72,8 @@ export function optimizeByFnCircle(obj: TexLinebreak): number[] {
           ...obj.options,
           lineWidth,
         },
-        0,
-        true
-      );
+        0
+      ).lineBreakingNodes;
       return {
         lineBreakingNodes,
         lineWidth,
@@ -89,7 +88,7 @@ export function optimizeByFnCircle(obj: TexLinebreak): number[] {
     return best.lineBreakingNodes.map((i) => i.index);
   } else {
     console.error("Failed to find a good width");
-    return breakLines(obj.items, obj.options);
+    return breakLines(obj.items, obj.options).breakpoints;
   }
 }
 

@@ -7,7 +7,7 @@ import { XorShift } from "xorshift";
 describe("layout", () => {
   describe("breakLines", () => {
     it("returns an empty list if the input is empty", () => {
-      const breakpoints = breakLines([], { lineWidth: 100 });
+      const { breakpoints } = breakLines([], { lineWidth: 100 });
       assert.deepEqual(breakpoints, []);
     });
 
@@ -49,7 +49,7 @@ describe("layout", () => {
         items.push(box(10), glue(5, 1, 1));
       }
       items.push(forcedBreak());
-      const breakpoints = breakLines(items, {
+      const { breakpoints } = breakLines(items, {
         lineWidth: 5,
         maxAdjustmentRatio: 1,
       });
@@ -58,13 +58,13 @@ describe("layout", () => {
 
     it("handles glue with zero stretch", () => {
       const items = [box(10), glue(5, 0, 0), box(10), forcedBreak()];
-      const breakpoints = breakLines(items, { lineWidth: 50 });
+      const { breakpoints } = breakLines(items, { lineWidth: 50 });
       assert.deepEqual(breakpoints, [0, 3]);
     });
 
     it("handles glue with zero shrink", () => {
       const items = [box(10), glue(5, 0, 0), box(10), forcedBreak()];
-      const breakpoints = breakLines(items, { lineWidth: 21 });
+      const { breakpoints } = breakLines(items, { lineWidth: 21 });
       assert.deepEqual(breakpoints, [0, 1, 3]);
     });
 
@@ -76,7 +76,7 @@ describe("layout", () => {
         glue(5, 10, 10),
         forcedBreak(),
       ];
-      const breakpoints = breakLines(items, { lineWidth: 50 });
+      const { breakpoints } = breakLines(items, { lineWidth: 50 });
       assert.deepEqual(breakpoints, [0, 1, 3, 4]);
     });
 
@@ -102,7 +102,7 @@ describe("layout", () => {
         // we followed TeX's solution (see Knuth-Plass p.1162) then we would first
         // retry with the same threshold after applying hyphenation to break
         // existing boxes and then only after that retry with a higher threshold.
-        const breakpoints = breakLines(items, {
+        const { breakpoints } = breakLines(items, {
           lineWidth,
           initialMaxAdjustmentRatio: 1,
         });
@@ -188,7 +188,7 @@ describe("layout", () => {
     //     forcedBreak(),
     //   ];
     //   const lineWidth = 35;
-    //   const breakpoints = [0, 3, 6];
+    //   const {breakpoints} = [0, 3, 6];
     //
     //   const boxes = positionItems(items, lineWidth, breakpoints);
     //
@@ -216,7 +216,7 @@ describe("layout", () => {
     // it('does not let gap between boxes shrink below `glue.width - glue.shrink`', () => {
     //   const items = [box(10), glue(10, 5, 5), box(100), forcedBreak()];
     //   const lineWidth = 50;
-    //   const breakpoints = [0, 3];
+    //   const {breakpoints} = [0, 3];
     //
     //   const boxes = positionItems(items, lineWidth, breakpoints);
     //
