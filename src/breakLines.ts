@@ -363,12 +363,6 @@ export function breakLines(
           demerits = (1 + badness) ** 2;
         }
 
-        if (!isFinite(demerits)) {
-          throw new Error(
-            "Demerits were infinite. This should not happen with normal values."
-          );
-        }
-
         /** Double hyphen penalty */
         const prevItem = items[a.index];
         if (item.type === "penalty" && prevItem.type === "penalty") {
@@ -529,6 +523,10 @@ export function breakLines(
   while (next) {
     chosenNodes.unshift(next);
     next = next.prev;
+  }
+
+  if (chosenNodes.at(-1)?.totalDemerits === Infinity) {
+    console.warn("Total demerits were infinite");
   }
 
   return {

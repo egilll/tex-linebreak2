@@ -1,12 +1,26 @@
 import { TexLinebreak } from "src/index";
 import { TexLinebreakOptions } from "src/options";
 import stringWidth from "string-width";
+// import(
+//           /* webpackChunkName: "stringWidth" */
+//           "string-width"
+//         )
 
 export const TexLinebreakPresets: {
   [key: string]: Partial<TexLinebreakOptions>;
 } = {
-  monospace: {
-    measureFn: stringWidth,
+  raggedAlignment: {
+    softHyphenPenalty: 500,
+    penaltyMultiplier: 4,
+    glueShrinkFactor: 0.2,
+    glueStretchFactor: 0.3,
+    renderLineAsLeftAlignedIfAdjustmentRatioExceeds: 1,
+    infiniteGlueStretchAsRatioOfWidth: 0.4,
+  },
+  html: {
+    collapseAllNewlines: true,
+    // Temp: Needs work
+    forceOverflowToBreak: false,
   },
   plaintext: {
     measureFn: stringWidth,

@@ -1,5 +1,6 @@
 import { getHyphenateFnCached } from "src/utils/hyphenationCache";
 import { LineWidth } from "src/utils/lineWidth";
+import { TexLinebreakPresets } from "src/utils/presets";
 
 /**
  * (Most of these options control how text is converted into
@@ -14,7 +15,9 @@ export class TexLinebreakOptions {
 
   align: "justify" | "left" /*| "right" | "center"*/ = "justify";
 
-  preset: "html" | "plaintext" = "html";
+  preset:
+    | keyof typeof TexLinebreakPresets
+    | (keyof typeof TexLinebreakPresets)[] = "html";
 
   hangingPunctuation: boolean = true;
   /** On by default if `hangingPunctuation` is on. */
@@ -349,8 +352,7 @@ export class TexLinebreakOptions {
       // Needs work
       this.forceOverflowToBreak = false;
     } else if (options.preset === "plaintext") {
-      this.collapseAllNewlines = false;
-      this.forceOverflowToBreak = false;
+      Object.assign(this, TexLinebreakPresets.plaintext);
     }
     /** Ragged text */
     if (options.align && options.align !== "justify") {
