@@ -73,6 +73,7 @@ export class TexLinebreakOptions {
   /**
    * How much glue is allowed to shrink. A `minAdjustmentRatio` of -1
    * means that a glue cannot shrink more than its specified shrink value.
+   * This value should be -1 <= n <= 0.
    */
   minAdjustmentRatio = -1;
 
@@ -89,7 +90,7 @@ export class TexLinebreakOptions {
    * A value over 40 will only break on long words.
    * A value of MAX_COST - 1 will break on long words.
    *
-   * @default 50 for justified text, 500 for non-justified
+   * @default 50 for justified text, 500 * 4 for non-justified
    */
   softHyphenPenalty: number = 50;
 

@@ -24,12 +24,13 @@ export const TexLinebreakPresets: {
   },
   plaintext: {
     measureFn: stringWidth,
-    softHyphenOutput: "HYPHEN",
+    align: "left",
     onlyBreakOnWhitespace: true,
     forceOverflowToBreak: false,
-    align: "left",
     glueStretchFactor: 0,
     glueShrinkFactor: 0,
+    /** Not relevant by default since onlyBreakOnWhitespace is true */
+    softHyphenOutput: "HYPHEN",
   },
 };
 

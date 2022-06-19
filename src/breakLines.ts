@@ -42,7 +42,7 @@ export interface Glue {
    * the same units as `width`.
    * Unlike `stretch` which can expand as we increase the
    * maxAdjustmentRatio, a glue is forbidden from shrinking more
-   * than this value (since {@link MIN_ADJUSTMENT_RATIO} is `-1`).
+   * than this value (since {@link TexLinebreakOptions#minAdjustmentRatio} is `-1`).
    * A `width` of 5 and a `shrink` of 1 means that the glue can
    * have a width of 4. A value of 0 means that it cannot shrink.
    */
@@ -91,12 +91,6 @@ export const MIN_COST = -Infinity;
 export const MAX_COST = Infinity;
 
 export const INFINITE_STRETCH = 100000;
-
-/**
- * How much glue is allowed to shrink. A `MIN_ADJUSTMENT_RATIO` of -1
- * means that a glue cannot shrink more than its specified shrink value.
- */
-export const MIN_ADJUSTMENT_RATIO = -1;
 
 /** Error thrown by `breakLines` when `maxAdjustmentRatio` is exceeded. */
 export class MaxAdjustmentExceededError extends Error {}
@@ -306,7 +300,7 @@ export function breakLines(
        * on one line, if not, remove the active node.
        */
       if (
-        adjustmentRatio < MIN_ADJUSTMENT_RATIO ||
+        adjustmentRatio < options.minAdjustmentRatio ||
         isForcedBreak(item) ||
         /**
          * Restriction no. 1 on negative breaks. (See page 1156,
@@ -343,7 +337,7 @@ export function breakLines(
       }
 
       if (
-        adjustmentRatio >= MIN_ADJUSTMENT_RATIO &&
+        adjustmentRatio >= options.minAdjustmentRatio &&
         adjustmentRatio <= currentMaxAdjustmentRatio
       ) {
         /**
