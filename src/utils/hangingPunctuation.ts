@@ -1,13 +1,13 @@
 import { MAX_COST } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
+import { box, glue, penalty, TextItem } from "src/utils/items";
 import {
   isBreakablePenalty,
   isForcedBreak,
   isNonBreakablePenalty,
   isPenaltyThatDoesNotForceBreak,
   isSoftHyphen,
-} from "src/presets/utils";
-import { box, glue, penalty, TextItem } from "src/utils/items";
+} from "src/utils/utils";
 
 /**
  * Here we calculate the width of the hanging punctuation of this item,

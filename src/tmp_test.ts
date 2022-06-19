@@ -1,7 +1,7 @@
 // import { hyphenateHTMLSync } from "hyphen/en";
 import { texLinebreakMultiple } from "src/optimize/optimalWidth";
 // hyphenateHTMLSync()
-import { TexLinebreakPresets } from "src/utils/presets";
+import { TexLinebreakPresets } from "src/presets/presets";
 
 console.log(
   texLinebreakMultiple(

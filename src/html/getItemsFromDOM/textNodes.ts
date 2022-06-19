@@ -3,9 +3,9 @@ import { TemporaryControlItem } from "src/html/getItemsFromDOM/controlItems";
 import { DOMItem } from "src/html/getItemsFromDOM/index";
 import { tagNode } from "src/html/tagNode";
 import { TexLinebreakOptions } from "src/options";
-import { getText, isForcedBreak } from "src/presets/utils";
 import { splitTextIntoItems } from "src/splitTextIntoItems/splitTextIntoItems";
 import { TextItem } from "src/utils/items";
+import { getText, isForcedBreak } from "src/utils/utils";
 
 export type TemporaryUnprocessedTextNode = {
   text: string;

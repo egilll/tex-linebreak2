@@ -1,10 +1,10 @@
 import { Item } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM/index";
-import { makeNonBreaking } from "src/presets/utils";
 import {
   makeGlueAtBeginningZeroWidth,
   makeGlueAtEndZeroWidth,
 } from "src/utils/collapseGlue";
+import { makeNonBreaking } from "src/utils/utils";
 
 export type TemporaryControlItem = {
   type:

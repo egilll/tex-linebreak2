@@ -1,7 +1,7 @@
 import { Item, MAX_COST } from "src/breakLines";
 import { RequireOnlyCertainKeys, TexLinebreakOptions } from "src/options";
-import { isForcedBreak } from "src/presets/utils";
 import { getLineWidth } from "src/utils/lineWidth";
+import { isForcedBreak } from "src/utils/utils";
 
 /**
  * This utility function does not use TeX's line breaking algorithm,

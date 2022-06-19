@@ -1,6 +1,6 @@
+import { TexLinebreakPresets } from "src/presets/presets";
 import { getHyphenateFnCached } from "src/utils/hyphenationCache";
 import { LineWidth } from "src/utils/lineWidth";
-import { TexLinebreakPresets } from "src/utils/presets";
 
 /**
  * (Most of these options control how text is converted into
@@ -69,6 +69,12 @@ export class TexLinebreakOptions {
 
   /** The maximum adjustment ratio used for the initial line breaking attempt. */
   initialMaxAdjustmentRatio: number = 0.2;
+
+  /**
+   * How much glue is allowed to shrink. A `minAdjustmentRatio` of -1
+   * means that a glue cannot shrink more than its specified shrink value.
+   */
+  minAdjustmentRatio = -1;
 
   /**
    * Penalty for consecutive hyphenated lines.

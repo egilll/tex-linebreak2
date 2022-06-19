@@ -1,7 +1,7 @@
 import { assert, expect } from "chai";
 import { breakLines, Item } from "src/breakLines";
+import { texLinebreakMonospace } from "src/presets/presets";
 import { box, forcedBreak, glue } from "src/utils/items";
-import { texLinebreakMonospace } from "src/utils/presets";
 import { XorShift } from "xorshift";
 
 describe("layout", () => {

@@ -3,14 +3,14 @@ import {
   RequireOnlyCertainKeys,
   TexLinebreakOptions,
 } from "src/options";
+import { penalty } from "src/utils/items";
+import { getLineWidth } from "src/utils/lineWidth";
 import {
   getStretch,
   isBreakablePenalty,
   isForcedBreak,
   validateItems,
-} from "src/presets/utils";
-import { penalty } from "src/utils/items";
-import { getLineWidth } from "src/utils/lineWidth";
+} from "src/utils/utils";
 
 /** An object (e.g. a word) to be typeset. */
 export interface Box {

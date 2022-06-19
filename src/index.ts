@@ -5,12 +5,6 @@ import { DOMItem } from "src/html/getItemsFromDOM";
 import { optimizeByFnCircle } from "src/optimize/optimizeByFnCircle";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import {
-  getStretch,
-  getText,
-  isForcedBreak,
-  isSoftHyphen,
-} from "src/presets/utils";
-import {
   NON_BREAKING_SPACE,
   SOFT_HYPHEN,
   splitTextIntoItems,
@@ -19,6 +13,12 @@ import { makeZeroWidth } from "src/utils/collapseGlue";
 import { breakLinesGreedy } from "src/utils/greedy";
 import { TextBox, TextItem } from "src/utils/items";
 import { getLineWidth } from "src/utils/lineWidth";
+import {
+  getStretch,
+  getText,
+  isForcedBreak,
+  isSoftHyphen,
+} from "src/utils/utils";
 import { Memoize } from "typescript-memoize";
 
 export type ItemPosition = { xOffset: number; adjustedWidth: number };

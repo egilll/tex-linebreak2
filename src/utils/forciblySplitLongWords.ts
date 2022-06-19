@@ -1,7 +1,7 @@
 import { TexLinebreakOptions } from "src/options";
-import { addSlackIfBreakpoint, infiniteGlue } from "src/presets/utils";
 import { glue, penalty, textBox, TextItem } from "src/utils/items";
 import { getMinLineWidth } from "src/utils/lineWidth";
+import { addSlackIfBreakpoint, infiniteGlue } from "src/utils/utils";
 
 /** TODO: Needs rework */
 export function forciblySplitLongWords(

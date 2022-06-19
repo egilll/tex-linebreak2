@@ -6,7 +6,6 @@ import {
   RequireOnlyCertainKeys,
   TexLinebreakOptions,
 } from "src/options";
-import { infiniteGlue } from "src/presets/utils";
 import { getBreakpointPenalty } from "src/splitTextIntoItems/penalty";
 import {
   convertEnumValuesOfLineBreakingPackageToUnicodeNames,
@@ -23,6 +22,7 @@ import {
   textGlue,
   TextItem,
 } from "src/utils/items";
+import { infiniteGlue } from "src/utils/utils";
 
 export const NON_BREAKING_SPACE = "\u00A0";
 export const SOFT_HYPHEN = "\u00AD";
