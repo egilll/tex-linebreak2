@@ -276,6 +276,7 @@ export class TexLinebreakOptions {
   //  * `compact`, this value may be used to set a lower limit for the width.
   //  */
   // minWidth?: number;
+  makeLineWidthSmallerBy?: number;
 
   /**
    * Whether to prevent single long word that does not fill 100% of the allowed

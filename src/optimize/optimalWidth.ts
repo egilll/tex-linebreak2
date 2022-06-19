@@ -1,11 +1,7 @@
 import { breakLines } from "src/breakLines";
 import { TexLinebreak } from "src/index";
 import { TexLinebreakOptions } from "src/options";
-import {
-  getLineWidth,
-  LineWidth,
-  makeLineWidthSmallerBy,
-} from "src/utils/lineWidth";
+import { getLineWidth, LineWidth } from "src/utils/lineWidth";
 
 export type ParagraphWithWidth = {
   input: string;
@@ -42,10 +38,9 @@ export function texLinebreakMultiple(
 
   return paragraphObjects.map((t) => {
     // t.options.infiniteGlueStretchAsRatioOfWidth = 0;
-    t.options.lineWidth = makeLineWidthSmallerBy(
-      t.options.lineWidth,
-      isFinite(minRemainingWidth) ? minRemainingWidth : 0
-    );
+    t.options.makeLineWidthSmallerBy = isFinite(minRemainingWidth)
+      ? minRemainingWidth
+      : 0;
     return t;
   });
 }
