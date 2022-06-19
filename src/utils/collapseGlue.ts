@@ -1,7 +1,7 @@
 import { Glue, Item, MAX_COST, Penalty } from "src/breakLines";
 import { DOMGlue, DOMItem } from "src/html/getItemsFromDOM";
+import { isNonForcedBreak } from "src/presets/utils";
 import { TextItem } from "src/utils/items";
-import { isNonForcedBreak } from "src/utils/utils";
 
 export function collapseNegativeWidths() {}
 

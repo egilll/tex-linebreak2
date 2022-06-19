@@ -15,9 +15,7 @@ export class TexLinebreakOptions {
 
   align: "justify" | "left" /*| "right" | "center"*/ = "justify";
 
-  preset:
-    | keyof typeof TexLinebreakPresets
-    | (keyof typeof TexLinebreakPresets)[] = "html";
+  preset: (keyof typeof TexLinebreakPresets)[] = ["html"];
 
   hangingPunctuation: boolean = true;
   /** On by default if `hangingPunctuation` is on. */
@@ -347,22 +345,13 @@ export class TexLinebreakOptions {
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {
-    if (!options.preset || options.preset === "html") {
-      this.collapseAllNewlines = true;
-      // Needs work
-      this.forceOverflowToBreak = false;
-    } else if (options.preset === "plaintext") {
-      Object.assign(this, TexLinebreakPresets.plaintext);
-    }
-    /** Ragged text */
+    /** Ragged alignment */
     if (options.align && options.align !== "justify") {
-      this.softHyphenPenalty = 500;
-      this.penaltyMultiplier = 4;
-      this.glueShrinkFactor = 0.2;
-      this.glueStretchFactor = 0.3;
-      this.renderLineAsLeftAlignedIfAdjustmentRatioExceeds = 1;
-      this.infiniteGlueStretchAsRatioOfWidth = 0.4;
+      Object.assign(this, TexLinebreakPresets.raggedAlignment);
     }
+    (options.preset ?? this.preset).forEach((preset) => {
+      Object.assign(this, TexLinebreakPresets[preset]);
+    });
     Object.assign(this, options);
   }
 }
@@ -385,12 +374,3 @@ export type RequireOnlyCertainKeys<T, K extends keyof T> = Partial<T> &
   Required<Pick<T, K>>;
 export type OptionalCertainKeys<T, K extends keyof T> = Omit<T, K> &
   Partial<Pick<T, K>>;
-
-/**
- * To add:
- *
- * - Preferentially break after `."`, `[a-z]{5,}\.` (long words followed
- *   by period)
- * - Try not to break after "Mr.", "Mrs.", "Dr.", "Prof.", "Sir", "Rev.",
- * - Try not to break before "Jr.", "Sr.", "Ph.D."
- */

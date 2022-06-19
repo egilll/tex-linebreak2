@@ -10,7 +10,7 @@ import { TexLinebreakOptions } from "src/options";
 import {
   getLineFinalStretchInNonJustified,
   getSpaceWidth,
-} from "src/utils/utils";
+} from "src/presets/utils";
 
 export interface TextBox extends Box {
   text?: string;
