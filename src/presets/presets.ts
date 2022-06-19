@@ -29,6 +29,8 @@ export const TexLinebreakPresets: {
     forceOverflowToBreak: false,
     glueStretchFactor: 0,
     glueShrinkFactor: 0,
+    leftHangingPunctuation: false,
+    rightHangingPunctuation: true,
     // infiniteGlueStretchAsRatioOfWidth: 0,
     /** Not relevant by default since `onlyBreakOnWhitespace` is on */
     softHyphenOutput: "HYPHEN",

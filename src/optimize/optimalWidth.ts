@@ -1,6 +1,6 @@
 import { breakLines, LineBreakingNode } from "src/breakLines";
 import { TexLinebreak } from "src/index";
-import { RandomWalkTemp } from "src/optimize/wip_find_optimal";
+import { FindBestWalkingIncreasing } from "src/optimize/findBestWalking";
 import { TexLinebreakOptions } from "src/options";
 import { getLineWidth, getMaxLineWidth, LineWidth } from "src/utils/lineWidth";
 
@@ -47,10 +47,10 @@ export function texLinebreakMultiple(
   const minLineWidth = Math.min(
     ...paragraphObjects.map((p) => getMaxLineWidth(p.options.lineWidth))
   );
-  const best = RandomWalkTemp({
+  const best = FindBestWalkingIncreasing({
     initialGuess: minRemainingWidth,
     min: minRemainingWidth,
-    max: minLineWidth * 0.9,
+    max: (minLineWidth - minRemainingWidth) * 0.5,
     initialStepSize: Math.round(minLineWidth * 0.1),
     minStepSize: 1,
     func: (makeSmallerBy) => {
@@ -68,17 +68,21 @@ export function texLinebreakMultiple(
       return allParagraphNodes
         .map((paragraphNodes, index) => {
           let demerits = paragraphNodes.at(-1)?.totalDemerits || 0;
+          if (demerits === 0) {
+            console.log(paragraphNodes.at(-1));
+            throw new Error("");
+          }
           const numberOfExtraLines =
             paragraphNodes.length - 1 - numberOfLinesInEachParagraph[index];
-          demerits *= 2 * Math.abs(numberOfExtraLines) ** 3;
+          if (numberOfExtraLines > 0) {
+            demerits *= 2 * numberOfExtraLines ** 4;
+          }
           return demerits;
         })
         .reduce((a, b) => a + b, 0);
     },
     maxAttempts: 30,
   });
-
-  console.log({ best, numberOfLinesInEachParagraph });
 
   return paragraphObjects.map((t) => {
     // t.options.infiniteGlueStretchAsRatioOfWidth = 0;

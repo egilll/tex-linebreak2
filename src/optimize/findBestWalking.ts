@@ -1,4 +1,4 @@
-export function RandomWalkTemp<T>({
+export function FindBestWalkingIncreasing<T>({
   initialGuess,
   min,
   max,
@@ -25,6 +25,9 @@ export function RandomWalkTemp<T>({
   let stepSize = initialStepSize;
   /** Input (x) to score (y) */
   const guesses: Map<number, number> = new Map();
+  function bestGuess() {
+    return [...guesses.entries()].reduce((a, b) => (b[1] < a[1] ? b : a))[0];
+  }
 
   if (initialStepSize === 0) {
     throw new Error("initialStepSize cannot be 0");
@@ -35,31 +38,30 @@ export function RandomWalkTemp<T>({
     const y = scoreFunc(output);
     guesses.set(x, y);
 
-    if (y > 0 && (yBest == null || y < yBest)) {
+    if (yBest == null || y < yBest) {
       yBest = y;
       xBest = x;
     }
 
     x += stepSize;
     if (xMax != null && x > xMax) {
+      x = Math.max(bestGuess() - stepSize + minStepSize, xMin);
       stepSize = Math.round(stepSize / 2);
-      break;
     }
 
-    // if (guesses.has(x)) {
-    //   for (let i = 0; i < 10; i++) {
-    //     if ((xMax == null || x + i < xMax) && !guesses.has(x + i)) {
-    //       x += i;
-    //       continue outerLoop;
-    //     } else if (x - i >= xMin && !guesses.has(x - i)) {
-    //       x -= i;
-    //       continue outerLoop;
-    //     }
-    //   }
-    //   break;
-    // }
+    if (guesses.has(x)) {
+      for (let i = 0; i < 10; i++) {
+        if ((xMax == null || x + i < xMax) && !guesses.has(x + i)) {
+          x += i;
+          continue outerLoop;
+        } else if (x - i >= xMin && !guesses.has(x - i)) {
+          x -= i;
+          continue outerLoop;
+        }
+      }
+      break;
+    }
   }
 
-  console.log(guesses);
   return xBest;
 }
