@@ -1,7 +1,8 @@
-import { breakLines } from "src/breakLines";
+import { breakLines, LineBreakingNode } from "src/breakLines";
 import { TexLinebreak } from "src/index";
+import { RandomWalkTemp } from "src/optimize/wip_find_optimal";
 import { TexLinebreakOptions } from "src/options";
-import { getLineWidth, LineWidth } from "src/utils/lineWidth";
+import { getLineWidth, getMaxLineWidth, LineWidth } from "src/utils/lineWidth";
 
 export type ParagraphWithWidth = {
   input: string;
@@ -33,6 +34,31 @@ export function texLinebreakMultiple(
     getRemainingWidth(p, { infiniteGlueStretchAsRatioOfWidth: 0 })
   );
   const minRemainingWidth = Math.min(...remainingWidthsOfEachParagraph, 0);
+
+  const best = RandomWalkTemp({
+    initialGuess: minRemainingWidth,
+    min: minRemainingWidth,
+    max: Math.min(
+      ...paragraphObjects.map((p) => getMaxLineWidth(p.options.lineWidth))
+    ),
+    func: (makeSmallerBy) => {
+      return paragraphObjects.map((paragraphObject) => {
+        return breakLines(paragraphObject.items, {
+          ...paragraphObject.options,
+          makeLineWidthSmallerBy: makeSmallerBy,
+        }).lineBreakingNodes;
+      });
+    },
+    scoreFunc: (paragraphNodes: LineBreakingNode[][]) => {
+      const sumDemerits = paragraphNodes.reduce(
+        (a, b) => a + (b.at(-1)?.totalDemerits || 0),
+        0
+      );
+      const avgDemerits = sumDemerits / paragraphNodes.length || 0;
+      return avgDemerits;
+    },
+    maxAttempts: 30,
+  });
 
   return paragraphObjects.map((t) => {
     // t.options.infiniteGlueStretchAsRatioOfWidth = 0;
