@@ -4,8 +4,8 @@ import {
   TexLinebreakOptions,
 } from "src/options";
 import { penalty } from "src/utils/items";
+import { getLineWidth } from "src/utils/lineWidth";
 import {
-  getLineWidth,
   getStretch,
   isBreakablePenalty,
   isForcedBreak,
@@ -73,12 +73,6 @@ export interface Penalty {
 }
 
 export type Item = Box | Penalty | Glue;
-
-export type LineWidth = number | number[] | LineWidthObject;
-export type LineWidthObject = {
-  defaultLineWidth: number;
-  [lineIndex: number]: number;
-};
 
 /**
  * Minimum cost for a breakpoint.
@@ -367,6 +361,12 @@ export function breakLines(
           demerits = (1 + badness) ** 2 - penalty ** 2;
         } else {
           demerits = (1 + badness) ** 2;
+        }
+
+        if (!isFinite(demerits)) {
+          throw new Error(
+            "Demerits were infinite. This should not happen with normal values."
+          );
         }
 
         /** Double hyphen penalty */

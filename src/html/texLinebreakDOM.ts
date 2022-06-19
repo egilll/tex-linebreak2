@@ -11,7 +11,7 @@ import { visualizeBoxesForDebugging } from "src/html/visualizeBoxesForDebugging"
 import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
-import { getMaxLineWidth } from "src/utils/utils";
+import { getMaxLineWidth } from "src/utils/lineWidth";
 
 /**
  * Breaks the lines of HTML elements and applies justification.

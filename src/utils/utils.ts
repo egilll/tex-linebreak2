@@ -2,7 +2,6 @@ import {
   Glue,
   INFINITE_STRETCH,
   Item,
-  LineWidth,
   MAX_COST,
   MIN_COST,
   Penalty,
@@ -12,6 +11,7 @@ import { TemporaryControlItem } from "src/html/getItemsFromDOM/controlItems";
 import { TemporaryUnprocessedTextNode } from "src/html/getItemsFromDOM/textNodes";
 import { TexLinebreakOptions } from "src/options";
 import { glue, penalty } from "src/utils/items";
+import { getMaxLineWidth } from "src/utils/lineWidth";
 
 export function getSpaceWidth(options: TexLinebreakOptions): number {
   return options.measureFn(" ");
@@ -93,50 +93,6 @@ export const infiniteGlue = (): Glue => {
   return glue(0, INFINITE_STRETCH, 0);
 };
 
-export function getMinLineWidth(lineWidths: LineWidth): number {
-  if (Array.isArray(lineWidths)) {
-    return Math.min(...lineWidths);
-  } else if (typeof lineWidths === "number") {
-    return lineWidths;
-  } else {
-    return Math.min(
-      ...[...Object.values(lineWidths), lineWidths.defaultLineWidth]
-    );
-  }
-}
-
-export function getMaxLineWidth(lineWidths: LineWidth): number {
-  if (Array.isArray(lineWidths)) {
-    return Math.max(...lineWidths);
-  } else if (typeof lineWidths === "number") {
-    return lineWidths;
-  } else if (typeof lineWidths === "object") {
-    return Math.max(
-      ...[...Object.values(lineWidths), lineWidths.defaultLineWidth]
-    );
-  } else {
-    throw new Error("Invalid lineWidths, got " + typeof lineWidths);
-  }
-}
-
-export function getLineWidth(lineWidths: LineWidth, lineIndex: number): number {
-  if (Array.isArray(lineWidths)) {
-    if (lineIndex < lineWidths.length) {
-      return lineWidths[lineIndex];
-    } else {
-      /**
-       * If out of bounds, return the last width of the last line.
-       * This is done since the first line may have indentation.
-       */
-      return lineWidths.at(-1)!;
-    }
-  } else if (typeof lineWidths === "number") {
-    return lineWidths;
-  } else {
-    return lineWidths[lineIndex] || lineWidths.defaultLineWidth;
-  }
-}
-
 export function validateItems(items: Item[]) {
   /** Input has to end in a MIN_COST penalty */
   const lastItem = items[items.length - 1];
@@ -208,4 +164,11 @@ export function makeNonBreaking(
       i++;
     }
   }
+}
+
+export function removeGlueAtEnd(items: Item[]): Item[] {
+  const itemsReversed = items.slice().reverse();
+  return itemsReversed
+    .slice(itemsReversed.findIndex((item) => item.type !== "glue"))
+    .reverse();
 }

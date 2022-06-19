@@ -1,5 +1,5 @@
-import { LineWidth } from "src/breakLines";
 import { getHyphenateFnCached } from "src/utils/hyphenationCache";
+import { LineWidth } from "src/utils/lineWidth";
 
 /**
  * (Most of these options control how text is converted into

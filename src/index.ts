@@ -12,12 +12,13 @@ import {
 import { makeZeroWidth } from "src/utils/collapseGlue";
 import { breakLinesGreedy } from "src/utils/greedy";
 import { TextBox, TextItem } from "src/utils/items";
+import { getLineWidth } from "src/utils/lineWidth";
 import {
-  getLineWidth,
   getStretch,
   getText,
   isForcedBreak,
   isSoftHyphen,
+  removeGlueAtEnd,
 } from "src/utils/utils";
 import { Memoize } from "typescript-memoize";
 
@@ -142,9 +143,12 @@ export class Line<
     return output;
   }
 
+  get idealWidth() {
+    return getLineWidth(this.options.lineWidth, this.lineIndex);
+  }
+
   @Memoize()
   get adjustmentRatio(): number {
-    const idealWidth = getLineWidth(this.options.lineWidth, this.lineIndex);
     let actualWidth = 0;
     let lineShrink = 0;
     let lineStretch = 0;
@@ -157,9 +161,9 @@ export class Line<
     });
 
     let adjustmentRatio: number;
-    if (actualWidth < idealWidth) {
+    if (actualWidth < this.idealWidth) {
       if (lineStretch > 0) {
-        adjustmentRatio = (idealWidth - actualWidth) / lineStretch;
+        adjustmentRatio = (this.idealWidth - actualWidth) / lineStretch;
         if (
           this.options.renderLineAsLeftAlignedIfAdjustmentRatioExceeds != null
         ) {
@@ -216,12 +220,17 @@ export class Line<
       return item;
     });
 
-    /** Ignore penalty that's not the breakpoint */
+    /**
+     * Ignore penalty that's not the breakpoint.
+     * Note: Currently only considers soft hyphen penalties.
+     */
     itemsFiltered = itemsFiltered.filter((item, curIndex, items) => {
-      if (item.type === "penalty" && curIndex !== items.length - 1) {
+      if (
+        item.type === "penalty" &&
+        (curIndex !== items.length - 1 || !isSoftHyphen(item))
+      ) {
         return false;
       }
-
       return true;
     });
 
@@ -343,7 +352,7 @@ export class Line<
    * line will consist of nothing but infinite glue and the
    * final penalty. Such lines do not need to be printed.
    *
-   * Todo: This should be dealt with differently.
+   * Todo: This should be dealt with in breakLines itself
    */
   get isExtraneousLine() {
     return (
@@ -351,5 +360,16 @@ export class Line<
       isForcedBreak(this.parentClass.items[this.endBreakpoint]) &&
       !isForcedBreak(this.parentClass.items[this.startBreakpoint])
     );
+  }
+
+  /**
+   * How much space is there left over at the right of the line (without any adjustments)?
+   */
+  get remainingWidth() {
+    const widthIgnoringGlueAtEnd = removeGlueAtEnd(this.itemsCollapsed).reduce(
+      (acc, item) => acc + item.width,
+      0
+    );
+    return this.idealWidth - widthIgnoringGlueAtEnd;
   }
 }
