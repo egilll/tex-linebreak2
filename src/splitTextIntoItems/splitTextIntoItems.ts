@@ -150,6 +150,8 @@ export function splitTextIntoItems(
     }
   }
 
+  console.log(segments);
+
   segments.forEach((segment, index) => {
     const isLastSegment = index === segments.length - 1;
     let cost =
@@ -241,6 +243,19 @@ export function getAllowableUnicodeBreakpoints(
   let positionToBreakpointInformation: Record<number, BreakpointInformation> =
     {};
   while ((currentBreak = lineBreaker.nextBreak())) {
+    console.log({
+      currentBreak,
+      curClass:
+        convertEnumValuesOfLineBreakingPackageToUnicodeNames[
+          // @ts-ignore
+          lineBreaker.curClass
+        ],
+      nextClass:
+        convertEnumValuesOfLineBreakingPackageToUnicodeNames[
+          // @ts-ignore
+          lineBreaker.nextClass
+        ],
+    });
     const lastLetterClass = getUnicodeLineBreakingClassOfLetterAt(
       input,
       currentBreak.position - 1

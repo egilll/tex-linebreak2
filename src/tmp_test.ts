@@ -7,18 +7,13 @@ console.log(
   texLinebreakMultiple(
     [
       {
-        input:
-          "If we remove the infinite glue, the lines will try to fit the most",
-        lineWidth: 65,
-      },
-      {
-        input:
-          "If we remove the infinite glue, the lines will try to fit the most compact way possible (without going to the next line).",
-        lineWidth: 65,
-      },
-      {
-        input: "This gives us a good starting point of sizes to try out.",
-        lineWidth: 65,
+        input: `
+test. 
+
+test.
+
+`,
+        lineWidth: 80,
       },
     ],
     TexLinebreakPresets.plaintext
@@ -26,3 +21,9 @@ console.log(
     .map((t) => t.plaintext)
     .join("\n~\n")
 );
+
+// Used by {@link oldCards} when classifying which already-seen
+// cards should be chosen.
+//
+// TODO: This needs to be reworked, it currently only checks whether
+// it has been seen once and was then given an easy rating.
