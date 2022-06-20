@@ -9,23 +9,23 @@ export type ParagraphWithWidth = {
   lineWidth: LineWidth;
 };
 
-/**
- * TODO: not correct on
- *
- * ```
- * The following options are used by this function:
- *
- *   - `maxAdjustmentRatio`
- * ```
- */
+export class TexLinebreakOptimalWidthOptions extends TexLinebreakOptions {
+  maxExtraLinesPerParagraph: number | null = 0;
+  constructor(options: Partial<TexLinebreakOptimalWidthOptions> = {}) {
+    super(options);
+    Object.assign(this, options);
+  }
+}
 
 /**
  * Find the optimal width for multiple paragraphs
  */
 export function texLinebreakMultiple(
   paragraphs: ParagraphWithWidth[],
-  options: Partial<TexLinebreakOptions> = {}
+  _options: Partial<TexLinebreakOptimalWidthOptions> = {}
 ): TexLinebreak[] {
+  const options = new TexLinebreakOptimalWidthOptions(_options);
+
   /** We start by creating TexLinebreak objects for each paragraph */
   const paragraphObjects = paragraphs.map(
     (paragraph) =>
@@ -85,9 +85,13 @@ export function texLinebreakMultiple(
           const numberOfExtraLines =
             paragraphNodes.length - 1 - numberOfLinesInEachParagraph[index];
           if (numberOfExtraLines > 0) {
-            // Temp testing
+            demerits *= 2 * numberOfExtraLines ** 2;
+          }
+          if (
+            options.maxExtraLinesPerParagraph != null &&
+            numberOfExtraLines > options.maxExtraLinesPerParagraph
+          ) {
             demerits = Infinity;
-            // demerits *= 2 * numberOfExtraLines ** 4;
           }
           return demerits;
         })
