@@ -61,7 +61,7 @@ export function texLinebreakMultiple(
     initialGuess: minRemainingWidth,
     min: minRemainingWidth,
     max: (minLineWidth - minRemainingWidth) * 0.5,
-    initialStepSize: Math.round(minLineWidth * 0.1),
+    initialStepSize: Math.ceil(minLineWidth * 0.1),
     minStepSize: 1,
     func: (makeSmallerBy) => {
       return paragraphObjects.map((paragraphObject) => {
