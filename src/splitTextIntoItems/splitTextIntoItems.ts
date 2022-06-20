@@ -58,6 +58,12 @@ export function splitTextIntoItems(
 ): TextItem[] {
   const options = getOptionsWithDefaults(_options);
 
+  if (!options.measureFn) {
+    throw new Error(
+      "A measureFn is required. To get a measureFn for monospace text you can use the option `preset: 'plaintext`."
+    );
+  }
+
   let items: TextItem[] = [];
 
   precedingText = precedingText.slice(-50);
