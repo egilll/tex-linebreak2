@@ -26,7 +26,7 @@ export async function texLinebreakDOM(
   debug?: boolean
 ) {
   const options = getOptionsWithDefaults({
-    preset: "html",
+    preset: ["html"],
     ..._options,
   });
 

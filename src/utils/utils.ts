@@ -94,6 +94,10 @@ export const infiniteGlue = (): Glue => {
 };
 
 export function validateItems(items: Item[]) {
+  if (!items) {
+    throw new Error("Didn't receive any items");
+  }
+
   /** Input has to end in a MIN_COST penalty */
   const lastItem = items[items.length - 1];
   if (!(lastItem.type === "penalty" && lastItem.cost <= MIN_COST)) {

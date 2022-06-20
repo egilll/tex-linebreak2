@@ -10,6 +10,16 @@ export type ParagraphWithWidth = {
 };
 
 /**
+ * TODO: not correct on
+ *
+ * ```
+ * The following options are used by this function:
+ *
+ *   - `maxAdjustmentRatio`
+ * ```
+ */
+
+/**
  * Find the optimal width for multiple paragraphs
  */
 export function texLinebreakMultiple(
@@ -75,7 +85,9 @@ export function texLinebreakMultiple(
           const numberOfExtraLines =
             paragraphNodes.length - 1 - numberOfLinesInEachParagraph[index];
           if (numberOfExtraLines > 0) {
-            demerits *= 2 * numberOfExtraLines ** 4;
+            // Temp testing
+            demerits = Infinity;
+            // demerits *= 2 * numberOfExtraLines ** 4;
           }
           return demerits;
         })

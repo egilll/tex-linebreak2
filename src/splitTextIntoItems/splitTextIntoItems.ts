@@ -58,6 +58,12 @@ export function splitTextIntoItems(
 ): TextItem[] {
   const options = getOptionsWithDefaults(_options);
 
+  if (!options.measureFn) {
+    throw new Error(
+      "A measureFn is required. To get a measureFn for monospace text you can use the option `preset: 'plaintext`."
+    );
+  }
+
   let items: TextItem[] = [];
 
   precedingText = precedingText.slice(-50);
@@ -143,6 +149,8 @@ export function splitTextIntoItems(
       segments.at(-1)!.breakpoint = breakpoint;
     }
   }
+
+  console.log(segments);
 
   segments.forEach((segment, index) => {
     const isLastSegment = index === segments.length - 1;
@@ -244,6 +252,19 @@ export function getAllowableUnicodeBreakpoints(
   let positionToBreakpointInformation: Record<number, BreakpointInformation> =
     {};
   while ((currentBreak = lineBreaker.nextBreak())) {
+    console.log({
+      currentBreak,
+      curClass:
+        convertEnumValuesOfLineBreakingPackageToUnicodeNames[
+          // @ts-ignore
+          lineBreaker.curClass
+        ],
+      nextClass:
+        convertEnumValuesOfLineBreakingPackageToUnicodeNames[
+          // @ts-ignore
+          lineBreaker.nextClass
+        ],
+    });
     const lastLetterClass = getUnicodeLineBreakingClassOfLetterAt(
       input,
       currentBreak.position - 1
