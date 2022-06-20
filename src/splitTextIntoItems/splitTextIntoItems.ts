@@ -12,6 +12,7 @@ import {
   UnicodeLineBreakingClasses,
 } from "src/typings/unicodeLineBreakingClasses";
 import { forciblySplitLongWords } from "src/utils/forciblySplitLongWords";
+import { addHangingPunctuation } from "src/utils/hangingPunctuation";
 import {
   glue,
   paragraphEnd,
@@ -172,6 +173,7 @@ export function splitTextIntoItems(
         remainingItems.push(penalty(0, MAX_COST));
       }
       if (!isParagraphEnd) {
+        // Testing preferential breaks
         // if (segments[index - 1]?.text.endsWith(",")) {
         //   remainingItems.push(
         //     glue(0, 100000, 0),
@@ -220,14 +222,13 @@ export function splitTextIntoItems(
     options.leftHangingPunctuation ||
     options.rightHangingPunctuation
   ) {
-    // items = addHangingPunctuation(items, options /* followingText*/);
+    items = addHangingPunctuation(items, options /* followingText*/);
   }
 
   if (options.forceOverflowToBreak) {
     items = forciblySplitLongWords(items, options);
   }
 
-  console.log(items);
   return items;
 }
 

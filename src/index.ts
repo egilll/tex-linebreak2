@@ -1,6 +1,6 @@
 import "core-js/stable/array/at";
 
-import { breakLines, Item, MIN_ADJUSTMENT_RATIO } from "src/breakLines";
+import { breakLines, Item } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
 import { optimizeByFnCircle } from "src/optimize/optimizeByFnCircle";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
@@ -177,7 +177,7 @@ export class Line<
     } else {
       if (lineShrink > 0) {
         adjustmentRatio = Math.max(
-          MIN_ADJUSTMENT_RATIO,
+          this.options.minAdjustmentRatio,
           (this.idealWidth - actualWidth) / lineShrink
         );
       } else {

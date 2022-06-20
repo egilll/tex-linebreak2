@@ -36,7 +36,7 @@ export const TexLinebreakPresets: {
     /** Not relevant by default since `onlyBreakOnWhitespace` is on */
     softHyphenOutput: "HYPHEN",
   },
-};
+} as const;
 
 /**
  * A preset that includes a measureFn for monospace text.
