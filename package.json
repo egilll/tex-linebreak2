@@ -11,9 +11,7 @@
     "dist/lib*.js",
     "dist/lib*.LICENSE.txt",
     "dist/lib*.js.map",
-    "dist/index.d.ts",
-    "README.md",
-    "LICENSE"
+    "dist/index.d.ts"
   ],
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -27,13 +25,12 @@
   "dependencies": {
     "core-js": "3",
     "debounce": "^1.2.1",
-    "hyphen": "^1.6.4",
     "linebreak": "^1.1.0",
     "string-width": "4.2.2",
-    "ttfjs": "^0.4.0",
     "typescript-memoize": "^1.1.0"
   },
   "devDependencies": {
+    "hyphen": "^1.6.4",
     "@babel/core": "^7.18.5",
     "@babel/plugin-proposal-class-properties": "^7.17.12",
     "@babel/plugin-proposal-decorators": "^7.18.2",

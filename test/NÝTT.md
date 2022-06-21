@@ -5,3 +5,4 @@
 - test that penalty before a glue is respected
 - should break even when lineWidth is 0
 - hanging punctuation should not overlap with next item!
+- "bla bla\n bla bla" – How to handle indentation
