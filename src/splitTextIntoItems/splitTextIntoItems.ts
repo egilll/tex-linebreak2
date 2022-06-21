@@ -112,6 +112,7 @@ export function splitTextIntoItems(
     const isGlue = glueCharacterRegex.test(char);
     let type: Segment["type"] = isGlue ? "glue" : "box";
 
+    /** Initialize a new empty segment if necessary (if the previous segment is not of the same type or if the previous segment was a required breakpoint) */
     if (
       segments.length === 0 ||
       segments.at(-1)!.type !== type ||
@@ -121,6 +122,7 @@ export function splitTextIntoItems(
     ) {
       segments.push({ text: "", type });
     }
+
     segments.at(-1)!.text += char;
 
     if (breakpoint) {
@@ -139,7 +141,6 @@ export function splitTextIntoItems(
 
       /**
        * Treat newline as just a space character in HTML.
-       * Todo: Should perhaps be done elsewhere
        */
       if (options.collapseAllNewlines && breakpoint.required) {
         breakpoint.required = false;
@@ -149,8 +150,6 @@ export function splitTextIntoItems(
       segments.at(-1)!.breakpoint = breakpoint;
     }
   }
-
-  console.log(segments);
 
   segments.forEach((segment, index) => {
     const isLastSegment = index === segments.length - 1;

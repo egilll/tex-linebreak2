@@ -30,9 +30,9 @@ export const TexLinebreakPresets: {
     glueStretchFactor: 0,
     glueShrinkFactor: 0,
     leftHangingPunctuation: false,
-    rightHangingPunctuation: true,
     initialMaxAdjustmentRatio: 1,
-    // infiniteGlueStretchAsRatioOfWidth: 0.4,
+    isPlaintext: true,
+    infiniteGlueStretchAsRatioOfWidth: 0.4,
     /** Not relevant by default since `onlyBreakOnWhitespace` is on */
     softHyphenOutput: "HYPHEN",
   },

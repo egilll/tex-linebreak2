@@ -1,25 +1,16 @@
 // import { hyphenateHTMLSync } from "hyphen/en";
-import { texLinebreakMultiple } from "src/optimize/optimalWidth";
+import { TexLinebreak } from "src/index";
+// import { texLinebreakMultiple } from "src/optimize/optimalWidth";
 // hyphenateHTMLSync()
-import { TexLinebreakPresets } from "src/presets/presets";
 
 console.log(
-  texLinebreakMultiple(
-    [
-      {
-        input: `
-test. 
-
-test.
+  new TexLinebreak(
+    `test. 
+   test.
 
 `,
-        lineWidth: 80,
-      },
-    ],
-    TexLinebreakPresets.plaintext
-  )
-    .map((t) => t.plaintext)
-    .join("\n~\n")
+    { preset: "plaintext", lineWidth: 50 }
+  ).plaintext
 );
 
 // Used by {@link oldCards} when classifying which already-seen
@@ -27,3 +18,22 @@ test.
 //
 // TODO: This needs to be reworked, it currently only checks whether
 // it has been seen once and was then given an easy rating.
+
+// console.log(
+//   texLinebreakMultiple(
+//     [
+//       {
+//         input: `
+// test.
+//
+// test.
+//
+// `,
+//         lineWidth: 80,
+//       },
+//     ],
+//     { preset: "plaintext" }
+//   )
+//     .map((t) => t.plaintext)
+//     .join("\n~\n")
+// );

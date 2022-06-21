@@ -355,6 +355,7 @@ export class TexLinebreakOptions {
   element?: HTMLElement;
   dontBlockBrowserRenderingThread: boolean = false;
   clearItemCache?: boolean;
+  isPlaintext?: boolean;
 
   /** ====================== End of options ====================== */
 
