@@ -13,8 +13,7 @@
     "dist/lib*.js.map",
     "dist/index.d.ts",
     "README.md",
-    "LICENSE",
-    "images/*.png"
+    "LICENSE"
   ],
   "types": "./dist/index.d.ts",
   "scripts": {
