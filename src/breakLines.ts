@@ -521,8 +521,6 @@ export function breakLines(
 
   if (chosenNodes.at(-1)?.totalDemerits === Infinity) {
     console.warn("Total demerits were infinite");
-    console.log("haha");
-    console.trace();
   }
 
   return {

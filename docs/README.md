@@ -1,10 +1,9 @@
-<p align="center"><img width="245" height="251" src="images/knuth_quote_circle.png" align="center" title="Quote from the introduction of Knuth & Plass's paper"></p>
+<p align="center"><img width="245" height="238" src="images/knuth_quote_circle.png" align="center" title="Quote from the introduction of Knuth & Plass's paper"></p>
 
-# tex-linebreak2
+# tex-linebreak2 <sup><sup><i>(beta)</i></sup></sup>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
-<sub>(This repository is an extension of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight. It is functional, but is a work-in-progress as of June 2022, and has not been published on NPM.)</sub>
+![npm version](https://img.shields.io/npm/v/tex-linebreak2.svg)
 
 **tex-linebreak2** is a JavaScript library for breaking text into lines of optimal width. It can be used to lay out justified text as you
 would find in a newspaper, book or technical paper. It implements the
@@ -12,7 +11,7 @@ would find in a newspaper, book or technical paper. It implements the
 
 **[See the demo](https://egilll.github.io/tex-linebreak2/)**.
 
-This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. <!--It can be used to find the optimal size of an element to fit text.-->
+This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. <!--It can be used to find the optimal size of an element to fit text.--> 
 
 ## Features
 
@@ -119,7 +118,7 @@ to restrict where scripts can be loaded from.
 Add the _tex-linebreak2_ package to your dependencies:
 
 ```sh
-npm install git+ssh://git@github.com/egilll/tex-linebreak2.git -s
+npm install tex-linebreak2 --save
 ```
 
 ## Usage
@@ -273,7 +272,7 @@ _tex-linebreak2_ will strip the soft hyphen characters from the output so they w
 
 ## Contributors
 
-Written by [Robert Knight](https://github.com/robertknight/tex-linebreak) with some modifications by Egill.
+This project is an extension of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight. Modifications by Egill.
 
 ## References
 
