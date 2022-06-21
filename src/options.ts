@@ -16,9 +16,9 @@ export class TexLinebreakOptions {
   align: "justify" | "left" /*| "right" | "center"*/ = "justify";
 
   // todo: type inference not working well here
-  preset:
+  preset?:
     | Extract<keyof typeof TexLinebreakPresets, string>
-    | Extract<keyof typeof TexLinebreakPresets, string>[] = "html";
+    | Extract<keyof typeof TexLinebreakPresets, string>[];
 
   hangingPunctuation: boolean = true;
   /** On by default if `hangingPunctuation` is on. */
@@ -363,10 +363,15 @@ export class TexLinebreakOptions {
     if (options.align && options.align !== "justify") {
       Object.assign(this, TexLinebreakPresets.raggedAlignment);
     }
-    const presets = options.preset ?? this.preset;
-    (Array.isArray(presets) ? presets : [presets]).forEach((preset) => {
-      Object.assign(this, TexLinebreakPresets[preset]);
-    });
+    if (options.preset) {
+      (Array.isArray(options.preset)
+        ? options.preset
+        : [options.preset]
+      ).forEach((preset) => {
+        Object.assign(this, TexLinebreakPresets[preset]);
+      });
+    }
+
     Object.assign(this, options);
   }
 }

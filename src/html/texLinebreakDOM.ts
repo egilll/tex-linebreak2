@@ -83,7 +83,6 @@ export async function texLinebreakDOM(
       const obj = new TexLinebreak<DOMItem>(items, {
         ...options,
         lineWidth,
-        collapseAllNewlines: true,
       });
       const lines = obj.lines;
 

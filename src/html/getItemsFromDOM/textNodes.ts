@@ -56,7 +56,6 @@ export function processText(
         ...item.options,
         measureFn: (word) => domTextMeasureFn(word, item.element, item.options),
         addParagraphEnd: false,
-        collapseAllNewlines: true,
       },
       precedingText,
       followingText

@@ -252,19 +252,6 @@ export function getAllowableUnicodeBreakpoints(
   let positionToBreakpointInformation: Record<number, BreakpointInformation> =
     {};
   while ((currentBreak = lineBreaker.nextBreak())) {
-    console.log({
-      currentBreak,
-      curClass:
-        convertEnumValuesOfLineBreakingPackageToUnicodeNames[
-          // @ts-ignore
-          lineBreaker.curClass
-        ],
-      nextClass:
-        convertEnumValuesOfLineBreakingPackageToUnicodeNames[
-          // @ts-ignore
-          lineBreaker.nextClass
-        ],
-    });
     const lastLetterClass = getUnicodeLineBreakingClassOfLetterAt(
       input,
       currentBreak.position - 1
@@ -273,6 +260,22 @@ export function getAllowableUnicodeBreakpoints(
       currentBreak.position < input.length
         ? getUnicodeLineBreakingClassOfLetterAt(input, currentBreak.position)
         : null;
+    // console.log({
+    //   currentBreak,
+    //   curClass1:
+    //     convertEnumValuesOfLineBreakingPackageToUnicodeNames[
+    //       // @ts-ignore
+    //       lineBreaker.curClass
+    //     ],
+    //   curClass2: lastLetterClass,
+    //   nextClass1:
+    //     convertEnumValuesOfLineBreakingPackageToUnicodeNames[
+    //       // @ts-ignore
+    //       lineBreaker.nextClass
+    //     ],
+    //   nextClass2: nextLetterClass,
+    //   lastLetter: input.slice(currentBreak.position - 1, currentBreak.position),
+    // });
     positionToBreakpointInformation[currentBreak.position] = {
       position: currentBreak.position,
       required: currentBreak.required,
