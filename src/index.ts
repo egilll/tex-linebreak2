@@ -2,6 +2,7 @@ import "core-js/stable/array/at";
 
 import { breakLines, Item } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
+import { findOptimalWidth } from "src/optimize/optimalWidth";
 import { optimizeByFnCircle } from "src/optimize/optimizeByFnCircle";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import {
@@ -45,6 +46,9 @@ export class TexLinebreak<InputItemType extends AnyItem = AnyItem> {
   get breakpoints(): number[] {
     if (!this.options.lineWidth) {
       throw new Error("The option `lineWidth` is required");
+    }
+    if (this.options.findOptimalWidth) {
+      findOptimalWidth([this], this.options);
     }
     if (this.options.lineBreakingAlgorithm === "greedy") {
       return breakLinesGreedy(this.items, this.options);

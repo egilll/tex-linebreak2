@@ -218,25 +218,17 @@ export class TexLinebreakOptions {
   optimizeByFn?: Function;
 
   /**
-   *
-   * - `normal` fills the entire allowed width, with the the last line of each
-   *   paragraph being allowed to end with a significant amount of space.
-   * - `greedy` will break greedily instead of using TeX's line breaking
-   *   algorithm.
-   *
-   * Work in progress:
-   *
-   * - `findOptimalWidth` will shrink the paragraph's width to keep few
-   *   unfilled last lines
-   * - `compact` will shrink each paragraph independently
+   * `greedy` will break greedily instead of using TeX's line breaking
+   *  algorithm.
    */
   lineBreakingAlgorithm: "tex" | "greedy" = "tex";
 
   /**
-   * Will shrink the line-widths in order to have few unfilled last lines.
+   * Will shrink the line-widths in order to have few demerits and few unfilled last lines.
    * (Does nothing if `lineBreakingAlgorithm="greedy"`.)
    */
   findOptimalWidth?: boolean;
+  findOptimalWidthMaxExtraLinesPerParagraph: number | null = 0;
 
   /**
    * A pattern that should never be broken.
@@ -251,6 +243,9 @@ export class TexLinebreakOptions {
   neverBreakAfter?: (string | RegExp) | (string | RegExp)[];
 
   collapseSingleNewlines?: boolean;
+  /**
+   * Only applies if `collapseSingleNewlines` is on.
+   */
   keepSingleNewlinesAfter?: (string | RegExp) | (string | RegExp)[];
 
   /**

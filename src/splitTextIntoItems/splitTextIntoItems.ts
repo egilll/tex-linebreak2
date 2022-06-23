@@ -86,6 +86,26 @@ export function splitTextIntoItems(
     ),
   ];
 
+  let ignoredNewlines: number[] = [];
+  if (options.collapseSingleNewlines) {
+    ignoredNewlines.push(
+      ...getIndicesMatching(inputWithSurroundingText, /\n/g, "after")
+    );
+    if (options.keepSingleNewlinesAfter) {
+      /**
+       * These are the indices after which newlines are kept,
+       * meaning they are offset by one compare to the indices of
+       * the newlines.
+       */
+      const indices = getIndicesMatching(
+        inputWithSurroundingText,
+        options.keepSingleNewlinesAfter,
+        "after"
+      );
+      ignoredNewlines = ignoredNewlines.filter((i) => !indices.includes(i - 1));
+    }
+  }
+
   /**
    * We start by splitting the input into segments of either boxes (text) or
    * glue (stretchable spaces) which each may or may not end in a breakpoint.
@@ -103,7 +123,9 @@ export function splitTextIntoItems(
     const indexInInputWithSurroundingText = precedingText.length + charIndex;
     let breakpoint: BreakpointInformation | null =
       breakpoints[indexInInputWithSurroundingText + 1] || null;
-    if (disallowedBreakpoints.includes(indexInInputWithSurroundingText)) {
+
+    /** TODO: VERIFY THIS ISN'T AN OFF-BY-ONE ERROR */
+    if (disallowedBreakpoints.includes(indexInInputWithSurroundingText + 1)) {
       breakpoint = null;
     }
 
@@ -142,7 +164,11 @@ export function splitTextIntoItems(
       /**
        * Treat newline as just a space character in HTML.
        */
-      if (options.collapseAllNewlines && breakpoint.required) {
+      if (
+        breakpoint.required &&
+        (options.collapseAllNewlines ||
+          ignoredNewlines.includes(indexInInputWithSurroundingText + 1))
+      ) {
         breakpoint.required = false;
         breakpoint.lastLetterClass = UnicodeLineBreakingClasses.Space;
       }

@@ -9,32 +9,13 @@ export type ParagraphWithWidth = {
   lineWidth: LineWidth;
 };
 
-export class TexLinebreakOptimalWidthOptions extends TexLinebreakOptions {
-  maxExtraLinesPerParagraph: number | null = 0;
-  constructor(options: Partial<TexLinebreakOptimalWidthOptions> = {}) {
-    super(options);
-    Object.assign(this, options);
-  }
-}
-
 /**
- * Find the optimal width for multiple paragraphs
+ * Will directly alter the option `makeLineWidthSmallerBy` and return the original objects.
  */
-export function texLinebreakMultiple(
-  paragraphs: ParagraphWithWidth[],
-  _options: Partial<TexLinebreakOptimalWidthOptions> = {}
+export function findOptimalWidth(
+  paragraphObjects: TexLinebreak[],
+  options: Partial<TexLinebreakOptions> = {}
 ): TexLinebreak[] {
-  const options = new TexLinebreakOptimalWidthOptions(_options);
-
-  /** We start by creating TexLinebreak objects for each paragraph */
-  const paragraphObjects = paragraphs.map(
-    (paragraph) =>
-      new TexLinebreak(paragraph.input, {
-        ...options,
-        lineWidth: paragraph.lineWidth,
-      })
-  );
-
   /**
    * If we remove the infinite glue, the lines will try to fit the most compact way possible
    * (without going to the next line).
@@ -88,8 +69,9 @@ export function texLinebreakMultiple(
             demerits *= 2 * numberOfExtraLines ** 2;
           }
           if (
-            options.maxExtraLinesPerParagraph != null &&
-            numberOfExtraLines > options.maxExtraLinesPerParagraph
+            options.findOptimalWidthMaxExtraLinesPerParagraph != null &&
+            numberOfExtraLines >
+              options.findOptimalWidthMaxExtraLinesPerParagraph
           ) {
             demerits = Infinity;
           }
@@ -101,7 +83,6 @@ export function texLinebreakMultiple(
   });
 
   return paragraphObjects.map((t) => {
-    // t.options.infiniteGlueStretchAsRatioOfWidth = 0;
     t.options.makeLineWidthSmallerBy = best || minRemainingWidth;
     return t;
   });

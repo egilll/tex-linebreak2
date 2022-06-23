@@ -6,3 +6,4 @@ export * from "src/splitTextIntoItems/splitTextIntoItems";
 export * from "src/typings/unicodeLineBreakingClasses";
 export * from "src/utils/lineWidth";
 export * from "src/optimize/optimalWidth";
+export { texLinebreakMultiple } from "src/optimize/multiple";

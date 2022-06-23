@@ -12,10 +12,10 @@ never possible)
 `,
     {
       preset: "plaintext",
-      lineWidth: 80,
+      lineWidth: 60,
       findOptimalWidth: true,
       collapseSingleNewlines: true,
-      keepSingleNewlinesAfter: [/\.:\?!/],
+      keepSingleNewlinesAfter: [".", ":", "!", "?", ".)"],
     }
   ).plaintext
 );
