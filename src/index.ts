@@ -22,10 +22,9 @@ import {
 import { Memoize } from "typescript-memoize";
 
 export type ItemPosition = { xOffset: number; adjustedWidth: number };
+export type AnyItem = TextItem | DOMItem | Item;
 
-export class TexLinebreak<
-  InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item
-> {
+export class TexLinebreak<InputItemType extends AnyItem = AnyItem> {
   items: InputItemType[];
   options: TexLinebreakOptions;
 
@@ -47,7 +46,7 @@ export class TexLinebreak<
     if (!this.options.lineWidth) {
       throw new Error("The option `lineWidth` is required");
     }
-    if (this.options.lineBreakingType === "greedy") {
+    if (this.options.lineBreakingAlgorithm === "greedy") {
       return breakLinesGreedy(this.items, this.options);
     } else {
       if (this.options.optimizeByFn) {
@@ -90,12 +89,10 @@ export class TexLinebreak<
  * For most use-cases, the only property you're
  * interested in is `positionedItems`.
  */
-export class Line<
-  InputItemType extends TextItem | DOMItem | Item = TextItem | DOMItem | Item
-> {
+export class Line<InputItemType extends AnyItem = AnyItem> {
   options: TexLinebreakOptions;
   constructor(
-    public parentClass: TexLinebreak<any>,
+    public parentClass: TexLinebreak<InputItemType>,
     public startBreakpoint: number,
     public endBreakpoint: number,
     public lineIndex: number

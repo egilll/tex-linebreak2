@@ -15,7 +15,7 @@ export class TexLinebreakOptions {
 
   align: "justify" | "left" /*| "right" | "center"*/ = "justify";
 
-  // todo: type inference not working well here
+  /** @see TexLinebreakPresets */
   preset?:
     | Extract<keyof typeof TexLinebreakPresets, string>
     | Extract<keyof typeof TexLinebreakPresets, string>[];
@@ -218,6 +218,7 @@ export class TexLinebreakOptions {
   optimizeByFn?: Function;
 
   /**
+   *
    * - `normal` fills the entire allowed width, with the the last line of each
    *   paragraph being allowed to end with a significant amount of space.
    * - `greedy` will break greedily instead of using TeX's line breaking
@@ -229,8 +230,13 @@ export class TexLinebreakOptions {
    *   unfilled last lines
    * - `compact` will shrink each paragraph independently
    */
-  lineBreakingType: "normal" /* | "findOptimalWidth" | "compact"*/ | "greedy" =
-    "normal";
+  lineBreakingAlgorithm: "tex" | "greedy" = "tex";
+
+  /**
+   * Will shrink the line-widths in order to have few unfilled last lines.
+   * (Does nothing if `lineBreakingAlgorithm="greedy"`.)
+   */
+  findOptimalWidth?: boolean;
 
   /**
    * A pattern that should never be broken.
@@ -244,21 +250,21 @@ export class TexLinebreakOptions {
    */
   neverBreakAfter?: (string | RegExp) | (string | RegExp)[];
 
-  /** WIP */
-  // keepNewlinesAfter?: (string | RegExp) | (string | RegExp)[];
+  collapseSingleNewlines?: boolean;
+  keepSingleNewlinesAfter?: (string | RegExp) | (string | RegExp)[];
 
   /**
    * HTML content collapses all whitespace and displays it as a single space.
-   * This overrides {@link TexLinebreakOptions#keepNewlinesAfter}.
+   * This overrides {@link TexLinebreakOptions#keepSingleNewlinesAfter}.
    */
-  collapseAllNewlines: boolean = false;
+  collapseAllNewlines?: boolean;
 
   /**
    * If you're breaking the lines of plaintext that a user may have to
    * copy later, you can use this option to only break on whitespace, and
    * never inside words that include hyphens or slashes (such as URLs).
    */
-  onlyBreakOnWhitespace: boolean = false;
+  onlyBreakOnWhitespace?: boolean;
 
   /**
    * Allows the last line of a paragraph to be shorter than the rest.

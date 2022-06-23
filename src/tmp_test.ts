@@ -5,11 +5,18 @@ import { TexLinebreak } from "src/index";
 
 console.log(
   new TexLinebreak(
-    `test. 
-   test.
-
+    `Checks if two cards are the same card.
+(Used since Card === Card doesn't work if they are the same card
+just initialized at a different time, although that is currently
+never possible)
 `,
-    { preset: "plaintext", lineWidth: 50 }
+    {
+      preset: "plaintext",
+      lineWidth: 80,
+      findOptimalWidth: true,
+      collapseSingleNewlines: true,
+      keepSingleNewlinesAfter: [/\.:\?!/],
+    }
   ).plaintext
 );
 

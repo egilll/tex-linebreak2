@@ -7,7 +7,10 @@ import stringWidth from "string-width";
 //         )
 
 export const TexLinebreakPresets: {
-  [key: string]: Partial<TexLinebreakOptions>;
+  [key in
+    | "raggedAlignment"
+    | "html"
+    | "plaintext"]: Partial<TexLinebreakOptions>;
 } = {
   raggedAlignment: {
     softHyphenPenalty: 500,
@@ -35,8 +38,11 @@ export const TexLinebreakPresets: {
     infiniteGlueStretchAsRatioOfWidth: 0.4,
     /** Not relevant by default since `onlyBreakOnWhitespace` is on */
     softHyphenOutput: "HYPHEN",
+    collapseSingleNewlines: true,
+    /** Collapse newlines like Markdown does, keeping newlines after double spaces */
+    keepSingleNewlinesAfter: ["  ", "\\"],
   },
-} as const;
+};
 
 /**
  * A preset that includes a measureFn for monospace text.
