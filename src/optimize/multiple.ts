@@ -6,7 +6,7 @@ import {
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 
 /**
- * Find the optimal width for multiple paragraphs
+ * Can be used to find the optimal width for multiple paragraphs
  */
 export function texLinebreakMultiple(
   paragraphs: ParagraphWithWidth[],
@@ -25,5 +25,9 @@ export function texLinebreakMultiple(
       })
   );
 
-  return findOptimalWidth(paragraphObjects, options);
+  if (options.findOptimalWidth) {
+    return findOptimalWidth(paragraphObjects, options);
+  } else {
+    return paragraphObjects;
+  }
 }

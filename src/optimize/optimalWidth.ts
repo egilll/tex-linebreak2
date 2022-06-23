@@ -33,6 +33,7 @@ export function findOptimalWidth(
     );
     numberOfLinesInEachParagraph.push(nodes.length - 1);
   });
+
   const minRemainingWidth = Math.min(...remainingWidthsOfEachParagraph, 0);
 
   const minLineWidth = Math.min(

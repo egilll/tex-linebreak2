@@ -18,13 +18,18 @@
 // );
 import { texLinebreakMultiple } from "src/optimize/multiple";
 
+const width = 40;
 console.log(
+  "_".repeat(width)+'\n'+
   texLinebreakMultiple(
     [
       {
         input:
-          "Whether a card is allowed to be chosen by {@link createCards}\nto be added to the session.",
-        lineWidth: 77,
+          "Function example description that was wrapped by hand so it have more then\n" +
+          "one line and don't end with a dot REPEATED TWO TIMES BECAUSE IT WAS EASIER to\n" +
+          "copy function example description that was wrapped by hand so it have more\n" +
+          "then one line.",
+        lineWidth: width,
       },
     ],
     {
@@ -32,6 +37,7 @@ console.log(
       neverBreakInside: /{@.+?}/,
       // infiniteGlueStretchAsRatioOfWidth: 0,
       collapseSingleNewlines: true,
+      lineBreakingAlgorithm:"greedy"
       keepSingleNewlinesAfter: ["  ", "\\", ".", ":", "!", "?", ".)"],
     }
   )

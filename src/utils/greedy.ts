@@ -23,7 +23,7 @@ export function breakLinesGreedy(
   }
 
   items.forEach((item, index) => {
-    const idealLen = getLineWidth(options.lineWidth, breakpoints.length + 1);
+    const idealLen = getLineWidth(options.lineWidth, breakpoints.length - 1);
 
     if (isForcedBreak(item)) {
       return addBreak(index);
@@ -33,14 +33,15 @@ export function breakLinesGreedy(
         addBreak(bestBreakForLine);
         curLineWidth += item.width;
       }
-    } else if (item.type === "glue" && items[index - 1].type === "box") {
-      bestBreakForLine = index;
+    } else if (item.type === "glue") {
+      if (items[index - 1].type === "box") {
+        bestBreakForLine = index;
+      }
       curLineWidth += item.width;
     } else if (item.type === "penalty" && item.cost < MAX_COST) {
       bestBreakForLine = index;
       // Note: Currently does not take into consideration hyphen width...
     }
   });
-  console.log({ breakpoints });
   return breakpoints;
 }
