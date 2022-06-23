@@ -14,12 +14,7 @@ import { makeZeroWidth } from "src/utils/collapseGlue";
 import { breakLinesGreedy } from "src/utils/greedy";
 import { TextBox, TextItem } from "src/utils/items";
 import { getLineWidth } from "src/utils/lineWidth";
-import {
-  getStretch,
-  getText,
-  isForcedBreak,
-  isSoftHyphen,
-} from "src/utils/utils";
+import { getStretch, getText, isSoftHyphen } from "src/utils/utils";
 import { Memoize } from "typescript-memoize";
 
 export type ItemPosition = { xOffset: number; adjustedWidth: number };
@@ -355,11 +350,12 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
    * Todo: This should be dealt with in breakLines itself
    */
   get isExtraneousLine() {
-    return (
-      !this.itemsCollapsed.some((item) => item.type === "box") &&
-      isForcedBreak(this.parentClass.items[this.endBreakpoint]) &&
-      !isForcedBreak(this.parentClass.items[this.startBreakpoint])
-    );
+    return false;
+    //   return (
+    //   !this.itemsCollapsed.some((item) => item.type === "box") &&
+    //   isForcedBreak(this.parentClass.items[this.endBreakpoint]) &&
+    //   !isForcedBreak(this.parentClass.items[this.startBreakpoint])
+    // );
   }
 
   // /**

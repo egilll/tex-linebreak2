@@ -20,6 +20,8 @@ export function texLinebreakMultiple(
       new TexLinebreak(paragraph.input, {
         ...options,
         lineWidth: paragraph.lineWidth,
+        // Prevent nested calls to `findOptimalWidth`
+        findOptimalWidth: false,
       })
   );
 

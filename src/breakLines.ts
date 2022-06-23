@@ -75,20 +75,20 @@ export interface Penalty {
 export type Item = Box | Penalty | Glue;
 
 /**
- * Minimum cost for a breakpoint.
- *
- * A value of `MIN_COST` forces a break.
- * Has a value of -1000 in the original paper.
- */
-export const MIN_COST = -Infinity;
-
-/**
  * Maximum cost for a breakpoint.
  *
- * A value of `MAX_COST` prevents a break.
- * Has a value of 1000 in the original paper.
+ * A value >= `MAX_COST` prevents a break.
+ * Has a value of 1000 in the original paper, but it is useful to have penalties that are more costly than that.
  */
-export const MAX_COST = Infinity;
+export const MAX_COST = 1e7;
+
+/**
+ * Minimum cost for a breakpoint.
+ *
+ * A value <= `MIN_COST` forces a break.
+ * Has a value of -1000 in the original paper
+ */
+export const MIN_COST = -1e7;
 
 export const INFINITE_STRETCH = 100000;
 
@@ -246,9 +246,11 @@ export function breakLines(
        * at {@link TexLinebreakOptions#preventSingleWordLines}.
        */
       if (
-        !options.preventSingleWordLines &&
-        /** Are there any boxes in this line? */
-        items.slice(a.index, b).some((item) => item.type === "box")
+        !options.preventSingleWordLines
+        // Todo: This didn't work with "\n\n"
+        // &&
+        // /** Are there any boxes in this line? */
+        // items.slice(a.index, b).some((item) => item.type === "box")
       ) {
         if (lineStretch === 0) {
           lineStretch = 0.1;

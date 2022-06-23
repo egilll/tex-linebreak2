@@ -6,3 +6,15 @@
 - should break even when lineWidth is 0
 - hanging punctuation should not overlap with next item!
 - "bla bla\n bla bla" – How to handle indentation
+- "d\n\nd" - insert some glue in the double newline
+
+```
+Used by {@link oldCards} when classifying
+which already-seen cards should be chosen.
+```
+
+Handle:
+
+{ type: 'penalty', width: 0, cost: -10000000, flagged: false },
+{ type: 'glue', width: 0, shrink: 0, stretch: 100000 },
+{ type: 'penalty', width: 0, cost: -10000000, flagged: false }

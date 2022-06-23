@@ -40,7 +40,7 @@ export function findOptimalWidth(
   );
   const best = FindBestWalkingIncreasing({
     initialGuess: minRemainingWidth,
-    min: minRemainingWidth,
+    min: 0,
     max: (minLineWidth - minRemainingWidth) * 0.5,
     initialStepSize: Math.ceil(minLineWidth * 0.1),
     minStepSize: 1,
@@ -48,8 +48,11 @@ export function findOptimalWidth(
       return paragraphObjects.map((paragraphObject) => {
         return breakLines(paragraphObject.items, {
           ...paragraphObject.options,
-          // hmm..
-          infiniteGlueStretchAsRatioOfWidth: 0.1,
+          /**
+           * Needed in order to penalize short last lines.
+           */
+          infiniteGlueStretchAsRatioOfWidth:
+            paragraphObject.options.align === "justify" ? 0.2 : 0,
           makeLineWidthSmallerBy: makeSmallerBy,
           initialMaxAdjustmentRatio: Infinity,
         }).lineBreakingNodes;

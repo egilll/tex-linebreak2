@@ -88,13 +88,14 @@ export function splitTextIntoItems(
 
   let ignoredNewlines: number[] = [];
   if (options.collapseSingleNewlines) {
+    // TODO: Test
     ignoredNewlines.push(
-      ...getIndicesMatching(inputWithSurroundingText, /\n/g, "after")
+      ...getIndicesMatching(inputWithSurroundingText, /[^\n]\n\S/g, "inside")
     );
     if (options.keepSingleNewlinesAfter) {
       /**
        * These are the indices after which newlines are kept,
-       * meaning they are offset by one compare to the indices of
+       * meaning their offset is -1 compared to the indices of
        * the newlines.
        */
       const indices = getIndicesMatching(
@@ -124,7 +125,6 @@ export function splitTextIntoItems(
     let breakpoint: BreakpointInformation | null =
       breakpoints[indexInInputWithSurroundingText + 1] || null;
 
-    /** TODO: VERIFY THIS ISN'T AN OFF-BY-ONE ERROR */
     if (disallowedBreakpoints.includes(indexInInputWithSurroundingText + 1)) {
       breakpoint = null;
     }
@@ -204,6 +204,10 @@ export function splitTextIntoItems(
        */
       if (!segment.breakpoint) {
         remainingItems.push(penalty(0, MAX_COST));
+        /**
+         * Necessary since another penalty will be added by textGlue for non-justified.
+         */
+        cost = MAX_COST;
       }
       if (!isParagraphEnd) {
         // Testing preferential breaks
@@ -262,6 +266,8 @@ export function splitTextIntoItems(
     items = forciblySplitLongWords(items, options);
   }
 
+  // console.log(items);
+
   return items;
 }
 
@@ -285,22 +291,6 @@ export function getAllowableUnicodeBreakpoints(
       currentBreak.position < input.length
         ? getUnicodeLineBreakingClassOfLetterAt(input, currentBreak.position)
         : null;
-    // console.log({
-    //   currentBreak,
-    //   curClass1:
-    //     convertEnumValuesOfLineBreakingPackageToUnicodeNames[
-    //       // @ts-ignore
-    //       lineBreaker.curClass
-    //     ],
-    //   curClass2: lastLetterClass,
-    //   nextClass1:
-    //     convertEnumValuesOfLineBreakingPackageToUnicodeNames[
-    //       // @ts-ignore
-    //       lineBreaker.nextClass
-    //     ],
-    //   nextClass2: nextLetterClass,
-    //   lastLetter: input.slice(currentBreak.position - 1, currentBreak.position),
-    // });
     positionToBreakpointInformation[currentBreak.position] = {
       position: currentBreak.position,
       required: currentBreak.required,
@@ -341,8 +331,16 @@ export function getIndicesMatching(
   } else if (pattern instanceof RegExp) {
     let output: number[] = [];
     let match;
+    /**
+     * The Regex must have the global flag set, otherwise the while loop will not work.
+     */
+    if (!pattern.flags.includes("g")) {
+      pattern = new RegExp(pattern.source, pattern.flags + "g");
+    }
+    pattern.lastIndex = 0;
     while ((match = pattern.exec(input)) !== null) {
       addToOutput(output, match.index, match[0].length);
+      pattern.lastIndex = match.index + match[0].length;
     }
     return output;
   } else if (typeof pattern === "string") {
@@ -361,7 +359,7 @@ export function getIndicesMatching(
   function addToOutput(arr: number[], startIndex: number, length: number) {
     const endIndex = startIndex + length;
     if (type === "inside") {
-      for (let i = startIndex + 1; i < endIndex - 1; i++) {
+      for (let i = startIndex + 1; i < endIndex; i++) {
         arr.push(i);
       }
     } else if (type === "after") {
