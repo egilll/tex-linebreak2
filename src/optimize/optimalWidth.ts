@@ -52,7 +52,7 @@ export function findOptimalWidth(
            * Needed in order to penalize short last lines.
            */
           infiniteGlueStretchAsRatioOfWidth:
-            paragraphObject.options.align === "justify" ? 0.2 : 0,
+            paragraphObject.options.align === "justify" ? 0.2 : 0.2,
           makeLineWidthSmallerBy: makeSmallerBy,
           initialMaxAdjustmentRatio: Infinity,
         }).lineBreakingNodes;
