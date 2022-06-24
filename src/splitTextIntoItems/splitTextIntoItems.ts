@@ -266,8 +266,6 @@ export function splitTextIntoItems(
     items = forciblySplitLongWords(items, options);
   }
 
-  // console.log(items);
-
   return items;
 }
 
