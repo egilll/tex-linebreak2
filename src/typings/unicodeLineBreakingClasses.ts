@@ -313,7 +313,6 @@ export enum UnicodeLineBreakingClasses {
  * into a more readable format.
  */
 export const convertEnumValuesOfLineBreakingPackageToUnicodeNames = {
-  0: "OP", // Opening punctuation
   1: "CL", // Closing punctuation
   2: "CP", // Closing parenthesis
   3: "QU", // Ambiguous quotation

@@ -12,7 +12,6 @@ import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
 import { getMaxLineWidth } from "src/utils/lineWidth";
-import { TextGlue } from "../utils/items";
 
 /**
  * Breaks the lines of HTML elements and applies justification.
@@ -119,7 +118,8 @@ export async function texLinebreakDOM(
 
         let curXOffset = 0;
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
           /** Add spacing to glue */
           if (item.type === "glue") {
             const span = item.span;
@@ -128,23 +128,14 @@ export async function texLinebreakDOM(
               span.style.display = "none";
               continue;
             }
+
             /**
-             * Word-spacing must be used in the case of text since otherwise the space is not copyable.
-             * `inline-block` also messes with the formatting of links (each word gets its own underline)
+             * We cannot rely on word-spacing to style glue since it
+             * a) doesn't support negative values, and
+             * b) relies on knowing the original width of a glue, which is un-usable when working with multiple
+             * adjacent glues. We can also not rely on inline-block elements since they are not copyable.
              */
-            if ((item as TextGlue).text) {
-              span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
-            } else {
-              span.style.width = `${item.adjustedWidth}px`;
-              span.style.display = "inline-block";
-            }
-            if (item.adjustedWidth <= 0) {
-              span.style.fontSize = "0";
-              span.style.width = "0";
-              span.style.display = "inline-block";
-            } else {
-              curXOffset += item.adjustedWidth;
-            }
+            // span.style.fontSize = "0";
           } else if (item.type === "box") {
             const span = item.span;
             if (span && !item.skipWhenRendering) {

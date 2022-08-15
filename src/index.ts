@@ -135,6 +135,32 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
       xOffset += adjustedWidth;
     });
 
+    // /**
+    //  * Collapse negative widths. Necessary for rendering left-aligned text (which utilizes negative widths).
+    //  * Also saves the output HTML from having unnecessary negative margins.
+    //  */
+    // for (let index = 0; index < output.length; index++) {
+    //   if (output[index].adjustedWidth < 0) {
+    //     if (
+    //       output[index - 1]?.type === "glue" &&
+    //       output[index - 1].adjustedWidth > 0
+    //     ) {
+    //       const diff = output[index].adjustedWidth;
+    //       output[index].adjustedWidth = 0;
+    //       output[index].xOffset += diff;
+    //       output[index - 1].adjustedWidth += diff;
+    //       output[index - 1].xOffset += -diff;
+    //
+    //       /**
+    //        * A hack!! We rely on knowing the original width of a space in order to know
+    //        * how much word-spacing to apply to it.
+    //        */
+    //       output[index - 1].width = output[index].width;
+    //       output[index].width = 0;
+    //     }
+    //   }
+    // }
+
     return output;
   }
 
@@ -266,27 +292,6 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
     //       i.shrink === 0
     //     )
     // );
-
-    // Todo: Needs to include stretch/shrink
-    // /**
-    //  * Collapse negative widths. Not strictly necessary, but it saves
-    //  * the output HTML from having unnecessary negative margins. (The below does not currently work)
-    //  */
-    // for (let index = 0; index < output.length; index++) {
-    //   if (output[index].adjustedWidth < 0) {
-    //     if (
-    //       output[index + 1]?.type === "glue" &&
-    //       output[index + 1].adjustedWidth > 0
-    //     ) {
-    //       const diff = -output[index].adjustedWidth;
-    //       output[index].adjustedWidth = 0;
-    //       output[index].xOffset += diff;
-    //       output[index + 1].adjustedWidth += diff;
-    //       output[index + 1].xOffset += -diff;
-    //     }
-    //     // output[index].adjustedWidth = 0;
-    //   }
-    // }
 
     return itemsFiltered;
   }
