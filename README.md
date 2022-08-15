@@ -11,7 +11,7 @@ would find in a newspaper, book or technical paper. It implements the
 
 **[See the demo](https://egilll.github.io/tex-linebreak2/)**.
 
-This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. <!--It can be used to find the optimal size of an element to fit text.--> 
+This library can be used to lay out the text of webpages, plain text, or for rendering justified text to a canvas. <!--It can be used to find the optimal size of an element to fit text.-->
 
 ## Features
 
@@ -83,7 +83,7 @@ hyphenation and this library:
 ```html
 <head>
   <!--
-    Be sure to switch "@latest" out with the latest package version (e.g. "@0.7.3")!
+    Be sure to switch "@latest" out with the actual latest package version (e.g. "@0.7.4")!
     Since this is a beta package, there may be breaking changes in the future.
   -->
   <script src="https://unpkg.com/tex-linebreak2@latest/dist/lib_web.js"></script>
@@ -94,8 +94,8 @@ hyphenation and this library:
     texLinebreak_lib_web.texLinebreakDOM("p");
   </script>
 </body>
-
 ```
+
 ### As a package
 
 Add the _tex-linebreak2_ package to your dependencies:
@@ -145,7 +145,7 @@ Additionally, the library does not support:
 
 #### Other limitations
 
-- Does not support Swedish, German, and Dutch hyphenation rules that cause spelling to change (e.g. *tuggummi* becoming *tugg-gummi* and *opaatje* becoming *opa-tje*).
+- Does not support Swedish, German, and Dutch hyphenation rules that cause spelling to change (e.g. _tuggummi_ becoming _tugg-gummi_ and _opaatje_ becoming _opa-tje_).
 
 ### Other types of text
 
