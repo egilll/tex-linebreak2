@@ -1,3 +1,4 @@
+- Text cannot be copied without the line breaks, even if divs are used
 - The `nowrap` which is applied to the paragraph should not apply to sub-elements such as floated nested content.
 - Test nested inline-block elemenents.
 - Wait until `DOMContentLoaded` to check again whether things have changed (e.g. fonts loaded)

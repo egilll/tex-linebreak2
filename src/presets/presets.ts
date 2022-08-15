@@ -24,6 +24,8 @@ export const TexLinebreakPresets: {
     collapseAllNewlines: true,
     // Temp: Needs work
     forceOverflowToBreak: false,
+    // Temp until we figure out how to not copy line breaks
+    softHyphenOutput: "HYPHEN",
   },
   plaintext: {
     measureFn: stringWidth,

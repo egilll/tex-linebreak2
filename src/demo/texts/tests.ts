@@ -2,16 +2,6 @@ import { ListOfDemos } from "src/demo/demo";
 
 export const texts2: ListOfDemos = [
   {
-    id: "tmp3",
-    content: `<b>(Inline-</b><i>elements!</i><b>)</b> that do not have a <i>background,</i> or a border have hanging punctuation.
-                  
-    `,
-
-    options: {
-      addInfiniteGlueToFinalLine: false,
-    },
-  },
-  {
     id: "tmp2",
     description: "<h2>Various tests</h2>",
     content: `“Some <a href="#">simple text <i>with</i></a> <code>inline</code> and
@@ -33,6 +23,16 @@ export const texts2: ListOfDemos = [
     options: {
       addInfiniteGlueToFinalLine: false,
       // hangingPunctuation: false,
+    },
+  },
+  {
+    id: "tmp3",
+    content: `<b>(Inline-</b><i>elements!</i><b>)</b> that do not have a <i>background,</i> or a border have hanging punctuation.
+                  
+    `,
+
+    options: {
+      addInfiniteGlueToFinalLine: false,
     },
   },
   {

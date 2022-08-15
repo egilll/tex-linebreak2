@@ -15,7 +15,7 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 
 ## Features
 
-- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)). Rendering the elements that are visible on screen usually does not take more than 40ms; rendering a very lare document in its entirety may take 200ms.
+- Can be applied to webpages (but be sure to read about its [limitations](#limitations-on-webpages)). Rendering the elements that are visible on screen usually does not take more than 40ms; rendering a very large document in its entirety may take 200ms.
 - [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
 - Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 - Supports custom breaking rules.
@@ -26,8 +26,8 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 
 ## Table of contents
 
+- [Limitations](#limitations)
 - [About the Knuth-Plass algorithm](#about-the-knuth-plass-algorithm)
-- [Bookmarklet](#bookmarklet)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Options](#options)
@@ -76,43 +76,26 @@ hyphenation and this library:
         excessive spacing between words.</td>
   </tr>
 </table>
-
-<!--
-## Bookmarklet
-
-One way to see what the library can do is to [install the bookmarklet](bookmarklet.js) and activate it on an existing web page, such as this
-[Medium article](https://medium.com/@parismarx/ubers-unrealistic-plan-for-flying-cars-6c9569d6fa8b).
-
-It will justify and apply hyphenation to the content of any paragraph (`<p>`)
-elements on the page. The difference is more beneficial on smaller screens,
-so try it in your browser's responsive design mode.
-
-Note that the bookmarklet does not work on sites that use
-[Content Security Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
-to restrict where scripts can be loaded from.
--->
-
 ## Installation
 
-<!--
 ### As a third-party script
 
 ```html
 <head>
-  <script src="https://unpkg.com/tex-linebreak"></script>
-  TODO...
+  <!--
+    Be sure to switch "@latest" out with the latest package version (e.g. "@0.7.3")!
+    Since this is a beta package, there may be breaking changes in the future.
+  -->
+  <script src="https://unpkg.com/tex-linebreak2@latest/dist/lib_web.js"></script>
 </head>
 <body>
   <p>Example text</p>
   <script>
-    texLinebreak_lib.texLinebreakDOM("p", {
-      hyphenateFn: new Hypher(enUsPatterns).hyphenate,
-    });
+    texLinebreak_lib_web.texLinebreakDOM("p");
   </script>
 </body>
-```
--->
 
+```
 ### As a package
 
 Add the _tex-linebreak2_ package to your dependencies:
@@ -147,7 +130,9 @@ The library will listen for window resizing (can be turned off with the option `
 
 #### Limitations on webpages
 
-The library does not support:
+**A significant issue** with this library is that when text is copied from a webpage, the line breaks are included in the copied text.
+
+Additionally, the library does not support:
 
 - Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement/> text</p>`)
 - Floating elements when `line-height` isn't set
@@ -157,6 +142,10 @@ The library does not support:
 - If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, and that may introduce a noticable lag.
 - There may be issues regarding nested inline-block elements.
 - Using `<br/>` instead of using new paragraph elements currently sometimes causes very wide spaces instead of optimal spacing, which is a bug.
+
+#### Other limitations
+
+- Does not support Swedish, German, and Dutch hyphenation rules that cause spelling to change (e.g. *tuggummi* becoming *tugg-gummi* and *opaatje* becoming *opa-tje*).
 
 ### Other types of text
 

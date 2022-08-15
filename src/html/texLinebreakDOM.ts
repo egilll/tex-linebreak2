@@ -12,6 +12,7 @@ import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
 import { getMaxLineWidth } from "src/utils/lineWidth";
+import { TextGlue } from "../utils/items";
 
 /**
  * Breaks the lines of HTML elements and applies justification.
@@ -132,10 +133,57 @@ export async function texLinebreakDOM(
             /**
              * We cannot rely on word-spacing to style glue since it
              * a) doesn't support negative values, and
-             * b) relies on knowing the original width of a glue, which is un-usable when working with multiple
-             * adjacent glues. We can also not rely on inline-block elements since they are not copyable.
+             * b) relies on knowing the original width of a glue, which is un-usable when working with
+             * multiple adjacent glues. We can also not rely on inline-block elements since they are not
+             * copyable.
              */
+            if (
+              item.span &&
+              // This is necessary as otherwise the inline-block elements
+              // will be copiable as spaces for some reason
+              i !== items.length - 1 &&
+              i !== 0
+            ) {
+              if (item.span.textContent === " ") {
+                /** Make all spaces zero-width */
+                span.style.wordSpacing = `${
+                  item.adjustedWidth - ((item as TextGlue).spaceWidth || 0)
+                }px`;
+              } else {
+                span.style.width = `${item.adjustedWidth}px`;
+                span.style.display = "inline-block";
+              }
+              curXOffset += item.adjustedWidth;
+            }
+
+            // // We are dealing with control spaces before inline-boxes
+            // else {
+            //   span.style.width = `${item.adjustedWidth}px`;
+            //   span.style.display = "inline-block";
+            //   curXOffset += item.adjustedWidth;
+            // }
             // span.style.fontSize = "0";
+
+            // /**
+            //  * Word-spacing must be used in the case of text since otherwise the space is not copyable.
+            //  * `inline-block` also messes with the formatting of links (each word gets its own underline)
+            //  */
+            // if ((item as TextGlue).text) {
+            //   span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
+            //   curXOffset += item.adjustedWidth + (item.xOffset - curXOffset);
+            // }
+            // // else {
+            // //   // Does not work with negative widths
+            // //   // span.style.width = `${item.adjustedWidth}px`;
+            // //   // span.style.display = "inline-block";
+            // // }
+            // if (item.adjustedWidth <= 0) {
+            //   // span.style.fontSize = "0";
+            //   // span.style.width = "0";
+            //   // span.style.display = "inline-block";
+            // } else if ((item as TextGlue).text) {
+            //   // curXOffset += item.adjustedWidth;
+            // }
           } else if (item.type === "box") {
             const span = item.span;
             if (span && !item.skipWhenRendering) {
