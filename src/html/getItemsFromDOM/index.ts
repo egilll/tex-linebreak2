@@ -63,7 +63,10 @@ export function getItemsFromDOMAndWrapInSpans(
   )[] = [];
 
   temporaryItems.push({ type: "IGNORE_WHITESPACE_AFTER" });
-  addItemsFromNode(paragraphElement, temporaryItems, options);
+  addItemsFromNode(paragraphElement, temporaryItems, {
+    ...options,
+    measureFn: (word) => domTextMeasureFn(word, paragraphElement, options),
+  });
   temporaryItems.push({ type: "IGNORE_WHITESPACE_BEFORE" });
 
   const temporaryItemsProcessedText = processText(

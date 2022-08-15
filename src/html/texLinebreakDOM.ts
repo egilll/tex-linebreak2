@@ -12,6 +12,7 @@ import { TexLinebreak } from "src/index";
 import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
 import { SOFT_HYPHEN } from "src/splitTextIntoItems/splitTextIntoItems";
 import { getMaxLineWidth } from "src/utils/lineWidth";
+import { TextGlue } from "../utils/items";
 
 /**
  * Breaks the lines of HTML elements and applies justification.
@@ -86,10 +87,6 @@ export async function texLinebreakDOM(
       });
       const lines = obj.lines;
 
-      // if (process.env.NODE_ENV === "development" && window.location.hash) {
-      //   console.log(lines);
-      // }
-
       for (const line of lines) {
         const items = line.positionedItems;
 
@@ -131,17 +128,16 @@ export async function texLinebreakDOM(
               span.style.display = "none";
               continue;
             }
-            // /**
-            //  * We try to not use `inline-block` since that messes with
-            //  * the formatting of links (each word gets its own underline)
-            // TODO: Does not work for left-aligned text
-            //  */
-            // if ((item as TextGlue).text) {
-            //   span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
-            // } else {
-            span.style.width = `${item.adjustedWidth}px`;
-            span.style.display = "inline-block";
-            // }
+            /**
+             * Word-spacing must be used in the case of text since otherwise the space is not copyable.
+             * `inline-block` also messes with the formatting of links (each word gets its own underline)
+             */
+            if ((item as TextGlue).text) {
+              span.style.wordSpacing = `${item.adjustedWidth - item.width}px`;
+            } else {
+              span.style.width = `${item.adjustedWidth}px`;
+              span.style.display = "inline-block";
+            }
             if (item.adjustedWidth <= 0) {
               span.style.fontSize = "0";
               span.style.width = "0";

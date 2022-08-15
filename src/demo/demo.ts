@@ -52,6 +52,9 @@ async function renderDemo(demo: ListOfDemos[number]) {
       Boolean(window.location.hash)
     );
   } catch (e) {
+    if (process.env.NODE_ENV === "development") {
+      throw e;
+    }
     console.error(e);
     div.insertAdjacentHTML(
       "beforebegin",
