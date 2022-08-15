@@ -76,6 +76,7 @@ hyphenation and this library:
         excessive spacing between words.</td>
   </tr>
 </table>
+
 ## Installation
 
 ### As a third-party script
