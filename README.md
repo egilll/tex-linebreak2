@@ -15,7 +15,7 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 
 ## Features
 
-- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)). Rendering the elements that are visible on screen usually does not take more than 40ms; rendering a very large document in its entirety may take 200ms.
+- Can be applied to webpages (but be sure to read about its [limitations](#limitations-on-webpages)). Rendering the elements that are visible on screen usually does not take more than 40ms; rendering a very large document in its entirety may take 200ms.
 - [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
 - Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 - Supports custom breaking rules.
@@ -126,6 +126,8 @@ texLinebreakDOM(document.querySelectorAll("p"), { align: "left" });
 The library will listen for window resizing (can be turned off with the option `{ updateOnWindowResize: false }`, but it will not listen for dynamic DOM changes. If you alter the DOM in a way that may cause the available space for the paragraph to change, you must call `texLinebreakDOM` again.
 
 #### Limitations on webpages
+
+⚠️ **A significant issue** with this library is that when text is copied from a webpage, the line breaks are included in the copied text.
 
 The library does not support:
 

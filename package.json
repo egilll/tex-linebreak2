@@ -1,6 +1,6 @@
 {
   "name": "tex-linebreak2",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -16,9 +16,9 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "webpack --mode production",
-    "prepack": "yarn build",
+    "prepare": "yarn build",
     "start": "webpack serve --mode development",
-    "prepublish": "gh-pages -d dist --src '{demo\\.js,index\\.html}'",
+    "prepublish": "yarn build && gh-pages -d dist --src '{demo\\.js,index\\.html}'",
     "test": "karma start --single-run",
     "test-watch": "karma start --auto-watch"
   },

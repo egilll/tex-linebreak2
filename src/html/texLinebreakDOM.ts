@@ -89,9 +89,9 @@ export async function texLinebreakDOM(
       for (const line of lines) {
         const items = line.positionedItems;
 
-        /** Insert <wbr/> elements to separate the lines */
+        /** Insert <br/> elements to separate the lines */
         if (line.lineIndex > 0 && !line.prevBreakItem?.skipWhenRendering) {
-          const br = tagNode(document.createElement("wbr"));
+          const br = tagNode(document.createElement("br"));
           // br.className = "texLinebreak";
           const firstItem = items.find((i) => i.span);
           if (firstItem) {
@@ -120,6 +120,7 @@ export async function texLinebreakDOM(
 
         for (let i = 0; i < items.length; i++) {
           const item = items[i];
+
           /** Add spacing to glue */
           if (item.type === "glue") {
             const span = item.span;
