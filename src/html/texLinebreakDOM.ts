@@ -92,6 +92,13 @@ export async function texLinebreakDOM(
         /** Insert <br/> elements to separate the lines */
         if (line.lineIndex > 0 && !line.prevBreakItem?.skipWhenRendering) {
           const br = tagNode(document.createElement("br"));
+          br.style.userSelect = "none";
+          // @ts-ignore
+          br.style.MozUserSelect = "none";
+          // @ts-ignore
+          br.style.WebkitUserSelect = "none";
+          // @ts-ignore
+          br.style.MsUserSelect = "none";
           // br.className = "texLinebreak";
           const firstItem = items.find((i) => i.span);
           if (firstItem) {
