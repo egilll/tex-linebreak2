@@ -15,7 +15,7 @@ This library can be used to lay out the text of webpages, plain text, or for ren
 
 ## Features
 
-- Can be applied to webpages (but be sure to read about its [limitations](#limitations-on-webpages)). Rendering the elements that are visible on screen usually does not take more than 40ms; rendering a very large document in its entirety may take 200ms.
+- Can be applied to webpages (with certain [limitations](#limitations-on-webpages)). Rendering the elements that are visible on screen usually does not take more than 40ms; rendering a very large document in its entirety may take 200ms.
 - [Hanging punctuation](https://en.wikipedia.org/wiki/Hanging_punctuation)
 - Breakpoints in accordance with the [Unicode line breaking algorithm](http://unicode.org/reports/tr14/).[^1]
 - Supports custom breaking rules.
@@ -81,28 +81,24 @@ hyphenation and this library:
 
 ### As a third-party script
 
+When loaded as a third-party script, methods are available through the global variable `texLinebreak`.
+
 ```html
 <head>
-  <!--
-    Be sure to switch "@latest" out with the actual latest package version (e.g. "@0.7.4")!
-    Since this is a beta package, there may be breaking changes in the future.
-  -->
-  <script src="https://unpkg.com/tex-linebreak2@latest/dist/lib_web.js"></script>
+  <script src="https://unpkg.com/tex-linebreak2@0.7/dist/lib.js"></script>
 </head>
 <body>
   <p>Example text</p>
   <script>
-    texLinebreak_lib_web.texLinebreakDOM("p");
+    texLinebreak.texLinebreakDOM("p");
   </script>
 </body>
 ```
 
 ### As a package
 
-Add the _tex-linebreak2_ package to your dependencies:
-
 ```sh
-npm install tex-linebreak2 --save
+npm install tex-linebreak2
 ```
 
 ## Usage
@@ -131,10 +127,9 @@ The library will listen for window resizing (can be turned off with the option `
 
 #### Limitations on webpages
 
-**A significant issue** with this library is that when text is copied from a webpage, the line breaks are included in the copied text.
+The library does not support:
 
-Additionally, the library does not support:
-
+- Spaces with underline. Only words will be underlined, the spaces between them will not be underlined.
 - Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement/> text</p>`)
 - Floating elements when `line-height` isn't set
 - Columns
@@ -160,7 +155,9 @@ const t = new TexLinebreak(text, {
   lineWidth: 45,
   /*
     A function that measures the width of a string of text.
-    (For monospace text, you should however use the function `texLinebreakMonospace`)
+    (For monospace text, you should however use the 
+    option `preset: "plaintext"`, which will correctly 
+    calculate a string's width)
   */
   measureFn: (word) => word.length,
   /* Spaces should not expand */
@@ -216,43 +213,37 @@ const positionedItems = new TexLinebreak(items, {
 
 ## Options
 
-See [`TexLinebreakOptions`](../src/options.ts) for a list of available options. Of these, the most relevant ones to a user are:
+See [`TexLinebreakOptions`](src/options.ts) for a list of available options. Of these, the most relevant ones are:
 
 - `align` – Can currently be "justify" or "left". Default "justify".
 - `hangingPunctuation` (boolean)
 - `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is _not_ a hard limit; see `renderLineAsLeftAlignedIfAdjustmentRatioExceeds` for hard limits.
 - `glueShrinkFactor` (default 0.2, i.e. becoming 80% of the space's original width) – How much a glue (space) is allowed to shrink. This is a hard limit.
-- `softHyphenPenalty` (default 50) – Set to 1000 to prohibit breaking on soft hyphens.
+- `softHyphenPenalty` (default 50) – Set to `MAX_COST` to prohibit breaking on soft hyphens.
 - `forceOverflowToBreak`
-- `setElementWidthToMaxLineWidth`
-
-<!-- lineBreakingType -->
+- `setElementWidthToMaxLineWidth` – Can be used to shrink a DOM element to the necessary width.
 
 ## API
 
-The object [`TexLinebreak`](../src/index.ts) is used to break text. It takes as input either text or items along with options ([`TexLinebreakOptions`](../src/options.ts)):
+The class [`TexLinebreak`](src/index.ts) is used to break text into lines. It takes as input either text or [items](#arbitrary-items), along with [options](#options):
 
 ```js
-new TexLinebreak(text, {});
+new TexLinebreak("text", {});
 // or
-new TexLinebreak(items, {});
+new TexLinebreak({ type: "box", width: 10 }, {});
 ```
 
 It has the following properties:
 
-- `lines` is an array of [`Line`](../src/index.ts) objects which describe each line of the output
-- `plaintext` will output the text as plain text
-- `items`, the boxes, glues, and penalties that make up a paragraph
-- `breakpoints` are the indices of items that break a line
+- `lines` is an array of [`Line`](src/index.ts) objects which describe each line of the output
+- `plaintext` will output the text as plain text with newlines
+- `items`, the input text represented as boxes, glues, and penalties
+- `breakpoints`, the indices of items that break a line
 
-A [`Line`](../src/index.ts) object describes a single line of the output. Its has the following property:
+A [`Line`](src/index.ts) object describes a single line of the output. Its has the following properties:
 
-- `positionedItems` – An array of the items (box, glue, and penalties) that are relevant for rendering the line (with irrelevant penalties having been removed and with irrelevant glue having been given a width of zero), along with their positioning information given as `xOffset` and `adjustedWidth` (width including any stretching or shrinking).
-
-The following helper functions are available:
-
-- `texLinebreakDOM`, used for websites
-- `texLinebreakMonospace`, a wrapper that includes a string width measuring function for monospace text.
+- `positionedItems` – An array of the items (box, glue, and penalties) that are relevant for rendering the line (with irrelevant penalties having been removed and with irrelevant glue having been given a width of zero), along with their positioning information given as `xOffset` and `adjustedWidth` (which is width including any stretching or shrinking).
+- `plaintext` 
 
 ## Hyphenation
 
@@ -260,9 +251,9 @@ The recommended way to add hyphenation is to preprocess your text server-side an
 
 _tex-linebreak2_ will strip the soft hyphen characters from the output so they won't be of annoyance to users who copy your text (can be turned off with the option `stripSoftHyphensFromOutputText`).
 
-## Contributors
+## Credits
 
-This project is an extension of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by Robert Knight. Modifications by Egill.
+This project is an extension of [tex-linebreak](https://github.com/robertknight/tex-linebreak) by [Robert Knight](https://github.com/robertknight).
 
 ## References
 

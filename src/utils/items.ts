@@ -12,8 +12,6 @@ export interface TextBox extends Box {
 
 export interface TextGlue extends Glue {
   text?: string;
-  // A hack to be able to zero-width spaces
-  spaceWidth?: number;
 }
 
 export type TextItem = TextBox | TextGlue | Penalty;
@@ -33,11 +31,10 @@ export function glue(
   width: number,
   stretch: number = 0,
   shrink: number = 0,
-  text?: string,
-  spaceWidth?: number
+  text?: string
 ): Glue | TextGlue {
-  if (text != null) {
-    return { type: "glue", width, shrink, stretch, text, spaceWidth };
+  if (text) {
+    return { type: "glue", width, shrink, stretch, text };
   } else {
     return { type: "glue", width, shrink, stretch };
   }
@@ -79,15 +76,7 @@ export function textGlue(
   const spaceStretch = getSpaceWidth(options) * options.glueStretchFactor;
   if (options.align === "justify") {
     /** Spaces in justified lines */
-    return [
-      glue(
-        getSpaceWidth(options),
-        spaceStretch,
-        spaceShrink,
-        text,
-        getSpaceWidth(options)
-      ),
-    ];
+    return [glue(getSpaceWidth(options), spaceStretch, spaceShrink, text)];
   } else {
     /**
      * Spaces in ragged lines. See p. 1139.
@@ -101,16 +90,13 @@ export function textGlue(
         0,
         getLineFinalStretchInNonJustified(options) + spaceStretch,
         spaceShrink,
-        text,
-        getSpaceWidth(options)
+        text
       ),
       penalty(0, cost),
       glue(
         getSpaceWidth(options),
         -getLineFinalStretchInNonJustified(options),
-        0,
-        "",
-        getSpaceWidth(options)
+        0
       ),
     ];
   }

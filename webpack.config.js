@@ -9,7 +9,6 @@ module.exports = {
   entry: {
     demo: "./src/demo/demo.ts",
     lib: "./src/exports.ts",
-    lib_web: "./src/html/texLinebreakDOM.ts",
   },
   devtool: "source-map",
   module: {
@@ -44,7 +43,7 @@ module.exports = {
     // Build a UMD bundle that can be used from a `<script>` tag, or imported
     // into a CommonJS / ESM environment.
     libraryTarget: "umd",
-    library: "texLinebreak_[name]",
+    library: "texLinebreak",
 
     // Make the UMD bundle usable in Node.
     // See https://github.com/webpack/webpack/issues/6522

@@ -135,31 +135,31 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
       xOffset += adjustedWidth;
     });
 
-    /**
-     * Collapse negative widths. Necessary for rendering left-aligned text (which utilizes negative widths).
-     * Also saves the output HTML from having unnecessary negative margins.
-     */
-    for (let index = 0; index < output.length; index++) {
-      if (output[index].adjustedWidth < 0) {
-        if (
-          output[index - 1]?.type === "glue" &&
-          output[index - 1].adjustedWidth > 0
-        ) {
-          const diff = output[index].adjustedWidth;
-          output[index].adjustedWidth = 0;
-          output[index].xOffset += diff;
-          output[index - 1].adjustedWidth += diff;
-          output[index - 1].xOffset += -diff;
-
-          /**
-           * A hack!! We rely on knowing the original width of a space in order to know
-           * how much word-spacing to apply to it.
-           */
-          output[index - 1].width = output[index].width;
-          output[index].width = 0;
-        }
-      }
-    }
+    // /**
+    //  * Collapse negative widths. Necessary for rendering left-aligned text (which utilizes negative widths).
+    //  * Also saves the output HTML from having unnecessary negative margins.
+    //  */
+    // for (let index = 0; index < output.length; index++) {
+    //   if (output[index].adjustedWidth < 0) {
+    //     if (
+    //       output[index - 1]?.type === "glue" &&
+    //       output[index - 1].adjustedWidth > 0
+    //     ) {
+    //       const diff = output[index].adjustedWidth;
+    //       output[index].adjustedWidth = 0;
+    //       output[index].xOffset += diff;
+    //       output[index - 1].adjustedWidth += diff;
+    //       output[index - 1].xOffset += -diff;
+    //
+    //       /**
+    //        * A hack!! We rely on knowing the original width of a space in order to know
+    //        * how much word-spacing to apply to it.
+    //        */
+    //       output[index - 1].width = output[index].width;
+    //       output[index].width = 0;
+    //     }
+    //   }
+    // }
 
     return output;
   }
@@ -222,14 +222,14 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
    */
   @Memoize()
   get itemsCollapsed(): InputItemType[] {
-    let itemsFiltered = this.items.slice();
+    let itemsCollapsed = this.items.slice();
     let hasBoxBeenSeen: boolean;
 
     /**
      * Make non-important glue zero width.
      * (Not removed since this is better when re-applying justification)
      */
-    itemsFiltered = itemsFiltered.map((item, index) => {
+    itemsCollapsed = itemsCollapsed.map((item, index) => {
       // Glue that is a breakpoint
       if (
         item.type === "glue" &&
@@ -245,7 +245,7 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
      * Ignore penalty that's not the breakpoint.
      * Note: Currently only considers soft hyphen penalties.
      */
-    itemsFiltered = itemsFiltered.filter((item, curIndex, items) => {
+    itemsCollapsed = itemsCollapsed.filter((item, curIndex, items) => {
       if (
         item.type === "penalty" &&
         (curIndex !== items.length - 1 || !isSoftHyphen(item))
@@ -261,19 +261,19 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
      * Moves the soft hyphen character to before the glue.
      */
     if (this.endsWithSoftHyphen && this.items.at(-2)?.type === "glue") {
-      itemsFiltered.splice(
-        itemsFiltered.length - 2,
+      itemsCollapsed.splice(
+        itemsCollapsed.length - 2,
         0,
-        itemsFiltered.splice(itemsFiltered.length - 1, 1)[0]
+        itemsCollapsed.splice(itemsCollapsed.length - 1, 1)[0]
       );
     }
 
     if (this.options.stripSoftHyphensFromOutputText) {
-      for (let i = 0; i < itemsFiltered.length; i++) {
-        const item = itemsFiltered[i];
+      for (let i = 0; i < itemsCollapsed.length; i++) {
+        const item = itemsCollapsed[i];
         if ("text" in item && item.text) {
           /** Done to not mutate the original item */
-          itemsFiltered[i] = {
+          itemsCollapsed[i] = {
             ...item,
             text: item.text.replaceAll(SOFT_HYPHEN, ""),
           };
@@ -293,7 +293,7 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
     //     )
     // );
 
-    return itemsFiltered;
+    return itemsCollapsed;
   }
 
   get plaintext() {
