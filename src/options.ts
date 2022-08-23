@@ -358,6 +358,8 @@ export class TexLinebreakOptions {
   clearItemCache?: boolean;
   isPlaintext?: boolean;
 
+  ignoreFloatingElements?: boolean;
+
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {

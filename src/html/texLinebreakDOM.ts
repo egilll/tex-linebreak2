@@ -42,7 +42,7 @@ export async function texLinebreakDOM(
   }
 
   const domTextMeasureFn = new DOMTextMeasurer().measure;
-  const floatingElements = getFloatingElements();
+  const floatingElements = getFloatingElements(options);
 
   addCSSForUncopiableHyphens(options);
 

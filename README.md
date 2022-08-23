@@ -127,21 +127,23 @@ The library will listen for window resizing (can be turned off with the option `
 
 #### Limitations on webpages
 
-Note:
+- On Safari, when the user copies text, all line breaks are included in the copied text.
+- Underlined text will not have any underlines between words.
+- Floating elements only have basic support:
+  - All floating elements that are children of absolutely positioned or sticky elements are ignored.
+  - Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement/> text</p>`) are not supported.
+  - Floating elements that do not have `line-height` set are not supported.
+  - If you run into layout issues and aren't using floating elements in your text, you can turn on the option `ignoreFloatingElements`.
 
-* ⚠️ On Safari, when the user copies text, all line breaks are included in the copied text.
+- If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, and that may introduce a noticable lag.
+- There may be issues regarding nested inline-block elements.
+- Using `<br/>` instead of using new paragraph elements sometimes causes very wide spaces instead of optimal spacing, which is a bug.
 
-The library does not support:
+The following are not supported:
 
-- Spaces with underline. Only words will be underlined, the spaces between them will not be underlined.
-- Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement/> text</p>`)
-- Floating elements when `line-height` isn't set
 - Columns
 - Contenteditable elements
 - The CSS properties `font-stretch`, `font-size-adjust`, and `font-kerning`
-- If you're using third-party webfonts, you must apply `texLinebreakDOM` after the fonts have fully loaded, and that may introduce a noticable lag.
-- There may be issues regarding nested inline-block elements.
-- Using `<br/>` instead of using new paragraph elements currently sometimes causes very wide spaces instead of optimal spacing, which is a bug.
 
 #### Other limitations
 
@@ -220,12 +222,13 @@ const positionedItems = new TexLinebreak(items, {
 See [`TexLinebreakOptions`](src/options.ts) for a list of available options. Of these, the most relevant ones are:
 
 - `align` – Can currently be "justify" or "left". Default "justify".
-- `hangingPunctuation` (boolean)
+- `hangingPunctuation` (boolean, default true)
 - `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is _not_ a hard limit; see `renderLineAsLeftAlignedIfAdjustmentRatioExceeds` for hard limits.
 - `glueShrinkFactor` (default 0.2, i.e. becoming 80% of the space's original width) – How much a glue (space) is allowed to shrink. This is a hard limit.
 - `softHyphenPenalty` (default 50) – Set to `MAX_COST` to prohibit breaking on soft hyphens.
-- `forceOverflowToBreak`
+- `forceOverflowToBreak` (default false) – Whether long words should be forcibly broken.
 - `setElementWidthToMaxLineWidth` – Can be used to shrink a DOM element to the necessary width.
+- `ignoreFloatingElements` – If you run into an issue where a floating element is interfering with the layout, and you're not using floating elements in the text, you can set this option to true.
 
 ## API
 
@@ -247,7 +250,7 @@ It has the following properties:
 A [`Line`](src/index.ts) object describes a single line of the output. Its has the following properties:
 
 - `positionedItems` – An array of the items (box, glue, and penalties) that are relevant for rendering the line (with irrelevant penalties having been removed and with irrelevant glue having been given a width of zero), along with their positioning information given as `xOffset` and `adjustedWidth` (which is width including any stretching or shrinking).
-- `plaintext` 
+- `plaintext`
 
 ## Hyphenation
 
