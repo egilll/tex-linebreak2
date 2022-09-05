@@ -22,26 +22,31 @@ export function breakLinesGreedy(
     bestBreakForLine = null;
   }
 
-  items.forEach((item, index) => {
+  for (let index = 0; index < items.length; index++) {
+    const item = items[index];
     const idealLen = getLineWidth(options.lineWidth, breakpoints.length - 1);
 
     if (isForcedBreak(item)) {
-      return addBreak(index);
+      addBreak(index);
     } else if (item.type === "box") {
       curLineWidth += item.width;
       if (curLineWidth > idealLen && bestBreakForLine) {
+        // Move loop back to breakpoint in order to start width calculations there
+        index = bestBreakForLine;
         addBreak(bestBreakForLine);
-        curLineWidth += item.width;
       }
     } else if (item.type === "glue") {
-      if (items[index - 1].type === "box") {
-        bestBreakForLine = index;
+      // Ignore glue at the beginning of a line
+      if (curLineWidth > 0) {
+        if (items[index - 1]?.type === "box") {
+          bestBreakForLine = index;
+        }
+        curLineWidth += item.width;
       }
-      curLineWidth += item.width;
     } else if (item.type === "penalty" && item.cost < MAX_COST) {
       bestBreakForLine = index;
       // Note: Currently does not take into consideration hyphen width...
     }
-  });
+  }
   return breakpoints;
 }
