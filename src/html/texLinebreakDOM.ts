@@ -83,10 +83,11 @@ export async function texLinebreakDOM(
       const align = getComputedStyle(element).textAlign;
 
       const obj = new TexLinebreak<DOMItem>(items, {
+        // ...options2,
         ...options,
-        lineWidth,
         // @ts-ignore
         align: options.align || align,
+        lineWidth,
       });
       const lines = obj.lines;
 

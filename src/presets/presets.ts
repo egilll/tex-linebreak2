@@ -19,6 +19,7 @@ export const TexLinebreakPresets: {
     glueStretchFactor: 0.3,
     renderLineAsUnjustifiedIfAdjustmentRatioExceeds: 1.5,
     infiniteGlueStretchAsRatioOfWidth: 0.4,
+    initialMaxAdjustmentRatio: 4,
   },
   html: {
     collapseAllNewlines: true,

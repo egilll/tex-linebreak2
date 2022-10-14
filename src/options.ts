@@ -72,7 +72,7 @@ export class TexLinebreakOptions {
   maxAdjustmentRatio: number | null = null;
 
   /** The maximum adjustment ratio used for the initial line breaking attempt. */
-  initialMaxAdjustmentRatio: number = 0.2;
+  initialMaxAdjustmentRatio: number = 2;
 
   /**
    * How much glue is allowed to shrink. A `minAdjustmentRatio` of -1

@@ -13,7 +13,7 @@ export const texts2: ListOfDemos = [
     `,
     options: {
       justify: false,
-      infiniteGlueStretchAsRatioOfWidth: 0.05,
+      infiniteGlueStretchAsRatioOfWidth: 0.02,
     },
     selector: "p",
   },
