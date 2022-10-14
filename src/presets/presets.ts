@@ -27,7 +27,7 @@ export const TexLinebreakPresets: {
   },
   plaintext: {
     measureFn: stringWidth,
-    align: "left",
+    justify: false,
     onlyBreakOnWhitespace: true,
     forceOverflowToBreak: false,
     glueStretchFactor: 0,

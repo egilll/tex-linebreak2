@@ -1,6 +1,6 @@
 import "core-js/stable/array/at";
 
-import { breakLines, Item } from "src/breakLines";
+import { breakLines, Item, Glue } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
 import { findOptimalWidth } from "src/optimize/optimalWidth";
 import { optimizeByFnCircle } from "src/optimize/optimizeByFnCircle";
@@ -12,7 +12,7 @@ import {
 } from "src/splitTextIntoItems/splitTextIntoItems";
 import { makeZeroWidth } from "src/utils/collapseGlue";
 import { breakLinesGreedy } from "src/utils/greedy";
-import { TextBox, TextItem } from "src/utils/items";
+import { TextBox, TextItem, getAdjustedWidth } from "src/utils/items";
 import { getLineWidth } from "src/utils/lineWidth";
 import { getStretch, getText, isSoftHyphen } from "src/utils/utils";
 import { Memoize } from "typescript-memoize";
@@ -114,18 +114,12 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
   get positionedItems(): (InputItemType & ItemPosition)[] {
     const output: (InputItemType & ItemPosition)[] = [];
     let xOffset = this.leftIndentation;
-    this.itemsCollapsed.forEach((item) => {
-      let adjustedWidth: number;
-      if (this.adjustmentRatio >= 0) {
-        adjustedWidth =
-          item.width +
-          (("stretch" in item && getStretch(item, this.options)) || 0) *
-            this.adjustmentRatio;
-      } else {
-        adjustedWidth =
-          item.width +
-          (("shrink" in item && item.shrink) || 0) * this.adjustmentRatio;
-      }
+    this.finalSpacesCollapsed.forEach((item) => {
+      const adjustedWidth = getAdjustedWidth(
+        item,
+        this.adjustmentRatio,
+        this.options
+      );
 
       output.push({
         ...item,
@@ -227,7 +221,7 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
 
     /**
      * Make non-important glue zero width.
-     * (Not removed since this is better when re-applying justification)
+     * (Not removed since we have to make the DOM items zero width)
      */
     itemsCollapsed = itemsCollapsed.map((item, index) => {
       // Glue that is a breakpoint
@@ -296,6 +290,41 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
     return itemsCollapsed;
   }
 
+  @Memoize()
+  get finalSpacesCollapsed(): InputItemType[] {
+    let lastNonGlueIndex = this.itemsCollapsed
+      .map((j) => j.type === "box" || isSoftHyphen(j))
+      .lastIndexOf(true);
+    if (lastNonGlueIndex > 0) {
+      return this.itemsCollapsed
+        .slice(0, lastNonGlueIndex + 1)
+        .concat(
+          this.itemsCollapsed
+            .slice(lastNonGlueIndex + 1)
+            .map((item) => makeZeroWidth({ ...item } as Glue) as InputItemType)
+        );
+    } else {
+      return this.itemsCollapsed;
+    }
+  }
+
+  get remainingWidth(): number {
+    let lastNonGlueIndex = this.itemsCollapsed
+      .map((j) => j.type === "box" || isSoftHyphen(j))
+      .lastIndexOf(true);
+    console.log(this.itemsCollapsed.slice(lastNonGlueIndex + 1));
+    if (lastNonGlueIndex > 0) {
+      return this.itemsCollapsed
+        .slice(lastNonGlueIndex + 1)
+        .reduce(
+          (acc, item) =>
+            acc + getAdjustedWidth(item, this.adjustmentRatio, this.options),
+          0
+        );
+    }
+    return 0;
+  }
+
   get plaintext() {
     return (
       this.positionedItems
@@ -341,10 +370,22 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
   }
 
   get leftIndentation() {
+    let indentation = 0;
+
     if (this.options.leftIndentPerLine) {
-      return getLineWidth(this.options.leftIndentPerLine, this.lineIndex);
+      indentation = getLineWidth(
+        this.options.leftIndentPerLine,
+        this.lineIndex
+      );
     }
-    return 0;
+
+    if (this.options.align === "right") {
+      indentation += this.remainingWidth;
+    } else if (this.options.align === "center") {
+      indentation += this.remainingWidth / 2;
+    }
+
+    return indentation;
   }
 
   /**

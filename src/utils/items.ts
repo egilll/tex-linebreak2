@@ -1,9 +1,10 @@
-import { Box, Glue, MAX_COST, MIN_COST, Penalty } from "src/breakLines";
+import { Box, Glue, MAX_COST, MIN_COST, Penalty, Item } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
 import {
   getLineFinalStretchInNonJustified,
   getSpaceWidth,
   infiniteGlue,
+  getStretch,
 } from "src/utils/utils";
 
 export interface TextBox extends Box {
@@ -74,7 +75,7 @@ export function textGlue(
 ): TextItem[] {
   const spaceShrink = getSpaceWidth(options) * options.glueShrinkFactor;
   const spaceStretch = getSpaceWidth(options) * options.glueStretchFactor;
-  if (options.align === "justify") {
+  if (options.justify) {
     /** Spaces in justified lines */
     return [glue(getSpaceWidth(options), spaceStretch, spaceShrink, text)];
   } else {
@@ -104,7 +105,7 @@ export function textGlue(
 
 export function softHyphen(options: TexLinebreakOptions): TextItem[] {
   const hyphenWidth = options.hangingPunctuation ? 0 : options.measureFn("-");
-  if (options.align === "justify") {
+  if (options.justify) {
     return [penalty(hyphenWidth, options.softHyphenPenalty, true)];
   } else {
     /**
@@ -129,7 +130,7 @@ export function forcedBreak(): Penalty {
 
 export function paragraphEnd(options: TexLinebreakOptions): TextItem[] {
   let output: TextItem[] = [];
-  if (options.align !== "justify") {
+  if (!options.justify) {
     output.push(glue(0, getLineFinalStretchInNonJustified(options), 0));
   }
   if (options.addInfiniteGlueToFinalLine) {
@@ -137,4 +138,21 @@ export function paragraphEnd(options: TexLinebreakOptions): TextItem[] {
   }
   output.push(forcedBreak());
   return output;
+}
+
+export function getAdjustedWidth(
+  item: Item,
+  adjustmentRatio: number,
+  options: TexLinebreakOptions
+): number {
+  if (adjustmentRatio >= 0) {
+    return (
+      item.width +
+      (("stretch" in item && getStretch(item, options)) || 0) * adjustmentRatio
+    );
+  } else {
+    return (
+      item.width + (("shrink" in item && item.shrink) || 0) * adjustmentRatio
+    );
+  }
 }

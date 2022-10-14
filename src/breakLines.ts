@@ -197,6 +197,7 @@ export function breakLines(
    */
   for (let b = 0; b < items.length; b++) {
     const item = items[b];
+    const isLastItem = b === items.length - 1;
 
     /**
      * Determine if this is a feasible breakpoint and
@@ -328,7 +329,7 @@ export function breakLines(
           .slice(a.index, b)
           .some((i) => i.type === "box" || isForcedBreak(i)) &&
           !(
-            b === items.length - 1 || // Is the last item
+            isLastItem || // Is the last item
             items[b + 1].type === "box" || // Is followed by a box
             // Is followed by a breakable penalty
             isBreakablePenalty(items[b + 1])
@@ -407,6 +408,16 @@ export function breakLines(
           }
         }
 
+        // Work in progress. Does not work since we discard sub-optimal former lines.
+        // if (isLastItem && options.maxLines) {
+        //   if (a.line + 1 > options.maxLines) {
+        //     demerits = Infinity;
+        //   }
+        //   if (options.fillAllLines) {
+        //     demerits += (options.maxLines - (a.line + 1)) ** 10;
+        //   }
+        // }
+
         feasible.push({
           index: b,
           line: a.line + 1,
@@ -422,13 +433,16 @@ export function breakLines(
 
     /** Add feasible breakpoint with lowest score to active set. */
     if (feasible.length > 0) {
-      let bestNode = feasible[0];
-      for (let f of feasible) {
-        if (f.totalDemerits < bestNode.totalDemerits) {
-          bestNode = f;
-        }
-      }
+      const bestNode = feasible.reduce((a, b) => {
+        return a.totalDemerits < b.totalDemerits ? a : b;
+      });
       active.add(bestNode);
+
+      // for (const node of feasible) {
+      //   // if(node !== bestNode) {
+      //   active.add(node);
+      //   // }
+      // }
     }
 
     /**
@@ -460,7 +474,7 @@ export function breakLines(
                     minAdjustmentRatioAboveThreshold,
                     options.initialMaxAdjustmentRatio + 0.3
                   )
-                : Infinity,
+                : Infinity, // TODO: Is this sub-optimal?
           }),
           currentRecursionDepth + 1
         );

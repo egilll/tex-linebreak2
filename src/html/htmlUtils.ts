@@ -40,7 +40,6 @@ function findParentMatching(
 ): HTMLElement | null {
   let parent = element.parentElement;
   while (parent) {
-    console.log(parent);
     if (predicate(parent)) {
       console.warn("FOUND!");
       return parent;

@@ -13,7 +13,8 @@ export class TexLinebreakOptions {
    */
   lineWidth!: LineWidth;
 
-  align: "justify" | "left" /*| "right" | "center"*/ = "justify";
+  justify: boolean = true;
+  align?: "left" | "right" | "center";
 
   /** @see TexLinebreakPresets */
   preset?:
@@ -360,11 +361,14 @@ export class TexLinebreakOptions {
 
   ignoreFloatingElements?: boolean;
 
+  // maxLines?: number;
+  // fillAllLines?: boolean;
+
   /** ====================== End of options ====================== */
 
   constructor(options: Partial<TexLinebreakOptions> = {}) {
     /** Ragged alignment */
-    if (options.align && options.align !== "justify") {
+    if (options.justify === false) {
       Object.assign(this, TexLinebreakPresets.raggedAlignment);
     }
     if (options.preset) {

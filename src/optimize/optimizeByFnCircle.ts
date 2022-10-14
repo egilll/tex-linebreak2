@@ -19,21 +19,17 @@ const circleLineWidths = (height: number, lineHeight: number) => {
   };
 
   let lineWidth = [];
-  let leftIndentPerLine = [];
 
-  const leftover = height % lineHeight;
-  const TRIM_AMOUNT_OFF_TOP_AND_BOTTOM = 0.05 * lineHeight;
-  const heightAdjusted = height - leftover;
-
-  for (
-    let yOffset = 0.3 * lineHeight;
-    yOffset < height;
-    yOffset += lineHeight
-  ) {
+  /** Start in the middle */
+  for (let yOffset = 0.5 * height; yOffset < height; yOffset += lineHeight) {
     const x = circleOfHeightOne(yOffset / height) * height;
+    if (lineWidth.length > 0) {
+      lineWidth.unshift(x);
+    }
     lineWidth.push(x);
-    leftIndentPerLine.push((height - x) / 2);
   }
+
+  const leftIndentPerLine = lineWidth.map((x) => (height - x) / 2);
   return { lineWidth, leftIndentPerLine };
 };
 
@@ -58,7 +54,7 @@ export function optimizeByFnCircle(obj: TexLinebreak): number[] {
   const best = BisectionFindMinimumPositiveIntegerOutput({
     initialGuess: 500,
     min: 4 * obj.options.lineHeight!,
-    maxAttempts: 30,
+    maxAttempts: 50,
     scoreFunc: getScoreCircle,
     func: (x) => {
       let { lineWidth, leftIndentPerLine } = circleLineWidths(
@@ -70,6 +66,7 @@ export function optimizeByFnCircle(obj: TexLinebreak): number[] {
         {
           ...obj.options,
           lineWidth,
+          // maxLines: lineWidth.length,
         },
         0
       ).lineBreakingNodes;

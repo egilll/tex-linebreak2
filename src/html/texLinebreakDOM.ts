@@ -80,9 +80,13 @@ export async function texLinebreakDOM(
       (element as any)["lastTextContent"] = element.textContent;
       // }
 
+      const align = getComputedStyle(element).textAlign;
+
       const obj = new TexLinebreak<DOMItem>(items, {
         ...options,
         lineWidth,
+        // @ts-ignore
+        align: options.align || align,
       });
       const lines = obj.lines;
 
@@ -132,7 +136,12 @@ export async function texLinebreakDOM(
           if (item.type === "glue") {
             const span = item.span;
             if (!span) continue;
-            if (item.skipWhenRendering) {
+            if (
+              item.skipWhenRendering
+              // ||
+              // // If is last item
+              // i === items.length - 1
+            ) {
               span.style.display = "none";
               continue;
             }

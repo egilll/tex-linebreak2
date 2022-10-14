@@ -221,12 +221,13 @@ const positionedItems = new TexLinebreak(items, {
 
 See [`TexLinebreakOptions`](src/options.ts) for a list of available options. Of these, the most relevant ones are:
 
-- `align` – Can currently be "justify" or "left". Default "justify".
+- `justify` (boolean)
+- `align` ("left", "right", "center", default "left", does not need to be set on webpages)
 - `hangingPunctuation` (boolean, default true)
 - `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is _not_ a hard limit; see `renderLineAsLeftAlignedIfAdjustmentRatioExceeds` for hard limits.
 - `glueShrinkFactor` (default 0.2, i.e. becoming 80% of the space's original width) – How much a glue (space) is allowed to shrink. This is a hard limit.
 - `softHyphenPenalty` (default 50) – Set to `MAX_COST` to prohibit breaking on soft hyphens.
-- `forceOverflowToBreak` (default false) – Whether long words should be forcibly broken.
+- `forceOverflowToBreak` (default false) – Whether long words should be forcibly broken.
 - `setElementWidthToMaxLineWidth` – Can be used to shrink a DOM element to the necessary width.
 - `ignoreFloatingElements` – If you run into an issue where a floating element is interfering with the layout, and you're not using floating elements in the text, you can set this option to true.
 

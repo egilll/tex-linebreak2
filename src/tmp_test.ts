@@ -18,29 +18,26 @@
 // );
 import { texLinebreakMultiple } from "src/optimize/multiple";
 
-const width = 40;
+const width = 32;
 console.log(
-  "_".repeat(width)+'\n'+
-  texLinebreakMultiple(
-    [
+  "_".repeat(width) +
+    "\n" +
+    texLinebreakMultiple(
+      [
+        {
+          input: `{@link @microsoft/signalr.LogLevel}, axx string`,
+          lineWidth: width,
+        },
+      ],
       {
-        input:
-          "Function example description that was wrapped by hand so it have more then\n" +
-          "one line and don't end with a dot REPEATED TWO TIMES BECAUSE IT WAS EASIER to\n" +
-          "copy function example description that was wrapped by hand so it have more\n" +
-          "then one line.",
-        lineWidth: width,
-      },
-    ],
-    {
-      preset: "plaintext",
-      neverBreakInside: /{@.+?}/,
-      // infiniteGlueStretchAsRatioOfWidth: 0,
-      collapseSingleNewlines: true,
-      lineBreakingAlgorithm:"greedy"
-      keepSingleNewlinesAfter: ["  ", "\\", ".", ":", "!", "?", ".)"],
-    }
-  )
-    .map((t) => t.plaintext)
-    .join("\n~\n")
+        preset: "plaintext",
+        // neverBreakInside: /{@.+?}/,
+        // infiniteGlueStretchAsRatioOfWidth: 0,
+        collapseSingleNewlines: true,
+        lineBreakingAlgorithm: "greedy",
+        hangingPunctuation: false,
+      }
+    )
+      .map((t) => t.plaintext)
+      .join("\n~\n")
 );

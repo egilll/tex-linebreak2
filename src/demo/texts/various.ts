@@ -21,7 +21,7 @@ export const various: ListOfDemos = [
     id: "left",
     description: "Left alignment, spaces not allowed to stretch:",
     options: {
-      align: "left",
+      justify: false,
       infiniteGlueStretchAsRatioOfWidth: 0.06,
       glueShrinkFactor: 0,
       glueStretchFactor: 0,
@@ -36,7 +36,7 @@ export const various: ListOfDemos = [
     id: "left2",
     description: "Left alignment, spaces allowed to stretch:",
     options: {
-      align: "left",
+      justify: false,
       infiniteGlueStretchAsRatioOfWidth: 0.05,
       glueShrinkFactor: 0.3,
       glueStretchFactor: 0.54,
