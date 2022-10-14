@@ -31,7 +31,12 @@ export function visualizeBoxesForDebugging(
       box.style.width = item.width + "px";
       box.style.background = "#7272ed80";
       box.style.font = "9px sans-serif";
-      box.innerHTML = ("text" in item && item.text) || "?";
+      if ("text" in item) {
+        box.innerHTML = item.text || "";
+      }
+      // else if (item.type !== "glue") {
+      //   box.innerHTML = "?";
+      // }
       if (item.type === "penalty") {
         box.style.background = "rgb(185,0,0)";
         box.innerHTML = "";

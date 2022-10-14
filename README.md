@@ -85,7 +85,7 @@ When loaded as a third-party script, methods are available through the global va
 
 ```html
 <head>
-  <script src="https://unpkg.com/tex-linebreak2@0.7/dist/lib.js"></script>
+  <script src="https://unpkg.com/tex-linebreak2@0.8/dist/lib.js"></script>
 </head>
 <body>
   <p>Example text</p>
@@ -130,6 +130,7 @@ The library will listen for window resizing (can be turned off with the option `
 - On Safari, when the user copies text, all line breaks are included in the copied text.
 - Underlined text will not have any underlines between words.
 - Floating elements only have basic support:
+
   - All floating elements that are children of absolutely positioned or sticky elements are ignored.
   - Floating elements that are nested within the text itself (e.g. `<p>text <FloatingElement/> text</p>`) are not supported.
   - Floating elements that do not have `line-height` set are not supported.
@@ -224,7 +225,7 @@ See [`TexLinebreakOptions`](src/options.ts) for a list of available options. Of 
 - `justify` (boolean)
 - `align` ("left", "right", "center", default "left", does not need to be set on webpages)
 - `hangingPunctuation` (boolean, default true)
-- `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is _not_ a hard limit; see `renderLineAsLeftAlignedIfAdjustmentRatioExceeds` for hard limits.
+- `glueStretchFactor` (default 1.2, i.e. becoming 220% of the space's original width) – How much a glue (space) is allowed to stretch. This is _not_ a hard limit; see `renderLineAsUnjustifiedIfAdjustmentRatioExceeds` for hard limits.
 - `glueShrinkFactor` (default 0.2, i.e. becoming 80% of the space's original width) – How much a glue (space) is allowed to shrink. This is a hard limit.
 - `softHyphenPenalty` (default 50) – Set to `MAX_COST` to prohibit breaking on soft hyphens.
 - `forceOverflowToBreak` (default false) – Whether long words should be forcibly broken.

@@ -1,18 +1,22 @@
 import "core-js/stable/array/at";
 
-import { breakLines, Item, Glue } from "src/breakLines";
+import { breakLines, Item } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
 import { findOptimalWidth } from "src/optimize/optimalWidth";
 import { optimizeByFnCircle } from "src/optimize/optimizeByFnCircle";
-import { getOptionsWithDefaults, TexLinebreakOptions } from "src/options";
+import {
+  getOptionsWithDefaults,
+  TexLinebreakOptions,
+  RequireOnlyCertainKeys,
+} from "src/options";
 import {
   NON_BREAKING_SPACE,
   SOFT_HYPHEN,
   splitTextIntoItems,
 } from "src/splitTextIntoItems/splitTextIntoItems";
-import { makeZeroWidth } from "src/utils/collapseGlue";
+import { makeZeroWidth, makeGlueAtEndZeroWidth } from "src/utils/collapseGlue";
 import { breakLinesGreedy } from "src/utils/greedy";
-import { TextBox, TextItem, getAdjustedWidth } from "src/utils/items";
+import { TextBox, TextItem } from "src/utils/items";
 import { getLineWidth } from "src/utils/lineWidth";
 import { getStretch, getText, isSoftHyphen } from "src/utils/utils";
 import { Memoize } from "typescript-memoize";
@@ -66,9 +70,7 @@ export class TexLinebreak<InputItemType extends AnyItem = AnyItem> {
         breakpoints[b + 1],
         b
       );
-      if (!line.isExtraneousLine) {
-        lines.push(line);
-      }
+      lines.push(line);
     }
     return lines;
   }
@@ -90,6 +92,7 @@ export class TexLinebreak<InputItemType extends AnyItem = AnyItem> {
  */
 export class Line<InputItemType extends AnyItem = AnyItem> {
   options: TexLinebreakOptions;
+
   constructor(
     public parentClass: TexLinebreak<InputItemType>,
     public startBreakpoint: number,
@@ -104,109 +107,6 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
       this.startBreakpoint === 0 ? 0 : this.startBreakpoint + 1,
       this.endBreakpoint + 1
     );
-  }
-
-  /**
-   * Items with information regarding their position (xOffset)
-   * and their adjusted width ({@see ItemPosition}).
-   */
-  @Memoize()
-  get positionedItems(): (InputItemType & ItemPosition)[] {
-    const output: (InputItemType & ItemPosition)[] = [];
-    let xOffset = this.leftIndentation;
-    this.finalSpacesCollapsed.forEach((item) => {
-      const adjustedWidth = getAdjustedWidth(
-        item,
-        this.adjustmentRatio,
-        this.options
-      );
-
-      output.push({
-        ...item,
-        xOffset,
-        adjustedWidth,
-      });
-      xOffset += adjustedWidth;
-    });
-
-    // /**
-    //  * Collapse negative widths. Necessary for rendering left-aligned text (which utilizes negative widths).
-    //  * Also saves the output HTML from having unnecessary negative margins.
-    //  */
-    // for (let index = 0; index < output.length; index++) {
-    //   if (output[index].adjustedWidth < 0) {
-    //     if (
-    //       output[index - 1]?.type === "glue" &&
-    //       output[index - 1].adjustedWidth > 0
-    //     ) {
-    //       const diff = output[index].adjustedWidth;
-    //       output[index].adjustedWidth = 0;
-    //       output[index].xOffset += diff;
-    //       output[index - 1].adjustedWidth += diff;
-    //       output[index - 1].xOffset += -diff;
-    //
-    //       /**
-    //        * A hack!! We rely on knowing the original width of a space in order to know
-    //        * how much word-spacing to apply to it.
-    //        */
-    //       output[index - 1].width = output[index].width;
-    //       output[index].width = 0;
-    //     }
-    //   }
-    // }
-
-    return output;
-  }
-
-  get idealWidth() {
-    return getLineWidth(this.options.lineWidth, this.lineIndex);
-  }
-
-  @Memoize()
-  get adjustmentRatio(): number {
-    let actualWidth = 0;
-    let lineShrink = 0;
-    let lineStretch = 0;
-    this.itemsCollapsed.forEach((item) => {
-      actualWidth += item.width;
-      if (item.type === "glue") {
-        lineShrink += item.shrink;
-        lineStretch += getStretch(item, this.options);
-      }
-    });
-
-    let adjustmentRatio: number;
-    if (actualWidth < this.idealWidth) {
-      if (lineStretch > 0) {
-        adjustmentRatio = (this.idealWidth - actualWidth) / lineStretch;
-        if (
-          this.options.renderLineAsLeftAlignedIfAdjustmentRatioExceeds != null
-        ) {
-          adjustmentRatio = Math.min(
-            adjustmentRatio,
-            this.options.renderLineAsLeftAlignedIfAdjustmentRatioExceeds
-          );
-        }
-      } else {
-        adjustmentRatio = 0;
-      }
-    } else {
-      if (lineShrink > 0) {
-        adjustmentRatio = Math.max(
-          this.options.minAdjustmentRatio,
-          (this.idealWidth - actualWidth) / lineShrink
-        );
-      } else {
-        adjustmentRatio = 0;
-      }
-    }
-
-    if (isNaN(adjustmentRatio)) {
-      console.log(this);
-      throw new Error("Adjustment ratio is NaN");
-    }
-
-    return adjustmentRatio;
   }
 
   /**
@@ -290,39 +190,155 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
     return itemsCollapsed;
   }
 
-  @Memoize()
-  get finalSpacesCollapsed(): InputItemType[] {
-    let lastNonGlueIndex = this.itemsCollapsed
-      .map((j) => j.type === "box" || isSoftHyphen(j))
-      .lastIndexOf(true);
-    if (lastNonGlueIndex > 0) {
-      return this.itemsCollapsed
-        .slice(0, lastNonGlueIndex + 1)
-        .concat(
-          this.itemsCollapsed
-            .slice(lastNonGlueIndex + 1)
-            .map((item) => makeZeroWidth({ ...item } as Glue) as InputItemType)
-        );
-    } else {
-      return this.itemsCollapsed;
-    }
+  get finalSpacesCollapsed() {
+    const x = this.itemsCollapsed.slice().map((j) => ({ ...j }));
+    makeGlueAtEndZeroWidth(x);
+    return x;
   }
 
-  get remainingWidth(): number {
-    let lastNonGlueIndex = this.itemsCollapsed
-      .map((j) => j.type === "box" || isSoftHyphen(j))
-      .lastIndexOf(true);
-    console.log(this.itemsCollapsed.slice(lastNonGlueIndex + 1));
-    if (lastNonGlueIndex > 0) {
-      return this.itemsCollapsed
-        .slice(lastNonGlueIndex + 1)
-        .reduce(
-          (acc, item) =>
-            acc + getAdjustedWidth(item, this.adjustmentRatio, this.options),
+  /**
+   * Items with information regarding their position (xOffset)
+   * and their adjusted width ({@see ItemPosition}).
+   */
+  @Memoize()
+  get positionedItems(): (InputItemType & ItemPosition)[] {
+    const itemsWithAdjustedWidth: (InputItemType &
+      RequireOnlyCertainKeys<ItemPosition, "adjustedWidth">)[] = [];
+    this.finalSpacesCollapsed.forEach((item) => {
+      let adjustedWidth: number;
+      if (this.adjustmentRatio >= 0) {
+        adjustedWidth =
+          item.width +
+          (("stretch" in item && getStretch(item, this.options)) || 0) *
+            this.adjustmentRatio;
+      } else {
+        adjustedWidth =
+          item.width +
+          (("shrink" in item && item.shrink) || 0) * this.adjustmentRatio;
+      }
+
+      itemsWithAdjustedWidth.push({
+        ...item,
+        adjustedWidth,
+      });
+    });
+
+    let xOffset = (() => {
+      let indentation = 0;
+
+      if (this.options.leftIndentPerLine) {
+        indentation = getLineWidth(
+          this.options.leftIndentPerLine,
+          this.lineIndex
+        );
+      }
+
+      /**
+       * How much space is there left over at the right of the line?
+       */
+      const remainingWidth =
+        this.idealWidth -
+        itemsWithAdjustedWidth.reduce(
+          (acc, item) => acc + item.adjustedWidth,
           0
         );
+
+      if (this.options.align === "right") {
+        indentation += remainingWidth;
+      } else if (this.options.align === "center") {
+        indentation += remainingWidth / 2;
+      }
+
+      return indentation;
+    })();
+
+    const output: (InputItemType & ItemPosition)[] = [];
+    itemsWithAdjustedWidth.forEach((item) => {
+      output.push({
+        ...item,
+        xOffset,
+      });
+      xOffset += item.adjustedWidth;
+    });
+
+    // /**
+    //  * Collapse negative widths. Necessary for rendering left-aligned text (which utilizes negative widths).
+    //  * Also saves the output HTML from having unnecessary negative margins.
+    //  */
+    // for (let index = 0; index < output.length; index++) {
+    //   if (output[index].adjustedWidth < 0) {
+    //     if (
+    //       output[index - 1]?.type === "glue" &&
+    //       output[index - 1].adjustedWidth > 0
+    //     ) {
+    //       const diff = output[index].adjustedWidth;
+    //       output[index].adjustedWidth = 0;
+    //       output[index].xOffset += diff;
+    //       output[index - 1].adjustedWidth += diff;
+    //       output[index - 1].xOffset += -diff;
+    //
+    //       /**
+    //        * A hack!! We rely on knowing the original width of a space in order to know
+    //        * how much word-spacing to apply to it.
+    //        */
+    //       output[index - 1].width = output[index].width;
+    //       output[index].width = 0;
+    //     }
+    //   }
+    // }
+
+    return output;
+  }
+
+  get idealWidth() {
+    return getLineWidth(this.options.lineWidth, this.lineIndex);
+  }
+
+  @Memoize()
+  get adjustmentRatio(): number {
+    let actualWidth = 0;
+    let lineShrink = 0;
+    let lineStretch = 0;
+    this.itemsCollapsed.forEach((item) => {
+      actualWidth += item.width;
+      if (item.type === "glue") {
+        lineShrink += item.shrink;
+        lineStretch += getStretch(item, this.options);
+      }
+    });
+
+    let adjustmentRatio: number;
+    if (actualWidth < this.idealWidth) {
+      if (lineStretch > 0) {
+        adjustmentRatio = (this.idealWidth - actualWidth) / lineStretch;
+        if (
+          this.options.renderLineAsUnjustifiedIfAdjustmentRatioExceeds != null
+        ) {
+          adjustmentRatio = Math.min(
+            adjustmentRatio,
+            this.options.renderLineAsUnjustifiedIfAdjustmentRatioExceeds
+          );
+        }
+      } else {
+        adjustmentRatio = 0;
+      }
+    } else {
+      if (lineShrink > 0) {
+        adjustmentRatio = Math.max(
+          this.options.minAdjustmentRatio,
+          (this.idealWidth - actualWidth) / lineShrink
+        );
+      } else {
+        adjustmentRatio = 0;
+      }
     }
-    return 0;
+
+    if (isNaN(adjustmentRatio)) {
+      console.log(this);
+      throw new Error("Adjustment ratio is NaN");
+    }
+
+    return adjustmentRatio;
   }
 
   get plaintext() {
@@ -368,50 +384,4 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
   get endsWithSoftHyphen(): boolean {
     return isSoftHyphen(this.items.at(-1));
   }
-
-  get leftIndentation() {
-    let indentation = 0;
-
-    if (this.options.leftIndentPerLine) {
-      indentation = getLineWidth(
-        this.options.leftIndentPerLine,
-        this.lineIndex
-      );
-    }
-
-    if (this.options.align === "right") {
-      indentation += this.remainingWidth;
-    } else if (this.options.align === "center") {
-      indentation += this.remainingWidth / 2;
-    }
-
-    return indentation;
-  }
-
-  /**
-   * In certain cases such as overflowing text, the last
-   * line will consist of nothing but infinite glue and the
-   * final penalty. Such lines do not need to be printed.
-   *
-   * Todo: This should be dealt with in breakLines itself
-   */
-  get isExtraneousLine() {
-    return false;
-    //   return (
-    //   !this.itemsCollapsed.some((item) => item.type === "box") &&
-    //   isForcedBreak(this.parentClass.items[this.endBreakpoint]) &&
-    //   !isForcedBreak(this.parentClass.items[this.startBreakpoint])
-    // );
-  }
-
-  // /**
-  //  * How much space is there left over at the right of the line (without any adjustments)?
-  //  */
-  // get remainingWidth() {
-  //   const widthIgnoringGlueAtEnd = removeGlueAtEnd(this.itemsCollapsed).reduce(
-  //     (acc, item) => acc + item.width,
-  //     0
-  //   );
-  //   return this.idealWidth - widthIgnoringGlueAtEnd;
-  // }
 }

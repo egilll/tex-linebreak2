@@ -136,12 +136,7 @@ export async function texLinebreakDOM(
           if (item.type === "glue") {
             const span = item.span;
             if (!span) continue;
-            if (
-              item.skipWhenRendering
-              // ||
-              // // If is last item
-              // i === items.length - 1
-            ) {
+            if (item.skipWhenRendering) {
               span.style.display = "none";
               continue;
             }
@@ -165,6 +160,17 @@ export async function texLinebreakDOM(
                 curXOffset = item.xOffset;
               } else {
                 span.style.marginLeft = "0";
+              }
+
+              /**
+               * Add margin to the last box of the line to prevent CSS centering to mess with our centering
+               */
+              if (!items.slice(i + 1).some((i) => i.type === "box")) {
+                span.style.marginRight = `${
+                  line.idealWidth - item.xOffset - item.adjustedWidth
+                }px`;
+              } else {
+                span.style.marginRight = "0";
               }
 
               /** Strip soft hyphens (note: is destructive!) */

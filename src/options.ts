@@ -141,9 +141,9 @@ export class TexLinebreakOptions {
    * words even when the paragraph cannot be broken otherwise, you
    * can set this option as a hard limit for how wide spaces can
    * actually be when displayed. This will cause lines that exceed
-   * this adjustment ratio to be displayed as left aligned.
+   * this adjustment ratio to be displayed as left/center/right aligned.
    */
-  renderLineAsLeftAlignedIfAdjustmentRatioExceeds?: number;
+  renderLineAsUnjustifiedIfAdjustmentRatioExceeds?: number;
 
   /**
    * WORK IN PROGRESS (TODO): Does not currently work for websites!

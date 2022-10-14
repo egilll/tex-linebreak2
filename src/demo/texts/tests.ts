@@ -5,10 +5,10 @@ export const texts2: ListOfDemos = [
     id: "centered",
     content: `
       <p class="center">
-      Octo men&shy;si&shy;um in præ&shy;dio acta vita fac&shy;ul&shy;tates meas perquam ex&shy;acuit. Bina in die cum ovibus itin&shy;era in pas&shy;cu&shy;um, fre&shy;quens col&shy;li&shy;um per hye&shy;mem cum trahis lig&shy;na&shy;toribus as&shy;cen&shy;sus, sur&shy;sum de&shy;or&shy;sumque in agris deam&shy;bu&shy;la&shy;tio equ&shy;os in&shy;ter aran&shy;dum oc&shy;can&shy;dumque per dies soli&shy;dos se&shy;quen&shy;do, me parem cur&shy;ren&shy;do ef&shy;fe&shy;cerunt, cui cur&shy;sui modo tan&shy;tæ res in&shy;nite&shy;ban&shy;tur, in&shy;terea tamen priusquam
+      <b>Centered text:</b> Octo men&shy;si&shy;um in præ&shy;dio acta vita fac&shy;ul&shy;tates meas perquam ex&shy;acuit. Bina in die cum ovibus itin&shy;era in pas&shy;cu&shy;um, fre&shy;quens col&shy;li&shy;um per hye&shy;mem cum trahis lig&shy;na&shy;toribus as&shy;cen&shy;sus, sur&shy;sum de&shy;or&shy;sumque in agris deam&shy;bu&shy;la&shy;tio equ&shy;os in&shy;ter aran&shy;dum oc&shy;can&shy;dumque per dies soli&shy;dos se&shy;quen&shy;do, me parem cur&shy;ren&shy;do ef&shy;fe&shy;cerunt, cui cur&shy;sui modo tan&shy;tæ res in&shy;nite&shy;ban&shy;tur, in&shy;terea tamen priusquam.
       </p>
       <p class="right">
-      Octo men&shy;si&shy;um in præ&shy;dio acta vita fac&shy;ul&shy;tates meas perquam ex&shy;acuit. Bina in die cum ovibus itin&shy;era in pas&shy;cu&shy;um, fre&shy;quens col&shy;li&shy;um per hye&shy;mem cum trahis lig&shy;na&shy;toribus as&shy;cen&shy;sus, sur&shy;sum de&shy;or&shy;sumque in agris deam&shy;bu&shy;la&shy;tio equ&shy;os in&shy;ter aran&shy;dum oc&shy;can&shy;dumque per dies soli&shy;dos se&shy;quen&shy;do, me parem cur&shy;ren&shy;do ef&shy;fe&shy;cerunt, cui cur&shy;sui modo tan&shy;tæ res in&shy;nite&shy;ban&shy;tur, in&shy;terea tamen priusquam
+      <b>Right-aligned text:</b> Octo men&shy;si&shy;um in præ&shy;dio acta vita fac&shy;ul&shy;tates meas perquam ex&shy;acuit. Bina in die cum ovibus itin&shy;era in pas&shy;cu&shy;um, fre&shy;quens col&shy;li&shy;um per hye&shy;mem cum trahis lig&shy;na&shy;toribus as&shy;cen&shy;sus, sur&shy;sum de&shy;or&shy;sumque in agris deam&shy;bu&shy;la&shy;tio equ&shy;os in&shy;ter aran&shy;dum oc&shy;can&shy;dumque per dies soli&shy;dos se&shy;quen&shy;do, me parem cur&shy;ren&shy;do ef&shy;fe&shy;cerunt, cui cur&shy;sui modo tan&shy;tæ res in&shy;nite&shy;ban&shy;tur, in&shy;terea tamen priusquam.
       </p>
     `,
     options: {

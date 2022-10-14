@@ -17,7 +17,7 @@ export const TexLinebreakPresets: {
     penaltyMultiplier: 4,
     glueShrinkFactor: 0.2,
     glueStretchFactor: 0.3,
-    renderLineAsLeftAlignedIfAdjustmentRatioExceeds: 1,
+    renderLineAsUnjustifiedIfAdjustmentRatioExceeds: 1.5,
     infiniteGlueStretchAsRatioOfWidth: 0.4,
   },
   html: {

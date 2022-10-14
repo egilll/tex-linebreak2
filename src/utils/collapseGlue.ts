@@ -38,14 +38,14 @@ export function collapseAdjacentDOMWhitespace(items: TextItem[]) {
   }
 }
 
-export function makeGlueAtEndsZeroWidth(
-  items: Item[],
-  startIndex: number = 0,
-  markAsSkipped = false
-) {
-  makeGlueAtBeginningZeroWidth(items, startIndex, markAsSkipped);
-  makeGlueAtEndZeroWidth(items, undefined, markAsSkipped);
-}
+// export function makeGlueAtEndsZeroWidth(
+//   items: Item[],
+//   startIndex: number = 0,
+//   markAsSkipped = false
+// ) {
+//   makeGlueAtBeginningZeroWidth(items, startIndex, markAsSkipped);
+//   makeGlueAtEndZeroWidth(items, undefined, markAsSkipped);
+// }
 
 export function makeGlueAtBeginningZeroWidth(
   items: Item[],

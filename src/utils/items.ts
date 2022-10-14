@@ -1,10 +1,9 @@
-import { Box, Glue, MAX_COST, MIN_COST, Penalty, Item } from "src/breakLines";
+import { Box, Glue, MAX_COST, MIN_COST, Penalty } from "src/breakLines";
 import { TexLinebreakOptions } from "src/options";
 import {
   getLineFinalStretchInNonJustified,
   getSpaceWidth,
   infiniteGlue,
-  getStretch,
 } from "src/utils/utils";
 
 export interface TextBox extends Box {
@@ -138,21 +137,4 @@ export function paragraphEnd(options: TexLinebreakOptions): TextItem[] {
   }
   output.push(forcedBreak());
   return output;
-}
-
-export function getAdjustedWidth(
-  item: Item,
-  adjustmentRatio: number,
-  options: TexLinebreakOptions
-): number {
-  if (adjustmentRatio >= 0) {
-    return (
-      item.width +
-      (("stretch" in item && getStretch(item, options)) || 0) * adjustmentRatio
-    );
-  } else {
-    return (
-      item.width + (("shrink" in item && item.shrink) || 0) * adjustmentRatio
-    );
-  }
 }
