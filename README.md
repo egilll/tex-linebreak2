@@ -127,7 +127,7 @@ The library will listen for window resizing (can be turned off with the option `
 
 #### Limitations on webpages
 
-- On Safari, when the user copies text, all line breaks are included in the copied text.
+- ⚠️ A major limitation is that all line breaks are included in any text the user copies, and all hyphenated lines will include the hyphens character when copied.
 - Underlined text will not have any underlines between words.
 - Floating elements only have basic support:
 

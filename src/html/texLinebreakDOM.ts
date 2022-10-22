@@ -97,14 +97,13 @@ export async function texLinebreakDOM(
         /** Insert <br/> elements to separate the lines */
         if (line.lineIndex > 0 && !line.prevBreakItem?.skipWhenRendering) {
           const br = tagNode(document.createElement("br"));
-          br.style.userSelect = "none";
-          // @ts-ignore
-          br.style.MozUserSelect = "none";
-          // @ts-ignore
-          br.style.WebkitUserSelect = "none";
-          // @ts-ignore
-          br.style.MsUserSelect = "none";
-          // br.className = "texLinebreak";
+          // br.style.userSelect = "none";
+          // // @ts-ignore
+          // br.style.MozUserSelect = "none";
+          // // @ts-ignore
+          // br.style.WebkitUserSelect = "none";
+          // // @ts-ignore
+          // br.style.MsUserSelect = "none";
           const firstItem = items.find((i) => i.span);
           if (firstItem) {
             const span = firstItem.span!;
@@ -268,7 +267,7 @@ export function resetDOMJustification(element: HTMLElement) {
  */
 export function addCSSForUncopiableHyphens(options: TexLinebreakOptions) {
   if (
-    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN" ||
+    // options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN" ||
     options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN"
   ) {
     if (!document.querySelector("style#tex-linebreak-uncopiable-text")) {
@@ -284,9 +283,10 @@ export function addCSSForUncopiableHyphens(options: TexLinebreakOptions) {
 export function getHyphenElement(options: TexLinebreakOptions) {
   let hyphen: HTMLElement | Text;
   let hyphenText = "-";
-  if (options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN") {
-    hyphenText = "";
-  } else if (
+  // if (options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN") {
+  //   hyphenText = "";
+  // } else
+  if (
     options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN" ||
     options.softHyphenOutput === "SOFT_HYPHEN"
   ) {
@@ -294,7 +294,7 @@ export function getHyphenElement(options: TexLinebreakOptions) {
   }
 
   if (
-    options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN" ||
+    // options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN" ||
     options.softHyphenOutput === "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN"
   ) {
     /**

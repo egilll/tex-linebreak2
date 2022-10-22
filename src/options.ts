@@ -158,8 +158,6 @@ export class TexLinebreakOptions {
    * If a soft hyphen is chosen as a breakpoint, what character should be
    * used to display it?
    *
-   * - 'HTML_UNCOPIABLE_HYPHEN' – Recommended for websites. Outputs a hyphen
-   *   using CSS so that it will not be included in the user's output.
    * - 'HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN' - Outputs a hyphen using
    *   CSS, but includes an invisible soft hyphen that will be included in
    *   the text that a user copies.
@@ -172,11 +170,9 @@ export class TexLinebreakOptions {
    *
    * @default 'HTML_UNCOPIABLE_HYPHEN' for websites, 'HYPHEN' for plain text.
    */
-  softHyphenOutput:
-    | "HTML_UNCOPIABLE_HYPHEN"
-    | "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN"
-    | "HYPHEN"
-    | "SOFT_HYPHEN" = "HTML_UNCOPIABLE_HYPHEN";
+  softHyphenOutput: // | "HTML_UNCOPIABLE_HYPHEN"
+  "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN" | "HYPHEN" | "SOFT_HYPHEN" =
+    "HTML_UNCOPIABLE_HYPHEN";
 
   /**
    * How many spaces should be included as "stretch" at the end of a
