@@ -172,7 +172,7 @@ export class TexLinebreakOptions {
    */
   softHyphenOutput: // | "HTML_UNCOPIABLE_HYPHEN"
   "HTML_UNCOPIABLE_HYPHEN_WITH_SOFT_HYPHEN" | "HYPHEN" | "SOFT_HYPHEN" =
-    "HTML_UNCOPIABLE_HYPHEN";
+    "HYPHEN";
 
   /**
    * How many spaces should be included as "stretch" at the end of a
