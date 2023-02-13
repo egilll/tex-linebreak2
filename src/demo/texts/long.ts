@@ -18,10 +18,10 @@ export const longTexts: ListOfDemos = [
     Mr. Sher&shy;lock Holmes</h2>
      <div
              style="
-               float: right;
+               float: left;
                width: 150px;
                height: 202px;
-               margin: 0 0 10px 10px;
+               margin: 0 10px 10px 0;
                background: red;
                border: 1px solid black;
              "
@@ -72,6 +72,18 @@ export const longTexts: ListOfDemos = [
           &ldquo;I think also that the prob&shy;a&shy;bil&shy;i&shy;ty is in favour of his be&shy;ing a coun&shy;try
           prac&shy;ti&shy;tion&shy;er who does a great deal of his vis&shy;it&shy;ing on foot.&rdquo;
          </p>
+        <div
+             style="
+               float: right;
+               width: 150px;
+               height: 202px;
+               margin: 0 0 10px 10px;
+               background: red;
+               border: 1px solid black;
+             "
+           >
+             Ex&shy;am&shy;ple float&shy;ed con&shy;tent
+           </div>
         <p>
           &ldquo;Why so?&rdquo;
          </p>

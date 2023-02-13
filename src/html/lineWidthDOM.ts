@@ -40,9 +40,9 @@ export function getElementLineWidth(
         } else if (floatingElementStyle.float === "left") {
           xAxisOverlap =
             paragraphRect.width -
-            (floatingElementRect.right +
-              parseFloat(floatingElementStyle.marginRight) -
-              paragraphRect.right);
+            (paragraphRect.right -
+              floatingElementRect.right -
+              parseFloat(floatingElementStyle.marginRight));
         }
 
         const firstLineThatOverlaps = Math.floor(
