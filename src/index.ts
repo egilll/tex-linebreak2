@@ -1,5 +1,3 @@
-import "core-js/stable/array/at";
-
 import { breakLines, Item } from "src/breakLines";
 import { DOMItem } from "src/html/getItemsFromDOM";
 import { findOptimalWidth } from "src/optimize/optimalWidth";
@@ -154,7 +152,10 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
      * comment at {@link softHyphen}.
      * Moves the soft hyphen character to before the glue.
      */
-    if (this.endsWithSoftHyphen && this.items.at(-2)?.type === "glue") {
+    if (
+      this.endsWithSoftHyphen &&
+      this.items[this.items.length - 2]?.type === "glue"
+    ) {
       itemsCollapsed.splice(
         itemsCollapsed.length - 2,
         0,
@@ -382,6 +383,6 @@ export class Line<InputItemType extends AnyItem = AnyItem> {
   }
 
   get endsWithSoftHyphen(): boolean {
-    return isSoftHyphen(this.items.at(-1));
+    return isSoftHyphen(this.items[this.items.length - 1]);
   }
 }

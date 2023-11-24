@@ -1,6 +1,6 @@
 {
   "name": "tex-linebreak2",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -23,15 +23,13 @@
     "test-watch": "karma start --auto-watch"
   },
   "dependencies": {
-    "core-js": "3",
     "debounce": "^1.2.1",
     "linebreak": "^1.1.0",
     "string-width": "4.2.2",
     "typescript-memoize": "^1.1.0"
   },
   "devDependencies": {
-    "hyphen": "^1.6.4",
-    "@babel/core": "^7.18.5",
+    "@babel/core": "^7.22.17",
     "@babel/plugin-proposal-class-properties": "^7.17.12",
     "@babel/plugin-proposal-decorators": "^7.18.2",
     "@babel/plugin-transform-runtime": "^7.18.5",
@@ -41,7 +39,8 @@
     "@types/chai": "^4.3.1",
     "@types/debounce": "^1.2.1",
     "@types/hyphen": "^1.6.5",
-    "@types/node": "^18.0.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.6.0",
     "babel-loader": "^8.2.5",
     "chai": "^4.3.6",
     "dts-bundle-generator": "^6.11.0",
@@ -56,12 +55,12 @@
     "karma-mocha": "^2.0.1",
     "karma-mocha-reporter": "^2.2.5",
     "karma-webpack": "^5.0.0",
-    "mocha": "^10.0.0",
+    "mocha": "^10.2.0",
     "prettier": "^2.7.1",
     "puppeteer": "^14.4.1",
     "terser-webpack-plugin": "^5.3.3",
-    "typescript": "^4.8",
-    "webpack": "^5.73.0",
+    "typescript": "^5.2",
+    "webpack": "^5.88.2",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.9.2",
     "webpack-license-plugin": "^4.2.2",
